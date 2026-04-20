@@ -1,1 +1,507 @@
-/* Add styles here */
+/* ============================================================
+   Casino Dealer Training System — Stylesheet
+   ============================================================ */
+
+:root {
+  --bg: #0a1628;
+  --felt: #0c3320;
+  --felt-light: #124028;
+  --gold: #c9a84c;
+  --gold-light: #e8c96d;
+  --text: #e8e0d0;
+  --text-dim: #8a8878;
+  --card-red: #c62828;
+  --win: #4ecdc4;
+  --lose: #ff6b6b;
+  --r: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.55);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ---- NAVBAR ---- */
+
+.navbar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2.5rem; height: 62px;
+  background: rgba(8,17,32,0.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(201,168,76,0.25);
+}
+
+.nav-brand {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: 1.05rem; font-weight: 700; color: var(--gold);
+  cursor: pointer; letter-spacing: .4px;
+}
+.nav-brand span { font-size: 1.5rem; }
+
+.nav-links { display: flex; align-items: center; gap: .2rem; }
+
+.nav-links > a,
+.nav-dropdown > a {
+  padding: .45rem 1rem;
+  color: var(--text); cursor: pointer;
+  border-radius: var(--r); font-size: .9rem;
+  transition: all .2s; user-select: none;
+}
+.nav-links > a:hover,
+.nav-dropdown > a:hover { background: rgba(201,168,76,.14); color: var(--gold); }
+
+.nav-dropdown { position: relative; }
+.nav-dropdown:hover .dropdown-menu { display: block; }
+
+.dropdown-menu {
+  display: none; position: absolute; top: 100%; left: 0;
+  background: #0e1e32; border: 1px solid rgba(201,168,76,.2);
+  border-radius: var(--r); min-width: 148px; padding: .4rem 0;
+  box-shadow: var(--shadow);
+}
+.dropdown-menu a {
+  display: block; padding: .5rem 1rem;
+  color: var(--text); cursor: pointer; font-size: .875rem;
+  transition: background .18s;
+}
+.dropdown-menu a:hover { background: rgba(201,168,76,.1); color: var(--gold); }
+
+/* ---- BUTTONS ---- */
+
+.btn {
+  padding: .58rem 1.35rem; border: none; border-radius: var(--r);
+  font-size: .92rem; font-weight: 600; cursor: pointer;
+  transition: all .2s; letter-spacing: .2px; white-space: nowrap;
+}
+.btn-primary  { background: var(--gold); color: #0a1628; }
+.btn-primary:hover  { background: var(--gold-light); transform: translateY(-1px); }
+.btn-secondary { background: #1c3555; color: var(--text); border: 1px solid #2a4f80; }
+.btn-secondary:hover { background: #26456e; }
+.btn-outline   { background: transparent; color: var(--gold); border: 2px solid var(--gold); }
+.btn-outline:hover { background: rgba(201,168,76,.1); }
+.btn-warning   { background: #d35400; color: #fff; }
+.btn-warning:hover { background: #b94800; }
+.btn-sm   { padding: .35rem .85rem; font-size: .8rem; }
+.btn-full { width: 100%; margin-top: 1rem; }
+.btn-tutorial { background: rgba(78,205,196,.14); color: var(--win); border: 1px solid rgba(78,205,196,.3); }
+.btn-tutorial:hover { background: rgba(78,205,196,.24); }
+.btn-sim { background: rgba(201,168,76,.14); color: var(--gold); border: 1px solid rgba(201,168,76,.3); }
+.btn-sim:hover { background: rgba(201,168,76,.24); }
+
+/* ---- HERO ---- */
+
+.hero {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5rem 4rem; min-height: calc(100vh - 62px);
+  background:
+    radial-gradient(ellipse at 25% 55%, rgba(12,51,32,.7) 0%, transparent 65%),
+    radial-gradient(ellipse at 82% 18%, rgba(201,168,76,.07) 0%, transparent 50%);
+}
+
+.hero-content { max-width: 560px; }
+
+.badge {
+  display: inline-block; padding: .3rem .85rem;
+  background: rgba(201,168,76,.14); border: 1px solid rgba(201,168,76,.4);
+  color: var(--gold); border-radius: 20px; font-size: .75rem;
+  letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 1.6rem;
+}
+
+.hero-title {
+  font-size: clamp(2.4rem,5vw,3.8rem); font-weight: 800;
+  line-height: 1.1; margin-bottom: 1.5rem; color: #fff;
+}
+.hero-title .gold { color: var(--gold); }
+
+.hero-sub {
+  font-size: 1.05rem; color: var(--text-dim);
+  line-height: 1.75; margin-bottom: 2.5rem;
+}
+
+.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+.hero-cards {
+  position: relative; width: 300px; height: 180px;
+  display: flex; align-items: center; justify-content: center;
+}
+.floating-card { position: absolute; }
+
+/* ---- CARD COMPONENT ---- */
+
+.card {
+  width: 78px; height: 110px; background: #fff;
+  border-radius: 7px; position: relative;
+  box-shadow: 2px 3px 14px rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.card.red .rank, .card.red .suit,
+.card.red .card-suit-center { color: var(--card-red); }
+
+.card-corner { position: absolute; display: flex; flex-direction: column; align-items: center; line-height: 1; }
+.card-corner.top    { top: 5px; left: 6px; }
+.card-corner.bottom { bottom: 5px; right: 6px; transform: rotate(180deg); }
+.card-corner .rank  { font-size: .82rem; font-weight: 700; color: #111; }
+.card-corner .suit  { font-size: .68rem; }
+.card-suit-center   { font-size: 1.55rem; }
+
+.card.back {
+  background: repeating-linear-gradient(
+    45deg, #14306a 0px, #14306a 6px, #0d2050 6px, #0d2050 12px
+  );
+}
+.card-pattern {
+  width: 66px; height: 98px;
+  border: 2px solid rgba(201,168,76,.45); border-radius: 4px;
+  background: repeating-linear-gradient(
+    45deg, transparent, transparent 4px,
+    rgba(201,168,76,.08) 4px, rgba(201,168,76,.08) 8px
+  );
+}
+
+/* ---- GAMES GRID (HOME) ---- */
+
+.games-section { padding: 4rem; background: rgba(0,0,0,.28); }
+
+.section-header { text-align: center; margin-bottom: 2.8rem; }
+.section-header h2 { font-size: 2rem; color: var(--gold); margin-bottom: .5rem; }
+.section-header p  { color: var(--text-dim); font-size: 1rem; }
+
+.games-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+  gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+}
+
+.game-card {
+  background: linear-gradient(140deg,#0e1f36 0%,#091526 100%);
+  border: 1px solid rgba(201,168,76,.15); border-radius: 14px;
+  padding: 2rem; cursor: pointer; transition: all .3s;
+}
+.game-card:hover {
+  border-color: rgba(201,168,76,.4); transform: translateY(-5px);
+  box-shadow: 0 14px 44px rgba(0,0,0,.45);
+}
+.game-card-icon  { font-size: 2.6rem; margin-bottom: 1rem; }
+.game-card h3    { font-size: 1.35rem; color: var(--gold); margin-bottom: .7rem; }
+.game-card p     { color: var(--text-dim); font-size: .875rem; line-height: 1.65; margin-bottom: 1.5rem; }
+.game-card-actions { display: flex; gap: .7rem; }
+
+/* ---- FEATURES ---- */
+
+.features-section { padding: 4rem; }
+
+.features-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(210px,1fr));
+  gap: 1.8rem; max-width: 960px; margin: 0 auto;
+}
+.feature {
+  text-align: center; padding: 2rem 1.4rem;
+  background: rgba(255,255,255,.03);
+  border-radius: 12px; border: 1px solid rgba(255,255,255,.055);
+}
+.feature-icon { font-size: 2rem; margin-bottom: 1rem; }
+.feature h4   { color: var(--gold); font-size: 1.05rem; margin-bottom: .5rem; }
+.feature p    { color: var(--text-dim); font-size: .855rem; line-height: 1.6; }
+
+/* ---- TUTORIAL PAGE ---- */
+
+.tutorial-page { padding: 2rem 3rem; max-width: 1380px; margin: 0 auto; }
+
+.tutorial-header {
+  display: flex; align-items: center; gap: 1.4rem;
+  margin-bottom: 2rem; padding-bottom: 1.4rem;
+  border-bottom: 1px solid rgba(201,168,76,.2);
+}
+.tutorial-header h1 { flex: 1; font-size: 1.75rem; color: var(--gold); }
+
+.back-btn {
+  background: none; border: 1px solid rgba(255,255,255,.18);
+  color: var(--text-dim); padding: .4rem .9rem;
+  border-radius: var(--r); cursor: pointer; font-size: .85rem;
+  transition: all .2s;
+}
+.back-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+.tutorial-layout {
+  display: grid; grid-template-columns: 1fr 320px; gap: 2.2rem;
+}
+
+.video-section, .guide-section { margin-bottom: 2.5rem; }
+.video-section h2, .guide-section h2 {
+  font-size: 1.25rem; color: var(--gold); margin-bottom: 1.2rem;
+  padding-bottom: .5rem; border-bottom: 1px solid rgba(201,168,76,.2);
+}
+
+.video-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr));
+  gap: 1rem;
+}
+.video-card {
+  background: #0e1f36; border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px; overflow: hidden; cursor: pointer; transition: all .2s;
+}
+.video-card:hover, .video-card.active-video {
+  border-color: var(--gold); box-shadow: 0 0 22px rgba(201,168,76,.2);
+}
+.video-thumb {
+  height: 130px;
+  background: linear-gradient(140deg, var(--felt) 0%, #081d10 100%);
+  display: flex; align-items: center; justify-content: center; position: relative;
+}
+.play-btn {
+  width: 48px; height: 48px;
+  background: rgba(201,168,76,.92); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #0a1628; font-size: 1.2rem; padding-left: 3px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.4);
+}
+.video-duration {
+  position: absolute; bottom: 8px; right: 8px;
+  background: rgba(0,0,0,.7); color: #fff;
+  font-size: .72rem; padding: 2px 6px; border-radius: 3px;
+}
+.video-info { padding: .75rem 1rem; }
+.video-info h4 { font-size: .875rem; margin-bottom: .3rem; }
+.video-info p  { font-size: .78rem; color: var(--text-dim); }
+
+.steps-list { display: flex; flex-direction: column; gap: .9rem; }
+.step-item {
+  display: flex; gap: 1.2rem; padding: 1.15rem 1.3rem;
+  background: rgba(255,255,255,.03); border-radius: 10px;
+  border-left: 3px solid var(--gold);
+}
+.step-number {
+  width: 30px; height: 30px; background: var(--gold); color: #0a1628;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .85rem; flex-shrink: 0;
+}
+.step-content h4 { font-size: .9rem; margin-bottom: .3rem; }
+.step-content p  { font-size: .845rem; color: var(--text-dim); line-height: 1.6; }
+
+.tutorial-sidebar > * { margin-bottom: 1.4rem; }
+
+.rules-card, .payouts-card {
+  background: #0e1f36; border: 1px solid rgba(201,168,76,.2);
+  border-radius: 10px; padding: 1.25rem;
+}
+.rules-card h3, .payouts-card h3 {
+  color: var(--gold); font-size: .98rem; margin-bottom: 1rem;
+  padding-bottom: .5rem; border-bottom: 1px solid rgba(201,168,76,.2);
+}
+.rules-list { list-style: none; }
+.rules-list li {
+  padding: .4rem 0; font-size: .845rem; color: var(--text-dim);
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.rules-list li::before { content: '✓ '; color: var(--gold); }
+.rules-list li:last-child { border-bottom: none; }
+.payout-table { width: 100%; border-collapse: collapse; }
+.payout-table td { padding: .4rem 0; font-size: .845rem; border-bottom: 1px solid rgba(255,255,255,.04); }
+.payout-table td:first-child { color: var(--text-dim); }
+.payout-val  { color: var(--gold); font-weight: 700; text-align: right; }
+
+/* ---- SIMULATION PAGES ---- */
+
+.sim-page { padding: 1.5rem 2.5rem; max-width: 1200px; margin: 0 auto; }
+
+.sim-header {
+  display: flex; align-items: center; gap: 1.4rem;
+  margin-bottom: 1.4rem; padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(201,168,76,.2);
+}
+.sim-header h2 { flex: 1; font-size: 1.45rem; color: var(--gold); }
+.sim-stats { display: flex; gap: 1.5rem; font-size: .875rem; color: var(--text-dim); }
+.sim-stats strong { color: var(--gold); }
+
+/* ---- BLACKJACK / BACCARAT TABLE ---- */
+
+.blackjack-table, .baccarat-table {
+  background: var(--felt);
+  border: 3px solid #1b5e35;
+  border-radius: 18px; padding: 1.8rem 2rem;
+  margin-bottom: 1.4rem;
+  box-shadow: inset 0 2px 12px rgba(0,0,0,.35), var(--shadow);
+}
+
+.area-label {
+  font-size: .7rem; letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(255,255,255,.35); margin-bottom: .7rem;
+}
+.hand-display {
+  display: flex; gap: .5rem; flex-wrap: wrap;
+  min-height: 110px; align-items: center;
+}
+.hand-value { margin-top: .45rem; font-size: .875rem; color: var(--gold); font-weight: 600; }
+.divider-line { border-top: 1px dashed rgba(255,255,255,.14); margin: .8rem 0; }
+
+/* ---- BACCARAT SPECIFIC ---- */
+
+.baccarat-table .table-felt { display: flex; align-items: stretch; gap: 1rem; }
+.bac-side { flex: 1; }
+.bac-center {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 1rem; min-width: 90px;
+}
+.shoe-indicator { writing-mode: vertical-rl; font-size: .6rem; letter-spacing: 2px; color: rgba(255,255,255,.25); }
+.result-badge {
+  padding: .5rem .9rem; border-radius: 8px;
+  font-weight: 700; font-size: 1rem; text-align: center; min-width: 72px;
+}
+.player-win { background: rgba(78,205,196,.18); color: var(--win); border: 1px solid var(--win); }
+.banker-win  { background: rgba(201,168,76,.18); color: var(--gold); border: 1px solid var(--gold); }
+.tie-win     { background: rgba(110,200,100,.18); color: #6ec864; border: 1px solid #6ec864; }
+
+.third-card-guide { margin-top: 1rem; }
+.guide-box {
+  padding: .7rem 1rem; border-radius: 8px;
+  font-size: .855rem; margin-bottom: .45rem;
+  background: rgba(255,255,255,.04); border-left: 3px solid rgba(255,255,255,.18);
+}
+.guide-box.natural { border-color: var(--gold); background: rgba(201,168,76,.08); color: var(--gold); }
+.guide-box.draw    { border-color: var(--win);  background: rgba(78,205,196,.08);  color: var(--win); }
+.guide-box.stand   { border-color: #ff9944;     background: rgba(255,153,68,.08);  color: #ff9944; }
+.guide-box.payout  { border-color: #6ec864;     background: rgba(110,200,100,.08); color: #6ec864; }
+
+/* ---- SIM CONTROLS ---- */
+
+.sim-controls {
+  background: #0c1e30; border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px; padding: 1.2rem 1.5rem; margin-bottom: 1rem;
+}
+.message-board {
+  font-size: .975rem; color: var(--text);
+  margin-bottom: .9rem; min-height: 22px; font-weight: 500;
+}
+.action-buttons { display: flex; gap: .7rem; flex-wrap: wrap; }
+
+.hint-panel { min-height: 40px; }
+.hint-content {
+  background: rgba(201,168,76,.08); border: 1px solid rgba(201,168,76,.25);
+  border-radius: 8px; padding: .7rem 1rem;
+  font-size: .845rem; color: rgba(201,168,76,.9);
+}
+
+/* ---- ROULETTE ---- */
+
+.roulette-layout {
+  display: grid; grid-template-columns: 320px 1fr;
+  gap: 2rem; margin-bottom: 1.4rem;
+}
+.wheel-area { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+
+.roulette-wheel {
+  width: 290px; height: 290px; border-radius: 50%;
+  background: #111; border: 8px solid #7a6428;
+  position: relative; overflow: hidden;
+  box-shadow: 0 0 36px rgba(0,0,0,.7), inset 0 0 22px rgba(0,0,0,.5);
+}
+.wheel-inner { width: 100%; height: 100%; position: absolute; }
+.wheel-num {
+  position: absolute; top: 50%; left: 50%;
+  width: 26px; height: 26px; margin: -13px 0 0 -13px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .58rem; font-weight: 700; border-radius: 50%;
+}
+.wheel-num-r { background: #b01e1e; color: #fff; }
+.wheel-num-b { background: #1a1a1a; color: #fff; border: 1px solid #333; }
+.wheel-num-g { background: #145c14; color: #fff; }
+
+.wheel-center {
+  position: absolute; top: 50%; left: 50%; z-index: 5;
+  transform: translate(-50%,-50%);
+  width: 44px; height: 44px; background: #8B7536;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 10px rgba(0,0,0,.5);
+}
+.wheel-center-dot { width: 14px; height: 14px; background: #0a1628; border-radius: 50%; }
+
+.result-display { text-align: center; }
+.result-number {
+  font-size: 2.8rem; font-weight: 800;
+  width: 80px; height: 80px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto .5rem;
+}
+.result-number.red   { background: #b01e1e; color: #fff; }
+.result-number.black { background: #111; color: #fff; border: 2px solid #444; }
+.result-number.green { background: #145c14; color: #fff; }
+.result-info { font-size: .845rem; color: var(--text-dim); }
+
+/* ---- BETTING TABLE ---- */
+
+.betting-area { display: flex; flex-direction: column; gap: 1rem; }
+.betting-table {
+  background: #0b3018; border: 2px solid #1a5530;
+  border-radius: 12px; padding: 1rem; user-select: none;
+}
+
+.roulette-grid { border-collapse: collapse; width: 100%; table-layout: fixed; }
+.roulette-grid td { padding: 2px; }
+
+.zero-cell div {
+  height: 100%; display: flex; align-items: center; justify-content: center;
+}
+
+.bet-spot {
+  display: flex; align-items: center; justify-content: center;
+  padding: .38rem .2rem; border-radius: 4px; cursor: pointer;
+  font-size: .78rem; font-weight: 600; transition: all .14s;
+  border: 1px solid transparent; text-align: center; min-height: 30px;
+}
+.bet-spot:hover { opacity: .8; transform: scale(1.06); }
+.bet-spot.active-bet { outline: 2px solid var(--gold); box-shadow: 0 0 10px rgba(201,168,76,.5); }
+
+.red-num   { background: #8b1414; color: #fff; }
+.black-num { background: #171717; color: #fff; }
+.green-num { background: #145c14; color: #fff; }
+
+.col-bet { background: rgba(255,255,255,.08); color: var(--text); font-size: .7rem; }
+
+.dozens-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 3px; margin-top: 4px; }
+.evens-row  { display: grid; grid-template-columns: repeat(6,1fr); gap: 3px; margin-top: 3px; }
+.outside    { background: rgba(255,255,255,.09); color: var(--text); }
+.outside:hover { background: rgba(255,255,255,.17); }
+.red-bet    { background: #8b1414 !important; }
+.black-bet  { background: #171717 !important; border: 1px solid #3a3a3a !important; }
+
+.bet-summary { font-size: .845rem; color: var(--text-dim); padding: .4rem .2rem; }
+
+.payout-panel { min-height: 40px; }
+.payout-results {
+  background: #0c1e30; border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px; padding: 1rem 1.25rem; margin-top: .5rem;
+}
+.payout-results h4 { color: var(--gold); margin-bottom: .5rem; font-size: .925rem; }
+.win-item {
+  padding: .3rem 0; font-size: .845rem; color: var(--win);
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.win-item:last-child { border-bottom: none; }
+.no-win { color: var(--text-dim); font-size: .855rem; }
+
+/* ---- RESPONSIVE ---- */
+
+@media (max-width: 1060px) {
+  .tutorial-layout    { grid-template-columns: 1fr; }
+  .roulette-layout    { grid-template-columns: 1fr; }
+  .wheel-area         { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+}
+@media (max-width: 768px) {
+  .navbar             { padding: 0 1rem; }
+  .nav-links          { display: none; }
+  .hero               { flex-direction: column; padding: 3rem 1.5rem; text-align: center; }
+  .hero-cards         { display: none; }
+  .hero-actions       { justify-content: center; }
+  .games-section,
+  .features-section   { padding: 2.2rem 1.5rem; }
+  .sim-page           { padding: 1rem 1.2rem; }
+  .tutorial-page      { padding: 1.4rem; }
+  .baccarat-table .table-felt { flex-direction: column; }
+}

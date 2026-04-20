@@ -3,12 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+  <title>Casino Dealer Training System</title>
+  <link href="/style.css" rel="stylesheet">
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+  <nav class="navbar">
+    <div class="nav-brand" onclick="App.navigate('home')">
+      <span>♠</span> Casino Dealer Training System
+    </div>
+    <div class="nav-links">
+      <a onclick="App.navigate('home')">Home</a>
+      <div class="nav-dropdown">
+        <a>Baccarat ▾</a>
+        <div class="dropdown-menu">
+          <a onclick="App.navigate('baccarat','tutorial')">Tutorial</a>
+          <a onclick="App.navigate('baccarat','simulation')">Simulation</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <a>Blackjack ▾</a>
+        <div class="dropdown-menu">
+          <a onclick="App.navigate('blackjack','tutorial')">Tutorial</a>
+          <a onclick="App.navigate('blackjack','simulation')">Simulation</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <a>Roulette ▾</a>
+        <div class="dropdown-menu">
+          <a onclick="App.navigate('roulette','tutorial')">Tutorial</a>
+          <a onclick="App.navigate('roulette','simulation')">Simulation</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="app"></main>
+
+  <script src="/main.js"></script>
 </body>
 </html>
