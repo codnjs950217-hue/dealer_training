@@ -194,7 +194,7 @@ const Views = {
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('blackjack')">← Back</button>
         <h2>♠ Blackjack Dealer Simulation</h2>
-        <div class="sim-stats"><span>Rounds: <strong id="bj-rounds">0</strong></span><span>Score: <strong id="bj-score">0</strong></span></div>
+        <div class="sim-stats"><span>Rounds: <strong id="bj-rounds">0</strong></span><span>Wins: <strong id="bj-score">0</strong></span></div>
       </div>
       <div class="blackjack-table">
         <div class="table-felt">
@@ -204,10 +204,14 @@ const Views = {
             <div class="hand-value"   id="bj-dealer-value"></div>
           </div>
           <div class="divider-line"></div>
-          <div class="player-area">
-            <div class="area-label">Player</div>
-            <div class="hand-display" id="bj-player-hand"></div>
-            <div class="hand-value"   id="bj-player-value"></div>
+          <div class="players-row">
+            ${[0,1,2,3,4].map(i => `
+              <div class="player-spot" id="bj-spot-${i}">
+                <div class="area-label">Player ${i+1}</div>
+                <div class="hand-display" id="bj-hand-${i}"></div>
+                <div class="hand-value"   id="bj-value-${i}"></div>
+                <div class="spot-status-wrap" id="bj-status-${i}"></div>
+              </div>`).join('')}
           </div>
         </div>
       </div>
@@ -409,6 +413,7 @@ const Sims = {
 
   // ---- BLACKJACK ----
   blackjack: (() => {
+    const N = 5; // number of player spots
     let S = {};
 
     const $ = id => document.getElementById(id);
@@ -429,11 +434,9 @@ const Sims = {
       while (t > 21 && a--) t -= 10;
       return t;
     }
-    const nat = h => h.length === 2 && total(h) === 21;
+    const isNat = h => h.length === 2 && total(h) === 21;
 
-    function render(hideHole = true) {
-      $('bj-player-hand').innerHTML = S.ph.map(c => cardHTML(c)).join('');
-      $('bj-player-value').textContent = `Total: ${total(S.ph)}`;
+    function renderDealer(hideHole) {
       if (hideHole) {
         $('bj-dealer-hand').innerHTML = cardHTML(S.dh[0]) + cardHTML(S.dh[1], true);
         $('bj-dealer-value').textContent = `Showing: ${bval(S.dh[0])}`;
@@ -443,116 +446,244 @@ const Sims = {
       }
     }
 
+    const STATUS_BADGE = {
+      blackjack: '<div class="spot-status s-bj">BJ ♠</div>',
+      bust:      '<div class="spot-status s-bust">BUST</div>',
+      stood:     '<div class="spot-status s-stood">STOOD</div>',
+      win:       '<div class="spot-status s-win">WIN ✓</div>',
+      lose:      '<div class="spot-status s-lose">LOSE</div>',
+      push:      '<div class="spot-status s-push">PUSH</div>',
+    };
+
+    function renderPlayers() {
+      S.players.forEach((p, i) => {
+        const spot   = $(`bj-spot-${i}`);
+        const handEl = $(`bj-hand-${i}`);
+        const valEl  = $(`bj-value-${i}`);
+        const statEl = $(`bj-status-${i}`);
+        if (!spot) return;
+
+        handEl.innerHTML = p.hand.map(c => cardHTML(c)).join('');
+        valEl.textContent = p.hand.length ? `Total: ${total(p.hand)}` : '';
+
+        spot.className = 'player-spot';
+        if (i === S.current && !S.dealerPhase) spot.classList.add('active');
+        if (p.status === 'bust' || p.status === 'lose') spot.classList.add('faded');
+
+        statEl.innerHTML = STATUS_BADGE[p.status] || '';
+      });
+    }
+
+    function promptPlayer() {
+      const i = S.current;
+      const pv = total(S.players[i].hand);
+      const ds = S.dh[0];
+      msg(`Player ${i+1} — total: ${pv}. Action?`);
+      actions(`
+        <button class="btn btn-secondary" onclick="Sims.blackjack.hit()">Player ${i+1} Hits</button>
+        <button class="btn btn-secondary" onclick="Sims.blackjack.stand()">Player ${i+1} Stands</button>`);
+      if (ds.rank === 'A') hint(`Player ${i+1}: Dealer shows Ace — insurance already offered?`);
+      else if (bval(ds) >= 7) hint(`Player ${i+1}: Dealer shows ${bval(ds)}, strong card. Player likely hits to 17+.`);
+      else hint(`Player ${i+1}: Dealer shows ${bval(ds)}, bust card. Player can stand on 12+.`);
+    }
+
+    function advancePlayer() {
+      S.current++;
+      while (S.current < N && S.players[S.current].status !== 'active') S.current++;
+      if (S.current >= N) {
+        // All players acted — dealer phase
+        S.dealerPhase = true;
+        renderPlayers();
+        hint('');
+        msg('All players have acted. Reveal dealer hole card.');
+        actions(`<button class="btn btn-primary" onclick="Sims.blackjack.reveal()">Reveal Hole Card</button>`);
+        return;
+      }
+      renderPlayers();
+      promptPlayer();
+    }
+
     return {
-      init() { S = { deck: createDeck(6), ph: [], dh: [], rounds: 0, score: 0 }; },
+      init() {
+        S = { deck: createDeck(6), players: [], dh: [], current: 0, dealerPhase: false, dealerNatural: false, rounds: 0, score: 0 };
+      },
 
       newGame() {
-        if (S.deck.length < 20) S.deck = createDeck(6);
-        S.ph = [S.deck.pop(), S.deck.pop()];
-        S.dh = [S.deck.pop(), S.deck.pop()];
+        if (S.deck.length < 30) S.deck = createDeck(6);
+        S.players = Array.from({length: N}, () => ({ hand: [], status: 'active' }));
+        S.dh = [];
+        S.current = 0;
+        S.dealerPhase = false;
         S.rounds++;
-        render(true);
-        stats();
         hint('');
 
-        const pv = total(S.ph), ds = S.dh[0];
-
-        if (nat(S.ph) && nat(S.dh)) { render(false); return this.end('Both have Blackjack — Push.', 'push'); }
-        if (nat(S.dh)) {
-          msg(`Dealer shows ${ds.rank}. Check hole card for potential Natural...`);
-          actions(`<button class="btn btn-primary" onclick="Sims.blackjack.peekNatural()">Peek Hole Card</button>`);
-          return;
-        }
-        if (nat(S.ph)) {
-          if (ds.rank === 'A' || ['10','J','Q','K'].includes(ds.rank)) {
-            msg(`Player Blackjack! Dealer shows ${ds.rank} — peek first.`);
-            actions(`<button class="btn btn-primary" onclick="Sims.blackjack.peekForPlayer()">Peek Hole Card</button>`);
-          } else {
-            render(false);
-            S.score++;
-            this.end('Player Blackjack! Pay 3:2.', 'player');
-          }
-          return;
+        // Deal: P1→P2→P3→P4→P5→Dealer, twice
+        for (let r = 0; r < 2; r++) {
+          S.players.forEach(p => p.hand.push(S.deck.pop()));
+          S.dh.push(S.deck.pop());
         }
 
-        msg(`Dealer shows ${ds.rank}. Player total: ${pv}. Player action?`);
-        actions(`
-          <button class="btn btn-secondary" onclick="Sims.blackjack.hit()">Player Hits</button>
-          <button class="btn btn-secondary" onclick="Sims.blackjack.stand()">Player Stands</button>`);
-        if (ds.rank === 'A') hint('Dealer shows Ace. Offer insurance before proceeding.');
-        else if (bval(ds) >= 7) hint(`Dealer shows ${bval(ds)} — a strong upcard. Player will likely hit toward 17+.`);
-        else hint(`Dealer shows ${bval(ds)} — a bust card. Player may stand on 12+ and wait for dealer to bust.`);
+        S.dealerNatural = isNat(S.dh);
+
+        // Mark player naturals immediately
+        S.players.forEach(p => { if (isNat(p.hand)) p.status = 'blackjack'; });
+
+        renderDealer(true);
+        renderPlayers();
+        stats();
+
+        const ds = S.dh[0];
+        const needsPeek = ds.rank === 'A' || ['10','J','Q','K'].includes(ds.rank);
+
+        if (needsPeek) {
+          msg(`Dealer shows ${ds.rank}. You must peek for a Natural before player actions.`);
+          actions(`<button class="btn btn-primary" onclick="Sims.blackjack.peek()">Peek Hole Card</button>`);
+          return;
+        }
+
+        this.startPlayerPhase();
       },
 
-      peekNatural() {
-        render(false);
-        this.end('Dealer Blackjack! Collect all bets (Insurance wins 2:1).', 'dealer');
+      peek() {
+        if (S.dealerNatural) {
+          renderDealer(false);
+          S.players.forEach(p => {
+            if (p.status !== 'blackjack') p.status = 'lose';
+            else p.status = 'push';
+          });
+          renderPlayers();
+          msgCol('Dealer Blackjack! Collect all bets. Push on Player Blackjacks.', '#ff6b6b');
+          hint('Insurance bets win 2:1. All other bets lose.');
+          actions(`<button class="btn btn-primary" onclick="Sims.blackjack.newGame()">New Game</button>`);
+          stats();
+        } else {
+          const bjCount = S.players.filter(p => p.status === 'blackjack').length;
+          if (bjCount > 0) hint(`No dealer natural. ${bjCount} player Blackjack(s) will pay 3:2. Proceed with remaining players.`);
+          else hint('No dealer natural confirmed. Proceed with player actions.');
+          this.startPlayerPhase();
+        }
       },
-      peekForPlayer() {
-        render(false);
-        if (nat(S.dh)) { this.end('Both Blackjack — Push.', 'push'); }
-        else { S.score++; this.end('No dealer Blackjack. Pay Player Blackjack 3:2.', 'player'); }
+
+      startPlayerPhase() {
+        S.current = -1;
+        advancePlayer();
       },
 
       hit() {
-        S.ph.push(S.deck.pop());
-        render(true);
-        const pv = total(S.ph);
-        if (pv > 21) { hint('Player busts! Collect the bet.'); return this.end(`Player busts with ${pv}. Dealer wins.`, 'dealer'); }
-        if (pv === 21) { hint('21 — stand automatically.'); return this.stand(); }
-        msg(`Player total: ${pv}. Continue?`);
-        actions(`
-          <button class="btn btn-secondary" onclick="Sims.blackjack.hit()">Player Hits</button>
-          <button class="btn btn-secondary" onclick="Sims.blackjack.stand()">Player Stands</button>`);
+        const p = S.players[S.current];
+        p.hand.push(S.deck.pop());
+        const pv = total(p.hand);
+        renderPlayers();
+        if (pv > 21) {
+          p.status = 'bust';
+          renderPlayers();
+          hint(`Player ${S.current+1} busts at ${pv}! Collect their bet.`);
+          msg(`Player ${S.current+1} busts with ${pv}.`);
+          setTimeout(() => advancePlayer(), 700);
+          return;
+        }
+        if (pv === 21) {
+          p.status = 'stood';
+          renderPlayers();
+          msg(`Player ${S.current+1} hits 21 — automatic stand.`);
+          hint('21 — stand automatically.');
+          setTimeout(() => advancePlayer(), 700);
+          return;
+        }
+        promptPlayer();
       },
 
       stand() {
-        msg('Player stands. Reveal dealer hole card and play dealer hand.');
-        actions(`<button class="btn btn-primary" onclick="Sims.blackjack.reveal()">Reveal Hole Card</button>`);
+        S.players[S.current].status = 'stood';
+        renderPlayers();
+        hint('');
+        advancePlayer();
       },
 
       reveal() {
-        render(false);
+        renderDealer(false);
         const dv = total(S.dh);
         if (dv < 17) {
-          msg(`Dealer total: ${dv}. Dealer must hit (rule: hit on 16 or less).`);
+          msg(`Dealer total: ${dv}. Must hit (dealer hits on 16 or less).`);
           hint(`Dealer has ${dv} — hit required.`);
           actions(`<button class="btn btn-warning" onclick="Sims.blackjack.dealerHit()">Dealer Hits (Required)</button>`);
-        } else { this.dealerStand(); }
+        } else {
+          this.dealerStand();
+        }
       },
 
       dealerHit() {
         S.dh.push(S.deck.pop());
-        render(false);
+        renderDealer(false);
         const dv = total(S.dh);
-        if (dv > 21) { S.score++; stats(); hint('Dealer busts! Pay all remaining players.'); return this.end(`Dealer busts with ${dv}. Player wins!`, 'player'); }
+        if (dv > 21) {
+          // Dealer bust — all stood/blackjack players win
+          S.players.forEach(p => {
+            if (p.status === 'stood' || p.status === 'blackjack') p.status = 'win';
+          });
+          renderPlayers();
+          hint('Dealer busts! Pay all non-bust players.');
+          this.showResult();
+          return;
+        }
         if (dv < 17) {
           msg(`Dealer total: ${dv}. Must hit again.`);
           hint(`Dealer has ${dv} — must continue.`);
           actions(`<button class="btn btn-warning" onclick="Sims.blackjack.dealerHit()">Dealer Hits (Required)</button>`);
-        } else { this.dealerStand(); }
+        } else {
+          this.dealerStand();
+        }
       },
 
       dealerStand() {
-        const dv = total(S.dh), pv = total(S.ph);
-        msg(`Dealer stands at ${dv}. Compare hands: Player ${pv} vs Dealer ${dv}.`);
-        hint(`Dealer stands on ${dv}. Now compare with player hand.`);
-        actions(`<button class="btn btn-primary" onclick="Sims.blackjack.compare()">Compare & Settle</button>`);
-      },
-
-      compare() {
-        const dv = total(S.dh), pv = total(S.ph);
-        if      (pv > dv) { S.score++; this.end(`Player ${pv} beats Dealer ${dv}. Pay player 1:1.`, 'player'); }
-        else if (dv > pv) { this.end(`Dealer ${dv} beats Player ${pv}. Collect player bet.`, 'dealer'); }
-        else               { this.end(`Push — ${pv} ties ${dv}. Return player bet.`, 'push'); }
-        stats();
-      },
-
-      end(text, who) {
-        const c = who === 'player' ? '#4ecdc4' : who === 'dealer' ? '#ff6b6b' : '#c9a84c';
-        msgCol(text, c);
-        setTimeout(() => { if ($('bj-msg')) $('bj-msg').style.color = ''; }, 2200);
+        const dv = total(S.dh);
+        msg(`Dealer stands at ${dv}. Compare all hands and settle.`);
         hint('');
+        actions(`<button class="btn btn-primary" onclick="Sims.blackjack.settle()">Compare & Settle All</button>`);
+      },
+
+      settle() {
+        const dv = total(S.dh);
+        S.players.forEach(p => {
+          if (['bust','lose','push','win'].includes(p.status)) return; // already resolved
+          const pv = total(p.hand);
+          if (p.status === 'blackjack') {
+            // BJ beats any non-natural dealer hand
+            p.status = 'win';
+          } else if (p.status === 'stood') {
+            if (pv > dv)       p.status = 'win';
+            else if (pv === dv) p.status = 'push';
+            else                p.status = 'lose';
+          }
+        });
+        renderPlayers();
+        this.showResult();
+      },
+
+      showResult() {
+        const dv = total(S.dh);
+        const wins   = S.players.filter(p => p.status === 'win').length;
+        const losses = S.players.filter(p => p.status === 'lose' || p.status === 'bust').length;
+        const pushes = S.players.filter(p => p.status === 'push').length;
+
+        const parts = [];
+        if (wins   > 0) parts.push(`${wins} win${wins>1?'s':''}`);
+        if (losses > 0) parts.push(`${losses} loss${losses>1?'es':''}`);
+        if (pushes > 0) parts.push(`${pushes} push${pushes>1?'es':''}`);
+
+        msgCol(`Dealer: ${dv > 21 ? 'BUST' : dv}. ${parts.join(' · ')}`, '#c9a84c');
+        setTimeout(() => { if ($('bj-msg')) $('bj-msg').style.color = ''; }, 2500);
+
+        const payouts = S.players.map((p, i) => {
+          if (p.status === 'win')               return `P${i+1}: Pay 1:1`;
+          if (p.status === 'bust' || p.status === 'lose') return `P${i+1}: Collect`;
+          if (p.status === 'push')              return `P${i+1}: Push`;
+          return '';
+        }).filter(Boolean).join('  ·  ');
+        hint(payouts);
+
+        S.score += wins;
+        stats();
         actions(`<button class="btn btn-primary" onclick="Sims.blackjack.newGame()">New Game</button>`);
       },
     };

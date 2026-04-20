@@ -340,6 +340,64 @@ body {
 .hand-value { margin-top: .45rem; font-size: .875rem; color: var(--gold); font-weight: 600; }
 .divider-line { border-top: 1px dashed rgba(255,255,255,.14); margin: .8rem 0; }
 
+/* ---- 5-PLAYER ROW ---- */
+
+.players-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: .6rem;
+}
+
+.player-spot {
+  background: rgba(0,0,0,.18);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: .6rem .5rem;
+  transition: all .25s;
+  min-height: 160px;
+}
+.player-spot.active {
+  border-color: var(--gold);
+  background: rgba(201,168,76,.1);
+  box-shadow: 0 0 14px rgba(201,168,76,.3);
+}
+.player-spot.faded { opacity: .45; }
+
+.player-spot .hand-display {
+  min-height: 80px;
+  gap: .3rem;
+}
+.player-spot .card {
+  width: 52px;
+  height: 74px;
+}
+.player-spot .card-corner .rank { font-size: .68rem; }
+.player-spot .card-corner .suit { font-size: .58rem; }
+.player-spot .card-suit-center   { font-size: 1.1rem; }
+.player-spot .card-pattern       { width: 44px; height: 66px; }
+
+.player-spot .hand-value {
+  font-size: .75rem;
+  margin-top: .3rem;
+}
+
+.spot-status-wrap { margin-top: .35rem; }
+
+.spot-status {
+  display: inline-block;
+  padding: .2rem .55rem;
+  border-radius: 5px;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .5px;
+}
+.s-bj    { background: rgba(201,168,76,.25); color: var(--gold);  border: 1px solid var(--gold); }
+.s-bust  { background: rgba(255,107,107,.2); color: #ff6b6b;      border: 1px solid #ff6b6b; }
+.s-stood { background: rgba(255,255,255,.1); color: var(--text-dim); border: 1px solid rgba(255,255,255,.2); }
+.s-win   { background: rgba(78,205,196,.2);  color: var(--win);   border: 1px solid var(--win); }
+.s-lose  { background: rgba(255,107,107,.15);color: #ff6b6b;      border: 1px solid rgba(255,107,107,.3); }
+.s-push  { background: rgba(201,168,76,.1);  color: var(--gold);  border: 1px solid rgba(201,168,76,.3); }
+
 /* ---- BACCARAT SPECIFIC ---- */
 
 .baccarat-table .table-felt { display: flex; align-items: stretch; gap: 1rem; }
