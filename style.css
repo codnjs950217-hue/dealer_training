@@ -544,6 +544,95 @@ body {
 .win-item:last-child { border-bottom: none; }
 .no-win { color: var(--text-dim); font-size: .855rem; }
 
+/* ---- BLACKJACK: HAND ANIMATION ---- */
+
+.player-spot { position: relative; }
+
+@keyframes knock {
+  0%   { transform: translateX(-50%) translateY(0)   rotate(0deg); }
+  15%  { transform: translateX(-50%) translateY(-10px) rotate(-10deg); }
+  30%  { transform: translateX(-50%) translateY(4px)  rotate(5deg); }
+  50%  { transform: translateX(-50%) translateY(-7px) rotate(-8deg); }
+  70%  { transform: translateX(-50%) translateY(3px)  rotate(3deg); }
+  100% { transform: translateX(-50%) translateY(0)   rotate(0deg); }
+}
+
+@keyframes wave {
+  0%   { transform: translateX(-50%) rotate(0deg); }
+  20%  { transform: translateX(-50%) rotate(-25deg); }
+  40%  { transform: translateX(-50%) rotate(25deg); }
+  60%  { transform: translateX(-50%) rotate(-18deg); }
+  80%  { transform: translateX(-50%) rotate(18deg); }
+  100% { transform: translateX(-50%) rotate(0deg); }
+}
+
+.hand-anim {
+  position: absolute;
+  bottom: 8px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  z-index: 20;
+  pointer-events: none;
+}
+.hand-anim-hit  { animation: knock 0.9s ease-in-out; }
+.hand-anim-stay { animation: wave  0.9s ease-in-out; }
+
+/* ---- BLACKJACK: ACTION BUTTON ---- */
+
+.btn-action {
+  background: #1c3555; color: var(--text);
+  border: 1px solid #2a4f80;
+  font-size: 1.05rem; padding: .6rem 1.6rem;
+  display: flex; align-items: center; gap: .5rem;
+}
+.btn-action:hover { background: #26456e; }
+.btn-hand-icon { font-size: 1.3rem; }
+
+/* ---- BLACKJACK: PAY / PUSH / TAKE BUTTONS ---- */
+
+.btn-pay  { background: #1a5c30; color: #fff; border: 1px solid #2a8a48; padding: .58rem 1.3rem; border-radius: var(--r); font-weight: 700; cursor: pointer; }
+.btn-pay:hover  { background: #1f7038; }
+.btn-push-ans { background: #2c2c50; color: #fff; border: 1px solid #4a4a80; padding: .58rem 1.3rem; border-radius: var(--r); font-weight: 700; cursor: pointer; }
+.btn-push-ans:hover { background: #3a3a68; }
+.btn-take { background: #5c1a1a; color: #fff; border: 1px solid #8a2a2a; padding: .58rem 1.3rem; border-radius: var(--r); font-weight: 700; cursor: pointer; }
+.btn-take:hover { background: #7a2020; }
+
+/* ---- BLACKJACK: PAY-TEST HIGHLIGHT ---- */
+
+.player-spot.pay-test-active {
+  border-color: #e8e0d0;
+  background: rgba(255,255,255,.07);
+  box-shadow: 0 0 16px rgba(255,255,255,.22);
+}
+
+/* ---- BLACKJACK: MISTAKE OVERLAY ---- */
+
+.blackjack-table { position: relative; }
+
+.mistake-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.72);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 50;
+  border-radius: 18px;
+}
+
+@keyframes mistakePop {
+  0%   { transform: scale(0.4); opacity: 0; }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.mistake-text {
+  font-size: clamp(2.8rem, 7vw, 5rem);
+  font-weight: 900;
+  color: #ff1a1a;
+  text-shadow: 0 0 40px rgba(255,0,0,.9), 0 2px 8px rgba(0,0,0,.8);
+  letter-spacing: 3px;
+  animation: mistakePop .25s ease-out forwards;
+}
+
 /* ---- RESPONSIVE ---- */
 
 @media (max-width: 1060px) {
