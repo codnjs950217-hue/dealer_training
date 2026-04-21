@@ -193,7 +193,7 @@ const Views = {
     <div class="sim-page blackjack-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('blackjack')">← Back</button>
-        <h2>♠ Blackjack Dealer Simulation</h2>
+        <h2>♠ Blackjack Simulation</h2>
         <div class="sim-stats"><span>Rounds: <strong id="bj-rounds">0</strong></span><span>Score: <strong id="bj-score">0</strong></span></div>
       </div>
       <div class="blackjack-table">
@@ -227,41 +227,48 @@ const Views = {
     <div class="sim-page baccarat-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
-        <h2>🃏 Baccarat Dealer Simulation</h2>
-        <div class="sim-stats"><span>Rounds: <strong id="bac-rounds">0</strong></span><span>Hands: <strong id="bac-score">0</strong></span></div>
+        <h2>🃏 Baccarat Simulation</h2>
+        <div class="sim-stats"><span>Rounds: <strong id="bac-rounds">0</strong></span><span>Score: <strong id="bac-score">0</strong></span></div>
+      </div>
+      <div class="bac-betting-row" id="bac-betting-row">
+        ${[1,2,3,4,5].map(i=>`<div class="bet-seat empty-seat"><div class="seat-label">P${i}</div></div>`).join('')}
       </div>
       <div class="baccarat-table">
-        <div class="table-felt">
-          <div class="bac-side">
-            <div class="area-label">Player</div>
-            <div class="hand-display" id="bac-ph"></div>
-            <div class="hand-value"   id="bac-pv"></div>
+        <div class="bac-table-layout">
+          <div class="bac-shoe-col">
+            <div class="shoe-visual">
+              <div class="shoe-label-text">SHOE</div>
+              <div class="shoe-card-slot"></div>
+            </div>
+            <button class="btn-draw-shoe" id="bac-draw-btn" onclick="Sims.baccarat.deal()">Draw<br>Card</button>
           </div>
-          <div class="bac-center">
-            <div class="shoe-indicator">SHOE</div>
+          <div class="bac-side bac-banker-side">
+            <div class="area-label">Banker</div>
+            <div class="bac-hand-wrap" id="bac-bh"></div>
+            <div class="bac-pts-display" id="bac-bv"></div>
+          </div>
+          <div class="bac-center-col">
             <div class="result-badge" id="bac-result"></div>
           </div>
-          <div class="bac-side">
-            <div class="area-label">Banker</div>
-            <div class="hand-display" id="bac-bh"></div>
-            <div class="hand-value"   id="bac-bv"></div>
+          <div class="bac-side bac-player-side">
+            <div class="area-label">Player</div>
+            <div class="bac-hand-wrap" id="bac-ph"></div>
+            <div class="bac-pts-display" id="bac-pv"></div>
           </div>
         </div>
       </div>
       <div class="sim-controls">
-        <div class="message-board" id="bac-msg">Click "Deal" to begin.</div>
-        <div class="action-buttons" id="bac-actions">
-          <button class="btn btn-primary" onclick="Sims.baccarat.deal()">Deal</button>
-        </div>
+        <div class="message-board" id="bac-msg">Press Draw Card to begin.</div>
+        <div class="action-buttons" id="bac-actions"></div>
       </div>
-      <div class="third-card-guide" id="bac-guide"></div>
+      <div class="bac-pay-panel" id="bac-pay-panel" style="display:none"></div>
     </div>`,
 
   rouletteSim: () => `
     <div class="sim-page roulette-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('roulette')">← Back</button>
-        <h2>🎡 Roulette Dealer Simulation</h2>
+        <h2>🎡 Roulette Simulation</h2>
         <div class="sim-stats"><span>Rounds: <strong id="rou-rounds">0</strong></span></div>
       </div>
       <div class="roulette-layout">
@@ -695,30 +702,33 @@ const Sims = {
 
   // ---- BACCARAT ----
   baccarat: (() => {
+    const DENOMS = [
+      { value: 100000000, label: '1억',  color: '#8e44ad' },
+      { value: 10000000,  label: '1천만', color: '#e67e22' },
+      { value: 1000000,   label: '1백만', color: '#795548' },
+      { value: 100000,    label: '10만',  color: '#c9a84c' },
+      { value: 50000,     label: '5만',   color: '#27ae60' },
+      { value: 10000,     label: '1만',   color: '#e74c3c' },
+      { value: 5000,      label: '5천',   color: '#2980b9' },
+      { value: 1000,      label: '1천',   color: '#7f8c8d' },
+    ];
+
     let S = {};
+    let flipId = 0;
 
     const $ = id => document.getElementById(id);
-    const msg     = t => { $('bac-msg').textContent = t; };
-    const actions = h => { $('bac-actions').innerHTML = h; };
-    const guide   = h => { $('bac-guide').innerHTML = h; };
-    const result  = (t, cls) => { const el = $('bac-result'); el.textContent = t; el.className = 'result-badge ' + (cls||''); };
+    const msg    = t      => { $('bac-msg').textContent = t; $('bac-msg').style.color = ''; };
+    const msgCol = (t, c) => { $('bac-msg').textContent = t; $('bac-msg').style.color = c; };
+    const actions = h     => { $('bac-actions').innerHTML = h; };
 
     function bval(c) {
       if (['10','J','Q','K'].includes(c.rank)) return 0;
       if (c.rank === 'A') return 1;
       return +c.rank;
     }
-    const pts = h => h.reduce((s,c) => s + bval(c), 0) % 10;
+    const pts = h => h.reduce((s, c) => s + bval(c), 0) % 10;
 
-    function render(showAll) {
-      $('bac-ph').innerHTML = S.ph.map((c,i) => cardHTML(c, i >= 2 && !showAll)).join('');
-      $('bac-bh').innerHTML = S.bh.map((c,i) => cardHTML(c, i >= 2 && !showAll)).join('');
-      $('bac-pv').textContent = showAll ? `Points: ${pts(S.ph)}` : '';
-      $('bac-bv').textContent = showAll ? `Points: ${pts(S.bh)}` : '';
-    }
-    function stats() { $('bac-rounds').textContent = S.rounds; $('bac-score').textContent = S.score; }
-
-    function bankerDraw(bt, pThird) {
+    function bankerRule(bt, pThird) {
       if (pThird === null) return bt <= 5;
       const v = bval(pThird);
       if (bt <= 2) return true;
@@ -729,108 +739,298 @@ const Sims = {
       return false;
     }
 
+    function correctInitialAction() {
+      const pp = pts(S.ph), bp = pts(S.bh);
+      if (pp >= 8 || bp >= 8) return 'win';
+      if (pp <= 5) return 'draw';
+      if (bankerRule(bp, null)) return 'draw';
+      return 'win';
+    }
+
+    function flipHTML(card, id) {
+      return `<div class="flip-card" id="fc${id}"><div class="flip-inner">
+        <div class="flip-back"><div class="card back"><div class="card-pattern"></div></div></div>
+        <div class="flip-front">${cardHTML(card)}</div>
+      </div></div>`;
+    }
+    function revealFlip(id) { const e = $(`fc${id}`); if (e) e.classList.add('revealed'); }
+
+    function showMistake(retryFn) {
+      actions('');
+      const tbl = document.querySelector('.baccarat-table');
+      if (!tbl) return;
+      const ov = document.createElement('div');
+      ov.className = 'mistake-overlay';
+      ov.innerHTML = '<div class="mistake-text">MISTAKE!</div>';
+      tbl.appendChild(ov);
+      setTimeout(() => { ov.remove(); retryFn(); }, 1600);
+    }
+
+    function dealSequence(cards, targets, onDone) {
+      const ids = [];
+      cards.forEach((card, i) => {
+        const id = ++flipId; ids.push(id);
+        setTimeout(() => {
+          const el = $(targets[i]);
+          if (el) el.innerHTML += flipHTML(card, id);
+        }, i * 420);
+      });
+      setTimeout(() => {
+        ids.forEach(id => revealFlip(id));
+        setTimeout(onDone, 650);
+      }, cards.length * 420 + 480);
+    }
+
+    function addCard(hand, elId, onDone) {
+      const card = S.deck.pop();
+      hand.push(card);
+      const id = ++flipId;
+      const el = $(elId);
+      if (el) el.innerHTML += flipHTML(card, id);
+      setTimeout(() => { revealFlip(id); setTimeout(onDone, 400); }, 350);
+      return card;
+    }
+
+    function generateBets() {
+      const amounts = [10000, 50000, 100000, 500000, 1000000, 2000000, 3000000];
+      return Array.from({length: 5}, () => ({
+        amount: amounts[Math.floor(Math.random() * amounts.length)] * (1 + Math.floor(Math.random() * 4)),
+        side: Math.random() > 0.45 ? 'player' : 'banker',
+        active: Math.random() > 0.15,
+      }));
+    }
+
+    function renderBets() {
+      const row = $('bac-betting-row');
+      if (!row || !S.bets) return;
+      row.innerHTML = S.bets.map((b, i) => {
+        if (!b.active) return `<div class="bet-seat empty-seat"><div class="seat-label">P${i+1}</div></div>`;
+        let rem = b.amount;
+        const chips = [];
+        for (const d of DENOMS) {
+          const cnt = Math.floor(rem / d.value);
+          if (cnt > 0) { chips.push({...d, cnt: Math.min(cnt, 4)}); rem -= cnt * d.value; }
+          if (chips.length >= 3) break;
+        }
+        const chipHTML = chips.map(ch =>
+          `<div class="chip-stack-mini" style="--chip-color:${ch.color}">${ch.label}</div>`
+        ).join('');
+        return `<div class="bet-seat">
+          <div class="seat-label">P${i+1}</div>
+          <div class="chip-pile-mini">${chipHTML}</div>
+          <div class="bet-side-badge ${b.side}">${b.side === 'player' ? 'P' : 'B'}</div>
+          <div class="bet-amount-text">${b.amount >= 10000 ? (b.amount/10000).toFixed(0)+'만' : b.amount.toLocaleString()}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function showInitialQuiz() {
+      const pp = pts(S.ph), bp = pts(S.bh);
+      $('bac-pv').textContent = pp; $('bac-bv').textContent = bp;
+      msg(`Player: ${pp}  ·  Banker: ${bp}`);
+      actions(`
+        <button class="btn btn-bac-player" onclick="Sims.baccarat.quizInitial('win','player')">PLAYER WIN</button>
+        <button class="btn btn-bac-banker" onclick="Sims.baccarat.quizInitial('win','banker')">BANKER WIN</button>
+        <button class="btn btn-bac-draw"   onclick="Sims.baccarat.quizInitial('draw',null)">Draw Card</button>
+      `);
+    }
+
+    function showAnnounceQuiz() {
+      const pp = pts(S.ph), bp = pts(S.bh);
+      $('bac-pv').textContent = pp; $('bac-bv').textContent = bp;
+      msg(`Final — Player: ${pp}  ·  Banker: ${bp}`);
+      actions(`
+        <button class="btn btn-bac-player" onclick="Sims.baccarat.quizAnnounce('player')">PLAYER WIN</button>
+        <button class="btn btn-bac-banker" onclick="Sims.baccarat.quizAnnounce('banker')">BANKER WIN</button>
+        <button class="btn btn-bac-tie"    onclick="Sims.baccarat.quizAnnounce('tie')">TIE</button>
+      `);
+    }
+
+    function showBankerDrawQuiz() {
+      const bp = pts(S.bh);
+      msg(`Player drew ${S.pThird.rank}${S.pThird.suit}. Banker: ${bp}. Draw or announce?`);
+      actions(`
+        <button class="btn btn-bac-player" onclick="Sims.baccarat.quizBanker('win','player')">PLAYER WIN</button>
+        <button class="btn btn-bac-banker" onclick="Sims.baccarat.quizBanker('win','banker')">BANKER WIN</button>
+        <button class="btn btn-bac-draw"   onclick="Sims.baccarat.quizBanker('draw',null)">Draw Card</button>
+      `);
+    }
+
+    function doPlayerDraw(onDone) {
+      addCard(S.ph, 'bac-ph', () => {
+        S.pThird = S.ph[S.ph.length - 1];
+        $('bac-pv').textContent = pts(S.ph);
+        onDone();
+      });
+    }
+
+    function doBankerDraw(onDone) {
+      addCard(S.bh, 'bac-bh', () => {
+        $('bac-bv').textContent = pts(S.bh);
+        onDone();
+      });
+    }
+
+    function announceWinner(side) {
+      const pp = pts(S.ph), bp = pts(S.bh);
+      const resEl = $('bac-result');
+      const cfg = {
+        player: { cls: 'player-win', txt: 'PLAYER' },
+        banker: { cls: 'banker-win', txt: 'BANKER' },
+        tie:    { cls: 'tie-win',    txt: 'TIE' },
+      }[side];
+      resEl.textContent = cfg.txt;
+      resEl.className = 'result-badge ' + cfg.cls;
+      S.winner = side;
+      S.score++;
+      $('bac-score').textContent = S.score;
+      $('bac-rounds').textContent = S.rounds;
+      msgCol(`${cfg.txt} wins! Player: ${pp} · Banker: ${bp}`, '#c9a84c');
+      actions(`
+        <button class="btn btn-primary" onclick="Sims.baccarat.openPay()">💰 Pay Time</button>
+        <button class="btn btn-secondary" onclick="Sims.baccarat.deal()">Next Hand</button>
+      `);
+    }
+
+    function buildPayPanel() {
+      const w = S.winner;
+      const winLabel = w === 'player' ? 'PLAYER WIN' : w === 'banker' ? 'BANKER WIN' : 'TIE';
+      const seatRows = S.bets.map((b, i) => {
+        if (!b.active) return '';
+        const isWin = w === 'tie' || b.side === w;
+        const multiplier = w === 'tie' ? 8 : 1;
+        const action = w === 'tie' ? 'Pay 8:1' : isWin ? 'Pay 1:1' : 'Take';
+        return `<div class="pay-seat-row ${isWin ? 'win-row' : 'take-row'}">
+          <span class="psr-num">P${i+1}</span>
+          <span class="psr-side ${b.side}">${b.side === 'player' ? 'PLAYER' : 'BANKER'}</span>
+          <span class="psr-bet">${b.amount.toLocaleString()}</span>
+          <span class="psr-action">${action}</span>
+        </div>`;
+      }).join('');
+
+      const calcRows = DENOMS.map(d => `
+        <div class="pay-calc-row">
+          <div class="pay-chip-btn" style="background:${d.color}">${d.label}</div>
+          <div class="pay-calc-mid">
+            <span class="pay-denom-label">${d.value.toLocaleString()}원</span>
+            <input type="number" min="0" value="0" inputmode="numeric"
+                   class="pay-qty-input" data-val="${d.value}"
+                   oninput="Sims.baccarat.calcTotal()">
+          </div>
+          <div class="pay-calc-sub" id="pay-sub-${d.value}">= 0</div>
+        </div>`).join('');
+
+      return `<div class="pay-panel-inner">
+        <div class="pay-panel-header">
+          <span class="pay-panel-title">💰 Pay Time</span>
+          <span class="pay-winner-badge ${w}-win">${winLabel}</span>
+        </div>
+        <div class="pay-seats-section">${seatRows}</div>
+        <div class="pay-divider"></div>
+        <div class="pay-calc-section">
+          <div class="pay-calc-heading">Chip Calculator</div>
+          ${calcRows}
+          <div class="pay-grand-total">
+            Total: <span id="pay-grand" class="pay-grand-num">0원</span>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" style="margin-top:.8rem" onclick="Sims.baccarat.deal()">Next Hand</button>
+      </div>`;
+    }
+
     return {
-      init() { S = { deck: createDeck(8), ph: [], bh: [], pThird: null, rounds: 0, score: 0 }; },
+      init() {
+        S = { deck: createDeck(8), ph: [], bh: [], pThird: null,
+              rounds: 0, score: 0, winner: null, bets: [] };
+      },
 
       deal() {
         if (S.deck.length < 20) S.deck = createDeck(8);
-        S.ph = [S.deck.pop(), S.deck.pop()];
-        S.bh = [S.deck.pop(), S.deck.pop()];
-        S.pThird = null;
+        S.ph = []; S.bh = []; S.pThird = null; S.winner = null;
         S.rounds++;
-        result('', '');
-        guide('');
-        render(false);
-        stats();
-        msg('Cards dealt face down. Reveal to announce points.');
-        actions(`<button class="btn btn-primary" onclick="Sims.baccarat.reveal()">Reveal Cards</button>`);
+
+        $('bac-ph').innerHTML   = '';
+        $('bac-bh').innerHTML   = '';
+        $('bac-pv').textContent = '';
+        $('bac-bv').textContent = '';
+        $('bac-result').textContent = '';
+        $('bac-result').className   = 'result-badge';
+        const pp = $('bac-pay-panel');
+        if (pp) pp.style.display = 'none';
+
+        S.bets = generateBets();
+        renderBets();
+
+        const cards = [S.deck.pop(), S.deck.pop(), S.deck.pop(), S.deck.pop()];
+        S.ph = [cards[0], cards[2]];
+        S.bh = [cards[1], cards[3]];
+
+        actions('');
+        msg('Dealing...');
+
+        // Deal sequence: P1, B1, P2, B2
+        dealSequence(cards, ['bac-ph','bac-bh','bac-ph','bac-bh'], () => showInitialQuiz());
       },
 
-      reveal() {
-        render(true);
-        const pp = pts(S.ph), bp = pts(S.bh);
-
-        if (pp >= 8 || bp >= 8) {
-          guide(`<div class="guide-box natural">✓ Natural ${Math.max(pp,bp)}: No third cards drawn. Announce the winner.</div>`);
-          msg(`Natural! Player: ${pp} — Banker: ${bp}. No more cards.`);
-          actions(`<button class="btn btn-primary" onclick="Sims.baccarat.announce()">Announce Winner</button>`);
-          return;
-        }
-
-        let g = `<div class="guide-box">Point Analysis — Player: <strong>${pp}</strong> · Banker: <strong>${bp}</strong></div>`;
-        if (pp <= 5) {
-          g += `<div class="guide-box draw">Player total ${pp} → Player draws a third card</div>`;
-          msg(`Player total: ${pp} (must draw). Banker total: ${bp}. Deal Player third card.`);
-          actions(`<button class="btn btn-primary" onclick="Sims.baccarat.playerThird()">Deal Player Third Card</button>`);
+      quizInitial(choice, side) {
+        const correct = correctInitialAction();
+        if (choice !== correct) { showMistake(() => showInitialQuiz()); return; }
+        if (choice === 'win') {
+          const pp = pts(S.ph), bp = pts(S.bh);
+          const cw = pp > bp ? 'player' : bp > pp ? 'banker' : 'tie';
+          if (side !== cw) { showMistake(() => showInitialQuiz()); return; }
+          announceWinner(side);
         } else {
-          g += `<div class="guide-box stand">Player total ${pp} → Player stands</div>`;
-          msg(`Player stands at ${pp}. Check Banker rule.`);
-          actions(`<button class="btn btn-primary" onclick="Sims.baccarat.checkBanker()">Check Banker Rule</button>`);
+          // draw — player draws if pp<=5, else banker draws directly
+          const pp = pts(S.ph);
+          if (pp <= 5) {
+            doPlayerDraw(() => showBankerDrawQuiz());
+          } else {
+            doBankerDraw(() => showAnnounceQuiz());
+          }
         }
-        guide(g);
       },
 
-      playerThird() {
-        const card = S.deck.pop();
-        S.ph.push(card);
-        S.pThird = card;
-        render(true);
-        const pp = pts(S.ph), bp = pts(S.bh), v = bval(card);
-        const draws = bankerDraw(bp, card);
-
-        let g = `<div class="guide-box">Player drew: <strong>${card.rank}${card.suit}</strong> (value: ${v}) → New Player total: ${pp}</div>`;
-        if (draws) {
-          g += `<div class="guide-box draw">Banker total ${bp}, Player's third ${v} → Banker draws</div>`;
-          msg(`Player drew ${card.rank} (${v}). Banker must draw.`);
-          actions(`<button class="btn btn-primary" onclick="Sims.baccarat.bankerThird()">Deal Banker Third Card</button>`);
-        } else {
-          g += `<div class="guide-box stand">Banker total ${bp}, Player's third ${v} → Banker stands</div>`;
-          msg(`Player drew ${card.rank}. Banker stands at ${bp}.`);
-          actions(`<button class="btn btn-primary" onclick="Sims.baccarat.announce()">Announce Winner</button>`);
-        }
-        guide(g);
-      },
-
-      checkBanker() {
+      quizBanker(choice, side) {
         const bp = pts(S.bh);
-        const draws = bankerDraw(bp, null);
-        let g = `<div class="guide-box">Banker total: <strong>${bp}</strong> (Player stood)</div>`;
-        if (draws) {
-          g += `<div class="guide-box draw">Banker total ${bp} → Banker draws</div>`;
-          msg(`Banker total ${bp}: must draw.`);
-          actions(`<button class="btn btn-primary" onclick="Sims.baccarat.bankerThird()">Deal Banker Third Card</button>`);
+        const needsDraw = bankerRule(bp, S.pThird);
+        const correct = needsDraw ? 'draw' : 'win';
+        if (choice !== correct) { showMistake(() => showBankerDrawQuiz()); return; }
+        if (choice === 'draw') {
+          doBankerDraw(() => showAnnounceQuiz());
         } else {
-          g += `<div class="guide-box stand">Banker total ${bp} → Banker stands</div>`;
-          msg(`Banker stands at ${bp}.`);
-          actions(`<button class="btn btn-primary" onclick="Sims.baccarat.announce()">Announce Winner</button>`);
+          const pp = pts(S.ph);
+          const cw = pp > bp ? 'player' : bp > pp ? 'banker' : 'tie';
+          if (side !== cw) { showMistake(() => showBankerDrawQuiz()); return; }
+          announceWinner(side);
         }
-        guide(g);
       },
 
-      bankerThird() {
-        const card = S.deck.pop();
-        S.bh.push(card);
-        render(true);
+      quizAnnounce(side) {
         const pp = pts(S.ph), bp = pts(S.bh);
-        let g = `<div class="guide-box">Banker drew: <strong>${card.rank}${card.suit}</strong></div>`;
-        g += `<div class="guide-box">Final — Player: <strong>${pp}</strong> · Banker: <strong>${bp}</strong></div>`;
-        guide(g);
-        msg(`Banker drew ${card.rank}. Final: Player ${pp} vs Banker ${bp}.`);
-        actions(`<button class="btn btn-primary" onclick="Sims.baccarat.announce()">Announce Winner</button>`);
+        const correct = pp > bp ? 'player' : bp > pp ? 'banker' : 'tie';
+        if (side !== correct) { showMistake(() => showAnnounceQuiz()); return; }
+        announceWinner(side);
       },
 
-      announce() {
-        const pp = pts(S.ph), bp = pts(S.bh);
-        let who, res, cls, pay;
-        if      (pp > bp) { who = 'PLAYER'; res = `Player wins! ${pp} over ${bp}`;  cls = 'player-win'; pay = 'Pay Player bets 1:1. Collect Banker bets.'; }
-        else if (bp > pp) { who = 'BANKER'; res = `Banker wins! ${bp} over ${pp}`;  cls = 'banker-win'; pay = 'Pay Banker bets 1:1 (collect 5% commission). Collect Player bets.'; }
-        else              { who = 'TIE';    res = `Tie! Both ${pp}`;                 cls = 'tie-win';    pay = 'Pay Tie 8:1. Player and Banker bets push.'; }
-        result(who, cls);
-        msg(res);
-        guide(`<div class="guide-box payout">💰 ${pay}</div>`);
-        actions(`<button class="btn btn-primary" onclick="Sims.baccarat.deal()">Next Hand</button>`);
-        S.score++;
-        stats();
+      openPay() {
+        const panel = $('bac-pay-panel');
+        if (panel) { panel.style.display = 'block'; panel.innerHTML = buildPayPanel(); }
+        actions('');
+      },
+
+      calcTotal() {
+        let grand = 0;
+        document.querySelectorAll('.pay-qty-input').forEach(el => {
+          const qty = parseInt(el.value) || 0;
+          const val = parseInt(el.dataset.val);
+          const sub = document.getElementById(`pay-sub-${val}`);
+          const amount = qty * val;
+          grand += amount;
+          if (sub) sub.textContent = amount > 0 ? `= ${amount.toLocaleString()}` : '= 0';
+        });
+        const g = document.getElementById('pay-grand');
+        if (g) g.textContent = grand.toLocaleString() + '원';
       },
     };
   })(),

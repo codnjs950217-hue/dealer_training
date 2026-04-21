@@ -400,14 +400,7 @@ body {
 
 /* ---- BACCARAT SPECIFIC ---- */
 
-.baccarat-table .table-felt { display: flex; align-items: stretch; gap: 1rem; }
 .bac-side { flex: 1; }
-.bac-center {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 1rem; min-width: 90px;
-}
-.shoe-indicator { writing-mode: vertical-rl; font-size: .6rem; letter-spacing: 2px; color: rgba(255,255,255,.25); }
 .result-badge {
   padding: .5rem .9rem; border-radius: 8px;
   font-weight: 700; font-size: 1rem; text-align: center; min-width: 72px;
@@ -544,6 +537,259 @@ body {
 .win-item:last-child { border-bottom: none; }
 .no-win { color: var(--text-dim); font-size: .855rem; }
 
+/* ---- BACCARAT: TABLE LAYOUT ---- */
+
+.baccarat-table { position: relative; }
+
+.bac-table-layout {
+  display: flex;
+  align-items: stretch;
+  gap: 0.7rem;
+}
+
+/* Shoe column on the far left */
+.bac-shoe-col {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0.7rem; width: 64px; flex-shrink: 0;
+}
+
+.shoe-visual {
+  width: 54px; height: 100px;
+  background: linear-gradient(160deg, #2a1a08 0%, #150d04 100%);
+  border: 2px solid #7a5a18;
+  border-radius: 6px 6px 14px 14px;
+  box-shadow: 3px 4px 14px rgba(0,0,0,.65), inset 0 1px 4px rgba(255,200,80,.1);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-end; padding-bottom: 6px;
+  position: relative;
+}
+.shoe-label-text {
+  position: absolute; top: 7px;
+  font-size: .5rem; letter-spacing: 2px; font-weight: 700;
+  color: rgba(201,168,76,.55); text-transform: uppercase;
+}
+.shoe-card-slot {
+  width: 44px; height: 9px;
+  background: #000;
+  border-top: 2px solid #555;
+  border-radius: 3px 3px 8px 8px;
+}
+
+.btn-draw-shoe {
+  width: 58px; padding: .5rem .2rem;
+  background: var(--gold); color: #0a1628;
+  border: none; border-radius: 8px; cursor: pointer;
+  font-size: .75rem; font-weight: 800; line-height: 1.3;
+  text-align: center; letter-spacing: .3px;
+  transition: all .2s;
+  box-shadow: 0 2px 8px rgba(201,168,76,.4);
+}
+.btn-draw-shoe:hover { background: var(--gold-light); transform: translateY(-2px); }
+
+/* Banker / Player areas */
+.bac-banker-side, .bac-player-side { flex: 1; min-width: 0; }
+
+.bac-center-col {
+  display: flex; align-items: center; justify-content: center;
+  width: 56px; flex-shrink: 0;
+}
+
+.bac-hand-wrap {
+  display: flex; gap: .3rem; flex-wrap: wrap;
+  min-height: 110px; align-items: center;
+}
+
+.bac-pts-display {
+  text-align: center; font-size: 2rem; font-weight: 900;
+  color: var(--gold); min-height: 2.4rem; margin-top: .3rem;
+  text-shadow: 0 0 20px rgba(201,168,76,.5);
+}
+
+/* ---- BACCARAT: CARD FLIP ANIMATION ---- */
+
+@keyframes dealSlideIn {
+  from { opacity: 0; transform: translateX(-50px) translateY(-15px) rotate(-8deg); }
+  to   { opacity: 1; transform: none; }
+}
+
+.flip-card {
+  perspective: 700px;
+  display: inline-block;
+  animation: dealSlideIn .35s ease-out;
+}
+.flip-inner {
+  position: relative;
+  width: 78px; height: 110px;
+  transform-style: preserve-3d;
+  transition: transform .65s ease;
+}
+.flip-card.revealed .flip-inner { transform: rotateY(180deg); }
+.flip-back, .flip-front {
+  position: absolute; top: 0; left: 0;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+.flip-back  { z-index: 2; }
+.flip-front { transform: rotateY(180deg); }
+
+/* ---- BACCARAT: BETTING ROW ---- */
+
+.bac-betting-row {
+  display: flex; gap: .5rem; overflow-x: auto;
+  padding: .4rem 0 .8rem; margin-bottom: .5rem;
+  scrollbar-width: none;
+}
+.bac-betting-row::-webkit-scrollbar { display: none; }
+
+.bet-seat {
+  flex-shrink: 0; min-width: 64px;
+  background: rgba(0,0,0,.22);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px; padding: .45rem .35rem;
+  display: flex; flex-direction: column; align-items: center; gap: .2rem;
+}
+.empty-seat { border-style: dashed; opacity: .35; }
+
+.seat-label {
+  font-size: .62rem; letter-spacing: 1px;
+  color: rgba(255,255,255,.35); text-transform: uppercase;
+}
+.chip-pile-mini {
+  display: flex; gap: 2px; flex-wrap: wrap; justify-content: center;
+  min-height: 20px;
+}
+.chip-stack-mini {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--chip-color, #888);
+  border: 2px solid rgba(255,255,255,.3);
+  font-size: .45rem; font-weight: 700; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,.5);
+}
+.bet-side-badge {
+  font-size: .62rem; font-weight: 800;
+  padding: .1rem .3rem; border-radius: 4px;
+  letter-spacing: .5px;
+}
+.bet-side-badge.player { background: rgba(78,205,196,.2); color: var(--win); border: 1px solid rgba(78,205,196,.35); }
+.bet-side-badge.banker { background: rgba(201,168,76,.15); color: var(--gold); border: 1px solid rgba(201,168,76,.3); }
+.bet-amount-text { font-size: .6rem; color: var(--text-dim); }
+
+/* ---- BACCARAT: WIN / DRAW QUIZ BUTTONS ---- */
+
+.btn-bac-player {
+  background: #0d4a40; color: #4ecdc4;
+  border: 1px solid rgba(78,205,196,.45);
+  padding: .55rem 1.1rem; border-radius: var(--r);
+  font-weight: 700; cursor: pointer; font-size: .875rem;
+  transition: all .18s; white-space: nowrap;
+}
+.btn-bac-player:hover { background: #115a4e; }
+.btn-bac-banker {
+  background: #3a2005; color: #c9a84c;
+  border: 1px solid rgba(201,168,76,.45);
+  padding: .55rem 1.1rem; border-radius: var(--r);
+  font-weight: 700; cursor: pointer; font-size: .875rem;
+  transition: all .18s; white-space: nowrap;
+}
+.btn-bac-banker:hover { background: #4a2a08; }
+.btn-bac-tie {
+  background: #0a3a0a; color: #6ec864;
+  border: 1px solid rgba(110,200,100,.4);
+  padding: .55rem 1.1rem; border-radius: var(--r);
+  font-weight: 700; cursor: pointer; font-size: .875rem;
+  transition: all .18s; white-space: nowrap;
+}
+.btn-bac-tie:hover { background: #0e4a0e; }
+.btn-bac-draw {
+  background: #1c3555; color: var(--text);
+  border: 1px solid #2a4f80;
+  padding: .55rem 1.1rem; border-radius: var(--r);
+  font-weight: 700; cursor: pointer; font-size: .875rem;
+  transition: all .18s; white-space: nowrap;
+}
+.btn-bac-draw:hover { background: #24406a; }
+
+/* ---- BACCARAT: PAY PANEL ---- */
+
+.bac-pay-panel { margin-top: 1rem; }
+
+.pay-panel-inner {
+  background: #091828;
+  border: 1px solid rgba(201,168,76,.2);
+  border-radius: 16px;
+  padding: 1.2rem 1rem;
+}
+
+.pay-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem; gap: .8rem; flex-wrap: wrap;
+}
+.pay-panel-title { font-size: 1.05rem; font-weight: 700; color: var(--gold); }
+.pay-winner-badge {
+  padding: .28rem .75rem; border-radius: 6px;
+  font-size: .8rem; font-weight: 800; letter-spacing: .5px;
+}
+.pay-winner-badge.player-win { background: rgba(78,205,196,.15); color: var(--win); border: 1px solid rgba(78,205,196,.35); }
+.pay-winner-badge.banker-win { background: rgba(201,168,76,.15); color: var(--gold); border: 1px solid rgba(201,168,76,.35); }
+.pay-winner-badge.tie-win    { background: rgba(110,200,100,.12); color: #6ec864; border: 1px solid rgba(110,200,100,.3); }
+
+.pay-seats-section { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .9rem; }
+.pay-seat-row {
+  display: grid; grid-template-columns: 2rem 5rem 1fr 4.5rem;
+  align-items: center; gap: .4rem;
+  padding: .4rem .6rem; border-radius: 8px;
+  font-size: .8rem;
+}
+.win-row  { background: rgba(78,205,196,.06); border: 1px solid rgba(78,205,196,.15); }
+.take-row { background: rgba(255,107,107,.05); border: 1px solid rgba(255,107,107,.12); }
+.psr-num  { font-weight: 700; color: var(--text-dim); }
+.psr-side { font-size: .7rem; font-weight: 700; padding: .15rem .35rem; border-radius: 4px; text-align: center; }
+.psr-side.player { color: var(--win); }
+.psr-side.banker { color: var(--gold); }
+.psr-bet  { color: var(--text); }
+.psr-action { text-align: right; font-weight: 700; }
+.win-row  .psr-action { color: var(--win); }
+.take-row .psr-action { color: #ff6b6b; }
+
+.pay-divider { border-top: 1px solid rgba(255,255,255,.08); margin: .8rem 0; }
+
+.pay-calc-section {}
+.pay-calc-heading { font-size: .82rem; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: .7rem; }
+
+.pay-calc-row {
+  display: grid; grid-template-columns: 48px 1fr 5rem;
+  align-items: center; gap: .6rem; margin-bottom: .5rem;
+}
+.pay-chip-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .58rem; font-weight: 800; color: #fff;
+  border: 2px solid rgba(255,255,255,.25);
+  box-shadow: 0 2px 8px rgba(0,0,0,.4);
+  flex-shrink: 0;
+}
+.pay-calc-mid { display: flex; flex-direction: column; gap: .15rem; }
+.pay-denom-label { font-size: .65rem; color: var(--text-dim); }
+.pay-qty-input {
+  width: 100%; padding: .45rem .5rem;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(201,168,76,.25);
+  border-radius: 8px; color: var(--text);
+  font-size: 1rem; text-align: center;
+  -moz-appearance: textfield;
+}
+.pay-qty-input::-webkit-inner-spin-button,
+.pay-qty-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.pay-qty-input:focus { outline: none; border-color: var(--gold); }
+.pay-calc-sub { font-size: .72rem; color: var(--gold); text-align: right; }
+
+.pay-grand-total {
+  text-align: right; font-size: .9rem; color: var(--text-dim);
+  margin-top: .8rem; padding-top: .6rem;
+  border-top: 1px solid rgba(255,255,255,.08);
+}
+.pay-grand-num { font-size: 1.2rem; font-weight: 800; color: var(--gold); margin-left: .4rem; }
+
 /* ---- BLACKJACK: HAND ANIMATION ---- */
 
 .player-spot { position: relative; }
@@ -648,7 +894,30 @@ body {
   .hero-actions       { justify-content: center; }
   .games-section,
   .features-section   { padding: 2.2rem 1.5rem; }
-  .sim-page           { padding: 1rem 1.2rem; }
+  .sim-page           { padding: 1rem 1rem; }
   .tutorial-page      { padding: 1.4rem; }
-  .baccarat-table .table-felt { flex-direction: column; }
+
+  /* Baccarat mobile */
+  .bac-table-layout   { gap: .4rem; }
+  .bac-shoe-col       { width: 54px; }
+  .shoe-visual        { width: 46px; height: 82px; }
+  .btn-draw-shoe      { width: 50px; font-size: .68rem; }
+  .bac-center-col     { width: 40px; }
+  .flip-inner         { width: 62px; height: 88px; }
+  .flip-card          { perspective: 500px; }
+  .bac-pts-display    { font-size: 1.5rem; }
+  .result-badge       { font-size: .8rem; min-width: 54px; padding: .4rem .5rem; }
+
+  /* Pay panel mobile */
+  .pay-seat-row       { grid-template-columns: 1.8rem 4.5rem 1fr 4rem; font-size: .75rem; }
+  .pay-calc-row       { grid-template-columns: 40px 1fr 4.5rem; gap: .45rem; }
+  .pay-chip-btn       { width: 38px; height: 38px; font-size: .52rem; }
+  .pay-qty-input      { font-size: .95rem; padding: .5rem .4rem; }
+  .pay-calc-sub       { font-size: .68rem; }
+  .pay-grand-num      { font-size: 1.05rem; }
+
+  /* Action buttons wrap on mobile */
+  .action-buttons     { gap: .45rem; }
+  .btn-bac-player, .btn-bac-banker, .btn-bac-tie, .btn-bac-draw { font-size: .8rem; padding: .5rem .75rem; }
+  .btn-pay, .btn-push-ans, .btn-take { font-size: .8rem; padding: .5rem .75rem; }
 }
