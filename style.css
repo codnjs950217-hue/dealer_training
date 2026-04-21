@@ -790,90 +790,138 @@ body {
 }
 .pay-grand-num { font-size: 1.2rem; font-weight: 800; color: var(--gold); margin-left: .4rem; }
 
-/* ---- BLACKJACK: HAND ANIMATION ---- */
+/* ---- BLACKJACK: PLAYER SPOT LAYOUT ---- */
 
-.player-spot { position: relative; }
-
-@keyframes knock {
-  0%   { transform: translateX(-50%) translateY(0)   rotate(0deg); }
-  15%  { transform: translateX(-50%) translateY(-10px) rotate(-10deg); }
-  30%  { transform: translateX(-50%) translateY(4px)  rotate(5deg); }
-  50%  { transform: translateX(-50%) translateY(-7px) rotate(-8deg); }
-  70%  { transform: translateX(-50%) translateY(3px)  rotate(3deg); }
-  100% { transform: translateX(-50%) translateY(0)   rotate(0deg); }
+.player-spot {
+  position: relative;
+  display: flex; flex-direction: column;
+  gap: .25rem;
 }
 
-@keyframes wave {
-  0%   { transform: translateX(-50%) rotate(0deg); }
-  20%  { transform: translateX(-50%) rotate(-25deg); }
-  40%  { transform: translateX(-50%) rotate(25deg); }
-  60%  { transform: translateX(-50%) rotate(-18deg); }
-  80%  { transform: translateX(-50%) rotate(18deg); }
-  100% { transform: translateX(-50%) rotate(0deg); }
+/* Action area at top of spot (player's side, seen upside-down by dealer) */
+.spot-inline-act {
+  min-height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; gap: .2rem;
 }
 
-.hand-anim {
+/* Label at the bottom (closest to dealer) */
+.player-spot .area-label { order: 10; }
+
+/* ---- BLACKJACK: CARD OVERLAP (fan layout) ---- */
+
+.player-spot .hand-display {
+  display: flex;
+  align-items: flex-start;
+  min-height: 74px;
+  position: relative;
+}
+.player-spot .hand-display .card { flex-shrink: 0; }
+.player-spot .hand-display .card.back { flex-shrink: 0; }
+.player-spot .hand-display .card:nth-child(1) {
+  transform: rotate(-4deg);
+  z-index: 1;
+}
+.player-spot .hand-display .card:nth-child(2) {
+  margin-left: -22px;
+  margin-top: 6px;
+  transform: rotate(3deg);
+  z-index: 2;
+}
+.player-spot .hand-display .card:nth-child(3) {
+  margin-left: -18px;
+  margin-top: 0;
+  transform: rotate(-2deg);
+  z-index: 3;
+}
+.player-spot .hand-display .card:nth-child(n+4) {
+  margin-left: -18px;
+  margin-top: 0;
+  transform: rotate(1deg);
+  z-index: 4;
+}
+
+/* ---- BLACKJACK: HAND ANIMATION (dealer perspective — upside down at top) ---- */
+
+/* Wrapper rotated 180° so hand appears from player's side */
+.hand-anim-wrap {
   position: absolute;
-  bottom: 8px; left: 50%;
-  transform: translateX(-50%);
-  font-size: 2rem;
-  z-index: 20;
+  top: 2px; left: 50%;
+  transform: translateX(-50%) rotate(180deg);
+  z-index: 30;
   pointer-events: none;
 }
-.hand-anim-hit  { animation: knock 0.9s ease-in-out; }
-.hand-anim-stay { animation: wave  0.9s ease-in-out; }
+.hand-anim { font-size: 1.7rem; display: block; }
 
-/* ---- BLACKJACK: ACTION BUTTON ---- */
-
-.btn-action {
-  background: #1c3555; color: var(--text);
-  border: 1px solid #2a4f80;
-  font-size: 1.05rem; padding: .6rem 1.6rem;
-  display: flex; align-items: center; gap: .5rem;
+@keyframes knockD {
+  0%   { transform: translateY(0); }
+  20%  { transform: translateY(9px); }
+  40%  { transform: translateY(0); }
+  65%  { transform: translateY(6px); }
+  100% { transform: translateY(0); }
 }
-.btn-action:hover { background: #26456e; }
-.btn-hand-icon { font-size: 1.3rem; }
+@keyframes waveD {
+  0%   { transform: rotate(0deg); }
+  20%  { transform: rotate(22deg); }
+  40%  { transform: rotate(-22deg); }
+  60%  { transform: rotate(16deg); }
+  80%  { transform: rotate(-16deg); }
+  100% { transform: rotate(0deg); }
+}
 
-/* ---- BLACKJACK: PAY / PUSH / TAKE BUTTONS ---- */
+.hand-anim-hit  { animation: knockD .9s ease-in-out; }
+.hand-anim-stay { animation: waveD  .9s ease-in-out; }
 
-.btn-pay  { background: #1a5c30; color: #fff; border: 1px solid #2a8a48; padding: .58rem 1.3rem; border-radius: var(--r); font-weight: 700; cursor: pointer; }
-.btn-pay:hover  { background: #1f7038; }
-.btn-push-ans { background: #2c2c50; color: #fff; border: 1px solid #4a4a80; padding: .58rem 1.3rem; border-radius: var(--r); font-weight: 700; cursor: pointer; }
-.btn-push-ans:hover { background: #3a3a68; }
-.btn-take { background: #5c1a1a; color: #fff; border: 1px solid #8a2a2a; padding: .58rem 1.3rem; border-radius: var(--r); font-weight: 700; cursor: pointer; }
-.btn-take:hover { background: #7a2020; }
+/* ---- BLACKJACK: SPOT INLINE BUTTONS ---- */
+
+.spot-btn {
+  padding: .22rem .42rem;
+  border-radius: 5px; border: none;
+  font-size: .68rem; font-weight: 700;
+  cursor: pointer; transition: all .15s;
+  white-space: nowrap; line-height: 1.3;
+}
+.spot-hit-btn  { background: #1a3a5c; color: #7eb8e8; border: 1px solid #2a5a8c; }
+.spot-hit-btn:hover  { background: #224a72; }
+.spot-stay-btn { background: #3a2800; color: #c9a84c; border: 1px solid #6a4800; }
+.spot-stay-btn:hover { background: #4a3200; }
+.spot-bj-btn   { background: #3a2a00; color: #ffd700; border: 1px solid #7a5a00; font-size: .62rem; }
+.spot-bj-btn:hover   { background: #4e3900; }
+.spot-pay-btn  { background: #0a3020; color: #4ecdc4; border: 1px solid #1a6040; }
+.spot-pay-btn:hover  { background: #0e3c28; }
+.spot-push-btn { background: #1a1a30; color: #8888bb; border: 1px solid #30305a; }
+.spot-push-btn:hover { background: #22223c; }
+.spot-take-btn { background: #300a0a; color: #ff7777; border: 1px solid #601818; }
+.spot-take-btn:hover { background: #3e1010; }
+
+.spot-pay-row  { display: flex; gap: .18rem; }
 
 /* ---- BLACKJACK: PAY-TEST HIGHLIGHT ---- */
 
 .player-spot.pay-test-active {
-  border-color: #e8e0d0;
-  background: rgba(255,255,255,.07);
-  box-shadow: 0 0 16px rgba(255,255,255,.22);
+  border-color: rgba(232,224,208,.6);
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 0 14px rgba(255,255,255,.18);
 }
 
-/* ---- BLACKJACK: MISTAKE OVERLAY ---- */
+/* ---- BLACKJACK / BACCARAT: MISTAKE OVERLAY ---- */
 
 .blackjack-table { position: relative; }
 
 .mistake-overlay {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: rgba(0,0,0,.72);
   display: flex; align-items: center; justify-content: center;
-  z-index: 50;
-  border-radius: 18px;
+  z-index: 50; border-radius: 18px;
 }
-
 @keyframes mistakePop {
-  0%   { transform: scale(0.4); opacity: 0; }
+  0%   { transform: scale(.4); opacity: 0; }
   60%  { transform: scale(1.15); }
   100% { transform: scale(1); opacity: 1; }
 }
-
 .mistake-text {
-  font-size: clamp(2.8rem, 7vw, 5rem);
-  font-weight: 900;
-  color: #ff1a1a;
+  font-size: clamp(2.6rem, 7vw, 5rem);
+  font-weight: 900; color: #ff1a1a;
   text-shadow: 0 0 40px rgba(255,0,0,.9), 0 2px 8px rgba(0,0,0,.8);
   letter-spacing: 3px;
   animation: mistakePop .25s ease-out forwards;

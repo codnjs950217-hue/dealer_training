@@ -201,17 +201,16 @@ const Views = {
           <div class="players-row">
             ${[0,1,2,3,4].map(i => `
               <div class="player-spot" id="bj-spot-${i}">
-                <div class="area-label">Player ${i+1}</div>
+                <div class="spot-inline-act" id="bj-spot-act-${i}"></div>
                 <div class="hand-display" id="bj-hand-${i}"></div>
-                <div class="hand-value"   id="bj-value-${i}"></div>
                 <div class="spot-status-wrap" id="bj-status-${i}"></div>
+                <div class="area-label">P${i+1}</div>
               </div>`).join('')}
           </div>
           <div class="divider-line"></div>
           <div class="dealer-area">
-            <div class="area-label">Dealer</div>
             <div class="hand-display" id="bj-dealer-hand"></div>
-            <div class="hand-value"   id="bj-dealer-value"></div>
+            <div class="area-label">Dealer</div>
           </div>
         </div>
       </div>
@@ -428,6 +427,9 @@ const Sims = {
     const actions = h     => { $('bj-actions').innerHTML = h; };
     const stats   = ()    => { $('bj-rounds').textContent = S.rounds; $('bj-score').textContent = S.score; };
 
+    const setSpotAct  = (i, h) => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = h; };
+    const clearSpotAct = i     => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = ''; };
+
     function bval(c) {
       if (c.rank === 'A') return 11;
       if (['J','Q','K','10'].includes(c.rank)) return 10;
@@ -441,30 +443,25 @@ const Sims = {
     }
     const isBJ = h => h.length === 2 && total(h) === 21;
 
-    // Draw a card from the deck that won't bust the dealer
     function dealerSafeHit() {
-      const dv = total(S.dh);
       const indices = Array.from({length: S.deck.length}, (_, i) => i);
       for (let i = indices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [indices[i], indices[j]] = [indices[j], indices[i]];
       }
       for (const idx of indices) {
-        if (total([...S.dh, S.deck[idx]]) <= 21) {
-          const [card] = S.deck.splice(idx, 1);
-          return card;
-        }
+        if (total([...S.dh, S.deck[idx]]) <= 21) { const [c] = S.deck.splice(idx, 1); return c; }
       }
       return S.deck.pop();
     }
 
     function renderDealer(hideHole) {
+      const el = $('bj-dealer-hand');
+      if (!el) return;
       if (hideHole) {
-        $('bj-dealer-hand').innerHTML = cardHTML(S.dh[0]) + cardHTML(S.dh[1], true);
-        $('bj-dealer-value').textContent = `Showing: ${bval(S.dh[0])}`;
+        el.innerHTML = cardHTML(S.dh[0]) + cardHTML(S.dh[1], true);
       } else {
-        $('bj-dealer-hand').innerHTML = S.dh.map(c => cardHTML(c)).join('');
-        $('bj-dealer-value').textContent = `Total: ${total(S.dh)}`;
+        el.innerHTML = S.dh.map(c => cardHTML(c)).join('');
       }
     }
 
@@ -481,55 +478,71 @@ const Sims = {
       S.players.forEach((p, i) => {
         const spot   = $(`bj-spot-${i}`);
         const handEl = $(`bj-hand-${i}`);
-        const valEl  = $(`bj-value-${i}`);
         const statEl = $(`bj-status-${i}`);
         if (!spot) return;
 
-        // BJ and bust: hide cards and total, keep badge
-        if (p.status === 'bust' || p.status === 'blackjack') {
+        // Hide cards when flagged (after BJ pay or after bust delay)
+        if (p.hideCards) {
           handEl.innerHTML = '';
-          valEl.textContent = '';
         } else {
           handEl.innerHTML = p.hand.map(c => cardHTML(c)).join('');
-          const showTotal = (i === S.current && S.phase === 'player') ||
-                            (S.phase === 'pay-test' && i === S.payTestIdx);
-          valEl.textContent = showTotal && p.hand.length ? `Total: ${total(p.hand)}` : '';
         }
 
-        spot.className = 'player-spot';
-        if (S.phase === 'player' && i === S.current) spot.classList.add('active');
-        if (S.phase === 'pay-test' && i === S.payTestIdx) spot.classList.add('pay-test-active');
-        if (p.status === 'bust') spot.classList.add('faded');
+        // Show badge when cards are hidden OR status is a finished non-BJ state
+        const showBadge = p.hideCards || (p.status !== 'active' && p.status !== 'blackjack');
+        statEl.innerHTML = showBadge ? (STATUS_BADGE[p.status] || '') : '';
 
-        statEl.innerHTML = STATUS_BADGE[p.status] || '';
+        spot.className = 'player-spot';
+        if (S.phase === 'player'   && i === S.current)   spot.classList.add('active');
+        if (S.phase === 'pay-test' && i === S.payTestIdx) spot.classList.add('pay-test-active');
+        if (p.status === 'bust' && p.hideCards) spot.classList.add('faded');
       });
     }
 
-    function showHandAnim(playerIdx, type, callback) {
-      const spot = $(`bj-spot-${playerIdx}`);
+    // Hand animation — wrapper rotated 180° so it appears upside-down (dealer's view)
+    function showHandAnim(idx, type, callback) {
+      const spot = $(`bj-spot-${idx}`);
       if (!spot) { callback(); return; }
-      const el = document.createElement('div');
-      el.className = `hand-anim hand-anim-${type}`;
-      el.textContent = type === 'hit' ? '✊' : '🤚';
-      spot.appendChild(el);
-      setTimeout(() => { el.remove(); callback(); }, 1000);
+      const wrap = document.createElement('div');
+      wrap.className = 'hand-anim-wrap';
+      const inner = document.createElement('div');
+      inner.className = `hand-anim hand-anim-${type}`;
+      inner.textContent = type === 'hit' ? '✊' : '🤚';
+      wrap.appendChild(inner);
+      spot.appendChild(wrap);
+      setTimeout(() => { wrap.remove(); callback(); }, 1000);
     }
 
     function autoDecide() {
       const i = S.current;
       const pv = total(S.players[i].hand);
       S.pendingAction = pv >= 17 ? 'stand' : 'hit';
-      const icon = S.pendingAction === 'hit' ? '✊' : '🤚';
-      const label = S.pendingAction === 'hit' ? 'Hit' : 'Stay';
-      msg(`Player ${i+1}: ${pv} — ${label.toUpperCase()}`);
-      actions(`<button class="btn btn-action" onclick="Sims.blackjack.executeAction()">
-        <span class="btn-hand-icon">${icon}</span> ${label}
+      const isHit = S.pendingAction === 'hit';
+      setSpotAct(i, `<button class="spot-btn spot-${isHit ? 'hit' : 'stay'}-btn"
+        onclick="Sims.blackjack.executeAction()">
+        ${isHit ? '✊ Hit' : '🤚 Stay'}
       </button>`);
+      msg(`Player ${i + 1}`);
+      actions('');
+    }
+
+    function promptBJPay() {
+      const i = S.current;
+      setSpotAct(i, `<button class="spot-btn spot-bj-btn"
+        onclick="Sims.blackjack.bjPay()">BJ PAY</button>`);
+      msg(`Player ${i + 1}: Blackjack!`);
+      actions('');
     }
 
     function advancePlayer() {
+      if (S.current >= 0) clearSpotAct(S.current);
       S.current++;
-      while (S.current < N && S.players[S.current].status !== 'active') S.current++;
+      // Stop at active OR un-paid blackjack hands
+      while (S.current < N) {
+        const st = S.players[S.current].status;
+        if (st === 'active' || st === 'blackjack') break;
+        S.current++;
+      }
       if (S.current >= N) {
         S.dealerPhase = true;
         S.phase = 'dealer';
@@ -539,32 +552,36 @@ const Sims = {
         return;
       }
       renderPlayers();
-      autoDecide();
+      S.players[S.current].status === 'blackjack' ? promptBJPay() : autoDecide();
     }
 
     function startPayTest() {
+      for (let i = 0; i < N; i++) clearSpotAct(i);
       while (S.payTestIdx >= 0) {
-        const st = S.players[S.payTestIdx].status;
-        if (st === 'bust' || st === 'blackjack') { S.payTestIdx--; continue; }
+        const p = S.players[S.payTestIdx];
+        // Skip bust hands AND already-paid BJ hands
+        if (p.status === 'bust' || (p.status === 'blackjack' && p.hideCards)) {
+          S.payTestIdx--; continue;
+        }
         break;
       }
       if (S.payTestIdx < 0) { showFinalResult(); return; }
 
       S.phase = 'pay-test';
-      renderPlayers();
       const i = S.payTestIdx;
-      const pv = total(S.players[i].hand);
-      const dv = total(S.dh);
-      msg(`Player ${i+1}: ${pv}  vs  Dealer: ${dv} — Pay, Push, or Take?`);
-      actions(`
-        <button class="btn btn-pay"  onclick="Sims.blackjack.testAnswer('pay')">💰 Pay</button>
-        <button class="btn btn-push-ans" onclick="Sims.blackjack.testAnswer('push')">↔ Push</button>
-        <button class="btn btn-take" onclick="Sims.blackjack.testAnswer('take')">✕ Take</button>
-      `);
+      setSpotAct(i, `<div class="spot-pay-row">
+        <button class="spot-btn spot-pay-btn"  onclick="Sims.blackjack.testAnswer('pay')">Pay</button>
+        <button class="spot-btn spot-push-btn" onclick="Sims.blackjack.testAnswer('push')">Push</button>
+        <button class="spot-btn spot-take-btn" onclick="Sims.blackjack.testAnswer('take')">Take</button>
+      </div>`);
+      renderPlayers();
+      msg(`Player ${i + 1}: Pay, Push, or Take?`);
+      actions('');
     }
 
     function showFinalResult() {
       S.phase = 'done';
+      for (let i = 0; i < N; i++) clearSpotAct(i);
       renderPlayers();
       const wins   = S.players.filter(p => p.status === 'win').length;
       const losses = S.players.filter(p => p.status === 'lose').length;
@@ -583,7 +600,7 @@ const Sims = {
 
       newGame() {
         if (S.deck.length < 30) S.deck = createDeck(6);
-        S.players = Array.from({length: N}, () => ({ hand: [], status: 'active' }));
+        S.players = Array.from({length: N}, () => ({ hand: [], status: 'active', hideCards: false }));
         S.dh = [];
         S.current = 0;
         S.dealerPhase = false;
@@ -591,22 +608,20 @@ const Sims = {
         S.payTestIdx = 4;
         S.phase = 'player';
         S.rounds++;
+        for (let i = 0; i < N; i++) clearSpotAct(i);
 
-        // Deal 2 rounds: P1-P5 then Dealer
         for (let r = 0; r < 2; r++) {
           S.players.forEach(p => p.hand.push(S.deck.pop()));
           if (r === 0) {
-            // First dealer card must not be ACE
             while (S.deck[S.deck.length - 1].rank === 'A') {
               const ace = S.deck.pop();
-              const ri = Math.floor(Math.random() * Math.max(1, S.deck.length - 5));
-              S.deck.splice(ri, 0, ace);
+              S.deck.splice(Math.floor(Math.random() * Math.max(1, S.deck.length - 5)), 0, ace);
             }
           }
           S.dh.push(S.deck.pop());
         }
 
-        // Mark player blackjacks — cards+total will be hidden
+        // Mark BJ hands — cards stay visible until dealer presses BJ PAY
         S.players.forEach(p => { if (isBJ(p.hand)) p.status = 'blackjack'; });
 
         renderDealer(true);
@@ -617,24 +632,38 @@ const Sims = {
         advancePlayer();
       },
 
+      bjPay() {
+        const i = S.current;
+        clearSpotAct(i);
+        S.players[i].hideCards = true;
+        renderPlayers();
+        setTimeout(() => advancePlayer(), 300);
+      },
+
       executeAction() {
         const i = S.current;
         const p = S.players[i];
         const type = S.pendingAction;
-        actions('');
+        clearSpotAct(i);
+
         showHandAnim(i, type, () => {
           if (type === 'hit') {
             p.hand.push(S.deck.pop());
             const pv = total(p.hand);
             if (pv > 21) {
               p.status = 'bust';
+              p.hideCards = false; // show busted hand first
               renderPlayers();
-              msg(`Player ${i+1}: BUST (${pv})`);
-              setTimeout(() => advancePlayer(), 700);
+              msg(`Player ${i + 1}: BUST`);
+              setTimeout(() => {
+                p.hideCards = true; // then hide after delay
+                renderPlayers();
+                setTimeout(() => advancePlayer(), 350);
+              }, 1400);
             } else if (pv === 21) {
               p.status = 'stand';
               renderPlayers();
-              msg(`Player ${i+1}: 21 — STAND`);
+              msg(`Player ${i + 1}: 21 — STAND`);
               setTimeout(() => advancePlayer(), 700);
             } else {
               renderPlayers();
@@ -643,7 +672,7 @@ const Sims = {
           } else {
             p.status = 'stand';
             renderPlayers();
-            setTimeout(() => advancePlayer(), 600);
+            setTimeout(() => advancePlayer(), 650);
           }
         });
       },
@@ -652,10 +681,10 @@ const Sims = {
         renderDealer(false);
         const dv = total(S.dh);
         if (dv < 17) {
-          msg(`Dealer: ${dv} — must hit`);
+          msg('Dealer must hit.');
           actions(`<button class="btn btn-warning" onclick="Sims.blackjack.doDealerHit()">Dealer Hits</button>`);
         } else {
-          msg(`Dealer stands at ${dv}`);
+          msg('Dealer stands.');
           setTimeout(() => { S.payTestIdx = 4; startPayTest(); }, 800);
         }
       },
@@ -665,10 +694,10 @@ const Sims = {
         renderDealer(false);
         const dv = total(S.dh);
         if (dv < 17) {
-          msg(`Dealer: ${dv} — must hit again`);
+          msg('Dealer must hit again.');
           actions(`<button class="btn btn-warning" onclick="Sims.blackjack.doDealerHit()">Dealer Hits</button>`);
         } else {
-          msg(`Dealer stands at ${dv}`);
+          msg('Dealer stands.');
           setTimeout(() => { S.payTestIdx = 4; startPayTest(); }, 800);
         }
       },
@@ -680,7 +709,7 @@ const Sims = {
         const correct = pv > dv ? 'pay' : pv === dv ? 'push' : 'take';
 
         if (answer !== correct) {
-          actions('');
+          clearSpotAct(i);
           const table = document.querySelector('.blackjack-table');
           if (table) {
             const ov = document.createElement('div');
@@ -694,6 +723,7 @@ const Sims = {
 
         S.players[i].status = correct === 'pay' ? 'win' : correct === 'push' ? 'push' : 'lose';
         S.payTestIdx--;
+        clearSpotAct(i);
         renderPlayers();
         setTimeout(() => startPayTest(), 400);
       },
@@ -898,7 +928,6 @@ const Sims = {
       const seatRows = S.bets.map((b, i) => {
         if (!b.active) return '';
         const isWin = w === 'tie' || b.side === w;
-        const multiplier = w === 'tie' ? 8 : 1;
         const action = w === 'tie' ? 'Pay 8:1' : isWin ? 'Pay 1:1' : 'Take';
         return `<div class="pay-seat-row ${isWin ? 'win-row' : 'take-row'}">
           <span class="psr-num">P${i+1}</span>
