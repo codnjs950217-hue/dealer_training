@@ -149,7 +149,7 @@ body {
 .card-corner.bottom { bottom: 5px; right: 6px; transform: rotate(180deg); }
 .card-corner .rank  { font-size: .82rem; font-weight: 700; color: #111; }
 .card-corner .suit  { font-size: .68rem; }
-.card-suit-center   { font-size: 1.55rem; }
+.card-suit-center   { font-size: 1.55rem; color: #111; }
 
 .card.back {
   background: repeating-linear-gradient(
@@ -340,13 +340,56 @@ body {
 .hand-value { margin-top: .45rem; font-size: .875rem; color: var(--gold); font-weight: 600; }
 .divider-line { border-top: 1px dashed rgba(255,255,255,.14); margin: .8rem 0; }
 
-/* ---- 5-PLAYER ROW ---- */
+/* ---- 5-PLAYER ROW (diagonal) ---- */
+
+.bj-play-area {
+  position: relative;
+  min-height: 510px;
+}
 
 .players-row {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: flex;
   gap: .6rem;
+  align-items: flex-start;
 }
+
+/* Diagonal stagger: top-left → bottom-right */
+#bj-spot-0 { margin-top: 0; }
+#bj-spot-1 { margin-top: 44px; }
+#bj-spot-2 { margin-top: 88px; }
+#bj-spot-3 { margin-top: 132px; }
+#bj-spot-4 { margin-top: 176px; }
+
+/* Dealer positioned below P3 */
+.dealer-area-bj {
+  position: absolute;
+  left: 37%;
+  top: 298px;
+  width: 26%;
+  min-width: 190px;
+}
+.dealer-area-bj .hand-display {
+  min-height: 80px;
+}
+.dealer-ctrl-area {
+  margin-top: .4rem;
+  display: flex;
+  gap: .3rem;
+  flex-wrap: wrap;
+}
+.dealer-ctrl-btn {
+  padding: .25rem .6rem;
+  border-radius: 5px; border: none;
+  font-size: .68rem; font-weight: 700;
+  cursor: pointer; transition: all .15s;
+  white-space: nowrap; line-height: 1.4;
+}
+.dealer-open-btn { background: #1a3a5c; color: #7eb8e8; border: 1px solid #2a5a8c; }
+.dealer-open-btn:hover { background: #224a72; }
+.dealer-draw-btn { background: #0a3020; color: #4ecdc4; border: 1px solid #1a6040; }
+.dealer-draw-btn:hover { background: #0e3c28; }
+.dealer-stop-btn { background: #3a2800; color: #c9a84c; border: 1px solid #6a4800; }
+.dealer-stop-btn:hover { background: #4a3200; }
 
 .player-spot {
   background: rgba(0,0,0,.18);
@@ -355,6 +398,7 @@ body {
   padding: .6rem .5rem;
   transition: all .25s;
   min-height: 160px;
+  flex: 1;
 }
 .player-spot.active {
   border-color: var(--gold);
@@ -861,12 +905,13 @@ body {
   100% { transform: translateY(0); }
 }
 @keyframes waveD {
-  0%   { transform: rotate(0deg); }
-  20%  { transform: rotate(22deg); }
-  40%  { transform: rotate(-22deg); }
-  60%  { transform: rotate(16deg); }
-  80%  { transform: rotate(-16deg); }
-  100% { transform: rotate(0deg); }
+  0%   { transform: translateX(0); }
+  18%  { transform: translateX(-10px); }
+  36%  { transform: translateX(10px); }
+  54%  { transform: translateX(-8px); }
+  72%  { transform: translateX(8px); }
+  88%  { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
 }
 
 .hand-anim-hit  { animation: knockD .9s ease-in-out; }

@@ -197,7 +197,7 @@ const Views = {
         <div class="sim-stats"><span>Rounds: <strong id="bj-rounds">0</strong></span><span>Score: <strong id="bj-score">0</strong></span></div>
       </div>
       <div class="blackjack-table">
-        <div class="table-felt">
+        <div class="bj-play-area">
           <div class="players-row">
             ${[0,1,2,3,4].map(i => `
               <div class="player-spot" id="bj-spot-${i}">
@@ -207,10 +207,10 @@ const Views = {
                 <div class="area-label">P${i+1}</div>
               </div>`).join('')}
           </div>
-          <div class="divider-line"></div>
-          <div class="dealer-area">
+          <div class="dealer-area-bj" id="bj-dealer-wrap">
+            <div class="area-label">DEALER</div>
             <div class="hand-display" id="bj-dealer-hand"></div>
-            <div class="area-label">Dealer</div>
+            <div class="dealer-ctrl-area" id="bj-dealer-controls"></div>
           </div>
         </div>
       </div>
@@ -426,6 +426,8 @@ const Sims = {
     const msgCol = (t, c) => { $('bj-msg').textContent = t; $('bj-msg').style.color = c; };
     const actions = h     => { $('bj-actions').innerHTML = h; };
     const stats   = ()    => { $('bj-rounds').textContent = S.rounds; $('bj-score').textContent = S.score; };
+    const dealerCtrl     = h => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = h; };
+    const clearDealerCtrl  = () => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = ''; };
 
     const setSpotAct  = (i, h) => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = h; };
     const clearSpotAct = i     => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = ''; };
@@ -443,14 +445,14 @@ const Sims = {
     }
     const isBJ = h => h.length === 2 && total(h) === 21;
 
-    function dealerSafeHit() {
+    function safeHit(hand) {
       const indices = Array.from({length: S.deck.length}, (_, i) => i);
       for (let i = indices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [indices[i], indices[j]] = [indices[j], indices[i]];
       }
       for (const idx of indices) {
-        if (total([...S.dh, S.deck[idx]]) <= 21) { const [c] = S.deck.splice(idx, 1); return c; }
+        if (total([...hand, S.deck[idx]]) <= 21) { const [c] = S.deck.splice(idx, 1); return c; }
       }
       return S.deck.pop();
     }
@@ -547,8 +549,9 @@ const Sims = {
         S.dealerPhase = true;
         S.phase = 'dealer';
         renderPlayers();
-        msg('All players done. Reveal dealer hole card.');
-        actions(`<button class="btn btn-primary" onclick="Sims.blackjack.revealDealer()">Reveal Hole Card</button>`);
+        msg('All players done. Open the dealer hole card.');
+        actions('');
+        dealerCtrl(`<button class="dealer-ctrl-btn dealer-open-btn" onclick="Sims.blackjack.revealDealer()">Open Card</button>`);
         return;
       }
       renderPlayers();
@@ -609,6 +612,7 @@ const Sims = {
         S.phase = 'player';
         S.rounds++;
         for (let i = 0; i < N; i++) clearSpotAct(i);
+        clearDealerCtrl();
 
         for (let r = 0; r < 2; r++) {
           S.players.forEach(p => p.hand.push(S.deck.pop()));
@@ -648,19 +652,9 @@ const Sims = {
 
         showHandAnim(i, type, () => {
           if (type === 'hit') {
-            p.hand.push(S.deck.pop());
+            p.hand.push(safeHit(p.hand));
             const pv = total(p.hand);
-            if (pv > 21) {
-              p.status = 'bust';
-              p.hideCards = false; // show busted hand first
-              renderPlayers();
-              msg(`Player ${i + 1}: BUST`);
-              setTimeout(() => {
-                p.hideCards = true; // then hide after delay
-                renderPlayers();
-                setTimeout(() => advancePlayer(), 350);
-              }, 1400);
-            } else if (pv === 21) {
+            if (pv === 21) {
               p.status = 'stand';
               renderPlayers();
               msg(`Player ${i + 1}: 21 — STAND`);
@@ -678,28 +672,42 @@ const Sims = {
       },
 
       revealDealer() {
+        clearDealerCtrl();
         renderDealer(false);
         const dv = total(S.dh);
         if (dv < 17) {
-          msg('Dealer must hit.');
-          actions(`<button class="btn btn-warning" onclick="Sims.blackjack.doDealerHit()">Dealer Hits</button>`);
+          msg(`Dealer: ${dv}. Draw or Stop?`);
+          dealerCtrl(`
+            <button class="dealer-ctrl-btn dealer-draw-btn" onclick="Sims.blackjack.dealerDraw()">Draw Card</button>
+            <button class="dealer-ctrl-btn dealer-stop-btn" onclick="Sims.blackjack.dealerStop()">Stop</button>
+          `);
         } else {
           msg('Dealer stands.');
-          setTimeout(() => { S.payTestIdx = 4; startPayTest(); }, 800);
+          setTimeout(() => { clearDealerCtrl(); S.payTestIdx = 4; startPayTest(); }, 800);
         }
       },
 
-      doDealerHit() {
-        S.dh.push(dealerSafeHit());
+      dealerDraw() {
+        clearDealerCtrl();
+        S.dh.push(safeHit(S.dh));
         renderDealer(false);
         const dv = total(S.dh);
         if (dv < 17) {
-          msg('Dealer must hit again.');
-          actions(`<button class="btn btn-warning" onclick="Sims.blackjack.doDealerHit()">Dealer Hits</button>`);
+          msg(`Dealer: ${dv}. Draw or Stop?`);
+          dealerCtrl(`
+            <button class="dealer-ctrl-btn dealer-draw-btn" onclick="Sims.blackjack.dealerDraw()">Draw Card</button>
+            <button class="dealer-ctrl-btn dealer-stop-btn" onclick="Sims.blackjack.dealerStop()">Stop</button>
+          `);
         } else {
           msg('Dealer stands.');
-          setTimeout(() => { S.payTestIdx = 4; startPayTest(); }, 800);
+          setTimeout(() => { clearDealerCtrl(); S.payTestIdx = 4; startPayTest(); }, 800);
         }
+      },
+
+      dealerStop() {
+        clearDealerCtrl();
+        S.payTestIdx = 4;
+        startPayTest();
       },
 
       testAnswer(answer) {
