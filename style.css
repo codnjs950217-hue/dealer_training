@@ -898,7 +898,6 @@ body {
   height: 74px;
   flex-shrink: 0;
   position: relative;
-  animation: bjCardIn .28s ease-out;
 }
 .bj-flip-inner {
   width: 52px;
@@ -914,11 +913,6 @@ body {
 }
 .bj-flip-back { z-index: 2; }
 .bj-flip-front { transform: rotateY(180deg); }
-
-@keyframes bjCardIn {
-  from { opacity: 0; transform: translateY(-18px); }
-  to   { opacity: 1; transform: none; }
-}
 
 /* Diagonal cascade: horizontal overlap + cumulative vertical drop */
 .player-spot .hand-display .bj-flip-card:nth-child(n+2) { margin-left: -26px; }
@@ -960,15 +954,6 @@ body {
 
 .hand-anim-hit  { animation: knockD .9s ease-in-out; }
 .hand-anim-stay { animation: waveD  .9s ease-in-out; }
-
-/* Dealer card slide-in */
-@keyframes dealerCardIn {
-  from { opacity: 0; transform: translateX(-24px); }
-  to   { opacity: 1; transform: none; }
-}
-.dealer-area-bj .hand-display .card {
-  animation: dealerCardIn .3s ease-out;
-}
 
 /* ---- BLACKJACK: SPOT INLINE BUTTONS ---- */
 
@@ -1073,3 +1058,130 @@ body {
   .btn-bac-player, .btn-bac-banker, .btn-bac-tie, .btn-bac-draw { font-size: .8rem; padding: .5rem .75rem; }
   .btn-pay, .btn-push-ans, .btn-take { font-size: .8rem; padding: .5rem .75rem; }
 }
+
+/* ============================================================
+   BACCARAT PAY SIMULATION
+   ============================================================ */
+
+.bac-pay-table { position: relative; }
+
+/* Card area — Banker and Player equal width */
+.bpay-card-area {
+  display: flex; align-items: stretch; gap: .7rem;
+  margin-bottom: 1.4rem;
+}
+.bpay-side {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; align-items: center;
+}
+.bpay-hand {
+  justify-content: center;
+}
+.bpay-mid {
+  display: flex; align-items: center; justify-content: center;
+  width: 64px; flex-shrink: 0;
+}
+.bpay-pts {
+  text-align: center; font-size: 2rem; font-weight: 900;
+  color: var(--gold); min-height: 2.4rem; margin-top: .3rem;
+  text-shadow: 0 0 18px rgba(201,168,76,.5);
+}
+
+/* 3 Player betting positions */
+.bpay-positions {
+  display: flex; gap: .6rem;
+}
+.bpay-pos {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: stretch; gap: .35rem;
+  border: 2px solid transparent; border-radius: 12px;
+  padding: .3rem; transition: border-color .2s;
+}
+.bpay-pos.active {
+  border-color: rgba(201,168,76,.6);
+  background: rgba(201,168,76,.04);
+}
+
+/* Ovals: PLAYER (red) and BANKER (gold) */
+.bpay-oval {
+  border-radius: 60px;
+  padding: .38rem .6rem;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 46px; cursor: default;
+  border: 2px solid transparent;
+  transition: box-shadow .15s;
+}
+.bpay-p-oval {
+  background: radial-gradient(ellipse at center, #c0202055 0%, #6b000040 100%);
+  border-color: #c62828;
+}
+.bpay-b-oval {
+  background: radial-gradient(ellipse at center, #9a780040 0%, #5a430020 100%);
+  border-color: #c9a84c;
+}
+.bpay-oval.has-bet {
+  box-shadow: 0 0 12px rgba(255,255,255,.28);
+  border-color: #fff;
+}
+.bpay-oval-lbl {
+  font-size: .68rem; font-weight: 800;
+  letter-spacing: 1.4px; color: #fff;
+}
+.bpay-oval-amt {
+  font-size: .66rem; font-weight: 700;
+  color: rgba(255,255,255,.85); min-height: .9rem;
+}
+
+/* Tiger / Tie circles (yellow-gold) */
+.bpay-circles {
+  display: flex; gap: .2rem;
+}
+.bpay-circ {
+  flex: 1;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-size: .5rem; font-weight: 800;
+  text-align: center; line-height: 1.15;
+  letter-spacing: .3px;
+  border: 2px solid rgba(255,255,255,.25);
+}
+.bpay-tiger {
+  background: radial-gradient(circle, #9a7a00cc, #4a3a00aa);
+  color: #ffd060;
+  border-color: #c9a84c;
+}
+/* Dragon circles — rotated 180° (text faces customer) */
+.bpay-dragon {
+  background: radial-gradient(circle, #8b000099, #4a0000aa);
+  color: #ff9090;
+  border-color: rgba(200,60,60,.6);
+  transform: rotate(180deg);
+}
+
+/* Pay result panel */
+.bpay-pay-panel { margin-top: 1rem; }
+.bpay-pay-inner {
+  background: #091828;
+  border: 1px solid rgba(201,168,76,.2);
+  border-radius: 14px; padding: 1rem;
+  display: flex; flex-direction: column; gap: .35rem;
+}
+.bpay-row {
+  display: grid; grid-template-columns: 2.4rem 3.2rem 1fr 5rem;
+  align-items: center; gap: .4rem;
+  padding: .38rem .6rem; border-radius: 8px; font-size: .82rem;
+}
+.bpay-win  { background: rgba(78,205,196,.06);  border: 1px solid rgba(78,205,196,.2); }
+.bpay-lose { background: rgba(255,107,107,.05); border: 1px solid rgba(255,107,107,.12); }
+.bpay-push { background: rgba(201,168,76,.05);  border: 1px solid rgba(201,168,76,.15); }
+.bpay-row-pos { color: var(--text-dim); font-weight: 700; }
+.bpay-row-side.player { color: var(--win);  font-weight: 700; }
+.bpay-row-side.banker { color: var(--gold); font-weight: 700; }
+.bpay-row-amt { color: var(--text); }
+.bpay-row-act { text-align: right; font-weight: 700; }
+.bpay-win  .bpay-row-act { color: var(--win); }
+.bpay-lose .bpay-row-act { color: #ff6b6b; }
+.bpay-push .bpay-row-act { color: var(--gold); }
