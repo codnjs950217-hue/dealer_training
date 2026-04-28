@@ -340,11 +340,33 @@ body {
 .hand-value { margin-top: .45rem; font-size: .875rem; color: var(--gold); font-weight: 600; }
 .divider-line { border-top: 1px dashed rgba(255,255,255,.14); margin: .8rem 0; }
 
-/* ---- 5-PLAYER ROW (diagonal) ---- */
+/* ---- 5-PLAYER ROW (flat) ---- */
+
+.bj-start-bar {
+  display: flex;
+  justify-content: center;
+  padding: .5rem 0 .9rem;
+}
+.bj-start-btn {
+  background: var(--gold);
+  color: #0a1628;
+  border: none;
+  border-radius: var(--r);
+  padding: .48rem 2.4rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: .5px;
+  transition: all .2s;
+  box-shadow: 0 2px 10px rgba(201,168,76,.35);
+}
+.bj-start-btn:hover:not(:disabled) { background: var(--gold-light); transform: translateY(-1px); }
+.bj-start-btn:disabled { cursor: default; }
 
 .bj-play-area {
-  position: relative;
-  min-height: 510px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
 }
 
 .players-row {
@@ -353,23 +375,18 @@ body {
   align-items: flex-start;
 }
 
-/* Diagonal stagger: top-left → bottom-right */
-#bj-spot-0 { margin-top: 0; }
-#bj-spot-1 { margin-top: 44px; }
-#bj-spot-2 { margin-top: 88px; }
-#bj-spot-3 { margin-top: 132px; }
-#bj-spot-4 { margin-top: 176px; }
-
-/* Dealer positioned below P3 */
+/* Dealer below players, full-width, cards horizontal */
 .dealer-area-bj {
-  position: absolute;
-  left: 37%;
-  top: 298px;
-  width: 26%;
-  min-width: 190px;
+  width: 100%;
 }
 .dealer-area-bj .hand-display {
+  flex-wrap: nowrap;
+  overflow-x: auto;
   min-height: 80px;
+  gap: .3rem;
+}
+.dealer-area-bj .hand-display .card:not(:first-child) {
+  margin-left: -12px;
 }
 .dealer-ctrl-area {
   margin-top: .4rem;
@@ -397,7 +414,7 @@ body {
   border-radius: 10px;
   padding: .6rem .5rem;
   transition: all .25s;
-  min-height: 160px;
+  min-height: 210px;
   flex: 1;
 }
 .player-spot.active {
@@ -407,10 +424,6 @@ body {
 }
 .player-spot.faded { opacity: .45; }
 
-.player-spot .hand-display {
-  min-height: 80px;
-  gap: .3rem;
-}
 .player-spot .card {
   width: 52px;
   height: 74px;
@@ -852,38 +865,53 @@ body {
 /* Label at the bottom (closest to dealer) */
 .player-spot .area-label { order: 10; }
 
-/* ---- BLACKJACK: CARD OVERLAP (fan layout) ---- */
+/* ---- BLACKJACK: CARD DIAGONAL CASCADE ---- */
 
 .player-spot .hand-display {
   display: flex;
+  flex-wrap: nowrap;
   align-items: flex-start;
-  min-height: 74px;
+  min-height: 155px;
+  gap: 3px;
   position: relative;
 }
-.player-spot .hand-display .card { flex-shrink: 0; }
-.player-spot .hand-display .card.back { flex-shrink: 0; }
-.player-spot .hand-display .card:nth-child(1) {
-  transform: rotate(-4deg);
-  z-index: 1;
+
+/* BJ flip-card wrapper — sized to match player spot cards (52×74) */
+.bj-flip-card {
+  display: inline-block;
+  perspective: 500px;
+  width: 52px;
+  height: 74px;
+  flex-shrink: 0;
+  animation: bjCardIn .28s ease-out;
 }
-.player-spot .hand-display .card:nth-child(2) {
-  margin-left: -22px;
-  margin-top: 6px;
-  transform: rotate(3deg);
-  z-index: 2;
+.bj-flip-inner {
+  width: 52px;
+  height: 74px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform .55s ease;
 }
-.player-spot .hand-display .card:nth-child(3) {
-  margin-left: -18px;
-  margin-top: 0;
-  transform: rotate(-2deg);
-  z-index: 3;
+.bj-flip-card.bj-revealed .bj-flip-inner { transform: rotateY(180deg); }
+.bj-flip-back, .bj-flip-front {
+  position: absolute; top: 0; left: 0;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
 }
-.player-spot .hand-display .card:nth-child(n+4) {
-  margin-left: -18px;
-  margin-top: 0;
-  transform: rotate(1deg);
-  z-index: 4;
+.bj-flip-back { z-index: 2; }
+.bj-flip-front { transform: rotateY(180deg); }
+
+@keyframes bjCardIn {
+  from { opacity: 0; transform: translateY(-18px); }
+  to   { opacity: 1; transform: none; }
 }
+
+/* Diagonal cascade: cumulative vertical drop per card */
+.player-spot .hand-display .bj-flip-card:nth-child(2) { margin-top: 14px; }
+.player-spot .hand-display .bj-flip-card:nth-child(3) { margin-top: 28px; }
+.player-spot .hand-display .bj-flip-card:nth-child(4) { margin-top: 42px; }
+.player-spot .hand-display .bj-flip-card:nth-child(5) { margin-top: 56px; }
+.player-spot .hand-display .bj-flip-card:nth-child(6) { margin-top: 70px; }
+.player-spot .hand-display .bj-flip-card:nth-child(7) { margin-top: 84px; }
 
 /* ---- BLACKJACK: HAND ANIMATION (dealer perspective — upside down at top) ---- */
 
@@ -917,6 +945,15 @@ body {
 .hand-anim-hit  { animation: knockD .9s ease-in-out; }
 .hand-anim-stay { animation: waveD  .9s ease-in-out; }
 
+/* Dealer card slide-in */
+@keyframes dealerCardIn {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: none; }
+}
+.dealer-area-bj .hand-display .card {
+  animation: dealerCardIn .3s ease-out;
+}
+
 /* ---- BLACKJACK: SPOT INLINE BUTTONS ---- */
 
 .spot-btn {
@@ -930,6 +967,12 @@ body {
 .spot-hit-btn:hover  { background: #224a72; }
 .spot-stay-btn { background: #3a2800; color: #c9a84c; border: 1px solid #6a4800; }
 .spot-stay-btn:hover { background: #4a3200; }
+.spot-next-btn {
+  background: #0e3428; color: #4ecdc4;
+  border: 1px solid #1a6048;
+  padding: .32rem .82rem; font-size: .75rem;
+}
+.spot-next-btn:hover { background: #124030; }
 .spot-bj-btn   { background: #3a2a00; color: #ffd700; border: 1px solid #7a5a00; font-size: .62rem; }
 .spot-bj-btn:hover   { background: #4e3900; }
 .spot-pay-btn  { background: #0a3020; color: #4ecdc4; border: 1px solid #1a6040; }

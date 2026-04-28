@@ -197,13 +197,16 @@ const Views = {
         <div class="sim-stats"><span>Rounds: <strong id="bj-rounds">0</strong></span><span>Score: <strong id="bj-score">0</strong></span></div>
       </div>
       <div class="blackjack-table">
+        <div class="bj-start-bar">
+          <button class="bj-start-btn" id="bj-start-btn" onclick="Sims.blackjack.newGame()">Start</button>
+        </div>
         <div class="bj-play-area">
           <div class="players-row">
             ${[0,1,2,3,4].map(i => `
               <div class="player-spot" id="bj-spot-${i}">
-                <div class="spot-inline-act" id="bj-spot-act-${i}"></div>
                 <div class="hand-display" id="bj-hand-${i}"></div>
                 <div class="spot-status-wrap" id="bj-status-${i}"></div>
+                <div class="spot-inline-act" id="bj-spot-act-${i}"></div>
                 <div class="area-label">P${i+1}</div>
               </div>`).join('')}
           </div>
@@ -215,10 +218,8 @@ const Views = {
         </div>
       </div>
       <div class="sim-controls">
-        <div class="message-board" id="bj-msg">Click "New Game" to start dealing.</div>
-        <div class="action-buttons" id="bj-actions">
-          <button class="btn btn-primary" onclick="Sims.blackjack.newGame()">New Game</button>
-        </div>
+        <div class="message-board" id="bj-msg">Press Start to deal.</div>
+        <div class="action-buttons" id="bj-actions"></div>
       </div>
     </div>`,
 
@@ -420,17 +421,19 @@ const Sims = {
   blackjack: (() => {
     const N = 5;
     let S = {};
+    let bjFlipId = 0;
 
     const $ = id => document.getElementById(id);
     const msg    = t      => { $('bj-msg').textContent = t; $('bj-msg').style.color = ''; };
     const msgCol = (t, c) => { $('bj-msg').textContent = t; $('bj-msg').style.color = c; };
     const actions = h     => { $('bj-actions').innerHTML = h; };
     const stats   = ()    => { $('bj-rounds').textContent = S.rounds; $('bj-score').textContent = S.score; };
-    const dealerCtrl     = h => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = h; };
-    const clearDealerCtrl  = () => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = ''; };
-
+    const dealerCtrl    = h => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = h; };
+    const clearDealerCtrl = () => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = ''; };
     const setSpotAct  = (i, h) => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = h; };
     const clearSpotAct = i     => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = ''; };
+    const enableStart  = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = false; e.style.opacity = ''; } };
+    const disableStart = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = true;  e.style.opacity = '0.4'; } };
 
     function bval(c) {
       if (c.rank === 'A') return 11;
@@ -443,7 +446,17 @@ const Sims = {
       while (t > 21 && a--) t -= 10;
       return t;
     }
-    const isBJ = h => h.length === 2 && total(h) === 21;
+
+    // Return a card from deck that won't create BJ with firstCard
+    function nonBJCard(firstCard) {
+      for (let j = S.deck.length - 1; j >= 0; j--) {
+        if (total([firstCard, S.deck[j]]) !== 21) {
+          const [c] = S.deck.splice(j, 1);
+          return c;
+        }
+      }
+      return S.deck.pop();
+    }
 
     function safeHit(hand) {
       const indices = Array.from({length: S.deck.length}, (_, i) => i);
@@ -457,6 +470,19 @@ const Sims = {
       return S.deck.pop();
     }
 
+    // Flip-card wrapper for player spot cards (52×74)
+    function bjFlipHTML(card, id, revealed = true) {
+      return `<div class="bj-flip-card${revealed ? ' bj-revealed' : ''}" id="bjfc${id}">` +
+        `<div class="bj-flip-inner">` +
+          `<div class="bj-flip-back"><div class="card back"><div class="card-pattern"></div></div></div>` +
+          `<div class="bj-flip-front">${cardHTML(card)}</div>` +
+        `</div></div>`;
+    }
+    function bjReveal(id) {
+      const e = document.getElementById(`bjfc${id}`);
+      if (e) e.classList.add('bj-revealed');
+    }
+
     function renderDealer(hideHole) {
       const el = $('bj-dealer-hand');
       if (!el) return;
@@ -468,12 +494,10 @@ const Sims = {
     }
 
     const STATUS_BADGE = {
-      blackjack: '<div class="spot-status s-bj">BJ PAY ♠</div>',
-      bust:      '<div class="spot-status s-bust">BUST</div>',
-      stand:     '<div class="spot-status s-stood">STAND</div>',
-      win:       '<div class="spot-status s-win">PAY ✓</div>',
-      lose:      '<div class="spot-status s-lose">TAKE ✕</div>',
-      push:      '<div class="spot-status s-push">PUSH</div>',
+      bust: '<div class="spot-status s-bust">BUST</div>',
+      win:  '<div class="spot-status s-win">PAY ✓</div>',
+      lose: '<div class="spot-status s-lose">TAKE ✕</div>',
+      push: '<div class="spot-status s-push">PUSH</div>',
     };
 
     function renderPlayers() {
@@ -483,15 +507,13 @@ const Sims = {
         const statEl = $(`bj-status-${i}`);
         if (!spot) return;
 
-        // Hide cards when flagged (after BJ pay or after bust delay)
         if (p.hideCards) {
           handEl.innerHTML = '';
         } else {
-          handEl.innerHTML = p.hand.map(c => cardHTML(c)).join('');
+          handEl.innerHTML = p.hand.map(c => bjFlipHTML(c, ++bjFlipId, true)).join('');
         }
 
-        // Show badge when cards are hidden OR status is a finished non-BJ state
-        const showBadge = p.hideCards || (p.status !== 'active' && p.status !== 'blackjack');
+        const showBadge = p.hideCards || (p.status !== 'active' && p.status !== 'stand');
         statEl.innerHTML = showBadge ? (STATUS_BADGE[p.status] || '') : '';
 
         spot.className = 'player-spot';
@@ -501,7 +523,6 @@ const Sims = {
       });
     }
 
-    // Hand animation — wrapper rotated 180° so it appears upside-down (dealer's view)
     function showHandAnim(idx, type, callback) {
       const spot = $(`bj-spot-${idx}`);
       if (!spot) { callback(); return; }
@@ -519,30 +540,16 @@ const Sims = {
       const i = S.current;
       const pv = total(S.players[i].hand);
       S.pendingAction = pv >= 17 ? 'stand' : 'hit';
-      const isHit = S.pendingAction === 'hit';
-      setSpotAct(i, `<button class="spot-btn spot-${isHit ? 'hit' : 'stay'}-btn"
-        onclick="Sims.blackjack.executeAction()">
-        ${isHit ? '✊ Hit' : '🤚 Stay'}
-      </button>`);
+      setSpotAct(i, `<button class="spot-btn spot-next-btn" onclick="Sims.blackjack.executeAction()">Next Action</button>`);
       msg(`Player ${i + 1}`);
-      actions('');
-    }
-
-    function promptBJPay() {
-      const i = S.current;
-      setSpotAct(i, `<button class="spot-btn spot-bj-btn"
-        onclick="Sims.blackjack.bjPay()">BJ PAY</button>`);
-      msg(`Player ${i + 1}: Blackjack!`);
       actions('');
     }
 
     function advancePlayer() {
       if (S.current >= 0) clearSpotAct(S.current);
       S.current++;
-      // Stop at active OR un-paid blackjack hands
       while (S.current < N) {
-        const st = S.players[S.current].status;
-        if (st === 'active' || st === 'blackjack') break;
+        if (S.players[S.current].status === 'active') break;
         S.current++;
       }
       if (S.current >= N) {
@@ -555,17 +562,14 @@ const Sims = {
         return;
       }
       renderPlayers();
-      S.players[S.current].status === 'blackjack' ? promptBJPay() : autoDecide();
+      autoDecide();
     }
 
     function startPayTest() {
       for (let i = 0; i < N; i++) clearSpotAct(i);
       while (S.payTestIdx >= 0) {
         const p = S.players[S.payTestIdx];
-        // Skip bust hands AND already-paid BJ hands
-        if (p.status === 'bust' || (p.status === 'blackjack' && p.hideCards)) {
-          S.payTestIdx--; continue;
-        }
+        if (p.status === 'bust' || p.hideCards) { S.payTestIdx--; continue; }
         break;
       }
       if (S.payTestIdx < 0) { showFinalResult(); return; }
@@ -592,13 +596,14 @@ const Sims = {
       msgCol(`Round complete! Paid: ${wins} · Took: ${losses} · Push: ${pushes}`, '#c9a84c');
       S.score += wins;
       stats();
-      actions(`<button class="btn btn-primary" onclick="Sims.blackjack.newGame()">New Game</button>`);
+      enableStart();
     }
 
     return {
       init() {
         S = { deck: createDeck(6), players: [], dh: [], current: 0, dealerPhase: false,
               rounds: 0, score: 0, pendingAction: null, payTestIdx: 4, phase: 'idle' };
+        bjFlipId = 0;
       },
 
       newGame() {
@@ -611,37 +616,52 @@ const Sims = {
         S.payTestIdx = 4;
         S.phase = 'player';
         S.rounds++;
-        for (let i = 0; i < N; i++) clearSpotAct(i);
-        clearDealerCtrl();
-
-        for (let r = 0; r < 2; r++) {
-          S.players.forEach(p => p.hand.push(S.deck.pop()));
-          if (r === 0) {
-            while (S.deck[S.deck.length - 1].rank === 'A') {
-              const ace = S.deck.pop();
-              S.deck.splice(Math.floor(Math.random() * Math.max(1, S.deck.length - 5)), 0, ace);
-            }
-          }
-          S.dh.push(S.deck.pop());
+        for (let i = 0; i < N; i++) {
+          clearSpotAct(i);
+          const st = $(`bj-status-${i}`); if (st) st.innerHTML = '';
+          const sp = $(`bj-spot-${i}`);   if (sp) sp.className = 'player-spot';
         }
+        clearDealerCtrl();
+        disableStart();
 
-        // Mark BJ hands — cards stay visible until dealer presses BJ PAY
-        S.players.forEach(p => { if (isBJ(p.hand)) p.status = 'blackjack'; });
+        // Deal round 1
+        for (let i = 0; i < N; i++) S.players[i].hand.push(S.deck.pop());
+        S.dh.push(S.deck.pop());
+        // Deal round 2, blocking player blackjack
+        for (let i = 0; i < N; i++) S.players[i].hand.push(nonBJCard(S.players[i].hand[0]));
+        S.dh.push(S.deck.pop());
 
-        renderDealer(true);
-        renderPlayers();
-        stats();
-        msg('New game! Player actions begin.');
-        S.current = -1;
-        advancePlayer();
-      },
+        // Clear hand displays
+        for (let i = 0; i < N; i++) $(`bj-hand-${i}`).innerHTML = '';
+        $('bj-dealer-hand').innerHTML = '';
 
-      bjPay() {
-        const i = S.current;
-        clearSpotAct(i);
-        S.players[i].hideCards = true;
-        renderPlayers();
-        setTimeout(() => advancePlayer(), 300);
+        // Animated deal: P0 P1 P2 P3 P4 D  P0 P1 P2 P3 P4 D
+        const steps = [];
+        for (let r = 0; r < 2; r++) {
+          for (let i = 0; i < N; i++) steps.push({ type: 'player', idx: i, card: S.players[i].hand[r] });
+          steps.push({ type: 'dealer', card: S.dh[r], faceDown: r === 1 });
+        }
+        steps.forEach((step, n) => {
+          setTimeout(() => {
+            if (step.type === 'player') {
+              const el = $(`bj-hand-${step.idx}`);
+              if (!el) return;
+              const id = ++bjFlipId;
+              el.innerHTML += bjFlipHTML(step.card, id, false);
+              setTimeout(() => bjReveal(id), 180);
+            } else {
+              const el = $('bj-dealer-hand');
+              if (el) el.innerHTML += cardHTML(step.card, step.faceDown);
+            }
+          }, n * 260);
+        });
+
+        setTimeout(() => {
+          stats();
+          msg('Game started!');
+          S.current = -1;
+          advancePlayer();
+        }, steps.length * 260 + 600);
       },
 
       executeAction() {
@@ -650,22 +670,32 @@ const Sims = {
         const type = S.pendingAction;
         clearSpotAct(i);
 
-        showHandAnim(i, type, () => {
+        showHandAnim(i, type === 'stand' ? 'stay' : 'hit', () => {
           if (type === 'hit') {
-            p.hand.push(safeHit(p.hand));
-            const pv = total(p.hand);
-            if (pv === 21) {
-              p.status = 'stand';
-              renderPlayers();
-              msg(`Player ${i + 1}: 21 — STAND`);
-              setTimeout(() => advancePlayer(), 700);
-            } else {
-              renderPlayers();
-              autoDecide();
-            }
+            const newCard = safeHit(p.hand);
+            p.hand.push(newCard);
+            const handEl = $(`bj-hand-${i}`);
+            const id = ++bjFlipId;
+            if (handEl) handEl.innerHTML += bjFlipHTML(newCard, id, false);
+            setTimeout(() => bjReveal(id), 180);
+            setTimeout(() => {
+              const pv = total(p.hand);
+              if (pv > 21) {
+                p.status = 'bust';
+                renderPlayers();
+                msg(`Player ${i + 1}: Bust!`);
+                setTimeout(() => advancePlayer(), 700);
+              } else if (pv === 21) {
+                p.status = 'stand';
+                renderPlayers();
+                msg(`Player ${i + 1}: 21`);
+                setTimeout(() => advancePlayer(), 700);
+              } else {
+                autoDecide();
+              }
+            }, 750);
           } else {
             p.status = 'stand';
-            renderPlayers();
             setTimeout(() => advancePlayer(), 650);
           }
         });
