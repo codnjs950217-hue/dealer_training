@@ -385,17 +385,22 @@ body {
 }
 .dealer-area-bj .hand-display {
   flex-wrap: nowrap;
-  overflow-x: auto;
   min-height: 80px;
   gap: .3rem;
   justify-content: center;
 }
-.dealer-area-bj .hand-display .card:not(:first-child) {
-  margin-left: -12px;
-}
 .dealer-area-bj .hand-display .bj-flip-card:not(:first-child) {
   margin-left: -12px;
 }
+/* Match dealer cards to player-spot card size */
+.dealer-area-bj .card {
+  width: 52px;
+  height: 74px;
+}
+.dealer-area-bj .card-corner .rank { font-size: .68rem; }
+.dealer-area-bj .card-corner .suit { font-size: .58rem; }
+.dealer-area-bj .card-suit-center  { font-size: 1.1rem; }
+.dealer-area-bj .card-pattern      { width: 44px; height: 66px; }
 .dealer-ctrl-area {
   margin-top: .4rem;
   display: flex;
