@@ -495,7 +495,7 @@ const Sims = {
     const clearDealerCtrl = () => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = ''; };
     const setSpotAct  = (i, h) => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = h; };
     const clearSpotAct = i     => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = ''; };
-    const enableStart  = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = false; e.style.opacity = ''; e.textContent = 'New Game'; } };
+    const enableStart  = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = false; e.style.opacity = ''; e.textContent = 'Start'; } };
     const disableStart = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = true;  e.style.opacity = '0.4'; } };
 
     function bval(c) {
@@ -580,16 +580,6 @@ const Sims = {
       if (e) e.classList.add('bj-revealed');
     }
 
-    function renderDealer(hideHole) {
-      const el = $('bj-dealer-hand');
-      if (!el) return;
-      if (hideHole) {
-        el.innerHTML = cardHTML(S.dh[0]) + cardHTML(S.dh[1], true);
-      } else {
-        el.innerHTML = S.dh.map(c => cardHTML(c)).join('');
-      }
-    }
-
     const STATUS_BADGE = {
       blackjack: '<div class="spot-status s-bj">BJ ♠</div>',
       bust: '<div class="spot-status s-bust">BUST</div>',
@@ -654,9 +644,8 @@ const Sims = {
         S.dealerPhase = true;
         S.phase = 'dealer';
         renderPlayers();
-        msg('All players done. Open the dealer hole card.');
         actions('');
-        dealerCtrl(`<button class="dealer-ctrl-btn dealer-open-btn" onclick="Sims.blackjack.revealDealer()">Open Card</button>`);
+        showDealerControls();
         return;
       }
       renderPlayers();
@@ -722,41 +711,37 @@ const Sims = {
         clearDealerCtrl();
         disableStart();
 
-        // Deal round 1
+        // Deal round 1: all players get first card, then dealer upcard
         for (let i = 0; i < N; i++) S.players[i].hand.push(S.deck.pop());
-        S.dh.push(S.deck.pop()); // dealer upcard
+        S.dh.push(S.deck.pop()); // dealer upcard (only card at start)
 
-        // Deal round 2 — allow BJ only when dealer shows 10/J/Q/K
-        const dealerShowsTen = ['10','J','Q','K'].includes(S.dh[0].rank);
+        // Deal round 2: players only, no second dealer card
         for (let i = 0; i < N; i++) {
-          S.players[i].hand.push(dealerShowsTen ? S.deck.pop() : nonBJCard(S.players[i].hand[0]));
+          S.players[i].hand.push(nonBJCard(S.players[i].hand[0]));
         }
-        S.dh.push(S.deck.pop()); // dealer hole card
-
-        // Mark player BJ hands
-        S.players.forEach(p => { if (total(p.hand) === 21) p.status = 'blackjack'; });
 
         // Clear hand displays
         for (let i = 0; i < N; i++) $(`bj-hand-${i}`).innerHTML = '';
         $('bj-dealer-hand').innerHTML = '';
 
-        // Animated deal: P0 P1 P2 P3 P4 D  P0 P1 P2 P3 P4 D
+        // Animated deal: P0 P1 P2 P3 P4 D  P0 P1 P2 P3 P4
         const steps = [];
-        for (let r = 0; r < 2; r++) {
-          for (let i = 0; i < N; i++) steps.push({ type: 'player', idx: i, card: S.players[i].hand[r] });
-          steps.push({ type: 'dealer', card: S.dh[r], faceDown: r === 1 });
-        }
+        for (let i = 0; i < N; i++) steps.push({ type: 'player', idx: i, card: S.players[i].hand[0] });
+        steps.push({ type: 'dealer', card: S.dh[0] });
+        for (let i = 0; i < N; i++) steps.push({ type: 'player', idx: i, card: S.players[i].hand[1] });
         steps.forEach((step, n) => {
           setTimeout(() => {
+            const id = ++bjFlipId;
             if (step.type === 'player') {
               const el = $(`bj-hand-${step.idx}`);
               if (!el) return;
-              const id = ++bjFlipId;
               el.innerHTML += bjFlipHTML(step.card, id, false);
               setTimeout(() => bjReveal(id), 180);
             } else {
               const el = $('bj-dealer-hand');
-              if (el) el.innerHTML += cardHTML(step.card, step.faceDown);
+              if (!el) return;
+              el.innerHTML += bjFlipHTML(step.card, id, false);
+              setTimeout(() => bjReveal(id), 180);
             }
           }, n * 260);
         });
@@ -806,21 +791,19 @@ const Sims = {
         });
       },
 
-      revealDealer() {
-        clearDealerCtrl();
-        renderDealer(false);
-        showDealerControls();
-      },
-
       dealerDraw() {
         if (!dealerShouldDraw(S.dh)) {
           showDealerAlert('Over Draw!', () => showDealerControls());
           return;
         }
         clearDealerCtrl();
-        S.dh.push(safeHit(S.dh));
-        renderDealer(false);
-        showDealerControls();
+        const newCard = safeHit(S.dh);
+        S.dh.push(newCard);
+        const el = $('bj-dealer-hand');
+        const id = ++bjFlipId;
+        if (el) el.innerHTML += bjFlipHTML(newCard, id, false);
+        setTimeout(() => bjReveal(id), 180);
+        setTimeout(() => showDealerControls(), 700);
       },
 
       dealerStop() {

@@ -375,18 +375,25 @@ body {
   align-items: flex-start;
 }
 
-/* Dealer below players, full-width, cards horizontal */
+/* Dealer below players, centered */
 .dealer-area-bj {
   width: 100%;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 .dealer-area-bj .hand-display {
   flex-wrap: nowrap;
   overflow-x: auto;
   min-height: 80px;
   gap: .3rem;
+  justify-content: center;
 }
 .dealer-area-bj .hand-display .card:not(:first-child) {
+  margin-left: -12px;
+}
+.dealer-area-bj .hand-display .bj-flip-card:not(:first-child) {
   margin-left: -12px;
 }
 .dealer-ctrl-area {
@@ -976,14 +983,14 @@ body {
 .spot-next-btn:hover { background: #124030; }
 .spot-bj-btn   { background: #3a2a00; color: #ffd700; border: 1px solid #7a5a00; font-size: .62rem; }
 .spot-bj-btn:hover   { background: #4e3900; }
-.spot-pay-btn  { background: #0a3020; color: #4ecdc4; border: 1px solid #1a6040; }
+.spot-pay-btn  { background: #0a3020; color: #4ecdc4; border: 1px solid #1a6040; padding: .4rem .7rem; font-size: .8rem; }
 .spot-pay-btn:hover  { background: #0e3c28; }
-.spot-push-btn { background: #1a1a30; color: #8888bb; border: 1px solid #30305a; }
+.spot-push-btn { background: #1a1a30; color: #8888bb; border: 1px solid #30305a; padding: .4rem .7rem; font-size: .8rem; }
 .spot-push-btn:hover { background: #22223c; }
-.spot-take-btn { background: #300a0a; color: #ff7777; border: 1px solid #601818; }
+.spot-take-btn { background: #300a0a; color: #ff7777; border: 1px solid #601818; padding: .4rem .7rem; font-size: .8rem; }
 .spot-take-btn:hover { background: #3e1010; }
 
-.spot-pay-row  { display: flex; gap: .18rem; }
+.spot-pay-row  { display: flex; gap: .28rem; }
 
 /* ---- BLACKJACK: PAY-TEST HIGHLIGHT ---- */
 
