@@ -432,7 +432,7 @@ const Sims = {
     const clearDealerCtrl = () => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = ''; };
     const setSpotAct  = (i, h) => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = h; };
     const clearSpotAct = i     => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = ''; };
-    const enableStart  = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = false; e.style.opacity = ''; } };
+    const enableStart  = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = false; e.style.opacity = ''; e.textContent = 'New Game'; } };
     const disableStart = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = true;  e.style.opacity = '0.4'; } };
 
     function bval(c) {
@@ -470,7 +470,41 @@ const Sims = {
       return S.deck.pop();
     }
 
-    // Flip-card wrapper for player spot cards (52×74)
+    function isSoftHand(hand) {
+      const hardSum = hand.reduce((s, c) => {
+        if (c.rank === 'A') return s + 1;
+        if (['J','Q','K','10'].includes(c.rank)) return s + 10;
+        return s + parseInt(c.rank);
+      }, 0);
+      return total(hand) > hardSum;
+    }
+    function dealerShouldDraw(hand) {
+      const dv = total(hand);
+      if (dv < 17) return true;
+      if (dv === 17 && isSoftHand(hand)) return true;
+      return false;
+    }
+    function showDealerControls() {
+      const dv = total(S.dh);
+      const soft = isSoftHand(S.dh);
+      const label = (soft && dv === 17) ? `Soft ${dv}` : `${dv}`;
+      msg(`Dealer: ${label}. Draw or Stop?`);
+      dealerCtrl(`
+        <button class="dealer-ctrl-btn dealer-draw-btn" onclick="Sims.blackjack.dealerDraw()">Draw Card</button>
+        <button class="dealer-ctrl-btn dealer-stop-btn" onclick="Sims.blackjack.dealerStop()">Stop</button>
+      `);
+    }
+    function showDealerAlert(text, callback) {
+      const area = $('bj-dealer-wrap');
+      if (!area) { setTimeout(callback, 1400); return; }
+      const ov = document.createElement('div');
+      ov.className = 'dealer-alert-overlay';
+      ov.innerHTML = `<div class="dealer-alert-text">${text}</div>`;
+      area.appendChild(ov);
+      setTimeout(() => { ov.remove(); callback(); }, 1400);
+    }
+
+    // Flip-card wrapper for player spot cards (52x74)
     function bjFlipHTML(card, id, revealed = true) {
       return `<div class="bj-flip-card${revealed ? ' bj-revealed' : ''}" id="bjfc${id}">` +
         `<div class="bj-flip-inner">` +
@@ -494,6 +528,7 @@ const Sims = {
     }
 
     const STATUS_BADGE = {
+      blackjack: '<div class="spot-status s-bj">BJ ♠</div>',
       bust: '<div class="spot-status s-bust">BUST</div>',
       win:  '<div class="spot-status s-win">PAY ✓</div>',
       lose: '<div class="spot-status s-lose">TAKE ✕</div>',
@@ -626,10 +661,17 @@ const Sims = {
 
         // Deal round 1
         for (let i = 0; i < N; i++) S.players[i].hand.push(S.deck.pop());
-        S.dh.push(S.deck.pop());
-        // Deal round 2, blocking player blackjack
-        for (let i = 0; i < N; i++) S.players[i].hand.push(nonBJCard(S.players[i].hand[0]));
-        S.dh.push(S.deck.pop());
+        S.dh.push(S.deck.pop()); // dealer upcard
+
+        // Deal round 2 — allow BJ only when dealer shows 10/J/Q/K
+        const dealerShowsTen = ['10','J','Q','K'].includes(S.dh[0].rank);
+        for (let i = 0; i < N; i++) {
+          S.players[i].hand.push(dealerShowsTen ? S.deck.pop() : nonBJCard(S.players[i].hand[0]));
+        }
+        S.dh.push(S.deck.pop()); // dealer hole card
+
+        // Mark player BJ hands
+        S.players.forEach(p => { if (total(p.hand) === 21) p.status = 'blackjack'; });
 
         // Clear hand displays
         for (let i = 0; i < N; i++) $(`bj-hand-${i}`).innerHTML = '';
@@ -704,37 +746,25 @@ const Sims = {
       revealDealer() {
         clearDealerCtrl();
         renderDealer(false);
-        const dv = total(S.dh);
-        if (dv < 17) {
-          msg(`Dealer: ${dv}. Draw or Stop?`);
-          dealerCtrl(`
-            <button class="dealer-ctrl-btn dealer-draw-btn" onclick="Sims.blackjack.dealerDraw()">Draw Card</button>
-            <button class="dealer-ctrl-btn dealer-stop-btn" onclick="Sims.blackjack.dealerStop()">Stop</button>
-          `);
-        } else {
-          msg('Dealer stands.');
-          setTimeout(() => { clearDealerCtrl(); S.payTestIdx = 4; startPayTest(); }, 800);
-        }
+        showDealerControls();
       },
 
       dealerDraw() {
+        if (!dealerShouldDraw(S.dh)) {
+          showDealerAlert('Over Draw!', () => showDealerControls());
+          return;
+        }
         clearDealerCtrl();
         S.dh.push(safeHit(S.dh));
         renderDealer(false);
-        const dv = total(S.dh);
-        if (dv < 17) {
-          msg(`Dealer: ${dv}. Draw or Stop?`);
-          dealerCtrl(`
-            <button class="dealer-ctrl-btn dealer-draw-btn" onclick="Sims.blackjack.dealerDraw()">Draw Card</button>
-            <button class="dealer-ctrl-btn dealer-stop-btn" onclick="Sims.blackjack.dealerStop()">Stop</button>
-          `);
-        } else {
-          msg('Dealer stands.');
-          setTimeout(() => { clearDealerCtrl(); S.payTestIdx = 4; startPayTest(); }, 800);
-        }
+        showDealerControls();
       },
 
       dealerStop() {
+        if (dealerShouldDraw(S.dh)) {
+          showDealerAlert('Mistake!', () => showDealerControls());
+          return;
+        }
         clearDealerCtrl();
         S.payTestIdx = 4;
         startPayTest();
