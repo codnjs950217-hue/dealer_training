@@ -231,7 +231,7 @@ const Views = {
     <div class="sim-page baccarat-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
-        <h2>🃏 Baccarat Simulation</h2>
+        <h2>🃏 Card Counting Simulation</h2>
         <div class="sim-stats"><span>Rounds: <strong id="bac-rounds">0</strong></span><span>Score: <strong id="bac-score">0</strong></span></div>
       </div>
       <div class="bac-betting-row" id="bac-betting-row">
@@ -302,7 +302,7 @@ const Views = {
     <div class="sim-page baccarat-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
-        <h2>🃏 Baccarat Pay Simulation</h2>
+        <h2>🃏 Commission Simulation</h2>
         <div class="sim-stats">
           <span>Rounds: <strong id="bpay-rounds">0</strong></span>
           <span>Score: <strong id="bpay-score">0</strong></span>
@@ -735,12 +735,12 @@ const Sims = {
             if (step.type === 'player') {
               const el = $(`bj-hand-${step.idx}`);
               if (!el) return;
-              el.innerHTML += bjFlipHTML(step.card, id, false);
+              el.insertAdjacentHTML('beforeend', bjFlipHTML(step.card, id, false));
               setTimeout(() => bjReveal(id), 180);
             } else {
               const el = $('bj-dealer-hand');
               if (!el) return;
-              el.innerHTML += bjFlipHTML(step.card, id, false);
+              el.insertAdjacentHTML('beforeend', bjFlipHTML(step.card, id, false));
               setTimeout(() => bjReveal(id), 180);
             }
           }, n * 260);
@@ -766,7 +766,7 @@ const Sims = {
             p.hand.push(newCard);
             const handEl = $(`bj-hand-${i}`);
             const id = ++bjFlipId;
-            if (handEl) handEl.innerHTML += bjFlipHTML(newCard, id, false);
+            if (handEl) handEl.insertAdjacentHTML('beforeend', bjFlipHTML(newCard, id, false));
             setTimeout(() => bjReveal(id), 180);
             setTimeout(() => {
               const pv = total(p.hand);
@@ -801,7 +801,7 @@ const Sims = {
         S.dh.push(newCard);
         const el = $('bj-dealer-hand');
         const id = ++bjFlipId;
-        if (el) el.innerHTML += bjFlipHTML(newCard, id, false);
+        if (el) el.insertAdjacentHTML('beforeend', bjFlipHTML(newCard, id, false));
         setTimeout(() => bjReveal(id), 180);
         setTimeout(() => showDealerControls(), 700);
       },
@@ -916,7 +916,7 @@ const Sims = {
         const id = ++flipId; ids.push(id);
         setTimeout(() => {
           const el = $(targets[i]);
-          if (el) el.innerHTML += flipHTML(card, id);
+          if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id));
         }, i * 420);
       });
       setTimeout(() => {
@@ -930,7 +930,7 @@ const Sims = {
       hand.push(card);
       const id = ++flipId;
       const el = $(elId);
-      if (el) el.innerHTML += flipHTML(card, id);
+      if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id));
       setTimeout(() => { revealFlip(id); setTimeout(onDone, 400); }, 350);
       return card;
     }
@@ -1218,7 +1218,7 @@ const Sims = {
       const ids = [];
       cards.forEach((card, i) => {
         const id = ++flipId; ids.push(id);
-        setTimeout(() => { const el = $(targets[i]); if (el) el.innerHTML += flipHTML(card, id); }, i * 420);
+        setTimeout(() => { const el = $(targets[i]); if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id)); }, i * 420);
       });
       setTimeout(() => {
         ids.forEach(id => revealFlip(id));
@@ -1231,7 +1231,7 @@ const Sims = {
       hand.push(card);
       const id = ++flipId;
       const el = $(elId);
-      if (el) el.innerHTML += flipHTML(card, id);
+      if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id));
       setTimeout(() => { revealFlip(id); setTimeout(onDone, 400); }, 350);
     }
 

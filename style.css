@@ -147,9 +147,9 @@ body {
 .card-corner { position: absolute; display: flex; flex-direction: column; align-items: center; line-height: 1; }
 .card-corner.top    { top: 5px; left: 6px; }
 .card-corner.bottom { bottom: 5px; right: 6px; transform: rotate(180deg); }
-.card-corner .rank  { font-size: .82rem; font-weight: 700; color: #111; }
-.card-corner .suit  { font-size: .68rem; }
-.card-suit-center   { font-size: 1.55rem; color: #111; }
+.card-corner .rank  { font-size: 1.05rem; font-weight: 700; color: #111; }
+.card-corner .suit  { font-size: .82rem; }
+.card-suit-center   { font-size: 1.9rem; color: #111; }
 
 .card.back {
   background: repeating-linear-gradient(
@@ -397,9 +397,9 @@ body {
   width: 52px;
   height: 74px;
 }
-.dealer-area-bj .card-corner .rank { font-size: .68rem; }
-.dealer-area-bj .card-corner .suit { font-size: .58rem; }
-.dealer-area-bj .card-suit-center  { font-size: 1.1rem; }
+.dealer-area-bj .card-corner .rank { font-size: .88rem; }
+.dealer-area-bj .card-corner .suit { font-size: .72rem; }
+.dealer-area-bj .card-suit-center  { font-size: 1.4rem; }
 .dealer-area-bj .card-pattern      { width: 44px; height: 66px; }
 .dealer-ctrl-area {
   margin-top: .4rem;
@@ -454,9 +454,9 @@ body {
   width: 52px;
   height: 74px;
 }
-.player-spot .card-corner .rank { font-size: .68rem; }
-.player-spot .card-corner .suit { font-size: .58rem; }
-.player-spot .card-suit-center   { font-size: 1.1rem; }
+.player-spot .card-corner .rank { font-size: .88rem; }
+.player-spot .card-corner .suit { font-size: .72rem; }
+.player-spot .card-suit-center   { font-size: 1.4rem; }
 .player-spot .card-pattern       { width: 44px; height: 66px; }
 
 .player-spot .hand-value {
