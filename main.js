@@ -238,34 +238,31 @@ const Views = {
         ${[1,2,3,4,5].map(i=>`<div class="bet-seat empty-seat"><div class="seat-label">P${i}</div></div>`).join('')}
       </div>
       <div class="baccarat-table">
-        <div class="bac-table-layout">
-          <div class="bac-shoe-col">
-            <div class="shoe-visual">
-              <div class="shoe-label-text">SHOE</div>
-              <div class="shoe-card-slot"></div>
-            </div>
-            <button class="btn-draw-shoe" id="bac-draw-btn" onclick="Sims.baccarat.deal()">Draw<br>Card</button>
+        <div class="bac-act-row">
+          <div class="bac-act-side" id="bac-b-btn-top"></div>
+          <div class="bac-act-mid" id="bac-tie-btn"></div>
+          <div class="bac-act-side" id="bac-p-btn-top"></div>
+        </div>
+        <div class="bac-field">
+          <div class="bac-banker-zone">
+            <div class="bac-hand-wrap bac-bh-wrap" id="bac-bh"></div>
           </div>
-          <div class="bac-side bac-banker-side">
-            <div class="bac-side-btn" id="bac-b-btn-top"></div>
-            <div class="area-label">Banker</div>
-            <div class="bac-hand-wrap" id="bac-bh"></div>
-            <div class="bac-side-btn" id="bac-b-btn-bot"></div>
+          <div class="bac-field-divider">
+            <span class="bac-div-lbl bac-div-lbl-b">BANKER</span>
+            <span class="bac-div-lbl bac-div-lbl-p">PLAYER</span>
           </div>
-          <div class="bac-center-col">
-            <div class="result-badge" id="bac-result"></div>
-            <div id="bac-tie-btn"></div>
+          <div class="bac-player-zone">
+            <div class="bac-hand-wrap bac-ph-wrap" id="bac-ph"></div>
           </div>
-          <div class="bac-side bac-player-side">
-            <div class="bac-side-btn" id="bac-p-btn-top"></div>
-            <div class="area-label">Player</div>
-            <div class="bac-hand-wrap" id="bac-ph"></div>
-            <div class="bac-side-btn" id="bac-p-btn-bot"></div>
-          </div>
+        </div>
+        <div class="bac-act-row">
+          <div class="bac-act-side" id="bac-b-btn-bot"></div>
+          <div class="bac-act-mid"><div class="result-badge" id="bac-result"></div></div>
+          <div class="bac-act-side" id="bac-p-btn-bot"></div>
         </div>
       </div>
       <div class="sim-controls">
-        <div class="message-board" id="bac-msg">Press Draw Card to begin.</div>
+        <div class="message-board" id="bac-msg">Press Deal to begin.</div>
         <div class="action-buttons" id="bac-actions"></div>
       </div>
       <div class="bac-pay-panel" id="bac-pay-panel" style="display:none"></div>
@@ -886,8 +883,8 @@ const Sims = {
       return false;
     }
 
-    function flipHTML(card, id) {
-      return `<div class="flip-card" id="fc${id}"><div class="flip-inner">
+    function flipHTML(card, id, extraClass = '') {
+      return `<div class="flip-card${extraClass ? ' ' + extraClass : ''}" id="fc${id}"><div class="flip-inner">
         <div class="flip-back"><div class="card back"><div class="card-pattern"></div></div></div>
         <div class="flip-front">${cardHTML(card)}</div>
       </div></div>`;
@@ -929,12 +926,12 @@ const Sims = {
       }, cards.length * 420 + 480);
     }
 
-    function addCard(hand, elId, onDone) {
+    function addCard(hand, elId, onDone, extraClass = '') {
       const card = S.deck.pop();
       hand.push(card);
       const id = ++flipId;
       const el = $(elId);
-      if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id));
+      if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id, extraClass));
       setTimeout(() => { revealFlip(id); setTimeout(onDone, 400); }, 350);
       return card;
     }
@@ -1003,11 +1000,11 @@ const Sims = {
       addCard(S.ph, 'bac-ph', () => {
         S.pThird = S.ph[S.ph.length - 1];
         onDone();
-      });
+      }, 'bac-p3');
     }
 
     function doBankerDraw(onDone) {
-      addCard(S.bh, 'bac-bh', onDone);
+      addCard(S.bh, 'bac-bh', onDone, 'bac-b3');
     }
 
     function announceWinner(side) {
@@ -1080,6 +1077,7 @@ const Sims = {
       init() {
         S = { deck: createDeck(8), ph: [], bh: [], pThird: null,
               rounds: 0, score: 0, winner: null, bets: [] };
+        actions(`<button class="btn btn-primary" onclick="Sims.baccarat.deal()">Deal</button>`);
       },
 
       deal() {

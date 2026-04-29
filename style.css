@@ -682,14 +682,68 @@ body {
   min-height: 110px; align-items: center;
 }
 
-.bac-side-btn {
-  display: flex; justify-content: center; align-items: center;
-  min-height: 42px; padding: .2rem 0;
-}
 .bac-inline-btn {
-  width: 100%; padding: .55rem .3rem;
-  font-size: .82rem; text-align: center;
+  padding: .5rem .85rem;
+  font-size: .82rem; white-space: nowrap; text-align: center;
 }
+.bac-act-mid .bac-inline-btn {
+  width: 100%; padding: .5rem .15rem; font-size: .75rem;
+}
+
+/* ---- BACCARAT: NEW FIELD LAYOUT ---- */
+
+.bac-act-row {
+  display: flex; align-items: center; gap: .45rem; padding: .32rem 0;
+}
+.bac-act-side {
+  flex: 1; display: flex; justify-content: center; align-items: center; min-height: 40px;
+}
+.bac-act-mid {
+  width: 80px; flex-shrink: 0;
+  display: flex; justify-content: center; align-items: center; min-height: 40px;
+}
+
+.bac-field {
+  display: flex; align-items: center;
+  min-height: 155px; padding: .4rem 0; overflow: visible;
+}
+.bac-banker-zone {
+  flex: 1; display: flex; justify-content: flex-end; align-items: center; overflow: visible;
+}
+.bac-player-zone {
+  flex: 1; display: flex; justify-content: flex-start; align-items: center; overflow: visible;
+}
+.bac-bh-wrap { justify-content: flex-end; flex-wrap: nowrap; gap: .35rem; }
+.bac-ph-wrap { justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; }
+
+.bac-field-divider {
+  width: 80px; flex-shrink: 0; align-self: stretch;
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+.bac-field-divider::before {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 50%;
+  width: 2px; background: rgba(255,255,255,.3); transform: translateX(-50%);
+}
+.bac-div-lbl {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  font-size: .6rem; letter-spacing: 1.5px; text-transform: uppercase;
+  color: rgba(255,255,255,.45); white-space: nowrap; font-weight: 700;
+}
+.bac-div-lbl-b { right: calc(50% + 7px); }
+.bac-div-lbl-p { left:  calc(50% + 7px); }
+
+/* ---- BACCARAT: THIRD-CARD ROTATION ---- */
+
+@keyframes dealSlideInP3 {
+  from { opacity: 0; transform: translateX(-30px) translateY(-15px) rotate(80deg); }
+  to   { opacity: 1; transform: rotate(90deg); }
+}
+@keyframes dealSlideInB3 {
+  from { opacity: 0; transform: translateX(30px) translateY(-15px) rotate(-80deg); }
+  to   { opacity: 1; transform: rotate(-90deg); }
+}
+.flip-card.bac-p3 { animation: dealSlideInP3 .4s ease-out forwards; }
+.flip-card.bac-b3 { animation: dealSlideInB3 .4s ease-out forwards; }
 
 .bac-pts-display {
   text-align: center; font-size: 2rem; font-weight: 900;
