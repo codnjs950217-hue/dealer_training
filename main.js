@@ -238,9 +238,6 @@ const Views = {
         ${[1,2,3,4,5].map(i=>`<div class="bet-seat empty-seat"><div class="seat-label">P${i}</div></div>`).join('')}
       </div>
       <div class="baccarat-table">
-        <div class="bac-newgame-bar">
-          <button class="bac-newgame-btn" onclick="Sims.baccarat.deal()">NEW GAME</button>
-        </div>
         <div class="bac-btn-cluster">
           <div class="bac-bclust-side" id="bac-b-btn-top"></div>
           <div class="bac-bclust-mid" id="bac-tie-btn"></div>
@@ -252,6 +249,7 @@ const Views = {
               <div class="shoe-label-text">SHOE</div>
               <div class="shoe-card-slot"></div>
             </div>
+            <button class="btn-draw-shoe" id="bac-draw-btn" onclick="Sims.baccarat.deal()">DRAW<br>CARD</button>
           </div>
           <div class="bac-banker-zone">
             <div class="bac-third-slot" id="bac-bh3"></div>
@@ -271,7 +269,7 @@ const Views = {
         <div class="bac-winner-flash" id="bac-winner-flash"></div>
       </div>
       <div class="sim-controls">
-        <div class="message-board" id="bac-msg">Press NEW GAME to begin.</div>
+        <div class="message-board" id="bac-msg">Press DRAW CARD to begin.</div>
         <div class="action-buttons" id="bac-actions"></div>
       </div>
       <div class="bac-pay-panel" id="bac-pay-panel" style="display:none"></div>
@@ -318,20 +316,12 @@ const Views = {
         </div>
       </div>
       <div class="baccarat-table">
-        <div class="bpay-card-area">
-          <div class="bpay-side">
-            <div class="area-label">Banker</div>
-            <div class="bpay-hand bac-hand-wrap" id="bpay-bh"></div>
-            <div class="bpay-pts" id="bpay-bv"></div>
-          </div>
-          <div class="bpay-mid">
-            <div class="result-badge" id="bpay-result"></div>
-          </div>
-          <div class="bpay-side">
-            <div class="area-label">Player</div>
-            <div class="bpay-hand bac-hand-wrap" id="bpay-ph"></div>
-            <div class="bpay-pts" id="bpay-pv"></div>
-          </div>
+        <div style="display:none">
+          <div id="bpay-bh"></div>
+          <div id="bpay-ph"></div>
+          <span id="bpay-bv"></span>
+          <span id="bpay-pv"></span>
+          <span id="bpay-result"></span>
         </div>
         <div class="bpay-positions">
           ${[1,2,3].map(i => `
@@ -873,6 +863,8 @@ const Sims = {
     const msg    = t      => { $('bac-msg').textContent = t; $('bac-msg').style.color = ''; };
     const msgCol = (t, c) => { $('bac-msg').textContent = t; $('bac-msg').style.color = c; };
     const actions = h     => { $('bac-actions').innerHTML = h; };
+    const enableDraw  = () => { const e = $('bac-draw-btn'); if (e) { e.disabled = false; e.style.opacity = ''; } };
+    const disableDraw = () => { const e = $('bac-draw-btn'); if (e) { e.disabled = true;  e.style.opacity = '0.4'; } };
 
     function bval(c) {
       if (['10','J','Q','K'].includes(c.rank)) return 0;
@@ -1048,6 +1040,7 @@ const Sims = {
       $('bac-rounds').textContent = S.rounds;
       msgCol(`${cfg.txt} wins! Player: ${pp} · Banker: ${bp}`, '#c9a84c');
       showWinnerFlash(side);
+      enableDraw();
       actions(`<button class="btn btn-primary" onclick="Sims.baccarat.openPay()">💰 Pay Time</button>`);
     }
 
@@ -1100,12 +1093,14 @@ const Sims = {
       init() {
         S = { deck: createDeck(8), ph: [], bh: [], pThird: null,
               rounds: 0, score: 0, winner: null, bets: [] };
+        enableDraw();
       },
 
       deal() {
         if (S.deck.length < 20) S.deck = createDeck(8);
         S.ph = []; S.bh = []; S.pThird = null; S.winner = null;
         S.rounds++;
+        disableDraw();
 
         $('bac-ph').innerHTML   = '';
         $('bac-bh').innerHTML   = '';
