@@ -708,13 +708,15 @@ body {
   min-height: 155px; padding: .4rem 0; overflow: visible;
 }
 .bac-banker-zone {
-  flex: 1; display: flex; justify-content: flex-end; align-items: center; overflow: visible; position: relative;
+  flex: 1; display: flex; justify-content: flex-end; align-items: center;
+  overflow: visible; position: relative; gap: .35rem;
 }
 .bac-player-zone {
-  flex: 1; display: flex; justify-content: flex-start; align-items: center; overflow: visible; position: relative;
+  flex: 1; display: flex; justify-content: flex-start; align-items: center;
+  overflow: visible; position: relative; gap: .35rem;
 }
 .bac-bh-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; }
-.bac-ph-wrap { justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; }
+.bac-ph-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; }
 
 .bac-field-divider {
   width: 80px; flex-shrink: 0; align-self: stretch;
@@ -758,17 +760,6 @@ body {
   min-height: 40px; min-width: 58px;
 }
 
-/* ---- BACCARAT: BIG ZONE LABELS ---- */
-
-.bac-zone-big-label {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.6rem; font-weight: 900; letter-spacing: 4px;
-  text-transform: uppercase; color: rgba(255,255,255,.18);
-  pointer-events: none; white-space: nowrap;
-  transition: opacity .3s;
-}
-.bac-zone-big-label.hidden { opacity: 0; }
 
 /* ---- BACCARAT: WINNER FLASH ---- */
 
@@ -799,15 +790,19 @@ body {
 /* ---- BACCARAT: THIRD-CARD ROTATION ---- */
 
 @keyframes dealSlideInP3 {
-  from { opacity: 0; transform: translateX(-30px) translateY(-15px) rotate(80deg); }
-  to   { opacity: 1; transform: rotate(90deg); }
+  from { opacity: 0; transform: translateX(-40px) translateY(-10px); }
+  to   { opacity: 1; transform: none; }
 }
 @keyframes dealSlideInB3 {
-  from { opacity: 0; transform: translateX(30px) translateY(-15px) rotate(-80deg); }
-  to   { opacity: 1; transform: rotate(-90deg); }
+  from { opacity: 0; transform: translateX(-40px) translateY(-10px); }
+  to   { opacity: 1; transform: none; }
 }
-.flip-card.bac-p3 { animation: dealSlideInP3 .4s ease-out forwards; }
-.flip-card.bac-b3 { animation: dealSlideInB3 .4s ease-out forwards; }
+.flip-card.bac-p3 { animation: dealSlideInP3 .35s ease-out forwards; }
+.flip-card.bac-b3 { animation: dealSlideInB3 .35s ease-out forwards; }
+
+.bac-third-slot {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
 
 .bac-pts-display {
   text-align: center; font-size: 2rem; font-weight: 900;

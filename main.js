@@ -254,16 +254,13 @@ const Views = {
             </div>
           </div>
           <div class="bac-banker-zone">
-            <div class="bac-zone-big-label" id="bac-b-biglbl">BANKER</div>
+            <div class="bac-third-slot" id="bac-bh3"></div>
             <div class="bac-hand-wrap bac-bh-wrap" id="bac-bh"></div>
           </div>
-          <div class="bac-field-divider">
-            <span class="bac-div-lbl bac-div-lbl-b">BANKER</span>
-            <span class="bac-div-lbl bac-div-lbl-p">PLAYER</span>
-          </div>
+          <div class="bac-field-divider"></div>
           <div class="bac-player-zone">
-            <div class="bac-zone-big-label" id="bac-p-biglbl">PLAYER</div>
             <div class="bac-hand-wrap bac-ph-wrap" id="bac-ph"></div>
+            <div class="bac-third-slot" id="bac-ph3"></div>
           </div>
         </div>
         <div class="bac-btn-cluster">
@@ -1025,14 +1022,14 @@ const Sims = {
     }
 
     function doPlayerDraw(onDone) {
-      addCard(S.ph, 'bac-ph', () => {
+      addCard(S.ph, 'bac-ph3', () => {
         S.pThird = S.ph[S.ph.length - 1];
         onDone();
       }, 'bac-p3');
     }
 
     function doBankerDraw(onDone) {
-      addCard(S.bh, 'bac-bh', onDone, 'bac-b3');
+      addCard(S.bh, 'bac-bh3', onDone, 'bac-b3');
     }
 
     function announceWinner(side) {
@@ -1112,26 +1109,27 @@ const Sims = {
 
         $('bac-ph').innerHTML   = '';
         $('bac-bh').innerHTML   = '';
+        const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
+        const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
         $('bac-result').textContent = '';
         $('bac-result').className   = 'result-badge';
         const pp = $('bac-pay-panel');
         if (pp) pp.style.display = 'none';
         clearInlineBtns();
 
-        const bl = $('bac-b-biglbl'); if (bl) bl.classList.add('hidden');
-        const pl = $('bac-p-biglbl'); if (pl) pl.classList.add('hidden');
         const wf = $('bac-winner-flash'); if (wf) { wf.className = 'bac-winner-flash'; wf.innerHTML = ''; }
 
         S.bets = generateBets();
         renderBets();
 
         const cards = [S.deck.pop(), S.deck.pop(), S.deck.pop(), S.deck.pop()];
-        S.ph = [cards[0], cards[2]];
-        S.bh = [cards[1], cards[3]];
+        // cards[0]=P2(pos4), cards[1]=B1(pos2), cards[2]=P1(pos3), cards[3]=B2(pos1)
+        S.ph = [cards[2], cards[0]]; // [P1, P2]
+        S.bh = [cards[1], cards[3]]; // [B1, B2]
 
         msg('Dealing...');
 
-        // Deal sequence: P1, B1, P2, B2
+        // Deal visual order: 4→2→3→1 (P2, B1, P1, B2)
         dealSequence(cards, ['bac-ph','bac-bh','bac-ph','bac-bh'], () => showInitialQuiz());
       },
 
