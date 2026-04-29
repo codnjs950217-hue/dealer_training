@@ -673,13 +673,22 @@ body {
 .bac-banker-side, .bac-player-side { flex: 1; min-width: 0; }
 
 .bac-center-col {
-  display: flex; align-items: center; justify-content: center;
-  width: 56px; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 72px; flex-shrink: 0; gap: .5rem;
 }
 
 .bac-hand-wrap {
   display: flex; gap: .3rem; flex-wrap: wrap;
   min-height: 110px; align-items: center;
+}
+
+.bac-side-btn {
+  display: flex; justify-content: center; align-items: center;
+  min-height: 42px; padding: .2rem 0;
+}
+.bac-inline-btn {
+  width: 100%; padding: .55rem .3rem;
+  font-size: .82rem; text-align: center;
 }
 
 .bac-pts-display {
