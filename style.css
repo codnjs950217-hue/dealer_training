@@ -708,12 +708,12 @@ body {
   min-height: 155px; padding: .4rem 0; overflow: visible;
 }
 .bac-banker-zone {
-  flex: 1; display: flex; justify-content: flex-end; align-items: center; overflow: visible;
+  flex: 1; display: flex; justify-content: flex-end; align-items: center; overflow: visible; position: relative;
 }
 .bac-player-zone {
-  flex: 1; display: flex; justify-content: flex-start; align-items: center; overflow: visible;
+  flex: 1; display: flex; justify-content: flex-start; align-items: center; overflow: visible; position: relative;
 }
-.bac-bh-wrap { justify-content: flex-end; flex-wrap: nowrap; gap: .35rem; }
+.bac-bh-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; }
 .bac-ph-wrap { justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; }
 
 .bac-field-divider {
@@ -731,6 +731,70 @@ body {
 }
 .bac-div-lbl-b { right: calc(50% + 7px); }
 .bac-div-lbl-p { left:  calc(50% + 7px); }
+
+/* ---- BACCARAT: NEW GAME BAR & BUTTON CLUSTER ---- */
+
+.bac-newgame-bar {
+  display: flex; justify-content: center; padding: .35rem 0 .5rem;
+}
+.bac-newgame-btn {
+  background: rgba(255,255,255,.08); color: rgba(255,255,255,.55);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 20px; padding: .3rem 1.3rem;
+  font-size: .75rem; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; cursor: pointer; transition: all .2s;
+}
+.bac-newgame-btn:hover { background: rgba(255,255,255,.14); color: #fff; border-color: rgba(255,255,255,.35); }
+
+.bac-btn-cluster {
+  display: flex; align-items: center; justify-content: center;
+  gap: .4rem; padding: .24rem 0;
+}
+.bac-bclust-side {
+  display: flex; justify-content: center; align-items: center; min-height: 40px;
+}
+.bac-bclust-mid {
+  display: flex; justify-content: center; align-items: center;
+  min-height: 40px; min-width: 58px;
+}
+
+/* ---- BACCARAT: BIG ZONE LABELS ---- */
+
+.bac-zone-big-label {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.6rem; font-weight: 900; letter-spacing: 4px;
+  text-transform: uppercase; color: rgba(255,255,255,.18);
+  pointer-events: none; white-space: nowrap;
+  transition: opacity .3s;
+}
+.bac-zone-big-label.hidden { opacity: 0; }
+
+/* ---- BACCARAT: WINNER FLASH ---- */
+
+.bac-winner-flash {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none; z-index: 40; border-radius: 18px;
+  opacity: 0;
+}
+.bac-winner-flash-text {
+  font-size: clamp(2.2rem, 7vw, 4.5rem);
+  font-weight: 900; letter-spacing: 4px;
+  text-shadow: 0 0 60px currentColor, 0 2px 12px rgba(0,0,0,.8);
+  text-align: center; line-height: 1.2;
+}
+@keyframes bwfIn {
+  from { opacity: 0; transform: scale(.5); }
+  65%  { transform: scale(1.1); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes bwfOut {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(1.6); }
+}
+.bac-winner-flash.bac-wf-in  { animation: bwfIn  .4s ease-out forwards; }
+.bac-winner-flash.bac-wf-out { animation: bwfOut .7s ease-in  forwards; }
 
 /* ---- BACCARAT: THIRD-CARD ROTATION ---- */
 

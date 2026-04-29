@@ -238,13 +238,23 @@ const Views = {
         ${[1,2,3,4,5].map(i=>`<div class="bet-seat empty-seat"><div class="seat-label">P${i}</div></div>`).join('')}
       </div>
       <div class="baccarat-table">
-        <div class="bac-act-row">
-          <div class="bac-act-side" id="bac-b-btn-top"></div>
-          <div class="bac-act-mid" id="bac-tie-btn"></div>
-          <div class="bac-act-side" id="bac-p-btn-top"></div>
+        <div class="bac-newgame-bar">
+          <button class="bac-newgame-btn" onclick="Sims.baccarat.deal()">NEW GAME</button>
+        </div>
+        <div class="bac-btn-cluster">
+          <div class="bac-bclust-side" id="bac-b-btn-top"></div>
+          <div class="bac-bclust-mid" id="bac-tie-btn"></div>
+          <div class="bac-bclust-side" id="bac-p-btn-top"></div>
         </div>
         <div class="bac-field">
+          <div class="bac-shoe-col">
+            <div class="shoe-visual">
+              <div class="shoe-label-text">SHOE</div>
+              <div class="shoe-card-slot"></div>
+            </div>
+          </div>
           <div class="bac-banker-zone">
+            <div class="bac-zone-big-label" id="bac-b-biglbl">BANKER</div>
             <div class="bac-hand-wrap bac-bh-wrap" id="bac-bh"></div>
           </div>
           <div class="bac-field-divider">
@@ -252,17 +262,19 @@ const Views = {
             <span class="bac-div-lbl bac-div-lbl-p">PLAYER</span>
           </div>
           <div class="bac-player-zone">
+            <div class="bac-zone-big-label" id="bac-p-biglbl">PLAYER</div>
             <div class="bac-hand-wrap bac-ph-wrap" id="bac-ph"></div>
           </div>
         </div>
-        <div class="bac-act-row">
-          <div class="bac-act-side" id="bac-b-btn-bot"></div>
-          <div class="bac-act-mid"><div class="result-badge" id="bac-result"></div></div>
-          <div class="bac-act-side" id="bac-p-btn-bot"></div>
+        <div class="bac-btn-cluster">
+          <div class="bac-bclust-side" id="bac-b-btn-bot"></div>
+          <div class="bac-bclust-mid"><div class="result-badge" id="bac-result"></div></div>
+          <div class="bac-bclust-side" id="bac-p-btn-bot"></div>
         </div>
+        <div class="bac-winner-flash" id="bac-winner-flash"></div>
       </div>
       <div class="sim-controls">
-        <div class="message-board" id="bac-msg">Press Deal to begin.</div>
+        <div class="message-board" id="bac-msg">Press NEW GAME to begin.</div>
         <div class="action-buttons" id="bac-actions"></div>
       </div>
       <div class="bac-pay-panel" id="bac-pay-panel" style="display:none"></div>
@@ -971,9 +983,9 @@ const Sims = {
 
     function showInitialQuiz() {
       setBtn('bac-b-btn-top', `<button class="btn-bac-banker bac-inline-btn" onclick="Sims.baccarat.quizInitial('win','banker')">BANKER WIN</button>`);
-      setBtn('bac-b-btn-bot', `<button class="btn-bac-draw bac-inline-btn" onclick="Sims.baccarat.quizInitial('draw-banker',null)">DRAW CARD</button>`);
+      setBtn('bac-b-btn-bot', `<button class="btn-bac-draw bac-inline-btn" onclick="Sims.baccarat.quizInitial('draw-banker',null)">BANKER DRAW</button>`);
       setBtn('bac-p-btn-top', `<button class="btn-bac-player bac-inline-btn" onclick="Sims.baccarat.quizInitial('win','player')">PLAYER WIN</button>`);
-      setBtn('bac-p-btn-bot', `<button class="btn-bac-draw bac-inline-btn" onclick="Sims.baccarat.quizInitial('draw-player',null)">DRAW CARD</button>`);
+      setBtn('bac-p-btn-bot', `<button class="btn-bac-draw bac-inline-btn" onclick="Sims.baccarat.quizInitial('draw-player',null)">PLAYER DRAW</button>`);
       setBtn('bac-tie-btn',   `<button class="btn-bac-tie bac-inline-btn" onclick="Sims.baccarat.quizInitial('win','tie')">TIE</button>`);
       msg('Choose action:');
     }
@@ -989,11 +1001,27 @@ const Sims = {
 
     function showBankerDrawQuiz() {
       setBtn('bac-b-btn-top', `<button class="btn-bac-banker bac-inline-btn" onclick="Sims.baccarat.quizBanker('win','banker')">BANKER WIN</button>`);
-      setBtn('bac-b-btn-bot', `<button class="btn-bac-draw bac-inline-btn" onclick="Sims.baccarat.quizBanker('draw-banker',null)">DRAW CARD</button>`);
+      setBtn('bac-b-btn-bot', `<button class="btn-bac-draw bac-inline-btn" onclick="Sims.baccarat.quizBanker('draw-banker',null)">BANKER DRAW</button>`);
       setBtn('bac-p-btn-top', `<button class="btn-bac-player bac-inline-btn" onclick="Sims.baccarat.quizBanker('win','player')">PLAYER WIN</button>`);
       setBtn('bac-p-btn-bot', '');
       setBtn('bac-tie-btn',   `<button class="btn-bac-tie bac-inline-btn" onclick="Sims.baccarat.quizBanker('win','tie')">TIE</button>`);
       msg(`Player drew ${S.pThird.rank}${S.pThird.suit}. Banker action?`);
+    }
+
+    function showWinnerFlash(side) {
+      const el = $('bac-winner-flash');
+      if (!el) return;
+      const cfg = {
+        player: { txt: 'PLAYER WIN', color: '#4ecdc4' },
+        banker: { txt: 'BANKER WIN', color: '#c9a84c' },
+        tie:    { txt: 'TIE',        color: '#6ec864' },
+      }[side];
+      el.innerHTML = `<div class="bac-winner-flash-text" style="color:${cfg.color}">${cfg.txt}</div>`;
+      el.className = 'bac-winner-flash bac-wf-in';
+      setTimeout(() => {
+        el.classList.replace('bac-wf-in', 'bac-wf-out');
+        setTimeout(() => { el.className = 'bac-winner-flash'; }, 700);
+      }, 1200);
     }
 
     function doPlayerDraw(onDone) {
@@ -1022,10 +1050,8 @@ const Sims = {
       $('bac-score').textContent = S.score;
       $('bac-rounds').textContent = S.rounds;
       msgCol(`${cfg.txt} wins! Player: ${pp} · Banker: ${bp}`, '#c9a84c');
-      actions(`
-        <button class="btn btn-primary" onclick="Sims.baccarat.openPay()">💰 Pay Time</button>
-        <button class="btn btn-secondary" onclick="Sims.baccarat.deal()">Next Hand</button>
-      `);
+      showWinnerFlash(side);
+      actions(`<button class="btn btn-primary" onclick="Sims.baccarat.openPay()">💰 Pay Time</button>`);
     }
 
     function buildPayPanel() {
@@ -1077,7 +1103,6 @@ const Sims = {
       init() {
         S = { deck: createDeck(8), ph: [], bh: [], pThird: null,
               rounds: 0, score: 0, winner: null, bets: [] };
-        actions(`<button class="btn btn-primary" onclick="Sims.baccarat.deal()">Deal</button>`);
       },
 
       deal() {
@@ -1092,6 +1117,10 @@ const Sims = {
         const pp = $('bac-pay-panel');
         if (pp) pp.style.display = 'none';
         clearInlineBtns();
+
+        const bl = $('bac-b-biglbl'); if (bl) bl.classList.add('hidden');
+        const pl = $('bac-p-biglbl'); if (pl) pl.classList.add('hidden');
+        const wf = $('bac-winner-flash'); if (wf) { wf.className = 'bac-winner-flash'; wf.innerHTML = ''; }
 
         S.bets = generateBets();
         renderBets();
