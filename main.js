@@ -242,6 +242,7 @@ const Views = {
         ${[1,2,3,4,5].map(i=>`<div class="bet-seat empty-seat"><div class="seat-label">P${i}</div></div>`).join('')}
       </div>
       <div class="baccarat-table">
+        <div id="bac-win-header" class="bac-win-header"></div>
         <div class="bac-btn-cluster">
           <div class="bac-shoe-spacer"></div>
           <div class="bac-bclust-side" id="bac-b-btn-top"></div>
@@ -1043,7 +1044,8 @@ const Sims = {
       showWinnerFlash(side);
       enableDraw();
       msg('');
-      setBtn('bac-tie-btn', `<span class="bac-win-announce ${cfg.cls}">${cfg.label}</span>`);
+      const wh = $('bac-win-header');
+      if (wh) wh.innerHTML = `<span class="bac-win-announce ${cfg.cls}">${cfg.label}</span>`;
     }
 
     function buildPayPanel() {
@@ -1112,6 +1114,7 @@ const Sims = {
         $('bac-result').className   = 'result-badge';
         const pp = $('bac-pay-panel');
         if (pp) pp.style.display = 'none';
+        const wh = $('bac-win-header'); if (wh) wh.innerHTML = '';
         clearInlineBtns();
 
         const wf = $('bac-winner-flash'); if (wf) { wf.className = 'bac-winner-flash'; wf.innerHTML = ''; }
