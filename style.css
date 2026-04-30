@@ -768,13 +768,13 @@ body {
 /* ---- BACCARAT: WIN ANNOUNCE (top label after result) ---- */
 
 .bac-win-announce {
-  font-size: 1rem; font-weight: 900; letter-spacing: 2px;
-  white-space: nowrap; padding: .35rem .9rem;
-  border-radius: 8px;
+  font-size: 1.05rem; font-weight: 900; letter-spacing: 2.5px;
+  white-space: nowrap; text-align: center;
+  text-shadow: 0 0 20px currentColor;
 }
-.bac-win-announce.banker-win { color: var(--gold); background: rgba(201,168,76,.12); border: 1px solid rgba(201,168,76,.25); }
-.bac-win-announce.player-win { color: var(--win); background: rgba(78,205,196,.1); border: 1px solid rgba(78,205,196,.25); }
-.bac-win-announce.tie-win { color: #6ec864; background: rgba(110,200,100,.1); border: 1px solid rgba(110,200,100,.25); }
+.bac-win-announce.banker-win { color: var(--gold); }
+.bac-win-announce.player-win { color: var(--win); }
+.bac-win-announce.tie-win    { color: #6ec864; }
 
 /* ---- BACCARAT: WINNER FLASH ---- */
 
@@ -1202,7 +1202,7 @@ body {
   .bac-card-sideways  { width: 88px; height: 62px; }
   .bac-bh-wrap, .bac-ph-wrap { min-width: 130px; }
   .bac-shoe-spacer    { width: 54px; }
-  .bac-win-announce   { font-size: .85rem; padding: .3rem .6rem; letter-spacing: 1px; }
+  .bac-win-announce   { font-size: .85rem; letter-spacing: 1.5px; }
 
   /* Pay panel mobile */
   .pay-seat-row       { grid-template-columns: 1.8rem 4.5rem 1fr 4rem; font-size: .75rem; }

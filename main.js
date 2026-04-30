@@ -254,7 +254,7 @@ const Views = {
               <div class="shoe-label-text">SHOE</div>
               <div class="shoe-card-slot"></div>
             </div>
-            <button class="btn-draw-shoe" id="bac-draw-btn" onclick="Sims.baccarat.deal()">DRAW<br>CARD</button>
+            <button class="btn-draw-shoe" id="bac-draw-btn" onclick="Sims.baccarat.deal()">NEW<br>GAME</button>
           </div>
           <div class="bac-banker-zone">
             <div class="bac-third-slot" id="bac-bh3"></div>
@@ -275,7 +275,7 @@ const Views = {
         <div class="bac-winner-flash" id="bac-winner-flash"></div>
       </div>
       <div class="sim-controls">
-        <div class="message-board" id="bac-msg">Press DRAW CARD to begin.</div>
+        <div class="message-board" id="bac-msg">Press NEW GAME to begin.</div>
         <div class="action-buttons" id="bac-actions"></div>
       </div>
       <div class="bac-pay-panel" id="bac-pay-panel" style="display:none"></div>
@@ -866,9 +866,8 @@ const Sims = {
     let flipId = 0;
 
     const $ = id => document.getElementById(id);
-    const msg    = t      => { $('bac-msg').textContent = t; $('bac-msg').style.color = ''; };
-    const msgCol = (t, c) => { $('bac-msg').textContent = t; $('bac-msg').style.color = c; };
-    const actions = h     => { $('bac-actions').innerHTML = h; };
+    const msg     = t => { $('bac-msg').textContent = t; $('bac-msg').style.color = ''; };
+    const actions = h => { $('bac-actions').innerHTML = h; };
     const enableDraw  = () => { const e = $('bac-draw-btn'); if (e) { e.disabled = false; e.style.opacity = ''; } };
     const disableDraw = () => { const e = $('bac-draw-btn'); if (e) { e.disabled = true;  e.style.opacity = '0.4'; } };
 
@@ -1032,23 +1031,19 @@ const Sims = {
     }
 
     function announceWinner(side) {
-      const pp = pts(S.ph), bp = pts(S.bh);
-      const resEl = $('bac-result');
       const cfg = {
-        player: { cls: 'player-win', txt: 'PLAYER', label: 'PLAYER WIN' },
-        banker: { cls: 'banker-win', txt: 'BANKER', label: 'BANKER WIN' },
-        tie:    { cls: 'tie-win',    txt: 'TIE',    label: 'TIE' },
+        player: { cls: 'player-win', label: 'PLAYER WIN' },
+        banker: { cls: 'banker-win', label: 'BANKER WIN' },
+        tie:    { cls: 'tie-win',    label: 'TIE' },
       }[side];
-      resEl.textContent = cfg.txt;
-      resEl.className = 'result-badge ' + cfg.cls;
       S.winner = side;
       S.score++;
       $('bac-score').textContent = S.score;
       $('bac-rounds').textContent = S.rounds;
-      msgCol(`${cfg.label}! Player: ${pp} · Banker: ${bp}`, '#c9a84c');
       showWinnerFlash(side);
       enableDraw();
-      setBtn('bac-b-btn-top', `<span class="bac-win-announce ${cfg.cls}">${cfg.label}</span>`);
+      msg('');
+      setBtn('bac-tie-btn', `<span class="bac-win-announce ${cfg.cls}">${cfg.label}</span>`);
     }
 
     function buildPayPanel() {
