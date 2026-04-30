@@ -721,6 +721,12 @@ body {
 .bac-field-divider {
   width: 80px; flex-shrink: 0; align-self: stretch;
   position: relative; display: flex; align-items: center; justify-content: center;
+  overflow: visible;
+}
+#bac-divider-result {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap; z-index: 5; pointer-events: none;
 }
 .bac-field-divider::before {
   content: ''; position: absolute; top: 0; bottom: 0; left: 50%;
@@ -820,8 +826,8 @@ body {
 }
 
 .bac-third-slot {
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  width: 110px;
+  display: flex; align-items: flex-end; justify-content: center; flex-shrink: 0;
+  width: 110px; align-self: flex-end;
 }
 
 .bac-pts-display {

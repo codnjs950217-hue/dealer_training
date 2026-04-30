@@ -254,13 +254,13 @@ const Views = {
               <div class="shoe-label-text">SHOE</div>
               <div class="shoe-card-slot"></div>
             </div>
-            <button class="btn-draw-shoe" id="bac-draw-btn" onclick="Sims.baccarat.deal()">NEW<br>GAME</button>
+            <button class="btn-draw-shoe" id="bac-draw-btn" onclick="Sims.baccarat.deal()">START</button>
           </div>
           <div class="bac-banker-zone">
             <div class="bac-third-slot" id="bac-bh3"></div>
             <div class="bac-hand-wrap bac-bh-wrap" id="bac-bh"></div>
           </div>
-          <div class="bac-field-divider"></div>
+          <div class="bac-field-divider"><div id="bac-divider-result"></div></div>
           <div class="bac-player-zone">
             <div class="bac-hand-wrap bac-ph-wrap" id="bac-ph"></div>
             <div class="bac-third-slot" id="bac-ph3"></div>
@@ -275,7 +275,7 @@ const Views = {
         <div class="bac-winner-flash" id="bac-winner-flash"></div>
       </div>
       <div class="sim-controls">
-        <div class="message-board" id="bac-msg">Press NEW GAME to begin.</div>
+        <div class="message-board" id="bac-msg">Press START to begin.</div>
         <div class="action-buttons" id="bac-actions"></div>
       </div>
       <div class="bac-pay-panel" id="bac-pay-panel" style="display:none"></div>
@@ -1043,7 +1043,8 @@ const Sims = {
       showWinnerFlash(side);
       enableDraw();
       msg('');
-      setBtn('bac-tie-btn', `<span class="bac-win-announce ${cfg.cls}">${cfg.label}</span>`);
+      const divRes = $('bac-divider-result');
+      if (divRes) divRes.innerHTML = `<span class="bac-win-announce ${cfg.cls}">${cfg.label}</span>`;
     }
 
     function buildPayPanel() {
@@ -1110,6 +1111,7 @@ const Sims = {
         const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
         $('bac-result').textContent = '';
         $('bac-result').className   = 'result-badge';
+        const divRes = $('bac-divider-result'); if (divRes) divRes.innerHTML = '';
         const pp = $('bac-pay-panel');
         if (pp) pp.style.display = 'none';
         clearInlineBtns();
