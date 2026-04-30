@@ -129,6 +129,10 @@ const Views = {
 
   gameLanding: (game) => {
     const g = GAMES[game];
+    const simBtns = game === 'baccarat'
+      ? `<button class="btn btn-secondary" onclick="App.navigate('baccarat','simulation')">⚡ Drawing Practice</button>
+         <button class="btn btn-secondary" onclick="App.navigate('baccarat','paysim')">⚡ Payout Practice</button>`
+      : `<button class="btn btn-secondary" onclick="App.navigate('${game}','simulation')">⚡ Go to Simulation</button>`;
     return `
       <div class="sim-page">
         <div class="sim-header">
@@ -138,7 +142,7 @@ const Views = {
         <p style="color:var(--text-dim);margin-bottom:2rem;max-width:560px">${g.desc}</p>
         <div style="display:flex;gap:1rem;flex-wrap:wrap">
           <button class="btn btn-primary"   onclick="App.navigate('${game}','tutorial')">▶ Start Tutorial</button>
-          <button class="btn btn-secondary" onclick="App.navigate('${game}','simulation')">⚡ Go to Simulation</button>
+          ${simBtns}
         </div>
       </div>`;
   },
@@ -197,7 +201,7 @@ const Views = {
     <div class="sim-page blackjack-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('blackjack')">← Back</button>
-        <h2>♠ Blackjack Simulation</h2>
+        <h2>♠ Blackjack Card Counting Practice</h2>
         <div class="sim-stats"><span>Rounds: <strong id="bj-rounds">0</strong></span><span>Score: <strong id="bj-score">0</strong></span></div>
       </div>
       <div class="blackjack-table">
@@ -231,7 +235,7 @@ const Views = {
     <div class="sim-page baccarat-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
-        <h2>🃏 Card Counting Simulation</h2>
+        <h2>🃏 Baccarat Drawing Practice</h2>
         <div class="sim-stats"><span>Rounds: <strong id="bac-rounds">0</strong></span><span>Score: <strong id="bac-score">0</strong></span></div>
       </div>
       <div class="bac-betting-row" id="bac-betting-row">
@@ -311,7 +315,7 @@ const Views = {
     <div class="sim-page baccarat-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
-        <h2>🃏 Commission Simulation</h2>
+        <h2>🃏 Baccarat Payout Practice</h2>
         <div class="sim-stats">
           <span>Rounds: <strong id="bpay-rounds">0</strong></span>
           <span>Score: <strong id="bpay-score">0</strong></span>
@@ -886,11 +890,12 @@ const Sims = {
       return false;
     }
 
-    function flipHTML(card, id, extraClass = '') {
-      return `<div class="flip-card${extraClass ? ' ' + extraClass : ''}" id="fc${id}"><div class="flip-inner">
+    function flipHTML(card, id, extraClass = '', sideways = false) {
+      const fc = `<div class="flip-card${extraClass ? ' ' + extraClass : ''}" id="fc${id}"><div class="flip-inner">
         <div class="flip-back"><div class="card back"><div class="card-pattern"></div></div></div>
         <div class="flip-front">${cardHTML(card)}</div>
       </div></div>`;
+      return sideways ? `<div class="bac-card-sideways">${fc}</div>` : fc;
     }
     function revealFlip(id) { const e = $(`fc${id}`); if (e) e.classList.add('revealed'); }
 
@@ -929,12 +934,12 @@ const Sims = {
       }, cards.length * 420 + 480);
     }
 
-    function addCard(hand, elId, onDone, extraClass = '') {
+    function addCard(hand, elId, onDone, extraClass = '', sideways = false) {
       const card = S.deck.pop();
       hand.push(card);
       const id = ++flipId;
       const el = $(elId);
-      if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id, extraClass));
+      if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id, extraClass, sideways));
       setTimeout(() => { revealFlip(id); setTimeout(onDone, 400); }, 350);
       return card;
     }
@@ -1019,11 +1024,11 @@ const Sims = {
       addCard(S.ph, 'bac-ph3', () => {
         S.pThird = S.ph[S.ph.length - 1];
         onDone();
-      }, 'bac-p3');
+      }, 'bac-p3', true);
     }
 
     function doBankerDraw(onDone) {
-      addCard(S.bh, 'bac-bh3', onDone, 'bac-b3');
+      addCard(S.bh, 'bac-bh3', onDone, 'bac-b3', true);
     }
 
     function announceWinner(side) {
