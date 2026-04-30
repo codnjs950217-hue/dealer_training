@@ -723,11 +723,6 @@ body {
   position: relative; display: flex; align-items: center; justify-content: center;
   overflow: visible;
 }
-#bac-divider-result {
-  position: absolute; left: 50%; top: 50%;
-  transform: translate(-50%, -50%);
-  white-space: nowrap; z-index: 5; pointer-events: none;
-}
 .bac-field-divider::before {
   content: ''; position: absolute; top: 0; bottom: 0; left: 50%;
   width: 2px; background: rgba(255,255,255,.3); transform: translateX(-50%);
@@ -764,7 +759,7 @@ body {
 .bac-bclust-mid {
   width: 80px; flex-shrink: 0;
   display: flex; justify-content: center; align-items: center;
-  min-height: 40px;
+  min-height: 40px; overflow: visible;
 }
 .bac-shoe-spacer {
   width: 64px; flex-shrink: 0;

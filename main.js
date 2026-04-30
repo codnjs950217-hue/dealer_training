@@ -260,7 +260,7 @@ const Views = {
             <div class="bac-third-slot" id="bac-bh3"></div>
             <div class="bac-hand-wrap bac-bh-wrap" id="bac-bh"></div>
           </div>
-          <div class="bac-field-divider"><div id="bac-divider-result"></div></div>
+          <div class="bac-field-divider"></div>
           <div class="bac-player-zone">
             <div class="bac-hand-wrap bac-ph-wrap" id="bac-ph"></div>
             <div class="bac-third-slot" id="bac-ph3"></div>
@@ -1043,8 +1043,7 @@ const Sims = {
       showWinnerFlash(side);
       enableDraw();
       msg('');
-      const divRes = $('bac-divider-result');
-      if (divRes) divRes.innerHTML = `<span class="bac-win-announce ${cfg.cls}">${cfg.label}</span>`;
+      setBtn('bac-tie-btn', `<span class="bac-win-announce ${cfg.cls}">${cfg.label}</span>`);
     }
 
     function buildPayPanel() {
@@ -1111,7 +1110,6 @@ const Sims = {
         const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
         $('bac-result').textContent = '';
         $('bac-result').className   = 'result-badge';
-        const divRes = $('bac-divider-result'); if (divRes) divRes.innerHTML = '';
         const pp = $('bac-pay-panel');
         if (pp) pp.style.display = 'none';
         clearInlineBtns();
