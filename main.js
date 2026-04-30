@@ -239,6 +239,7 @@ const Views = {
       </div>
       <div class="baccarat-table">
         <div class="bac-btn-cluster">
+          <div class="bac-shoe-spacer"></div>
           <div class="bac-bclust-side" id="bac-b-btn-top"></div>
           <div class="bac-bclust-mid" id="bac-tie-btn"></div>
           <div class="bac-bclust-side" id="bac-p-btn-top"></div>
@@ -262,6 +263,7 @@ const Views = {
           </div>
         </div>
         <div class="bac-btn-cluster">
+          <div class="bac-shoe-spacer"></div>
           <div class="bac-bclust-side" id="bac-b-btn-bot"></div>
           <div class="bac-bclust-mid"><div class="result-badge" id="bac-result"></div></div>
           <div class="bac-bclust-side" id="bac-p-btn-bot"></div>
@@ -1028,9 +1030,9 @@ const Sims = {
       const pp = pts(S.ph), bp = pts(S.bh);
       const resEl = $('bac-result');
       const cfg = {
-        player: { cls: 'player-win', txt: 'PLAYER' },
-        banker: { cls: 'banker-win', txt: 'BANKER' },
-        tie:    { cls: 'tie-win',    txt: 'TIE' },
+        player: { cls: 'player-win', txt: 'PLAYER', label: 'PLAYER WIN' },
+        banker: { cls: 'banker-win', txt: 'BANKER', label: 'BANKER WIN' },
+        tie:    { cls: 'tie-win',    txt: 'TIE',    label: 'TIE' },
       }[side];
       resEl.textContent = cfg.txt;
       resEl.className = 'result-badge ' + cfg.cls;
@@ -1038,10 +1040,10 @@ const Sims = {
       S.score++;
       $('bac-score').textContent = S.score;
       $('bac-rounds').textContent = S.rounds;
-      msgCol(`${cfg.txt} wins! Player: ${pp} · Banker: ${bp}`, '#c9a84c');
+      msgCol(`${cfg.label}! Player: ${pp} · Banker: ${bp}`, '#c9a84c');
       showWinnerFlash(side);
       enableDraw();
-      actions(`<button class="btn btn-primary" onclick="Sims.baccarat.openPay()">💰 Pay Time</button>`);
+      setBtn('bac-b-btn-top', `<span class="bac-win-announce ${cfg.cls}">${cfg.label}</span>`);
     }
 
     function buildPayPanel() {

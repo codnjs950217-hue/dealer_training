@@ -715,8 +715,8 @@ body {
   flex: 1; display: flex; justify-content: flex-start; align-items: center;
   overflow: visible; position: relative; gap: .35rem;
 }
-.bac-bh-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; }
-.bac-ph-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; }
+.bac-bh-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; min-width: 162px; }
+.bac-ph-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; min-width: 162px; }
 
 .bac-field-divider {
   width: 80px; flex-shrink: 0; align-self: stretch;
@@ -749,17 +749,32 @@ body {
 .bac-newgame-btn:hover { background: rgba(255,255,255,.14); color: #fff; border-color: rgba(255,255,255,.35); }
 
 .bac-btn-cluster {
-  display: flex; align-items: center; justify-content: center;
-  gap: .4rem; padding: .24rem 0;
+  display: flex; align-items: center;
+  padding: .24rem 0;
 }
 .bac-bclust-side {
-  display: flex; justify-content: center; align-items: center; min-height: 40px;
+  flex: 1; display: flex; justify-content: center; align-items: center; min-height: 40px;
 }
 .bac-bclust-mid {
+  width: 80px; flex-shrink: 0;
   display: flex; justify-content: center; align-items: center;
-  min-height: 40px; min-width: 58px;
+  min-height: 40px;
+}
+.bac-shoe-spacer {
+  width: 64px; flex-shrink: 0;
 }
 
+
+/* ---- BACCARAT: WIN ANNOUNCE (top label after result) ---- */
+
+.bac-win-announce {
+  font-size: 1rem; font-weight: 900; letter-spacing: 2px;
+  white-space: nowrap; padding: .35rem .9rem;
+  border-radius: 8px;
+}
+.bac-win-announce.banker-win { color: var(--gold); background: rgba(201,168,76,.12); border: 1px solid rgba(201,168,76,.25); }
+.bac-win-announce.player-win { color: var(--win); background: rgba(78,205,196,.1); border: 1px solid rgba(78,205,196,.25); }
+.bac-win-announce.tie-win { color: #6ec864; background: rgba(110,200,100,.1); border: 1px solid rgba(110,200,100,.25); }
 
 /* ---- BACCARAT: WINNER FLASH ---- */
 
@@ -802,6 +817,7 @@ body {
 
 .bac-third-slot {
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 78px;
 }
 
 .bac-pts-display {
@@ -1178,6 +1194,10 @@ body {
   .flip-card          { perspective: 500px; }
   .bac-pts-display    { font-size: 1.5rem; }
   .result-badge       { font-size: .8rem; min-width: 54px; padding: .4rem .5rem; }
+  .bac-third-slot     { width: 62px; }
+  .bac-bh-wrap, .bac-ph-wrap { min-width: 130px; }
+  .bac-shoe-spacer    { width: 54px; }
+  .bac-win-announce   { font-size: .85rem; padding: .3rem .6rem; letter-spacing: 1px; }
 
   /* Pay panel mobile */
   .pay-seat-row       { grid-template-columns: 1.8rem 4.5rem 1fr 4rem; font-size: .75rem; }
