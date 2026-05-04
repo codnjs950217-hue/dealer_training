@@ -39,6 +39,10 @@ function cardHTML(c, faceDown = false) {
 
 const App = {
   navigate(game, mode) {
+    document.querySelectorAll('.sidebar-link').forEach(el => {
+      el.classList.toggle('active',
+        el.dataset.game === game && el.dataset.mode === (mode || ''));
+    });
     const el = document.getElementById('app');
     if (game === 'home')            { el.innerHTML = Views.home(); return; }
     if (!mode)                      { el.innerHTML = Views.gameLanding(game); return; }
@@ -78,10 +82,10 @@ const Views = {
       <div class="hero-content">
         <div class="badge">♠ Professional Dealer Training</div>
         <h1 class="hero-title">Casino Dealer<br><span class="gold">Training System</span></h1>
-        <p class="hero-sub">Master the art of dealing with interactive video tutorials and hands-on simulations — designed to professional casino standards.</p>
+        <p class="hero-sub">왼쪽 메뉴에서 연습할 항목을 선택하세요.</p>
         <div class="hero-actions">
-          <button class="btn btn-primary"  onclick="App.navigate('blackjack','simulation')">Start Training</button>
-          <button class="btn btn-outline"  onclick="App.navigate('baccarat','tutorial')">Watch Tutorial</button>
+          <button class="btn btn-primary" onclick="App.navigate('baccarat','simulation')">🃏 Drawing Practice</button>
+          <button class="btn btn-outline" onclick="App.navigate('baccarat','paysim')">💰 Payout Practice</button>
         </div>
       </div>
       <div class="hero-cards">
@@ -100,34 +104,6 @@ const Views = {
           <div class="card-suit-center">♦</div>
           <div class="card-corner bottom"><span class="rank">Q</span><span class="suit">♦</span></div>
         </div>
-      </div>
-    </section>
-
-    <section class="games-section">
-      <div class="section-header">
-        <h2>Choose Your Game</h2>
-        <p>Select a game to begin your professional dealer training</p>
-      </div>
-      <div class="games-grid">
-        ${Object.entries(GAMES).map(([k, g]) => `
-          <div class="game-card" onclick="App.navigate('${k}')">
-            <div class="game-card-icon">${g.icon}</div>
-            <h3>${g.name}</h3>
-            <p>${g.desc}</p>
-            <div class="game-card-actions">
-              <button class="btn btn-sm btn-tutorial" onclick="event.stopPropagation();App.navigate('${k}','tutorial')">▶ Tutorial</button>
-              <button class="btn btn-sm btn-sim"      onclick="event.stopPropagation();App.navigate('${k}','simulation')">⚡ Simulate</button>
-            </div>
-          </div>`).join('')}
-      </div>
-    </section>
-
-    <section class="features-section">
-      <div class="features-grid">
-        <div class="feature"><div class="feature-icon">📹</div><h4>Video Tutorials</h4><p>Step-by-step video guides covering all procedures and techniques</p></div>
-        <div class="feature"><div class="feature-icon">🎮</div><h4>Interactive Simulation</h4><p>Practice dealing in a realistic environment without pressure</p></div>
-        <div class="feature"><div class="feature-icon">📋</div><h4>Rule References</h4><p>Quick-access rule sheets and payout tables for all games</p></div>
-        <div class="feature"><div class="feature-icon">🏆</div><h4>Industry Standards</h4><p>Trained to procedures used in real casinos worldwide</p></div>
       </div>
     </section>`,
 
