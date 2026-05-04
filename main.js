@@ -1244,7 +1244,7 @@ const Sims = {
       if (!panel) return;
       panel.style.display = 'block';
       panel.innerHTML = `<div class="comm-tray">
-        <div class="comm-tray-label">커미션 트레이 — 꺼낼 칩 개수 입력</div>
+        <div class="comm-tray-label">지급 트레이 — 실지급 칩 개수 입력</div>
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
             <div class="comm-slot">
@@ -1282,9 +1282,10 @@ const Sims = {
       for (let j = 1; j <= 3; j++) {
         const p = $(`bpay-pos-${j}`); if (p) p.classList.toggle('active', j === posNum);
       }
-      S.commTarget = Math.floor(S.bets[idx].total * 0.05 / 5000) * 5000;
+      const comm = Math.floor(S.bets[idx].total * 0.05 / 5000) * 5000;
+      S.commTarget = S.bets[idx].total - comm;
       showCommTray();
-      msg(`P${posNum} 뱅커 ${fmtWon(S.bets[idx].total)} → 커미션 5% = ?`);
+      msg(`P${posNum} 뱅커 ${fmtWon(S.bets[idx].total)} → 실지급액은? (커미션 ${fmtWon(comm)} 제외)`);
       actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.submitComm()">Pay</button>`);
     }
 
@@ -1324,7 +1325,7 @@ const Sims = {
           });
           return;
         }
-        msgCol(`정답! ${fmtWon(S.commTarget)}`, '#6ec864');
+        msgCol(`정답! 실지급 ${fmtWon(S.commTarget)}`, '#6ec864');
         setTimeout(() => startCommAt(S.commIdx - 1), 500);
       },
     };
