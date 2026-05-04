@@ -53,6 +53,10 @@ const App = {
       el.innerHTML = Views.baccaratPaySim();
       Sims.baccaratPay && Sims.baccaratPay.init();
     }
+    if (mode === 'commsim' && game === 'baccarat') {
+      el.innerHTML = Views.baccaratCommSim();
+      Sims.baccaratComm && Sims.baccaratComm.init();
+    }
     window.scrollTo(0, 0);
   },
   init() { this.navigate('home'); }
@@ -131,7 +135,8 @@ const Views = {
     const g = GAMES[game];
     const simBtns = game === 'baccarat'
       ? `<button class="btn btn-secondary" onclick="App.navigate('baccarat','simulation')">⚡ Drawing Practice</button>
-         <button class="btn btn-secondary" onclick="App.navigate('baccarat','paysim')">⚡ Payout Practice</button>`
+         <button class="btn btn-secondary" onclick="App.navigate('baccarat','paysim')">⚡ Payout Practice</button>
+         <button class="btn btn-secondary" onclick="App.navigate('baccarat','commsim')">⚡ Commission Practice</button>`
       : `<button class="btn btn-secondary" onclick="App.navigate('${game}','simulation')">⚡ Go to Simulation</button>`;
     return `
       <div class="sim-page">
@@ -361,6 +366,31 @@ const Views = {
         </div>
       </div>
       <div class="bpay-pay-panel" id="bpay-pay-panel" style="display:none"></div>
+    </div>`,
+
+  baccaratCommSim: () => `
+    <div class="sim-page baccarat-sim">
+      <div class="sim-header">
+        <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
+        <h2>🃏 Commission Practice</h2>
+        <div class="sim-stats">
+          <span>Rounds: <strong id="comm-rounds">0</strong></span>
+          <span>Score: <strong id="comm-score">0</strong></span>
+        </div>
+      </div>
+      <div class="comm-area">
+        <div class="comm-bet-section">
+          <div class="comm-bet-label">BANKER BET</div>
+          <div class="comm-chips" id="comm-chips"><span style="color:var(--text-dim)">—</span></div>
+        </div>
+        <div class="comm-tray" id="comm-tray"></div>
+      </div>
+      <div class="sim-controls">
+        <div class="message-board" id="comm-msg">Press Start to begin.</div>
+        <div class="action-buttons" id="comm-actions">
+          <button class="btn btn-primary" onclick="Sims.baccaratComm.next()">Start</button>
+        </div>
+      </div>
     </div>`,
 };
 
@@ -1432,6 +1462,142 @@ const Sims = {
         if (answer !== correct) { showMistake(() => startPayTest()); return; }
         S.payIdx--;
         setTimeout(() => startPayTest(), 300);
+      },
+    };
+  })(),
+
+  // ---- BACCARAT COMMISSION ----
+  baccaratComm: (() => {
+    const CHIPS = [
+      { key: '1억', val: 100_000_000, bg: '#1e1e1e', fg: '#c9a84c' },
+      { key: '1천', val:  10_000_000, bg: '#7a5f00', fg: '#ffe082' },
+      { key: '1백', val:   1_000_000, bg: '#7a0000', fg: '#fff' },
+      { key: '1십', val:     100_000, bg: '#0d3b6e', fg: '#90caf9' },
+      { key: '1만', val:      10_000, bg: '#1b5e20', fg: '#a5d6a7' },
+      { key: '5천', val:       5_000, bg: '#4a148c', fg: '#ce93d8' },
+    ];
+
+    let S = {};
+    const $  = id => document.getElementById(id);
+    const msg    = t     => { const e = $('comm-msg'); if (e) { e.textContent = t; e.style.color = ''; } };
+    const msgCol = (t,c) => { const e = $('comm-msg'); if (e) { e.textContent = t; e.style.color = c; } };
+    const actions = h    => { const e = $('comm-actions'); if (e) e.innerHTML = h; };
+
+    function generateBet() {
+      const betPool = CHIPS.slice(1, 4); // 1천, 1백, 1십
+      const numDenoms = 1 + Math.floor(Math.random() * 2);
+      const picked = [...betPool].sort(() => Math.random() - 0.5).slice(0, numDenoms);
+      const chips = {};
+      picked.forEach(c => { chips[c.key] = 1 + Math.floor(Math.random() * 4); });
+      return chips;
+    }
+
+    function chipTotal(chips) {
+      return Object.entries(chips).reduce((sum, [key, cnt]) => {
+        return sum + (CHIPS.find(c => c.key === key)?.val ?? 0) * cnt;
+      }, 0);
+    }
+
+    function calcCommission(total) {
+      return Math.floor(total * 0.05 / 5000) * 5000;
+    }
+
+    function fmtWon(n) {
+      if (n >= 100_000_000) return (n / 100_000_000).toFixed(0) + '억원';
+      if (n >=  10_000_000) return (n /  10_000_000).toFixed(0) + '천만원';
+      if (n >=   1_000_000) return (n /   1_000_000).toFixed(0) + '백만원';
+      if (n >=     100_000) return (n /     100_000).toFixed(0) + '십만원';
+      if (n >=      10_000) return (n /      10_000).toFixed(0) + '만원';
+      return n.toLocaleString() + '원';
+    }
+
+    function renderChips(chips) {
+      const el = $('comm-chips');
+      if (!el) return;
+      el.innerHTML = Object.entries(chips).map(([key, cnt]) => {
+        const chip = CHIPS.find(c => c.key === key);
+        let stack = '';
+        for (let i = 0; i < cnt; i++) {
+          stack += `<div class="comm-chip-disc" style="background:${chip.bg};color:${chip.fg};bottom:${i*6}px">${chip.key}</div>`;
+        }
+        return `<div class="comm-chip-stack">${stack}<div class="comm-chip-count">×${cnt}</div></div>`;
+      }).join('');
+    }
+
+    function renderTray() {
+      const el = $('comm-tray');
+      if (!el) return;
+      el.innerHTML = `
+        <div class="comm-tray-label">커미션 트레이 — 꺼낼 칩 개수 입력</div>
+        <div class="comm-tray-slots">
+          ${CHIPS.map(c => `
+            <div class="comm-slot">
+              <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
+              <input class="comm-slot-input" id="comm-inp-${c.key}" type="number"
+                min="0" max="20" value="0" oninput="if(+this.value<0)this.value=0">
+            </div>
+          `).join('')}
+        </div>`;
+    }
+
+    function getEntered() {
+      return CHIPS.reduce((sum, c) => {
+        return sum + c.val * (parseInt($(`comm-inp-${c.key}`)?.value) || 0);
+      }, 0);
+    }
+
+    function resetInputs() {
+      CHIPS.forEach(c => { const inp = $(`comm-inp-${c.key}`); if (inp) inp.value = 0; });
+    }
+
+    function showMistake(retryFn) {
+      actions('');
+      const area = document.querySelector('.comm-area');
+      if (!area) return;
+      const ov = document.createElement('div');
+      ov.className = 'mistake-overlay';
+      ov.appendChild(Object.assign(document.createElement('div'), { className: 'mistake-text', textContent: 'MISTAKE!' }));
+      area.appendChild(ov);
+      setTimeout(() => { ov.remove(); retryFn(); }, 1600);
+    }
+
+    function startRound() {
+      S.betChips  = generateBet();
+      S.betTotal  = chipTotal(S.betChips);
+      S.commission = calcCommission(S.betTotal);
+      renderChips(S.betChips);
+      renderTray();
+      msg(`Banker ${fmtWon(S.betTotal)} — 5% 커미션은?`);
+      actions(`<button class="btn btn-primary" onclick="Sims.baccaratComm.submit()">Submit</button>`);
+    }
+
+    return {
+      init() {
+        S = { rounds: 0, score: 0, betChips: {}, betTotal: 0, commission: 0 };
+        renderTray();
+        msg('Press Start to begin.');
+        actions(`<button class="btn btn-primary" onclick="Sims.baccaratComm.next()">Start</button>`);
+      },
+
+      next() {
+        S.rounds++;
+        $('comm-rounds').textContent = S.rounds;
+        startRound();
+      },
+
+      submit() {
+        const entered = getEntered();
+        if (entered !== S.commission) {
+          showMistake(() => {
+            resetInputs();
+            actions(`<button class="btn btn-primary" onclick="Sims.baccaratComm.submit()">Submit</button>`);
+          });
+          return;
+        }
+        S.score++;
+        $('comm-score').textContent = S.score;
+        msgCol(`정답! 커미션: ${fmtWon(S.commission)}`, '#6ec864');
+        actions(`<button class="btn btn-primary" onclick="Sims.baccaratComm.next()">Next</button>`);
       },
     };
   })(),
