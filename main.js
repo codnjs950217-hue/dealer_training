@@ -366,6 +366,7 @@ const Views = {
         </div>
       </div>
       <div class="bpay-pay-panel" id="bpay-pay-panel" style="display:none"></div>
+      <div class="bpay-comm-panel" id="bpay-comm-panel" style="display:none"></div>
     </div>`,
 
   baccaratCommSim: () => `
@@ -1243,6 +1244,15 @@ const Sims = {
     let flipId = 0;
 
     const $ = id => document.getElementById(id);
+
+    const COMM_CHIPS = [
+      { key: '1억', val: 100_000_000, bg: '#1e1e1e', fg: '#c9a84c' },
+      { key: '1천', val:  10_000_000, bg: '#7a5f00', fg: '#ffe082' },
+      { key: '1백', val:   1_000_000, bg: '#7a0000', fg: '#fff'    },
+      { key: '1십', val:     100_000, bg: '#0d3b6e', fg: '#90caf9' },
+      { key: '1만', val:      10_000, bg: '#1b5e20', fg: '#a5d6a7' },
+      { key: '5천', val:       5_000, bg: '#4a148c', fg: '#ce93d8' },
+    ];
     const msg    = t      => { const e = $('bpay-msg'); if (e) { e.textContent = t; e.style.color = ''; } };
     const msgCol = (t, c) => { const e = $('bpay-msg'); if (e) { e.textContent = t; e.style.color = c; } };
     const actions = h     => { const e = $('bpay-actions'); if (e) e.innerHTML = h; };
@@ -1323,6 +1333,23 @@ const Sims = {
       });
     }
 
+    function showCommTray() {
+      const panel = $('bpay-comm-panel');
+      if (!panel) return;
+      panel.style.display = 'block';
+      panel.innerHTML = `<div class="comm-tray">
+        <div class="comm-tray-label">커미션 트레이 — 꺼낼 칩 개수 입력</div>
+        <div class="comm-tray-slots">
+          ${COMM_CHIPS.map(c => `
+            <div class="comm-slot">
+              <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
+              <input class="comm-slot-input" id="bpay-ci-${c.key}" type="number"
+                min="0" max="20" value="0" oninput="if(+this.value<0)this.value=0">
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }
+
     function showMistake(retryFn) {
       actions('');
       const tbl = document.querySelector('.baccarat-table');
@@ -1381,6 +1408,17 @@ const Sims = {
       S.score++;
       const sc = $('bpay-score'); if (sc) sc.textContent = S.score;
       const rd = $('bpay-rounds'); if (rd) rd.textContent = S.rounds;
+
+      if (S.winner === 'banker') {
+        const bankerTotal = S.bets.filter(b => b.side === 'banker').reduce((s, b) => s + b.amount, 0);
+        if (bankerTotal > 0) {
+          S.commTarget = Math.floor(bankerTotal * 0.05 / 5000) * 5000;
+          showCommTray();
+          msgCol(`Banker wins! 커미션을 입력하세요.`, '#c9a84c');
+          actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.submitComm()">Submit Commission</button>`);
+          return;
+        }
+      }
       msgCol(`Round complete! Player: ${pv} · Banker: ${bv}`, '#c9a84c');
       actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.deal()">Next Hand</button>`);
     }
@@ -1416,7 +1454,7 @@ const Sims = {
     return {
       init() {
         S = { deck: createDeck(8), ph: [], bh: [], pThird: null, winner: null,
-              bets: [], payIdx: 2, phase: 'idle', rounds: 0, score: 0 };
+              bets: [], payIdx: 2, phase: 'idle', rounds: 0, score: 0, commTarget: 0 };
         flipId = 0;
       },
 
@@ -1429,6 +1467,7 @@ const Sims = {
         ['bpay-pv','bpay-bv'].forEach(id => { const e = $(id); if (e) e.textContent = ''; });
         const res = $('bpay-result'); if (res) { res.textContent = ''; res.className = 'result-badge'; }
         const panel = $('bpay-pay-panel'); if (panel) panel.style.display = 'none';
+        const commPanel = $('bpay-comm-panel'); if (commPanel) commPanel.style.display = 'none';
         for (let j = 1; j <= 3; j++) { const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active'); }
 
         S.bets = generateBets();
@@ -1458,6 +1497,23 @@ const Sims = {
         if (answer !== correct) { showMistake(() => startPayTest()); return; }
         S.payIdx--;
         setTimeout(() => startPayTest(), 300);
+      },
+
+      submitComm() {
+        const entered = COMM_CHIPS.reduce((sum, c) => {
+          return sum + c.val * (parseInt($(`bpay-ci-${c.key}`)?.value) || 0);
+        }, 0);
+        if (entered !== S.commTarget) {
+          showMistake(() => {
+            COMM_CHIPS.forEach(c => { const inp = $(`bpay-ci-${c.key}`); if (inp) inp.value = 0; });
+            actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.submitComm()">Submit Commission</button>`);
+          });
+          return;
+        }
+        const commPanel = $('bpay-comm-panel');
+        if (commPanel) commPanel.style.display = 'none';
+        msgCol(`정답! 커미션 ${fmtAmt(S.commTarget)}`, '#6ec864');
+        actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.deal()">Next Hand</button>`);
       },
     };
   })(),

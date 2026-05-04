@@ -1351,6 +1351,7 @@ body {
 
 /* Pay result panel */
 .bpay-pay-panel { margin-top: 1rem; }
+.bpay-comm-panel { margin-top: 1rem; }
 .bpay-pay-inner {
   background: #091828;
   border: 1px solid rgba(201,168,76,.2);
