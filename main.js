@@ -328,13 +328,6 @@ const Views = {
         </div>
       </div>
       <div class="baccarat-table">
-        <div style="display:none">
-          <div id="bpay-bh"></div>
-          <div id="bpay-ph"></div>
-          <span id="bpay-bv"></span>
-          <span id="bpay-pv"></span>
-          <span id="bpay-result"></span>
-        </div>
         <div class="bpay-positions">
           ${[1,2,3].map(i => `
             <div class="bpay-pos" id="bpay-pos-${i}">
@@ -352,20 +345,19 @@ const Views = {
                 <div class="bpay-circ bpay-tiger">SMALL<br>TIGER</div>
               </div>
               <div class="bpay-circles">
-                <div class="bpay-circ bpay-dragon">BIG<br>DRAGON</div>
-                <div class="bpay-circ bpay-dragon">SUPER<br>7</div>
                 <div class="bpay-circ bpay-dragon">SMALL<br>DRAGON</div>
+                <div class="bpay-circ bpay-dragon">SUPER<br>7</div>
+                <div class="bpay-circ bpay-dragon">BIG<br>DRAGON</div>
               </div>
             </div>`).join('')}
         </div>
       </div>
       <div class="sim-controls">
-        <div class="message-board" id="bpay-msg">Press Deal to begin.</div>
+        <div class="message-board" id="bpay-msg">Deal을 눌러 시작하세요.</div>
         <div class="action-buttons" id="bpay-actions">
           <button class="btn btn-primary" onclick="Sims.baccaratPay.deal()">Deal</button>
         </div>
       </div>
-      <div class="bpay-pay-panel" id="bpay-pay-panel" style="display:none"></div>
       <div class="bpay-comm-panel" id="bpay-comm-panel" style="display:none"></div>
     </div>`,
 
@@ -1240,11 +1232,6 @@ const Sims = {
 
   // ---- BACCARAT PAY SIM ----
   baccaratPay: (() => {
-    let S = {};
-    let flipId = 0;
-
-    const $ = id => document.getElementById(id);
-
     const COMM_CHIPS = [
       { key: '1억', val: 100_000_000, bg: '#1e1e1e', fg: '#c9a84c' },
       { key: '1천', val:  10_000_000, bg: '#7a5f00', fg: '#ffe082' },
@@ -1253,83 +1240,54 @@ const Sims = {
       { key: '1만', val:      10_000, bg: '#1b5e20', fg: '#a5d6a7' },
       { key: '5천', val:       5_000, bg: '#4a148c', fg: '#ce93d8' },
     ];
-    const msg    = t      => { const e = $('bpay-msg'); if (e) { e.textContent = t; e.style.color = ''; } };
-    const msgCol = (t, c) => { const e = $('bpay-msg'); if (e) { e.textContent = t; e.style.color = c; } };
-    const actions = h     => { const e = $('bpay-actions'); if (e) e.innerHTML = h; };
+    // Betting chips: min 10만원
+    const BET_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[2], COMM_CHIPS[1]]; // 1십, 1백, 1천
 
-    function bval(c) {
-      if (['10','J','Q','K'].includes(c.rank)) return 0;
-      if (c.rank === 'A') return 1;
-      return +c.rank;
-    }
-    const pts = h => h.reduce((s, c) => s + bval(c), 0) % 10;
+    let S = {};
+    const $  = id => document.getElementById(id);
+    const msg    = t     => { const e = $('bpay-msg'); if (e) { e.textContent = t; e.style.color = ''; } };
+    const msgCol = (t,c) => { const e = $('bpay-msg'); if (e) { e.textContent = t; e.style.color = c; } };
+    const actions = h    => { const e = $('bpay-actions'); if (e) e.innerHTML = h; };
 
-    function bankerRule(bt, pThird) {
-      if (pThird === null) return bt <= 5;
-      const v = bval(pThird);
-      if (bt <= 2) return true;
-      if (bt === 3) return v !== 8;
-      if (bt === 4) return v >= 2 && v <= 7;
-      if (bt === 5) return v >= 4 && v <= 7;
-      if (bt === 6) return v === 6 || v === 7;
-      return false;
+    function generateBetChips() {
+      const numDenoms = Math.random() > 0.5 ? 1 : 2;
+      const picked = [...BET_CHIPS].sort(() => Math.random() - 0.5).slice(0, numDenoms);
+      const chips = {};
+      picked.forEach(d => { chips[d.key] = 1 + Math.floor(Math.random() * 4); });
+      return chips;
     }
 
-    function flipHTML(card, id) {
-      return `<div class="flip-card" id="fc${id}"><div class="flip-inner">
-        <div class="flip-back"><div class="card back"><div class="card-pattern"></div></div></div>
-        <div class="flip-front">${cardHTML(card)}</div>
-      </div></div>`;
-    }
-    function revealFlip(id) { const e = $(`fc${id}`); if (e) e.classList.add('revealed'); }
-
-    function dealSequence(cards, targets, onDone) {
-      const ids = [];
-      cards.forEach((card, i) => {
-        const id = ++flipId; ids.push(id);
-        setTimeout(() => { const el = $(targets[i]); if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id)); }, i * 420);
-      });
-      setTimeout(() => {
-        ids.forEach(id => revealFlip(id));
-        setTimeout(onDone, 650);
-      }, cards.length * 420 + 480);
+    function chipTotal(chips) {
+      return Object.entries(chips).reduce((sum, [key, cnt]) => {
+        return sum + (COMM_CHIPS.find(c => c.key === key)?.val ?? 0) * cnt;
+      }, 0);
     }
 
-    function addCardAuto(hand, elId, onDone) {
-      const card = S.deck.pop();
-      hand.push(card);
-      const id = ++flipId;
-      const el = $(elId);
-      if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id));
-      setTimeout(() => { revealFlip(id); setTimeout(onDone, 400); }, 350);
-    }
-
-    function fmtAmt(amt) {
-      if (amt >= 1000000) return (amt / 1000000).toFixed(0) + '백만';
-      if (amt >= 10000)   return (amt / 10000).toFixed(0) + '만';
-      return amt.toLocaleString();
-    }
-
-    function generateBets() {
-      const amts = [50000, 100000, 500000, 1000000, 2000000, 3000000];
-      return Array.from({length: 3}, () => ({
-        amount: amts[Math.floor(Math.random() * amts.length)],
-        side:   Math.random() > 0.5 ? 'player' : 'banker',
-      }));
+    function fmtWon(n) {
+      if (n >= 100_000_000) return (n / 100_000_000).toFixed(0) + '억원';
+      if (n >=  10_000_000) return (n /  10_000_000).toFixed(0) + '천만원';
+      if (n >=   1_000_000) return (n /   1_000_000).toFixed(0) + '백만원';
+      if (n >=     100_000) return (n /     100_000).toFixed(0) + '십만원';
+      if (n >=      10_000) return (n /      10_000).toFixed(0) + '만원';
+      return n.toLocaleString() + '원';
     }
 
     function renderPositions() {
       S.bets.forEach((bet, i) => {
         const idx = i + 1;
-        const pOval = $(`bpay-p-${idx}`);
         const bOval = $(`bpay-b-${idx}`);
-        const pAmt  = $(`bpay-p-amt-${idx}`);
         const bAmt  = $(`bpay-b-amt-${idx}`);
-        if (!pOval || !bOval) return;
-        pOval.classList.toggle('has-bet', bet.side === 'player');
-        bOval.classList.toggle('has-bet', bet.side === 'banker');
-        if (pAmt) pAmt.textContent = bet.side === 'player' ? fmtAmt(bet.amount) : '';
-        if (bAmt) bAmt.textContent = bet.side === 'banker' ? fmtAmt(bet.amount) : '';
+        if (!bOval || !bAmt) return;
+        bOval.classList.add('has-bet');
+        const stackHtml = Object.entries(bet.chips).map(([key, cnt]) => {
+          const chip = COMM_CHIPS.find(c => c.key === key);
+          let discs = '';
+          for (let j = 0; j < cnt; j++) {
+            discs += `<div class="bpay-chip-disc" style="background:${chip.bg};color:${chip.fg}">${chip.key}</div>`;
+          }
+          return `<div class="bpay-chip-col">${discs}</div>`;
+        }).join('');
+        bAmt.innerHTML = `<div class="bpay-chip-row">${stackHtml}</div>`;
       });
     }
 
@@ -1361,142 +1319,50 @@ const Sims = {
       setTimeout(() => { ov.remove(); retryFn(); }, 1600);
     }
 
-    function startPayTest() {
-      if (S.payIdx < 0) { showPayResult(); return; }
-      const i = S.payIdx + 1;
-      const bet = S.bets[S.payIdx];
+    function startCommAt(idx) {
+      if (idx < 0) {
+        const panel = $('bpay-comm-panel'); if (panel) panel.style.display = 'none';
+        for (let j = 1; j <= 3; j++) { const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active'); }
+        S.score++;
+        $('bpay-score').textContent = S.score;
+        msgCol('Round complete!', '#6ec864');
+        actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.deal()">Next Round</button>`);
+        return;
+      }
+      S.commIdx = idx;
+      const posNum = idx + 1;
       for (let j = 1; j <= 3; j++) {
-        const p = $(`bpay-pos-${j}`); if (p) p.classList.toggle('active', j === i);
+        const p = $(`bpay-pos-${j}`); if (p) p.classList.toggle('active', j === posNum);
       }
-      msg(`P${i}: ${bet.side === 'player' ? 'PLAYER' : 'BANKER'} · ${fmtAmt(bet.amount)} — Pay, Push, or Take?`);
-      actions(`
-        <button class="btn btn-primary"   onclick="Sims.baccaratPay.testPay('pay')">Pay</button>
-        <button class="btn btn-outline"   onclick="Sims.baccaratPay.testPay('push')">Push</button>
-        <button class="btn btn-secondary" onclick="Sims.baccaratPay.testPay('take')">Take</button>
-      `);
-    }
-
-    function showPayResult() {
-      for (let j = 1; j <= 3; j++) { const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active'); }
-      const pv = pts(S.ph), bv = pts(S.bh);
-      const pvEl = $('bpay-pv'); if (pvEl) pvEl.textContent = pv;
-      const bvEl = $('bpay-bv'); if (bvEl) bvEl.textContent = bv;
-      const resEl = $('bpay-result');
-      if (resEl) {
-        const cfg = { player:{ cls:'player-win', txt:'PLAYER' }, banker:{ cls:'banker-win', txt:'BANKER' }, tie:{ cls:'tie-win', txt:'TIE' } }[S.winner];
-        resEl.textContent = cfg.txt; resEl.className = 'result-badge ' + cfg.cls;
-      }
-      const rows = S.bets.map((bet, i) => {
-        let cls, act;
-        if (S.winner === 'tie') {
-          cls = 'bpay-push'; act = 'PUSH';
-        } else if (bet.side === S.winner) {
-          const pay = bet.side === 'banker' ? Math.floor(bet.amount * 0.95) : bet.amount;
-          cls = 'bpay-win'; act = `PAY ${fmtAmt(pay)}`;
-        } else {
-          cls = 'bpay-lose'; act = 'TAKE';
-        }
-        return `<div class="bpay-row ${cls}">
-          <span class="bpay-row-pos">P${i+1}</span>
-          <span class="bpay-row-side ${bet.side}">${bet.side === 'player' ? 'PLAYER' : 'BANKER'}</span>
-          <span class="bpay-row-amt">${fmtAmt(bet.amount)}</span>
-          <span class="bpay-row-act">${act}</span>
-        </div>`;
-      }).join('');
-      const panel = $('bpay-pay-panel');
-      if (panel) { panel.style.display = 'block'; panel.innerHTML = `<div class="bpay-pay-inner">${rows}</div>`; }
-      S.score++;
-      const sc = $('bpay-score'); if (sc) sc.textContent = S.score;
-      const rd = $('bpay-rounds'); if (rd) rd.textContent = S.rounds;
-
-      if (S.winner === 'banker') {
-        const bankerTotal = S.bets.filter(b => b.side === 'banker').reduce((s, b) => s + b.amount, 0);
-        if (bankerTotal > 0) {
-          S.commTarget = Math.floor(bankerTotal * 0.05 / 5000) * 5000;
-          showCommTray();
-          msgCol(`Banker wins! 커미션을 입력하세요.`, '#c9a84c');
-          actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.submitComm()">Submit Commission</button>`);
-          return;
-        }
-      }
-      msgCol(`Round complete! Player: ${pv} · Banker: ${bv}`, '#c9a84c');
-      actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.deal()">Next Hand</button>`);
-    }
-
-    function finalize() {
-      const pp = pts(S.ph), bp = pts(S.bh);
-      S.winner = pp > bp ? 'player' : bp > pp ? 'banker' : 'tie';
-      S.phase = 'pay-test';
-      msg('Cards dealt. Determine pay action for each position.');
-      setTimeout(() => startPayTest(), 600);
-    }
-
-    function doThirdCards(onDone) {
-      const pp = pts(S.ph), bp = pts(S.bh);
-      if (pp <= 5) {
-        addCardAuto(S.ph, 'bpay-ph', () => {
-          S.pThird = S.ph[S.ph.length - 1];
-          if (bankerRule(pts(S.bh), S.pThird)) {
-            addCardAuto(S.bh, 'bpay-bh', onDone);
-          } else {
-            onDone();
-          }
-        });
-      } else {
-        if (bankerRule(bp, null)) {
-          addCardAuto(S.bh, 'bpay-bh', onDone);
-        } else {
-          onDone();
-        }
-      }
+      S.commTarget = Math.floor(S.bets[idx].total * 0.05 / 5000) * 5000;
+      showCommTray();
+      msg(`P${posNum} 뱅커 ${fmtWon(S.bets[idx].total)} → 커미션 5% = ?`);
+      actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.submitComm()">Pay</button>`);
     }
 
     return {
       init() {
-        S = { deck: createDeck(8), ph: [], bh: [], pThird: null, winner: null,
-              bets: [], payIdx: 2, phase: 'idle', rounds: 0, score: 0, commTarget: 0 };
-        flipId = 0;
+        S = { bets: [], commIdx: 2, rounds: 0, score: 0, commTarget: 0 };
       },
 
       deal() {
-        if (S.deck.length < 20) S.deck = createDeck(8);
-        S.ph = []; S.bh = []; S.pThird = null; S.winner = null;
-        S.payIdx = 2; S.phase = 'dealing'; S.rounds++;
-
-        $('bpay-ph').innerHTML = ''; $('bpay-bh').innerHTML = '';
-        ['bpay-pv','bpay-bv'].forEach(id => { const e = $(id); if (e) e.textContent = ''; });
-        const res = $('bpay-result'); if (res) { res.textContent = ''; res.className = 'result-badge'; }
-        const panel = $('bpay-pay-panel'); if (panel) panel.style.display = 'none';
-        const commPanel = $('bpay-comm-panel'); if (commPanel) commPanel.style.display = 'none';
-        for (let j = 1; j <= 3; j++) { const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active'); }
-
-        S.bets = generateBets();
-        renderPositions();
-        actions('');
-        msg('Dealing...');
-
-        const c = [S.deck.pop(), S.deck.pop(), S.deck.pop(), S.deck.pop()];
-        S.ph = [c[0], c[2]]; S.bh = [c[1], c[3]];
-
-        dealSequence(c, ['bpay-ph','bpay-bh','bpay-ph','bpay-bh'], () => {
-          const pp = pts(S.ph), bp = pts(S.bh);
-          if (pp >= 8 || bp >= 8) {
-            S.winner = pp > bp ? 'player' : bp > pp ? 'banker' : 'tie';
-            S.phase = 'pay-test';
-            msg('Natural! Determine pay action for each position.');
-            setTimeout(() => startPayTest(), 600);
-          } else {
-            doThirdCards(finalize);
-          }
+        S.rounds++; S.commIdx = 2; S.commTarget = 0;
+        $('bpay-rounds').textContent = S.rounds;
+        for (let j = 1; j <= 3; j++) {
+          const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active');
+          const bOval = $(`bpay-b-${j}`); if (bOval) bOval.classList.remove('has-bet');
+          const bAmt  = $(`bpay-b-amt-${j}`); if (bAmt) bAmt.innerHTML = '';
+          const pAmt  = $(`bpay-p-amt-${j}`); if (pAmt) pAmt.innerHTML = '';
+        }
+        const panel = $('bpay-comm-panel'); if (panel) panel.style.display = 'none';
+        S.bets = Array.from({length: 3}, () => {
+          const chips = generateBetChips();
+          return { chips, total: chipTotal(chips) };
         });
-      },
-
-      testPay(answer) {
-        const bet = S.bets[S.payIdx];
-        const correct = S.winner === 'tie' ? 'push' : bet.side === S.winner ? 'pay' : 'take';
-        if (answer !== correct) { showMistake(() => startPayTest()); return; }
-        S.payIdx--;
-        setTimeout(() => startPayTest(), 300);
+        renderPositions();
+        msg('오른쪽부터 커미션을 입력하세요.');
+        actions('');
+        setTimeout(() => startCommAt(2), 400);
       },
 
       submitComm() {
@@ -1506,14 +1372,12 @@ const Sims = {
         if (entered !== S.commTarget) {
           showMistake(() => {
             COMM_CHIPS.forEach(c => { const inp = $(`bpay-ci-${c.key}`); if (inp) inp.value = 0; });
-            actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.submitComm()">Submit Commission</button>`);
+            actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.submitComm()">Pay</button>`);
           });
           return;
         }
-        const commPanel = $('bpay-comm-panel');
-        if (commPanel) commPanel.style.display = 'none';
-        msgCol(`정답! 커미션 ${fmtAmt(S.commTarget)}`, '#6ec864');
-        actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.deal()">Next Hand</button>`);
+        msgCol(`정답! ${fmtWon(S.commTarget)}`, '#6ec864');
+        setTimeout(() => startCommAt(S.commIdx - 1), 500);
       },
     };
   })(),
