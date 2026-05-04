@@ -39,7 +39,7 @@ function cardHTML(c, faceDown = false) {
 
 const App = {
   navigate(game, mode) {
-    document.querySelectorAll('.sidebar-link').forEach(el => {
+    document.querySelectorAll('.sidebar-link, .sidebar-sub-link').forEach(el => {
       el.classList.toggle('active',
         el.dataset.game === game && el.dataset.mode === (mode || ''));
     });
