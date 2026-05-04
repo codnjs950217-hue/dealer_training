@@ -1017,15 +1017,11 @@ const Sims = {
     }
 
     function showAnnounceQuiz() {
-      ['bac-b-btn-top','bac-b-btn-bot','bac-p-btn-top','bac-p-btn-bot','bac-tie-btn'].forEach(id => setBtn(id, ''));
-      const wh = $('bac-win-header');
-      if (wh) wh.innerHTML = `<div class="bac-announce-row">
-        <button class="bac-ann-btn ann-banker" onclick="Sims.baccarat.quizAnnounce('banker')">BANKER WIN</button>
-        <div class="bac-ann-divider"></div>
-        <button class="bac-ann-btn ann-tie" onclick="Sims.baccarat.quizAnnounce('tie')">TIE</button>
-        <div class="bac-ann-divider"></div>
-        <button class="bac-ann-btn ann-player" onclick="Sims.baccarat.quizAnnounce('player')">PLAYER WIN</button>
-      </div>`;
+      setBtn('bac-b-btn-top', `<button class="btn-bac-banker bac-inline-btn" onclick="Sims.baccarat.quizAnnounce('banker')">BANKER WIN</button>`);
+      setBtn('bac-b-btn-bot', '');
+      setBtn('bac-p-btn-top', `<button class="btn-bac-player bac-inline-btn" onclick="Sims.baccarat.quizAnnounce('player')">PLAYER WIN</button>`);
+      setBtn('bac-p-btn-bot', '');
+      setBtn('bac-tie-btn',   `<button class="btn-bac-tie bac-inline-btn" onclick="Sims.baccarat.quizAnnounce('tie')">TIE</button>`);
       msg('Announce winner:');
     }
 
