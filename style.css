@@ -798,9 +798,9 @@ body {
   padding: .3rem .5rem; transition: opacity .15s; white-space: nowrap;
   text-shadow: 0 0 16px currentColor;
 }
-.bac-ann-btn.ann-banker { color: var(--gold); }
-.bac-ann-btn.ann-player { color: var(--win); }
-.bac-ann-btn.ann-tie    { color: #6ec864; }
+.bac-ann-btn.ann-banker,
+.bac-ann-btn.ann-player,
+.bac-ann-btn.ann-tie    { color: rgba(255,255,255,.88); text-shadow: none; }
 .bac-ann-btn:hover { opacity: .6; }
 
 /* ---- BACCARAT: WINNER FLASH ---- */
@@ -928,30 +928,9 @@ body {
 
 /* ---- BACCARAT: WIN / DRAW QUIZ BUTTONS ---- */
 
-.btn-bac-player {
-  background: #0d4a40; color: #4ecdc4;
-  border: 1px solid rgba(78,205,196,.45);
-  padding: .55rem 1.1rem; border-radius: var(--r);
-  font-weight: 700; cursor: pointer; font-size: .875rem;
-  transition: all .18s; white-space: nowrap;
-}
-.btn-bac-player:hover { background: #115a4e; }
-.btn-bac-banker {
-  background: #3a2005; color: #c9a84c;
-  border: 1px solid rgba(201,168,76,.45);
-  padding: .55rem 1.1rem; border-radius: var(--r);
-  font-weight: 700; cursor: pointer; font-size: .875rem;
-  transition: all .18s; white-space: nowrap;
-}
-.btn-bac-banker:hover { background: #4a2a08; }
-.btn-bac-tie {
-  background: #0a3a0a; color: #6ec864;
-  border: 1px solid rgba(110,200,100,.4);
-  padding: .55rem 1.1rem; border-radius: var(--r);
-  font-weight: 700; cursor: pointer; font-size: .875rem;
-  transition: all .18s; white-space: nowrap;
-}
-.btn-bac-tie:hover { background: #0e4a0e; }
+.btn-bac-player,
+.btn-bac-banker,
+.btn-bac-tie,
 .btn-bac-draw {
   background: #1c3555; color: var(--text);
   border: 1px solid #2a4f80;
@@ -959,6 +938,9 @@ body {
   font-weight: 700; cursor: pointer; font-size: .875rem;
   transition: all .18s; white-space: nowrap;
 }
+.btn-bac-player:hover,
+.btn-bac-banker:hover,
+.btn-bac-tie:hover,
 .btn-bac-draw:hover { background: #24406a; }
 
 /* ---- BACCARAT: PAY PANEL ---- */
