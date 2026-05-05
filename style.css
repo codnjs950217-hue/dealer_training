@@ -1390,25 +1390,45 @@ body {
   transform: rotate(180deg);
 }
 
-/* Chip stack display inside banker oval */
-.bpay-chip-row {
-  display: flex; gap: .3rem; justify-content: center;
-  flex-wrap: wrap; padding: .1rem 0;
-}
-.bpay-chip-col {
-  display: flex; flex-direction: column-reverse; gap: 2px; align-items: center;
+/* Chip spread display inside banker oval — dealer style (high left, low right) */
+.bpay-chip-spread {
+  display: flex; flex-direction: row;
+  justify-content: center; align-items: center;
+  padding: .15rem 0;
 }
 .bpay-chip-disc {
-  width: 34px; height: 34px; border-radius: 50%;
+  width: 28px; height: 28px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: .58rem; font-weight: 900; letter-spacing: .3px;
+  font-size: .52rem; font-weight: 900; letter-spacing: .3px;
   border: 2px solid rgba(255,255,255,.22);
-  box-shadow: 0 2px 6px rgba(0,0,0,.45);
+  box-shadow: 0 2px 6px rgba(0,0,0,.5);
   flex-shrink: 0;
 }
+.bpay-chip-spread .bpay-chip-disc + .bpay-chip-disc {
+  margin-left: -9px;
+}
+
+/* Controls area: no min-height on message-board when empty */
+#bpay-controls .message-board { min-height: 0; }
+#bpay-controls .message-board:empty { display: none; }
+
+/* START button overlay centered in baccarat table */
+.bpay-start-overlay {
+  display: flex; align-items: center; justify-content: center;
+  padding: .6rem 0 .2rem;
+}
+.bpay-start-btn {
+  background: linear-gradient(135deg, #c9a84c 0%, #9a7820 100%);
+  color: #1a1200; font-size: 1.05rem; font-weight: 900;
+  letter-spacing: 3px; border: none; border-radius: 50px;
+  padding: .7rem 2.8rem; cursor: pointer;
+  box-shadow: 0 4px 18px rgba(201,168,76,.45);
+  transition: transform .1s, box-shadow .1s;
+}
+.bpay-start-btn:active { transform: scale(.96); box-shadow: 0 2px 8px rgba(201,168,76,.3); }
 
 /* Commission panel */
-.bpay-comm-panel { margin-top: 1rem; }
+.bpay-comm-panel { margin-top: .6rem; }
 .bpay-pay-inner {
   background: #091828;
   border: 1px solid rgba(201,168,76,.2);

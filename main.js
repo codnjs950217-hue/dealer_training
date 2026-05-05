@@ -323,14 +323,15 @@ const Views = {
               </div>
             </div>`).join('')}
         </div>
-      </div>
-      <div class="sim-controls">
-        <div class="message-board" id="bpay-msg">Deal을 눌러 시작하세요.</div>
-        <div class="action-buttons" id="bpay-actions">
-          <button class="btn btn-primary" onclick="Sims.baccaratPay.deal()">Deal</button>
+        <div class="bpay-start-overlay" id="bpay-start-overlay">
+          <button class="bpay-start-btn" onclick="Sims.baccaratPay.deal()">START</button>
         </div>
       </div>
       <div class="bpay-comm-panel" id="bpay-comm-panel" style="display:none"></div>
+      <div class="sim-controls" style="display:none" id="bpay-controls">
+        <div class="message-board" id="bpay-msg"></div>
+        <div class="action-buttons" id="bpay-actions"></div>
+      </div>
     </div>`,
 
 };
@@ -1193,7 +1194,6 @@ const Sims = {
 
     let S = {};
     const $  = id => document.getElementById(id);
-    const msg    = t     => { const e = $('bpay-msg'); if (e) { e.textContent = t; e.style.color = ''; } };
     const msgCol = (t,c) => { const e = $('bpay-msg'); if (e) { e.textContent = t; e.style.color = c; } };
     const actions = h    => { const e = $('bpay-actions'); if (e) e.innerHTML = h; };
 
@@ -1227,15 +1227,20 @@ const Sims = {
         const bAmt  = $(`bpay-b-amt-${idx}`);
         if (!bOval || !bAmt) return;
         bOval.classList.add('has-bet');
-        const stackHtml = Object.entries(bet.chips).map(([key, cnt]) => {
+        // Sort denominations high→low (high value on left, low on right like dealer spread)
+        const sorted = Object.entries(bet.chips).sort((a, b) => {
+          const va = COMM_CHIPS.find(c => c.key === a[0])?.val ?? 0;
+          const vb = COMM_CHIPS.find(c => c.key === b[0])?.val ?? 0;
+          return vb - va;
+        });
+        let discs = '';
+        sorted.forEach(([key, cnt]) => {
           const chip = COMM_CHIPS.find(c => c.key === key);
-          let discs = '';
           for (let j = 0; j < cnt; j++) {
             discs += `<div class="bpay-chip-disc" style="background:${chip.bg};color:${chip.fg}">${chip.key}</div>`;
           }
-          return `<div class="bpay-chip-col">${discs}</div>`;
-        }).join('');
-        bAmt.innerHTML = `<div class="bpay-chip-row">${stackHtml}</div>`;
+        });
+        bAmt.innerHTML = `<div class="bpay-chip-spread">${discs}</div>`;
       });
     }
 
@@ -1273,6 +1278,7 @@ const Sims = {
         for (let j = 1; j <= 3; j++) { const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active'); }
         S.score++;
         $('bpay-score').textContent = S.score;
+        const ctrl = $('bpay-controls'); if (ctrl) ctrl.style.display = '';
         msgCol('Round complete!', '#6ec864');
         actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.deal()">Next Round</button>`);
         return;
@@ -1285,7 +1291,7 @@ const Sims = {
       const comm = Math.floor(S.bets[idx].total * 0.05 / 5000) * 5000;
       S.commTarget = S.bets[idx].total - comm;
       showCommTray();
-      msg(`P${posNum} 뱅커 ${fmtWon(S.bets[idx].total)} → 실지급액은? (커미션 ${fmtWon(comm)} 제외)`);
+      const ctrl = $('bpay-controls'); if (ctrl) ctrl.style.display = '';
       actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.submitComm()">Pay</button>`);
     }
 
@@ -1295,6 +1301,9 @@ const Sims = {
       },
 
       deal() {
+        const startOverlay = $('bpay-start-overlay');
+        if (startOverlay) startOverlay.style.display = 'none';
+        const ctrl = $('bpay-controls'); if (ctrl) ctrl.style.display = 'none';
         S.rounds++; S.commIdx = 2; S.commTarget = 0;
         $('bpay-rounds').textContent = S.rounds;
         for (let j = 1; j <= 3; j++) {
@@ -1309,7 +1318,6 @@ const Sims = {
           return { chips, total: chipTotal(chips) };
         });
         renderPositions();
-        msg('오른쪽부터 커미션을 입력하세요.');
         actions('');
         setTimeout(() => startCommAt(2), 400);
       },
