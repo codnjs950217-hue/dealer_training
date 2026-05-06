@@ -1256,6 +1256,7 @@ const Sims = {
                 <button class="comm-5k-btn" onclick="Sims.baccaratPay.add5k(5)">+5개</button>
                 <button class="comm-5k-btn" onclick="Sims.baccaratPay.add5k(1)">+1개</button>
               </div>
+              <button class="comm-5k-reset" onclick="Sims.baccaratPay.reset5k()">리셋</button>
             </div>` : `
             <div class="comm-slot">
               <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
@@ -1345,6 +1346,13 @@ const Sims = {
         const next = (parseInt(inp.value) || 0) + n;
         inp.value = next;
         disp.textContent = next;
+      },
+
+      reset5k() {
+        const inp  = $('bpay-ci-5천');
+        const disp = $('bpay-5k-display');
+        if (inp)  inp.value = '0';
+        if (disp) disp.textContent = '0';
       },
 
       submitComm() {

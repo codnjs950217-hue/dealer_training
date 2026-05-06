@@ -1540,6 +1540,18 @@ body {
 }
 .comm-5k-btn:hover  { background: rgba(233,30,140,.35); border-color: rgba(233,30,140,.7); }
 .comm-5k-btn:active { transform: scale(.95); }
+.comm-5k-reset {
+  width: 100%; margin-top: .1rem;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.15);
+  color: rgba(255,255,255,.5);
+  border-radius: 4px; cursor: pointer;
+  font-size: .55rem; font-weight: 700; letter-spacing: .3px;
+  padding: .18rem 0; text-align: center;
+  transition: background .12s, color .12s;
+}
+.comm-5k-reset:hover  { background: rgba(255,255,255,.12); color: rgba(255,255,255,.85); }
+.comm-5k-reset:active { transform: scale(.95); }
 
 /* PAY button inside the rack */
 .comm-pay-slot {
