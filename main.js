@@ -321,9 +321,6 @@ const Views = {
         </div>
       </div>
       <div class="bpay-comm-panel" id="bpay-comm-panel" style="display:none"></div>
-      <div class="sim-controls" style="display:none" id="bpay-controls">
-        <div class="action-buttons" id="bpay-actions"></div>
-      </div>
     </div>`,
 
 };
@@ -1186,7 +1183,6 @@ const Sims = {
 
     let S = {};
     const $  = id => document.getElementById(id);
-    const actions = h => { const e = $('bpay-actions'); if (e) e.innerHTML = h; };
 
     function generateBetChips() {
       const numDenoms = Math.random() > 0.5 ? 1 : 2;
@@ -1237,7 +1233,7 @@ const Sims = {
             <div class="comm-slot">
               <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
               <input class="comm-slot-input" id="bpay-ci-${c.key}" type="number"
-                min="0" max="20" value="0" oninput="if(+this.value<0)this.value=0">
+                min="0" max="20" placeholder="0" oninput="if(+this.value<0)this.value=''">
             </div>`).join('')}
           <div class="comm-pay-slot">
             <button class="comm-pay-btn" onclick="Sims.baccaratPay.submitComm()">PAY</button>
@@ -1247,7 +1243,6 @@ const Sims = {
     }
 
     function showMistake(retryFn) {
-      actions('');
       const tbl = document.querySelector('.baccarat-table');
       if (!tbl) return;
       const ov = document.createElement('div');
@@ -1259,15 +1254,24 @@ const Sims = {
 
     const positions = () => document.querySelector('.bpay-positions');
 
+    function showNextHand() {
+      const panel = $('bpay-comm-panel'); if (panel) panel.style.display = 'none';
+      const pos = positions(); if (pos) pos.classList.remove('paying');
+      for (let j = 1; j <= 3; j++) { const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active'); }
+      S.score++;
+      $('bpay-score').textContent = S.score;
+      const tbl = document.querySelector('.baccarat-table');
+      if (!tbl) { Sims.baccaratPay.deal(); return; }
+      const ov = document.createElement('div');
+      ov.className = 'next-hand-overlay';
+      ov.innerHTML = '<div class="next-hand-text">NEXT HAND</div>';
+      tbl.appendChild(ov);
+      setTimeout(() => { ov.remove(); Sims.baccaratPay.deal(); }, 1600);
+    }
+
     function startCommAt(idx) {
       if (idx < 0) {
-        const panel = $('bpay-comm-panel'); if (panel) panel.style.display = 'none';
-        const pos = positions(); if (pos) pos.classList.remove('paying');
-        for (let j = 1; j <= 3; j++) { const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active'); }
-        S.score++;
-        $('bpay-score').textContent = S.score;
-        const ctrl = $('bpay-controls'); if (ctrl) ctrl.style.display = '';
-        actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.deal()">Next Round</button>`);
+        showNextHand();
         return;
       }
       S.commIdx = idx;
@@ -1289,7 +1293,6 @@ const Sims = {
       deal() {
         const startOverlay = $('bpay-start-overlay');
         if (startOverlay) startOverlay.style.display = 'none';
-        const ctrl = $('bpay-controls'); if (ctrl) ctrl.style.display = 'none';
         const pos = positions(); if (pos) pos.classList.remove('paying');
         S.rounds++; S.commIdx = 2; S.commTarget = 0;
         $('bpay-rounds').textContent = S.rounds;
@@ -1305,7 +1308,6 @@ const Sims = {
           return { chips, total: chipTotal(chips) };
         });
         renderPositions();
-        actions('');
         setTimeout(() => startCommAt(2), 400);
       },
 
@@ -1315,7 +1317,7 @@ const Sims = {
         }, 0);
         if (entered !== S.commTarget) {
           showMistake(() => {
-            COMM_CHIPS.forEach(c => { const inp = $(`bpay-ci-${c.key}`); if (inp) inp.value = 0; });
+            COMM_CHIPS.forEach(c => { const inp = $(`bpay-ci-${c.key}`); if (inp) inp.value = ''; });
           });
           return;
         }
