@@ -1518,8 +1518,7 @@ body {
 .comm-slot-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .comm-slot-input[type=number] { -moz-appearance: textfield; }
 
-/* 5천원 button counter slot */
-.comm-slot-5k { flex: 1.6; }
+/* Chip button counter */
 .comm-5k-count {
   font-size: 1.15rem; font-weight: 900;
   color: #f9a8d4; line-height: 1; text-align: center;

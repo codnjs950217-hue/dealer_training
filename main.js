@@ -1247,21 +1247,16 @@ const Sims = {
       panel.style.display = 'block';
       panel.innerHTML = `<div class="comm-tray">
         <div class="comm-tray-slots">
-          ${COMM_CHIPS.map(c => c.key === '5천' ? `
-            <div class="comm-slot comm-slot-5k">
-              <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
-              <div class="comm-5k-count" id="bpay-5k-display">0</div>
-              <input type="hidden" id="bpay-ci-5천" value="0">
-              <div class="comm-5k-btns">
-                <button class="comm-5k-btn" onclick="Sims.baccaratPay.add5k(5)">+5개</button>
-                <button class="comm-5k-btn" onclick="Sims.baccaratPay.add5k(1)">+1개</button>
-              </div>
-              <button class="comm-5k-reset" onclick="Sims.baccaratPay.reset5k()">리셋</button>
-            </div>` : `
+          ${COMM_CHIPS.map(c => `
             <div class="comm-slot">
               <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
-              <input class="comm-slot-input" id="bpay-ci-${c.key}" type="number"
-                min="0" max="20" placeholder="0" oninput="if(+this.value<0)this.value=''">
+              <div class="comm-5k-count" id="bpay-cd-${c.key}">0</div>
+              <input type="hidden" id="bpay-ci-${c.key}" value="0">
+              <div class="comm-5k-btns">
+                <button class="comm-5k-btn" onclick="Sims.baccaratPay.addChip('${c.key}',5)">+5개</button>
+                <button class="comm-5k-btn" onclick="Sims.baccaratPay.addChip('${c.key}',1)">+1개</button>
+              </div>
+              <button class="comm-5k-reset" onclick="Sims.baccaratPay.resetChip('${c.key}')">RESET</button>
             </div>`).join('')}
           <div class="comm-pay-slot">
             <button class="comm-pay-btn" onclick="Sims.baccaratPay.submitComm()">PAY</button>
@@ -1339,18 +1334,18 @@ const Sims = {
         setTimeout(() => startCommAt(2), 400);
       },
 
-      add5k(n) {
-        const inp  = $('bpay-ci-5천');
-        const disp = $('bpay-5k-display');
+      addChip(key, n) {
+        const inp  = $(`bpay-ci-${key}`);
+        const disp = $(`bpay-cd-${key}`);
         if (!inp || !disp) return;
         const next = (parseInt(inp.value) || 0) + n;
         inp.value = next;
         disp.textContent = next;
       },
 
-      reset5k() {
-        const inp  = $('bpay-ci-5천');
-        const disp = $('bpay-5k-display');
+      resetChip(key) {
+        const inp  = $(`bpay-ci-${key}`);
+        const disp = $(`bpay-cd-${key}`);
         if (inp)  inp.value = '0';
         if (disp) disp.textContent = '0';
       },
@@ -1362,10 +1357,11 @@ const Sims = {
         if (entered !== S.commTarget) {
           showMistake(() => {
             COMM_CHIPS.forEach(c => {
-              const inp = $(`bpay-ci-${c.key}`);
-              if (inp) inp.value = c.key === '5천' ? '0' : '';
+              const inp  = $(`bpay-ci-${c.key}`);
+              const disp = $(`bpay-cd-${c.key}`);
+              if (inp)  inp.value = '0';
+              if (disp) disp.textContent = '0';
             });
-            const disp = $('bpay-5k-display'); if (disp) disp.textContent = '0';
           });
           return;
         }
