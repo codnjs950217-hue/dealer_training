@@ -311,14 +311,14 @@ const Views = {
                 <div class="bpay-oval-amt" id="bpay-b-amt-${i}"></div>
               </div>
               <div class="bpay-circles">
-                <div class="bpay-circ bpay-tiger">BIG<br>TIGER</div>
-                <div class="bpay-circ bpay-tiger">TIE</div>
-                <div class="bpay-circ bpay-tiger">SMALL<br>TIGER</div>
+                <div class="bpay-circ bpay-tiger">BIG<br>TIGER<br><span class="bpay-circ-pay">×50</span></div>
+                <div class="bpay-circ bpay-tiger">TIE<br><span class="bpay-circ-pay">×8</span></div>
+                <div class="bpay-circ bpay-tiger">SMALL<br>TIGER<br><span class="bpay-circ-pay">×22</span></div>
               </div>
               <div class="bpay-circles">
-                <div class="bpay-circ bpay-dragon">SMALL<br>DRAGON</div>
+                <div class="bpay-circ bpay-dragon">SMALL<br>DRAGON<br><span class="bpay-circ-pay">×15</span></div>
                 <div class="bpay-circ bpay-dragon">SUPER<br>7</div>
-                <div class="bpay-circ bpay-dragon">BIG<br>DRAGON</div>
+                <div class="bpay-circ bpay-dragon">BIG<br>DRAGON<br><span class="bpay-circ-pay">×30</span></div>
               </div>
             </div>`).join('')}
         </div>
@@ -977,16 +977,17 @@ const Sims = {
       if (side === 'tie') return { lines: ['TIE'], color };
       const pp = pts(S.ph), bp = pts(S.bh);
       if (side === 'banker') {
-        if (bp === 6 && S.bh.length === 2) return { lines: ['SMALL 6'], color };
-        if (bp === 6 && S.bh.length === 3) return { lines: ['BIG 6'],   color };
-        return { lines: ['BANKER WIN'], color };
+        const lines = ['BANKER WIN'];
+        if (bp === 6 && S.bh.length === 2) lines.push('SMALL 6');
+        if (bp === 6 && S.bh.length === 3) lines.push('BIG 6');
+        return { lines, color };
       }
       // player win
-      const lines = [];
-      if (pp === 7 && S.ph.length === 2) lines.push('SMALL 7');
-      if (pp === 7 && S.ph.length === 3) lines.push('BIG 7');
-      if (pp === 7 && bp === 6)          lines.push('SUPER 7');
-      return { lines: lines.length ? lines : ['PLAYER WIN'], color };
+      const lines = ['PLAYER WIN'];
+      if (pp === 7 && S.ph.length === 2 && bp === 6) lines.push('SUPER 7');
+      else if (pp === 7 && S.ph.length === 2)        lines.push('SMALL 7');
+      if (pp === 7 && S.ph.length === 3)             lines.push('BIG 7');
+      return { lines, color };
     }
 
     function showWinnerFlash(side) {
@@ -1246,7 +1247,16 @@ const Sims = {
       panel.style.display = 'block';
       panel.innerHTML = `<div class="comm-tray">
         <div class="comm-tray-slots">
-          ${COMM_CHIPS.map(c => `
+          ${COMM_CHIPS.map(c => c.key === '5천' ? `
+            <div class="comm-slot comm-slot-5k">
+              <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
+              <div class="comm-5k-count" id="bpay-5k-display">0</div>
+              <input type="hidden" id="bpay-ci-5천" value="0">
+              <div class="comm-5k-btns">
+                <button class="comm-5k-btn" onclick="Sims.baccaratPay.add5k(1)">1개<br>꺼내기</button>
+                <button class="comm-5k-btn" onclick="Sims.baccaratPay.add5k(5)">5개<br>꺼내기</button>
+              </div>
+            </div>` : `
             <div class="comm-slot">
               <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
               <input class="comm-slot-input" id="bpay-ci-${c.key}" type="number"
@@ -1328,13 +1338,26 @@ const Sims = {
         setTimeout(() => startCommAt(2), 400);
       },
 
+      add5k(n) {
+        const inp  = $('bpay-ci-5천');
+        const disp = $('bpay-5k-display');
+        if (!inp || !disp) return;
+        const next = (parseInt(inp.value) || 0) + n;
+        inp.value = next;
+        disp.textContent = next;
+      },
+
       submitComm() {
         const entered = COMM_CHIPS.reduce((sum, c) => {
           return sum + c.val * (parseInt($(`bpay-ci-${c.key}`)?.value) || 0);
         }, 0);
         if (entered !== S.commTarget) {
           showMistake(() => {
-            COMM_CHIPS.forEach(c => { const inp = $(`bpay-ci-${c.key}`); if (inp) inp.value = ''; });
+            COMM_CHIPS.forEach(c => {
+              const inp = $(`bpay-ci-${c.key}`);
+              if (inp) inp.value = c.key === '5천' ? '0' : '';
+            });
+            const disp = $('bpay-5k-display'); if (disp) disp.textContent = '0';
           });
           return;
         }

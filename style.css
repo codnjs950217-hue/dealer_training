@@ -1397,11 +1397,11 @@ body {
   border-color: #fff;
 }
 .bpay-oval-lbl {
-  font-size: .82rem; font-weight: 800;
+  font-size: .92rem; font-weight: 800;
   letter-spacing: 1.4px; color: #fff;
 }
 .bpay-oval-amt {
-  font-size: .78rem; font-weight: 700;
+  font-size: .86rem; font-weight: 700;
   color: rgba(255,255,255,.85); min-height: .9rem;
 }
 
@@ -1415,10 +1415,14 @@ body {
   border-radius: 50%;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  font-size: .7rem; font-weight: 800;
+  font-size: .78rem; font-weight: 800;
   text-align: center; line-height: 1.2;
   letter-spacing: .3px;
   border: 2px solid rgba(255,255,255,.25);
+}
+.bpay-circ-pay {
+  display: block; font-size: .62rem; font-weight: 700;
+  opacity: .8; line-height: 1; margin-top: .1rem;
 }
 .bpay-tiger {
   background: radial-gradient(circle, #9a7a00cc, #4a3a00aa);
@@ -1513,6 +1517,28 @@ body {
 .comm-slot-input::-webkit-inner-spin-button,
 .comm-slot-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .comm-slot-input[type=number] { -moz-appearance: textfield; }
+
+/* 5천원 button counter slot */
+.comm-slot-5k { flex: 1.6; }
+.comm-5k-count {
+  font-size: 1.15rem; font-weight: 900;
+  color: #f9a8d4; line-height: 1; text-align: center;
+  min-width: 20px;
+}
+.comm-5k-btns {
+  display: flex; flex-direction: column; gap: .12rem; width: 100%;
+}
+.comm-5k-btn {
+  background: rgba(233,30,140,.18);
+  border: 1px solid rgba(233,30,140,.4);
+  color: rgba(255,255,255,.88);
+  border-radius: 4px; cursor: pointer;
+  font-size: .58rem; font-weight: 700; line-height: 1.25;
+  padding: .26rem .1rem; text-align: center;
+  transition: background .12s, border-color .12s;
+}
+.comm-5k-btn:hover  { background: rgba(233,30,140,.35); border-color: rgba(233,30,140,.7); }
+.comm-5k-btn:active { transform: scale(.95); }
 
 /* PAY button inside the rack */
 .comm-pay-slot {
