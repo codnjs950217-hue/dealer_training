@@ -825,6 +825,7 @@ body {
 .bac-win-announce.banker-win { color: var(--gold); }
 .bac-win-announce.player-win { color: var(--win); }
 .bac-win-announce.tie-win    { color: #6ec864; }
+.bac-win-sep { color: rgba(255,255,255,.35); font-size: 1.2rem; }
 
 /* announce quiz: no-box text options with dividers */
 .bac-announce-row {

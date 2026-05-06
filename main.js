@@ -828,8 +828,8 @@ const Sims = {
     let flipId = 0;
 
     const $ = id => document.getElementById(id);
-    const msg     = t => { $('bac-msg').textContent = t; $('bac-msg').style.color = ''; };
-    const actions = h => { $('bac-actions').innerHTML = h; };
+    const msg     = t => { const e = $('bac-msg'); if (e) { e.textContent = t; e.style.color = ''; } };
+    const actions = h => { const e = $('bac-actions'); if (e) e.innerHTML = h; };
     const enableDraw  = () => { const e = $('bac-draw-btn'); if (e) { e.disabled = false; e.style.opacity = ''; } };
     const disableDraw = () => { const e = $('bac-draw-btn'); if (e) { e.disabled = true;  e.style.opacity = '0.4'; } };
 
@@ -965,15 +965,29 @@ const Sims = {
       msg(`Player drew ${S.pThird.rank}${S.pThird.suit}. Banker action?`);
     }
 
+    function getSpecialLabel(side) {
+      const colors = { player: '#4ecdc4', banker: '#c9a84c', tie: '#6ec864' };
+      const color  = colors[side];
+      if (side === 'tie') return { lines: ['TIE'], color };
+      const pp = pts(S.ph), bp = pts(S.bh);
+      if (side === 'banker') {
+        if (bp === 6 && S.bh.length === 2) return { lines: ['SMALL 6'], color };
+        if (bp === 6 && S.bh.length === 3) return { lines: ['BIG 6'],   color };
+        return { lines: ['BANKER WIN'], color };
+      }
+      // player win
+      const lines = [];
+      if (pp === 7 && S.ph.length === 2) lines.push('SMALL 7');
+      if (pp === 7 && S.ph.length === 3) lines.push('BIG 7');
+      if (pp === 7 && bp === 6)          lines.push('SUPER 7');
+      return { lines: lines.length ? lines : ['PLAYER WIN'], color };
+    }
+
     function showWinnerFlash(side) {
       const el = $('bac-winner-flash');
       if (!el) return;
-      const cfg = {
-        player: { txt: 'PLAYER WIN', color: '#4ecdc4' },
-        banker: { txt: 'BANKER WIN', color: '#c9a84c' },
-        tie:    { txt: 'TIE',        color: '#6ec864' },
-      }[side];
-      el.innerHTML = `<div class="bac-winner-flash-text" style="color:${cfg.color}">${cfg.txt}</div>`;
+      const { lines, color } = getSpecialLabel(side);
+      el.innerHTML = `<div class="bac-winner-flash-text" style="color:${color}">${lines.join('<br>')}</div>`;
       el.className = 'bac-winner-flash bac-wf-in';
       setTimeout(() => {
         el.classList.replace('bac-wf-in', 'bac-wf-out');
@@ -993,11 +1007,6 @@ const Sims = {
     }
 
     function announceWinner(side) {
-      const cfg = {
-        player: { cls: 'player-win', label: 'PLAYER WIN' },
-        banker: { cls: 'banker-win', label: 'BANKER WIN' },
-        tie:    { cls: 'tie-win',    label: 'TIE' },
-      }[side];
       S.winner = side;
       S.score++;
       $('bac-score').textContent = S.score;
@@ -1005,8 +1014,10 @@ const Sims = {
       showWinnerFlash(side);
       enableDraw();
       msg('');
+      const cls = side === 'banker' ? 'banker-win' : side === 'player' ? 'player-win' : 'tie-win';
+      const { lines } = getSpecialLabel(side);
       const wh = $('bac-win-header');
-      if (wh) wh.innerHTML = `<span class="bac-win-announce ${cfg.cls}">${cfg.label}</span>`;
+      if (wh) wh.innerHTML = lines.map(l => `<span class="bac-win-announce ${cls}">${l}</span>`).join('<span class="bac-win-sep"> · </span>');
     }
 
     function buildPayPanel() {
