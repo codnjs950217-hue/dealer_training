@@ -95,7 +95,7 @@ body {
 .sidebar-sub-link {
   display: block;
   padding: .38rem 1rem .38rem 1.6rem;
-  font-size: .8rem; color: rgba(255,255,255,.5);
+  font-size: .8rem; color: rgba(255,255,255,.78);
   cursor: pointer; transition: color .13s, background .13s;
   border-left: 3px solid transparent;
   user-select: none;
@@ -809,6 +809,19 @@ body {
 }
 
 
+/* ---- BACCARAT: FIELD SIDE LABELS ---- */
+
+.bac-field-labels {
+  display: flex; align-items: center;
+  padding: .15rem 0 .05rem;
+}
+.bac-fll {
+  flex: 1; text-align: center;
+  font-size: .68rem; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: rgba(255,255,255,.85);
+  user-select: none;
+}
+
 /* ---- BACCARAT: WIN HEADER + ANNOUNCE ---- */
 
 .bac-win-header {
@@ -852,6 +865,7 @@ body {
 .bac-winner-flash {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
+  padding-left: 64px;
   pointer-events: none; z-index: 40; border-radius: 18px;
   opacity: 0;
 }
@@ -1296,6 +1310,7 @@ body {
   .bac-bh-wrap, .bac-ph-wrap { min-width: 130px; }
   .bac-shoe-spacer    { width: 54px; }
   .bac-win-header     { padding-left: 54px; }
+  .bac-winner-flash   { padding-left: 54px; }
   .bac-win-announce   { font-size: 1.1rem; letter-spacing: 2px; }
 
   /* Pay panel mobile */

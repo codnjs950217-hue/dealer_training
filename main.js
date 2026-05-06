@@ -223,6 +223,12 @@ const Views = {
           <div class="bac-bclust-mid" id="bac-tie-btn"></div>
           <div class="bac-bclust-side" id="bac-p-btn-top"></div>
         </div>
+        <div class="bac-field-labels">
+          <div class="bac-shoe-spacer"></div>
+          <div class="bac-fll bac-fll-banker">BANKER</div>
+          <div style="width:80px;flex-shrink:0"></div>
+          <div class="bac-fll bac-fll-player">PLAYER</div>
+        </div>
         <div class="bac-field">
           <div class="bac-shoe-col">
             <div class="shoe-visual">
@@ -1182,12 +1188,12 @@ const Sims = {
   // ---- BACCARAT PAY SIM ----
   baccaratPay: (() => {
     const COMM_CHIPS = [
-      { key: '1억', val: 100_000_000, bg: '#1e1e1e', fg: '#c9a84c' },
-      { key: '1천', val:  10_000_000, bg: '#7a5f00', fg: '#ffe082' },
-      { key: '1백', val:   1_000_000, bg: '#7a0000', fg: '#fff'    },
-      { key: '1십', val:     100_000, bg: '#0d3b6e', fg: '#90caf9' },
-      { key: '1만', val:      10_000, bg: '#1b5e20', fg: '#a5d6a7' },
-      { key: '5천', val:       5_000, bg: '#4a148c', fg: '#ce93d8' },
+      { key: '1억', val: 100_000_000, bg: '#c62828', fg: '#fff'    },
+      { key: '1천', val:  10_000_000, bg: '#1565c0', fg: '#fff'    },
+      { key: '1백', val:   1_000_000, bg: '#f9a825', fg: '#1a1a1a' },
+      { key: '1십', val:     100_000, bg: '#212121', fg: '#fff'    },
+      { key: '1만', val:      10_000, bg: '#2e7d32', fg: '#fff'    },
+      { key: '5천', val:       5_000, bg: '#e91e8c', fg: '#fff'    },
     ];
     // Betting chips: min 10만원
     const BET_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[2], COMM_CHIPS[1]]; // 1십, 1백, 1천
