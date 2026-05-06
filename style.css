@@ -1597,8 +1597,9 @@ body {
   color: rgba(255,255,255,.7);
   font-size: .55rem; font-weight: 700; letter-spacing: .3px;
   border-radius: 4px; cursor: pointer;
-  padding: .18rem .3rem;
+  padding: .18rem .45rem;
   text-align: center; line-height: 1.2;
+  white-space: nowrap;
   transition: background .12s, color .12s;
 }
 .comm-all-reset-btn:hover  { background: rgba(0,0,0,.55); color: #fff; }

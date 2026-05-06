@@ -1287,7 +1287,7 @@ const Sims = {
             </div>`).join('')}
           <div class="comm-pay-slot">
             <button class="comm-pay-btn" onclick="Sims.baccaratPay.submitComm()">PAY</button>
-            <button class="comm-all-reset-btn" onclick="Sims.baccaratPay.resetAll()">ALL<br>RESET</button>
+            <button class="comm-all-reset-btn" onclick="Sims.baccaratPay.resetAll()">ALL RESET</button>
           </div>
         </div>
       </div>`;
