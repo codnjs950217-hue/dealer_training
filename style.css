@@ -1590,6 +1590,7 @@ body {
               inset 0 1px 0 rgba(255,255,255,.25);
   transition: transform .1s, box-shadow .1s;
 }
+.comm-pay-btn:hover  { background: linear-gradient(145deg, #f0c85e 0%, #b07820 100%); box-shadow: 0 4px 16px rgba(201,168,76,.6), inset 0 1px 0 rgba(255,255,255,.35); }
 .comm-pay-btn:active { transform: scale(.95); box-shadow: 0 1px 4px rgba(201,168,76,.25); }
 .comm-all-reset-btn {
   background: rgba(0,0,0,.35);
