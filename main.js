@@ -1245,15 +1245,24 @@ const Sims = {
     function updateSpread() {
       const section = $('bpay-spread-section');
       if (!section) return;
-      const allChips = [];
+      const items = [];
       COMM_CHIPS.forEach(c => {
         const cnt = parseInt($(`bpay-ci-${c.key}`)?.value) || 0;
-        for (let i = 0; i < cnt; i++) allChips.push({ c, firstOfGroup: i === 0 });
+        for (let i = 0; i < cnt; i++) {
+          const isNewDenom  = i === 0;
+          const isGroup5Gap = !isNewDenom && i % 5 === 0;
+          items.push({ c, isNewDenom, isGroup5Gap });
+        }
       });
-      if (allChips.length === 0) { section.innerHTML = ''; return; }
-      const discs = allChips.map(({ c, firstOfGroup }, idx) =>
-        `<div class="spread-disc${firstOfGroup && idx > 0 ? ' spread-gap' : ''}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`
-      ).join('');
+      if (items.length === 0) { section.innerHTML = ''; return; }
+      const discs = items.map(({ c, isNewDenom, isGroup5Gap }, idx) => {
+        let cls = 'spread-disc';
+        if (idx > 0) {
+          if (isNewDenom)  cls += ' spread-gap';
+          else if (isGroup5Gap) cls += ' spread-gap5';
+        }
+        return `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`;
+      }).join('');
       section.innerHTML = `<div class="spread-row">${discs}</div>`;
     }
 
