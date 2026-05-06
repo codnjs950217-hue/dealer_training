@@ -300,6 +300,19 @@ const Views = {
         </div>
       </div>
       <div class="baccarat-table">
+        <div class="bpay-hand-row" id="bpay-hand-row" style="display:none">
+          <div class="bpay-hand-side">
+            <div class="bpay-hand-side-lbl player">PLAYER</div>
+            <div class="bpay-hand-cards" id="bpay-ph-display"></div>
+            <div class="bpay-hand-pts player" id="bpay-ph-pts"></div>
+          </div>
+          <div class="bpay-hand-result" id="bpay-hand-result"></div>
+          <div class="bpay-hand-side">
+            <div class="bpay-hand-side-lbl banker">BANKER</div>
+            <div class="bpay-hand-cards" id="bpay-bh-display"></div>
+            <div class="bpay-hand-pts banker" id="bpay-bh-pts"></div>
+          </div>
+        </div>
         <div class="bpay-positions">
           ${[1,2,3].map(i => `
             <div class="bpay-pos" id="bpay-pos-${i}">
@@ -1192,6 +1205,60 @@ const Sims = {
     // Betting chips: min 10만원
     const BET_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[2], COMM_CHIPS[1]]; // 1십, 1백, 1천
 
+    // ---- Card helpers ----
+    const SUITS = ['♠','♥','♦','♣'];
+    const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+    function makeDeck() {
+      const d = [];
+      SUITS.forEach(s => RANKS.forEach(r => d.push({rank: r, suit: s})));
+      for (let i = d.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [d[i], d[j]] = [d[j], d[i]];
+      }
+      return d;
+    }
+    function bval(c) {
+      if (['10','J','Q','K'].includes(c.rank)) return 0;
+      if (c.rank === 'A') return 1;
+      return +c.rank;
+    }
+    const pts = h => h.reduce((s, c) => s + bval(c), 0) % 10;
+    function bankerRule(bt, pThird) {
+      if (pThird === null) return bt <= 5;
+      const v = bval(pThird);
+      if (bt <= 2) return true;
+      if (bt === 3) return v !== 8;
+      if (bt === 4) return v >= 2 && v <= 7;
+      if (bt === 5) return v >= 4 && v <= 7;
+      if (bt === 6) return v === 6 || v === 7;
+      return false;
+    }
+    function generateHand() {
+      const deck = makeDeck();
+      const ph = [deck.pop(), deck.pop()];
+      const bh = [deck.pop(), deck.pop()];
+      let pThird = null;
+      if (pts(ph) < 8 && pts(bh) < 8) {
+        if (pts(ph) <= 5) { pThird = deck.pop(); ph.push(pThird); }
+        if (bankerRule(pts(bh), pThird)) bh.push(deck.pop());
+      }
+      return { ph, bh, pp: pts(ph), bp: pts(bh) };
+    }
+    function checkSpecialBets(ph, bh, pp, bp) {
+      const winner = pp > bp ? 'player' : bp > pp ? 'banker' : 'tie';
+      const bets = [];
+      const total = ph.length + bh.length;
+      if (winner === 'banker' && bp === 6 && bh.length === 2) bets.push({ name: 'SMALL 6', mult: 22 });
+      if (winner === 'banker' && bp === 6 && bh.length === 3) bets.push({ name: 'BIG 6',   mult: 50 });
+      if (winner === 'player' && pp === 7 && ph.length === 2) bets.push({ name: 'SMALL 7', mult: 15 });
+      if (winner === 'player' && pp === 7 && ph.length === 3) bets.push({ name: 'BIG 7',   mult: 30 });
+      if (winner === 'player' && pp === 7 && bp === 6) {
+        const m = total === 4 ? 30 : total === 5 ? 40 : total === 6 ? 100 : null;
+        if (m) bets.push({ name: 'SUPER 7', mult: m });
+      }
+      return { winner, bets };
+    }
+
     let S = {};
     const $  = id => document.getElementById(id);
     const msgCol = (t,c) => { const e = $('bpay-msg'); if (e) { e.textContent = t; e.style.color = c; } };
@@ -1242,6 +1309,27 @@ const Sims = {
         });
         bAmt.innerHTML = `<div class="bpay-chip-spread">${discs}</div>`;
       });
+    }
+
+    function renderHandResult(hand) {
+      const row = $('bpay-hand-row');
+      if (!row) return null;
+      row.style.display = 'flex';
+      const cardLabel = cards => cards.map(c => c.rank).join(', ');
+      $('bpay-ph-display').textContent = cardLabel(hand.ph);
+      $('bpay-ph-pts').textContent = hand.pp;
+      $('bpay-bh-display').textContent = cardLabel(hand.bh);
+      $('bpay-bh-pts').textContent = hand.bp;
+      const { winner, bets } = checkSpecialBets(hand.ph, hand.bh, hand.pp, hand.bp);
+      const wCfg = {
+        player: { txt: 'PLAYER WIN', cls: 'player' },
+        banker: { txt: 'BANKER WIN', cls: 'banker' },
+        tie:    { txt: 'TIE',        cls: 'tie'    },
+      }[winner];
+      let html = `<div class="bpay-result-winner ${wCfg.cls}">${wCfg.txt}</div>`;
+      bets.forEach(b => { html += `<div class="bpay-special-bet">${b.name} <span class="bpay-sbet-mult">×${b.mult}</span></div>`; });
+      $('bpay-hand-result').innerHTML = html;
+      return { winner, bets };
     }
 
     function showCommTray() {
@@ -1304,6 +1392,7 @@ const Sims = {
         const startOverlay = $('bpay-start-overlay');
         if (startOverlay) startOverlay.style.display = 'none';
         const ctrl = $('bpay-controls'); if (ctrl) ctrl.style.display = 'none';
+        const hr = $('bpay-hand-row'); if (hr) hr.style.display = 'none';
         S.rounds++; S.commIdx = 2; S.commTarget = 0;
         $('bpay-rounds').textContent = S.rounds;
         for (let j = 1; j <= 3; j++) {
@@ -1313,13 +1402,35 @@ const Sims = {
           const pAmt  = $(`bpay-p-amt-${j}`); if (pAmt) pAmt.innerHTML = '';
         }
         const panel = $('bpay-comm-panel'); if (panel) panel.style.display = 'none';
+
+        // Generate hand & determine winner
+        const hand = generateHand();
+        S.hand = hand;
+        const { winner } = checkSpecialBets(hand.ph, hand.bh, hand.pp, hand.bp);
+        S.winner = winner;
+
+        // Generate banker bet chips for each position (only shown for banker wins)
         S.bets = Array.from({length: 3}, () => {
           const chips = generateBetChips();
           return { chips, total: chipTotal(chips) };
         });
-        renderPositions();
-        actions('');
-        setTimeout(() => startCommAt(2), 400);
+
+        // Show hand result
+        renderHandResult(hand);
+
+        setTimeout(() => {
+          if (winner === 'banker') {
+            // Banker won: show chips on positions, proceed to commission
+            renderPositions();
+            setTimeout(() => startCommAt(2), 300);
+          } else {
+            // Player win or tie: show result, no commission
+            const ctrl2 = $('bpay-controls'); if (ctrl2) ctrl2.style.display = '';
+            const lbl = winner === 'tie' ? 'TIE — 커미션 없음' : 'PLAYER WIN — 커미션 없음';
+            msgCol(lbl, winner === 'tie' ? '#6ec864' : '#4ecdc4');
+            actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.deal()">Next Round</button>`);
+          }
+        }, 400);
       },
 
       submitComm() {
