@@ -326,6 +326,7 @@ const Views = {
           <button class="bpay-start-btn" onclick="Sims.baccaratPay.deal()">START</button>
         </div>
       </div>
+      <div class="bpay-spread-section" id="bpay-spread-section" style="display:none"></div>
       <div class="bpay-comm-panel" id="bpay-comm-panel" style="display:none"></div>
     </div>`,
 
@@ -1194,7 +1195,7 @@ const Sims = {
       { key: '1M',   val:   1_000_000, bg: '#fdd835', fg: '#1a1a1a' },
       { key: '100K', val:     100_000, bg: '#212121', fg: '#fff'    },
       { key: '10K',  val:      10_000, bg: '#2e7d32', fg: '#fff'    },
-      { key: '5K',   val:       5_000, bg: '#7b1fa2', fg: '#fff'    },
+      { key: '5K',   val:       5_000, bg: '#b5176b', fg: '#fff'    },
     ];
     // Betting chips: min 100K
     const BET_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[2], COMM_CHIPS[1]]; // 100K, 1M, 10M
@@ -1241,10 +1242,27 @@ const Sims = {
       });
     }
 
+    function updateSpread() {
+      const section = $('bpay-spread-section');
+      if (!section) return;
+      const allChips = [];
+      COMM_CHIPS.forEach(c => {
+        const cnt = parseInt($(`bpay-ci-${c.key}`)?.value) || 0;
+        for (let i = 0; i < cnt; i++) allChips.push({ c, firstOfGroup: i === 0 });
+      });
+      if (allChips.length === 0) { section.innerHTML = ''; return; }
+      const discs = allChips.map(({ c, firstOfGroup }, idx) =>
+        `<div class="spread-disc${firstOfGroup && idx > 0 ? ' spread-gap' : ''}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`
+      ).join('');
+      section.innerHTML = `<div class="spread-row">${discs}</div>`;
+    }
+
     function showCommTray() {
       const panel = $('bpay-comm-panel');
+      const spread = $('bpay-spread-section');
       if (!panel) return;
       panel.style.display = 'block';
+      if (spread) { spread.style.display = 'flex'; spread.innerHTML = ''; }
       panel.innerHTML = `<div class="comm-tray">
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
@@ -1326,6 +1344,7 @@ const Sims = {
           const pAmt  = $(`bpay-p-amt-${j}`); if (pAmt) pAmt.innerHTML = '';
         }
         const panel = $('bpay-comm-panel'); if (panel) panel.style.display = 'none';
+        const spread = $('bpay-spread-section'); if (spread) { spread.style.display = 'none'; spread.innerHTML = ''; }
         S.bets = Array.from({length: 3}, () => {
           const chips = generateBetChips();
           return { chips, total: chipTotal(chips) };
@@ -1341,6 +1360,7 @@ const Sims = {
         const next = (parseInt(inp.value) || 0) + n;
         inp.value = next;
         disp.textContent = next;
+        updateSpread();
       },
 
       resetChip(key) {
@@ -1348,6 +1368,7 @@ const Sims = {
         const disp = $(`bpay-cd-${key}`);
         if (inp)  inp.value = '0';
         if (disp) disp.textContent = '0';
+        updateSpread();
       },
 
       submitComm() {
@@ -1362,6 +1383,7 @@ const Sims = {
               if (inp)  inp.value = '0';
               if (disp) disp.textContent = '0';
             });
+            updateSpread();
           });
           return;
         }

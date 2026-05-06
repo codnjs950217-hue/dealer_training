@@ -1518,6 +1518,27 @@ body {
 .comm-slot-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .comm-slot-input[type=number] { -moz-appearance: textfield; }
 
+/* Chip spread display panel */
+.bpay-spread-section {
+  display: none; align-items: center; justify-content: center;
+  min-height: 54px; padding: .4rem .6rem;
+  background: rgba(0,0,0,.22);
+  border-radius: 10px; margin: .35rem 0;
+}
+.spread-row {
+  display: flex; align-items: center; justify-content: center; flex-wrap: nowrap;
+}
+.spread-disc {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .58rem; font-weight: 900; letter-spacing: .2px;
+  border: 2px solid rgba(255,255,255,.25);
+  box-shadow: 2px 0 8px rgba(0,0,0,.55);
+  flex-shrink: 0; margin-left: -11px; position: relative;
+}
+.spread-disc:first-child { margin-left: 0; }
+.spread-disc.spread-gap  { margin-left: 8px; }
+
 /* Chip button counter */
 .comm-5k-count {
   font-size: 1.15rem; font-weight: 900;
