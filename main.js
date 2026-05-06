@@ -322,11 +322,11 @@ const Views = {
               </div>
             </div>`).join('')}
         </div>
+        <div class="bpay-spread-section" id="bpay-spread-section" style="display:none"></div>
         <div class="bpay-start-overlay" id="bpay-start-overlay">
           <button class="bpay-start-btn" onclick="Sims.baccaratPay.deal()">START</button>
         </div>
       </div>
-      <div class="bpay-spread-section" id="bpay-spread-section" style="display:none"></div>
       <div class="bpay-comm-panel" id="bpay-comm-panel" style="display:none"></div>
     </div>`,
 
