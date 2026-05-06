@@ -1526,15 +1526,16 @@ body {
   min-width: 20px;
 }
 .comm-5k-btns {
-  display: flex; flex-direction: column; gap: .12rem; width: 100%;
+  display: flex; flex-direction: row; gap: .1rem; width: 100%;
 }
 .comm-5k-btn {
+  flex: 1;
   background: rgba(233,30,140,.18);
   border: 1px solid rgba(233,30,140,.4);
   color: rgba(255,255,255,.88);
   border-radius: 4px; cursor: pointer;
-  font-size: .58rem; font-weight: 700; line-height: 1.25;
-  padding: .26rem .1rem; text-align: center;
+  font-size: .6rem; font-weight: 700; line-height: 1;
+  padding: .3rem .05rem; text-align: center;
   transition: background .12s, border-color .12s;
 }
 .comm-5k-btn:hover  { background: rgba(233,30,140,.35); border-color: rgba(233,30,140,.7); }

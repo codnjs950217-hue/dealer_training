@@ -1253,8 +1253,8 @@ const Sims = {
               <div class="comm-5k-count" id="bpay-5k-display">0</div>
               <input type="hidden" id="bpay-ci-5천" value="0">
               <div class="comm-5k-btns">
-                <button class="comm-5k-btn" onclick="Sims.baccaratPay.add5k(1)">1개<br>꺼내기</button>
-                <button class="comm-5k-btn" onclick="Sims.baccaratPay.add5k(5)">5개<br>꺼내기</button>
+                <button class="comm-5k-btn" onclick="Sims.baccaratPay.add5k(5)">+5개</button>
+                <button class="comm-5k-btn" onclick="Sims.baccaratPay.add5k(1)">+1개</button>
               </div>
             </div>` : `
             <div class="comm-slot">
