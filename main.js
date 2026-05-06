@@ -215,9 +215,6 @@ const Views = {
         <h2>🃏 Baccarat Drawing Practice</h2>
         <div class="sim-stats"><span>Rounds: <strong id="bac-rounds">0</strong></span><span>Score: <strong id="bac-score">0</strong></span></div>
       </div>
-      <div class="bac-betting-row" id="bac-betting-row">
-        ${[1,2,3,4,5].map(i=>`<div class="bet-seat empty-seat"><div class="seat-label">P${i}</div></div>`).join('')}
-      </div>
       <div class="baccarat-table">
         <div id="bac-win-header" class="bac-win-header"></div>
         <div class="bac-btn-cluster">
@@ -251,10 +248,6 @@ const Views = {
           <div class="bac-bclust-side" id="bac-p-btn-bot"></div>
         </div>
         <div class="bac-winner-flash" id="bac-winner-flash"></div>
-      </div>
-      <div class="sim-controls">
-        <div class="message-board" id="bac-msg">Press START to begin.</div>
-        <div class="action-buttons" id="bac-actions"></div>
       </div>
       <div class="bac-pay-panel" id="bac-pay-panel" style="display:none"></div>
     </div>`,
@@ -329,7 +322,6 @@ const Views = {
       </div>
       <div class="bpay-comm-panel" id="bpay-comm-panel" style="display:none"></div>
       <div class="sim-controls" style="display:none" id="bpay-controls">
-        <div class="message-board" id="bpay-msg"></div>
         <div class="action-buttons" id="bpay-actions"></div>
       </div>
     </div>`,
@@ -1194,8 +1186,7 @@ const Sims = {
 
     let S = {};
     const $  = id => document.getElementById(id);
-    const msgCol = (t,c) => { const e = $('bpay-msg'); if (e) { e.textContent = t; e.style.color = c; } };
-    const actions = h    => { const e = $('bpay-actions'); if (e) e.innerHTML = h; };
+    const actions = h => { const e = $('bpay-actions'); if (e) e.innerHTML = h; };
 
     function generateBetChips() {
       const numDenoms = Math.random() > 0.5 ? 1 : 2;
@@ -1209,15 +1200,6 @@ const Sims = {
       return Object.entries(chips).reduce((sum, [key, cnt]) => {
         return sum + (COMM_CHIPS.find(c => c.key === key)?.val ?? 0) * cnt;
       }, 0);
-    }
-
-    function fmtWon(n) {
-      if (n >= 100_000_000) return (n / 100_000_000).toFixed(0) + '억원';
-      if (n >=  10_000_000) return (n /  10_000_000).toFixed(0) + '천만원';
-      if (n >=   1_000_000) return (n /   1_000_000).toFixed(0) + '백만원';
-      if (n >=     100_000) return (n /     100_000).toFixed(0) + '십만원';
-      if (n >=      10_000) return (n /      10_000).toFixed(0) + '만원';
-      return n.toLocaleString() + '원';
     }
 
     function renderPositions() {
@@ -1250,7 +1232,6 @@ const Sims = {
       if (!panel) return;
       panel.style.display = 'block';
       panel.innerHTML = `<div class="comm-tray">
-        <div class="comm-tray-label">지급 트레이 — 실지급 칩 개수 입력</div>
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
             <div class="comm-slot">
@@ -1258,6 +1239,9 @@ const Sims = {
               <input class="comm-slot-input" id="bpay-ci-${c.key}" type="number"
                 min="0" max="20" value="0" oninput="if(+this.value<0)this.value=0">
             </div>`).join('')}
+          <div class="comm-pay-slot">
+            <button class="comm-pay-btn" onclick="Sims.baccaratPay.submitComm()">PAY</button>
+          </div>
         </div>
       </div>`;
     }
@@ -1283,7 +1267,6 @@ const Sims = {
         S.score++;
         $('bpay-score').textContent = S.score;
         const ctrl = $('bpay-controls'); if (ctrl) ctrl.style.display = '';
-        msgCol('Round complete!', '#6ec864');
         actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.deal()">Next Round</button>`);
         return;
       }
@@ -1296,8 +1279,6 @@ const Sims = {
       const comm = Math.floor(S.bets[idx].total * 0.05 / 5000) * 5000;
       S.commTarget = S.bets[idx].total - comm;
       showCommTray();
-      const ctrl = $('bpay-controls'); if (ctrl) ctrl.style.display = '';
-      actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.submitComm()">Pay</button>`);
     }
 
     return {
@@ -1335,12 +1316,10 @@ const Sims = {
         if (entered !== S.commTarget) {
           showMistake(() => {
             COMM_CHIPS.forEach(c => { const inp = $(`bpay-ci-${c.key}`); if (inp) inp.value = 0; });
-            actions(`<button class="btn btn-primary" onclick="Sims.baccaratPay.submitComm()">Pay</button>`);
           });
           return;
         }
-        msgCol(`정답! 실지급 ${fmtWon(S.commTarget)}`, '#6ec864');
-        setTimeout(() => startCommAt(S.commIdx - 1), 500);
+        startCommAt(S.commIdx - 1);
       },
     };
   })(),
