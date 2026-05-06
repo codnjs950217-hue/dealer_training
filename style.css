@@ -1317,44 +1317,6 @@ body {
 }
 
 /* 3 Player betting positions */
-/* Hand result row */
-.bpay-hand-row {
-  display: flex; align-items: center; justify-content: space-between;
-  background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.08);
-  border-radius: 10px; padding: .55rem .75rem; margin-bottom: .55rem; gap: .4rem;
-}
-.bpay-hand-side {
-  display: flex; flex-direction: column; align-items: center; gap: .15rem; flex: 1;
-}
-.bpay-hand-side-lbl {
-  font-size: .62rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
-}
-.bpay-hand-side-lbl.player { color: #ef5350; }
-.bpay-hand-side-lbl.banker { color: #c9a84c; }
-.bpay-hand-cards {
-  font-size: .8rem; color: rgba(255,255,255,.85); letter-spacing: .5px; text-align: center;
-}
-.bpay-hand-pts {
-  font-size: 1.4rem; font-weight: 900; line-height: 1;
-}
-.bpay-hand-pts.player { color: #ef5350; }
-.bpay-hand-pts.banker { color: #c9a84c; }
-.bpay-hand-result {
-  display: flex; flex-direction: column; align-items: center; gap: .25rem; min-width: 80px;
-}
-.bpay-result-winner {
-  font-size: .78rem; font-weight: 900; letter-spacing: 1px; text-align: center;
-}
-.bpay-result-winner.player { color: #4ecdc4; }
-.bpay-result-winner.banker { color: #c9a84c; }
-.bpay-result-winner.tie    { color: #6ec864; }
-.bpay-special-bet {
-  font-size: .7rem; font-weight: 800; color: rgba(255,255,255,.75);
-  background: rgba(255,255,255,.07); border-radius: 6px;
-  padding: .1rem .4rem; text-align: center; white-space: nowrap;
-}
-.bpay-sbet-mult { color: #ffd060; margin-left: .2rem; }
-
 .bpay-positions {
   display: flex; gap: .6rem;
 }
@@ -1362,11 +1324,15 @@ body {
   flex: 1; display: flex; flex-direction: column;
   align-items: stretch; gap: .35rem;
   border: 2px solid transparent; border-radius: 12px;
-  padding: .3rem; transition: border-color .2s;
+  padding: .3rem; transition: border-color .2s, opacity .25s;
 }
 .bpay-pos.active {
   border-color: rgba(201,168,76,.6);
   background: rgba(201,168,76,.04);
+}
+/* Dim non-active positions while paying */
+.bpay-positions.paying .bpay-pos:not(.active) {
+  opacity: 0.3;
 }
 
 /* Ovals: PLAYER (red) and BANKER (gold) */
@@ -1420,12 +1386,10 @@ body {
   color: #ffd060;
   border-color: #c9a84c;
 }
-/* Dragon circles — rotated 180° (text faces customer) */
 .bpay-dragon {
   background: radial-gradient(circle, #8b000099, #4a0000aa);
   color: #ff9090;
   border-color: rgba(200,60,60,.6);
-  transform: rotate(180deg);
 }
 
 /* Chip spread display inside banker oval — dealer style (high left, low right) */
@@ -1442,9 +1406,8 @@ body {
   box-shadow: 0 2px 6px rgba(0,0,0,.5);
   flex-shrink: 0;
 }
-.bpay-chip-spread .bpay-chip-disc + .bpay-chip-disc {
-  margin-left: -9px;
-}
+.bpay-chip-spread .bpay-chip-disc + .bpay-chip-disc { margin-left: -9px; }
+.bpay-chip-spread .bpay-chip-disc.new-denom { margin-left: 6px; }
 
 /* Controls area: no min-height on message-board when empty */
 #bpay-controls .message-board { min-height: 0; }
