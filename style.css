@@ -1581,6 +1581,7 @@ body {
   background: rgba(0,0,0,.28);
 }
 .comm-pay-btn {
+  flex: 1;
   background: linear-gradient(145deg, #c9a84c 0%, #8a5c0a 100%);
   color: #1a0e00; font-weight: 900; font-size: .75rem;
   letter-spacing: 1.8px; border: none; border-radius: 6px;
@@ -1594,8 +1595,9 @@ body {
   background: rgba(0,0,0,.35);
   border: 1px solid rgba(255,255,255,.25);
   color: rgba(255,255,255,.7);
-  font-size: .58rem; font-weight: 700; letter-spacing: .8px;
-  border-radius: 5px; cursor: pointer; padding: .28rem .3rem;
+  font-size: .55rem; font-weight: 700; letter-spacing: .3px;
+  border-radius: 4px; cursor: pointer;
+  padding: .18rem .3rem;
   text-align: center; line-height: 1.2;
   transition: background .12s, color .12s;
 }
