@@ -1189,15 +1189,15 @@ const Sims = {
   // ---- BACCARAT PAY SIM ----
   baccaratPay: (() => {
     const COMM_CHIPS = [
-      { key: '1억', val: 100_000_000, bg: '#c62828', fg: '#fff'    },
-      { key: '1천', val:  10_000_000, bg: '#1565c0', fg: '#fff'    },
-      { key: '1백', val:   1_000_000, bg: '#f9a825', fg: '#1a1a1a' },
-      { key: '1십', val:     100_000, bg: '#212121', fg: '#fff'    },
-      { key: '1만', val:      10_000, bg: '#2e7d32', fg: '#fff'    },
-      { key: '5천', val:       5_000, bg: '#e91e8c', fg: '#fff'    },
+      { key: '100M', val: 100_000_000, bg: '#c62828', fg: '#fff'    },
+      { key: '10M',  val:  10_000_000, bg: '#1565c0', fg: '#fff'    },
+      { key: '1M',   val:   1_000_000, bg: '#fdd835', fg: '#1a1a1a' },
+      { key: '100K', val:     100_000, bg: '#212121', fg: '#fff'    },
+      { key: '10K',  val:      10_000, bg: '#2e7d32', fg: '#fff'    },
+      { key: '5K',   val:       5_000, bg: '#7b1fa2', fg: '#fff'    },
     ];
-    // Betting chips: min 10만원
-    const BET_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[2], COMM_CHIPS[1]]; // 1십, 1백, 1천
+    // Betting chips: min 100K
+    const BET_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[2], COMM_CHIPS[1]]; // 100K, 1M, 10M
 
     let S = {};
     const $  = id => document.getElementById(id);
