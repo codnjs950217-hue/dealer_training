@@ -1287,6 +1287,7 @@ const Sims = {
             </div>`).join('')}
           <div class="comm-pay-slot">
             <button class="comm-pay-btn" onclick="Sims.baccaratPay.submitComm()">PAY</button>
+            <button class="comm-all-reset-btn" onclick="Sims.baccaratPay.resetAll()">ALL<br>RESET</button>
           </div>
         </div>
       </div>`;
@@ -1377,6 +1378,16 @@ const Sims = {
         const disp = $(`bpay-cd-${key}`);
         if (inp)  inp.value = '0';
         if (disp) disp.textContent = '0';
+        updateSpread();
+      },
+
+      resetAll() {
+        COMM_CHIPS.forEach(c => {
+          const inp  = $(`bpay-ci-${c.key}`);
+          const disp = $(`bpay-cd-${c.key}`);
+          if (inp)  inp.value = '0';
+          if (disp) disp.textContent = '0';
+        });
         updateSpread();
       },
 

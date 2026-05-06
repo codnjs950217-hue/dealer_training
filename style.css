@@ -1487,17 +1487,17 @@ body {
 }
 .comm-tray-slots {
   display: flex; gap: 0; align-items: stretch;
-  background: #08080a; border-radius: 7px;
-  border: 1px solid rgba(201,168,76,.1);
+  background: rgba(0,0,0,.32); border-radius: 7px;
+  border: 1px solid rgba(255,190,50,.15);
   overflow: hidden;
 }
 .comm-slot {
   display: flex; flex-direction: column; align-items: center; gap: .3rem;
-  background: linear-gradient(175deg, #0f0e08 0%, #080806 100%);
-  border-right: 1px solid rgba(201,168,76,.1);
+  background: rgba(0,0,0,.22);
+  border-right: 1px solid rgba(255,190,50,.12);
   padding: .45rem .1rem .4rem;
   flex: 1; min-width: 0;
-  box-shadow: inset 0 2px 6px rgba(0,0,0,.55);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.4);
 }
 .comm-slot-chip {
   width: 40px; height: 40px; border-radius: 50%;
@@ -1576,9 +1576,9 @@ body {
 
 /* PAY button inside the rack */
 .comm-pay-slot {
-  display: flex; align-items: stretch; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: stretch; flex-shrink: 0; gap: .25rem;
   padding: .4rem .3rem .4rem .2rem;
-  background: linear-gradient(175deg, #101018 0%, #080810 100%);
+  background: rgba(0,0,0,.28);
 }
 .comm-pay-btn {
   background: linear-gradient(145deg, #c9a84c 0%, #8a5c0a 100%);
@@ -1590,3 +1590,14 @@ body {
   transition: transform .1s, box-shadow .1s;
 }
 .comm-pay-btn:active { transform: scale(.95); box-shadow: 0 1px 4px rgba(201,168,76,.25); }
+.comm-all-reset-btn {
+  background: rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.25);
+  color: rgba(255,255,255,.7);
+  font-size: .58rem; font-weight: 700; letter-spacing: .8px;
+  border-radius: 5px; cursor: pointer; padding: .28rem .3rem;
+  text-align: center; line-height: 1.2;
+  transition: background .12s, color .12s;
+}
+.comm-all-reset-btn:hover  { background: rgba(0,0,0,.55); color: #fff; }
+.comm-all-reset-btn:active { transform: scale(.95); }
