@@ -1380,7 +1380,7 @@ body {
 
 /* 3 Player betting positions */
 .bpay-positions {
-  display: flex; gap: .6rem;
+  display: flex; gap: 1.6rem;
 }
 .bpay-pos {
   flex: 1; display: flex; flex-direction: column;
