@@ -835,14 +835,10 @@ body {
 
 /* ---- BACCARAT: WIN HEADER + ANNOUNCE ---- */
 
-.bac-win-header {
-  text-align: center; line-height: 1; padding: .4rem 0 .15rem;
-  padding-left: 64px; height: 58px; overflow: hidden;
-}
-
 .bac-win-announce {
+  display: block; text-align: center;
   font-size: 1.5rem; font-weight: 900; letter-spacing: 3px;
-  white-space: nowrap;
+  white-space: nowrap; line-height: 1.2;
   text-shadow: 0 0 28px currentColor;
   background: none; border: none; padding: 0;
 }
@@ -1333,7 +1329,6 @@ body {
   .bac-card-sideways  { width: 88px; height: 62px; }
   .bac-bh-wrap, .bac-ph-wrap { min-width: 130px; }
   .bac-shoe-spacer    { width: 54px; }
-  .bac-win-header     { padding-left: 54px; }
   .bac-winner-flash   { padding-left: 54px; }
   .bac-win-announce   { font-size: 1.1rem; letter-spacing: 2px; }
 

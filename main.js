@@ -216,7 +216,6 @@ const Views = {
         <div class="sim-stats"><span>Rounds: <strong id="bac-rounds">0</strong></span><span>Score: <strong id="bac-score">0</strong></span></div>
       </div>
       <div class="baccarat-table">
-        <div id="bac-win-header" class="bac-win-header"></div>
         <div class="bac-btn-cluster bac-btn-cluster-quiz">
           <div class="bac-shoe-spacer"></div>
           <div class="bac-bclust-side" id="bac-b-btn-top"></div>
@@ -1054,12 +1053,14 @@ const Sims = {
       msg('');
       const cls = side === 'banker' ? 'banker-win' : side === 'player' ? 'player-win' : 'tie-win';
       const { lines } = getSpecialLabel(side);
-      const wh = $('bac-win-header');
-      if (wh) {
-        const [main, sub] = lines;
-        let html = `<span class="bac-win-announce ${cls}">${main}</span>`;
-        if (sub) html += `<br><span class="bac-win-sub ${cls}">${sub}</span>`;
-        wh.innerHTML = html;
+      const [main, sub] = lines;
+      const html = `<div class="bac-win-announce ${cls}">${main}${sub ? `<br><span class="bac-win-sub ${cls}">${sub}</span>` : ''}</div>`;
+      if (side === 'banker') {
+        setBtn('bac-b-btn-top', html);
+      } else if (side === 'player') {
+        setBtn('bac-p-btn-top', html);
+      } else {
+        setBtn('bac-tie-btn', html);
       }
     }
 
@@ -1129,7 +1130,6 @@ const Sims = {
         $('bac-result').className   = 'result-badge';
         const pp = $('bac-pay-panel');
         if (pp) pp.style.display = 'none';
-        const wh = $('bac-win-header'); if (wh) wh.innerHTML = '';
         clearInlineBtns();
 
         const wf = $('bac-winner-flash'); if (wf) { wf.className = 'bac-winner-flash'; wf.innerHTML = ''; }
