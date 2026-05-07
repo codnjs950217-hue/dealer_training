@@ -531,8 +531,8 @@ body {
   padding: .5rem .9rem; border-radius: 8px;
   font-weight: 700; font-size: 1rem; text-align: center; min-width: 72px;
 }
-.player-win { background: rgba(78,205,196,.18); color: var(--win); border: 1px solid var(--win); }
-.banker-win  { background: rgba(201,168,76,.18); color: var(--gold); border: 1px solid var(--gold); }
+.player-win { background: rgba(255,68,68,.18); color: #ff4444; border: 1px solid #ff4444; }
+.banker-win  { background: rgba(255,215,0,.15); color: #FFD700; border: 1px solid #FFD700; }
 .tie-win     { background: rgba(110,200,100,.18); color: #6ec864; border: 1px solid #6ec864; }
 
 .third-card-guide { margin-top: 1rem; }
@@ -836,8 +836,8 @@ body {
   text-shadow: 0 0 28px currentColor;
   background: none; border: none; padding: 0;
 }
-.bac-win-announce.banker-win { color: var(--gold); }
-.bac-win-announce.player-win { color: var(--win); }
+.bac-win-announce.banker-win { color: #FFD700; }
+.bac-win-announce.player-win { color: #ff4444; }
 .bac-win-announce.tie-win    { color: #6ec864; }
 .bac-win-sep { color: rgba(255,255,255,.35); font-size: 1.2rem; }
 
@@ -1040,8 +1040,8 @@ body {
   padding: .28rem .75rem; border-radius: 6px;
   font-size: .8rem; font-weight: 800; letter-spacing: .5px;
 }
-.pay-winner-badge.player-win { background: rgba(78,205,196,.15); color: var(--win); border: 1px solid rgba(78,205,196,.35); }
-.pay-winner-badge.banker-win { background: rgba(201,168,76,.15); color: var(--gold); border: 1px solid rgba(201,168,76,.35); }
+.pay-winner-badge.player-win { background: rgba(255,68,68,.15); color: #ff4444; border: 1px solid rgba(255,68,68,.35); }
+.pay-winner-badge.banker-win { background: rgba(255,215,0,.12); color: #FFD700; border: 1px solid rgba(255,215,0,.35); }
 .pay-winner-badge.tie-win    { background: rgba(110,200,100,.12); color: #6ec864; border: 1px solid rgba(110,200,100,.3); }
 
 .pay-seats-section { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .9rem; }
