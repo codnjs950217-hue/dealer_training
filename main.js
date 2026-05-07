@@ -216,9 +216,6 @@ const Views = {
         <div class="sim-stats"><span>Rounds: <strong id="bac-rounds">0</strong></span><span>Score: <strong id="bac-score">0</strong></span></div>
       </div>
       <div class="baccarat-table">
-        <div class="bac-start-bar">
-          <button class="bac-start-top-btn" id="bac-draw-btn" onclick="Sims.baccarat.deal()">START</button>
-        </div>
         <div id="bac-win-header" class="bac-win-header"></div>
         <div class="bac-btn-cluster bac-btn-cluster-quiz">
           <div class="bac-shoe-spacer"></div>
@@ -256,6 +253,9 @@ const Views = {
           <div class="bac-bclust-side" id="bac-p-btn-bot"></div>
         </div>
         <div class="bac-winner-flash" id="bac-winner-flash"></div>
+        <div class="bac-start-bar">
+          <button class="bac-start-top-btn" id="bac-draw-btn" onclick="Sims.baccarat.deal()">START</button>
+        </div>
       </div>
       <div class="bac-pay-panel" id="bac-pay-panel" style="display:none"></div>
     </div>`,

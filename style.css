@@ -1633,8 +1633,10 @@ body {
 /* ---- BACCARAT: START BAR (top center) ---- */
 .bac-start-bar {
   display: flex; justify-content: center;
-  padding: .7rem 0 .5rem;
+  padding: 1.2rem 0 .4rem;
   padding-left: 64px;
+  border-top: 1px solid rgba(255,255,255,.15);
+  margin-top: .6rem;
 }
 .bac-start-top-btn {
   background: linear-gradient(135deg, #c9a84c 0%, #9a7820 100%);
