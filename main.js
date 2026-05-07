@@ -1203,7 +1203,12 @@ const Sims = {
         const showQuiz = source === 'initial' ? showInitialQuiz
                        : source === 'banker'  ? showBankerDrawQuiz
                        : showSpecialQuiz;
-        if (label !== correct) { showMistake(showQuiz); return; }
+        const bankerFam = new Set(['banker-win','banker-big6','banker-small6']);
+        const playerFam = new Set(['player-win','player-big7','player-small7','super7']);
+        const isCorrect = label === correct
+          || (label === 'banker-win' && bankerFam.has(correct))
+          || (label === 'player-win' && playerFam.has(correct));
+        if (!isCorrect) { showMistake(showQuiz); return; }
         clearInlineBtns();
         if (source === 'initial') {
           const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
