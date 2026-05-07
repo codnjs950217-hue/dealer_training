@@ -217,7 +217,7 @@ const Views = {
       </div>
       <div class="baccarat-table">
         <div class="bac-start-bar">
-          <button class="bac-start-top-btn" id="bac-draw-btn" onclick="Sims.baccarat.deal()">▶ START</button>
+          <button class="bac-start-top-btn" id="bac-draw-btn" onclick="Sims.baccarat.deal()">START</button>
         </div>
         <div id="bac-win-header" class="bac-win-header"></div>
         <div class="bac-btn-cluster">
@@ -965,13 +965,17 @@ const Sims = {
         </div>
       `);
       setBtn('bac-b-btn-bot', '');
-      setBtn('bac-tie-btn', `<button class="btn-bac-tie bac-inline-btn" onclick="Sims.baccarat.quizSpecial('tie')">TIE</button>`);
+      setBtn('bac-tie-btn', `
+        <div class="bac-special-col bac-special-col-mid">
+          <button class="btn-bac-tie bac-inline-btn" onclick="Sims.baccarat.quizSpecial('tie')">TIE</button>
+          <button class="btn-bac-super7 bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('super7')">SUPER 7</button>
+        </div>
+      `);
       setBtn('bac-p-btn-top', `
         <div class="bac-special-col">
           <button class="btn-bac-player bac-inline-btn" onclick="Sims.baccarat.quizSpecial('player-win')">PLAYER WIN</button>
           <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('player-small7')">PLAYER WIN SMALL 7</button>
           <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('player-big7')">PLAYER WIN BIG 7</button>
-          <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('super7')">SUPER 7</button>
         </div>
       `);
       setBtn('bac-p-btn-bot', '');
@@ -1000,9 +1004,9 @@ const Sims = {
       }
       // player win
       const lines = ['PLAYER WIN'];
-      if (pp === 7 && S.ph.length === 2 && bp === 6) lines.push('SUPER 7');
-      else if (pp === 7 && S.ph.length === 2)        lines.push('SMALL 7');
-      if (pp === 7 && S.ph.length === 3)             lines.push('BIG 7');
+      if (pp === 7 && bp === 6)               lines.push('SUPER 7');
+      else if (pp === 7 && S.ph.length === 2) lines.push('SMALL 7');
+      else if (pp === 7 && S.ph.length === 3) lines.push('BIG 7');
       return { lines, color };
     }
 
@@ -1184,10 +1188,10 @@ const Sims = {
           else if (bp === 6 && S.bh.length === 3) correct = 'banker-big6';
           else                                     correct = 'banker-win';
         } else {
-          if (pp === 7 && S.ph.length === 2 && bp === 6) correct = 'super7';
-          else if (pp === 7 && S.ph.length === 2)        correct = 'player-small7';
-          else if (pp === 7 && S.ph.length === 3)        correct = 'player-big7';
-          else                                            correct = 'player-win';
+          if (pp === 7 && bp === 6)               correct = 'super7';
+          else if (pp === 7 && S.ph.length === 2) correct = 'player-small7';
+          else if (pp === 7 && S.ph.length === 3) correct = 'player-big7';
+          else                                    correct = 'player-win';
         }
         if (label !== correct) { showMistake(() => showSpecialQuiz()); return; }
         clearInlineBtns();

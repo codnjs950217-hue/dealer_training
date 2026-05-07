@@ -1616,8 +1616,8 @@ body {
   background: linear-gradient(135deg, #c9a84c 0%, #9a7820 100%);
   color: #1a1200;
   font-size: 1.3rem; font-weight: 900;
-  letter-spacing: 4px; border: none; border-radius: 50px;
-  padding: .8rem 4.5rem; cursor: pointer;
+  letter-spacing: 4px; border: 2px solid rgba(255,255,255,.65); border-radius: 50px;
+  padding: .8rem 4.5rem; cursor: pointer; text-align: center;
   box-shadow: 0 4px 22px rgba(201,168,76,.55);
   transition: all .2s;
 }
@@ -1632,7 +1632,18 @@ body {
 .bac-special-col {
   display: flex; flex-direction: column; gap: .3rem; align-items: stretch;
 }
+.bac-special-col-mid {
+  align-items: center;
+}
 .btn-bac-special {
   font-size: .75rem !important;
   padding: .38rem .75rem !important;
 }
+.btn-bac-super7 {
+  background: #1a1a3a; color: #b8a0ff;
+  border: 1px solid rgba(180,150,255,.5);
+  padding: .38rem .75rem; border-radius: var(--r);
+  font-weight: 700; cursor: pointer; font-size: .75rem;
+  transition: all .18s; white-space: nowrap;
+}
+.btn-bac-super7:hover { background: #242450; }
