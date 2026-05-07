@@ -216,6 +216,9 @@ const Views = {
         <div class="sim-stats"><span>Rounds: <strong id="bac-rounds">0</strong></span><span>Score: <strong id="bac-score">0</strong></span></div>
       </div>
       <div class="baccarat-table">
+        <div class="bac-start-bar">
+          <button class="bac-start-top-btn" id="bac-draw-btn" onclick="Sims.baccarat.deal()">▶ START</button>
+        </div>
         <div id="bac-win-header" class="bac-win-header"></div>
         <div class="bac-btn-cluster">
           <div class="bac-shoe-spacer"></div>
@@ -235,7 +238,6 @@ const Views = {
               <div class="shoe-label-text">SHOE</div>
               <div class="shoe-card-slot"></div>
             </div>
-            <button class="btn-draw-shoe" id="bac-draw-btn" onclick="Sims.baccarat.deal()">START</button>
           </div>
           <div class="bac-banker-zone">
             <div class="bac-third-slot" id="bac-bh3"></div>
@@ -954,13 +956,20 @@ const Sims = {
       msg('Choose action:');
     }
 
-    function showAnnounceQuiz() {
-      setBtn('bac-b-btn-top', `<button class="btn-bac-banker bac-inline-btn" onclick="Sims.baccarat.quizAnnounce('banker')">BANKER WIN</button>`);
-      setBtn('bac-b-btn-bot', '');
-      setBtn('bac-p-btn-top', `<button class="btn-bac-player bac-inline-btn" onclick="Sims.baccarat.quizAnnounce('player')">PLAYER WIN</button>`);
-      setBtn('bac-p-btn-bot', '');
-      setBtn('bac-tie-btn',   `<button class="btn-bac-tie bac-inline-btn" onclick="Sims.baccarat.quizAnnounce('tie')">TIE</button>`);
-      msg('Announce winner:');
+    function showSpecialQuiz() {
+      setBtn('bac-b-btn-top', `<button class="btn-bac-banker bac-inline-btn" onclick="Sims.baccarat.quizSpecial('banker-win')">BANKER WIN</button>`);
+      setBtn('bac-b-btn-bot', `
+        <button class="btn-bac-banker bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('banker-small6')">BANKER<br>SMALL 6</button>
+        <button class="btn-bac-banker bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('banker-big6')">BANKER<br>BIG 6</button>
+      `);
+      setBtn('bac-tie-btn', `<button class="btn-bac-tie bac-inline-btn" onclick="Sims.baccarat.quizSpecial('tie')">TIE</button>`);
+      setBtn('bac-p-btn-top', `<button class="btn-bac-player bac-inline-btn" onclick="Sims.baccarat.quizSpecial('player-win')">PLAYER WIN</button>`);
+      setBtn('bac-p-btn-bot', `
+        <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('player-small7')">PLAYER<br>SMALL 7</button>
+        <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('player-big7')">PLAYER<br>BIG 7</button>
+        <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('super7')">SUPER 7</button>
+      `);
+      msg('Which outcome?');
     }
 
     function showBankerDrawQuiz() {
@@ -1133,11 +1142,12 @@ const Sims = {
         if (!correct) { showMistake(() => showInitialQuiz()); return; }
         clearInlineBtns();
         if (choice === 'win') {
-          announceWinner(side);
+          if (side === 'tie') announceWinner('tie');
+          else showSpecialQuiz();
         } else if (choice === 'draw-player') {
           doPlayerDraw(() => showBankerDrawQuiz());
         } else {
-          doBankerDraw(() => showAnnounceQuiz());
+          doBankerDraw(() => showSpecialQuiz());
         }
       },
 
@@ -1151,17 +1161,31 @@ const Sims = {
         if (!correct) { showMistake(() => showBankerDrawQuiz()); return; }
         clearInlineBtns();
         if (choice === 'draw-banker') {
-          doBankerDraw(() => showAnnounceQuiz());
+          doBankerDraw(() => showSpecialQuiz());
+        } else if (side === 'tie') {
+          announceWinner('tie');
         } else {
-          announceWinner(side);
+          showSpecialQuiz();
         }
       },
 
-      quizAnnounce(side) {
+      quizSpecial(label) {
         const pp = pts(S.ph), bp = pts(S.bh);
-        const correct = pp > bp ? 'player' : bp > pp ? 'banker' : 'tie';
-        if (side !== correct) { showMistake(() => showAnnounceQuiz()); return; }
+        let correct;
+        if (pp === bp) correct = 'tie';
+        else if (bp > pp) {
+          if (bp === 6 && S.bh.length === 2)      correct = 'banker-small6';
+          else if (bp === 6 && S.bh.length === 3) correct = 'banker-big6';
+          else                                     correct = 'banker-win';
+        } else {
+          if (pp === 7 && S.ph.length === 2 && bp === 6) correct = 'super7';
+          else if (pp === 7 && S.ph.length === 2)        correct = 'player-small7';
+          else if (pp === 7 && S.ph.length === 3)        correct = 'player-big7';
+          else                                            correct = 'player-win';
+        }
+        if (label !== correct) { showMistake(() => showSpecialQuiz()); return; }
         clearInlineBtns();
+        const side = correct === 'tie' ? 'tie' : correct.startsWith('banker') ? 'banker' : 'player';
         announceWinner(side);
       },
 

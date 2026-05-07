@@ -798,6 +798,7 @@ body {
 }
 .bac-bclust-side {
   flex: 1; display: flex; justify-content: center; align-items: center; min-height: 40px;
+  gap: .3rem; flex-wrap: wrap;
 }
 .bac-bclust-mid {
   width: 80px; flex-shrink: 0;
@@ -1605,3 +1606,31 @@ body {
 }
 .comm-all-reset-btn:hover  { background: rgba(0,0,0,.55); color: #fff; }
 .comm-all-reset-btn:active { transform: scale(.95); }
+
+/* ---- BACCARAT: START BAR (top center) ---- */
+.bac-start-bar {
+  display: flex; justify-content: center;
+  padding: .7rem 0 .5rem;
+}
+.bac-start-top-btn {
+  background: linear-gradient(135deg, #c9a84c 0%, #9a7820 100%);
+  color: #1a1200;
+  font-size: 1.3rem; font-weight: 900;
+  letter-spacing: 4px; border: none; border-radius: 50px;
+  padding: .8rem 4.5rem; cursor: pointer;
+  box-shadow: 0 4px 22px rgba(201,168,76,.55);
+  transition: all .2s;
+}
+.bac-start-top-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #e8c96d 0%, #b89030 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 7px 30px rgba(201,168,76,.72);
+}
+.bac-start-top-btn:disabled { opacity: .4; cursor: default; }
+
+/* ---- BACCARAT: SPECIAL-OUTCOME QUIZ BUTTONS (smaller) ---- */
+.btn-bac-special {
+  font-size: .7rem !important;
+  padding: .32rem .5rem !important;
+  line-height: 1.25;
+}
