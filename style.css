@@ -1628,9 +1628,11 @@ body {
 }
 .bac-start-top-btn:disabled { opacity: .4; cursor: default; }
 
-/* ---- BACCARAT: SPECIAL-OUTCOME QUIZ BUTTONS (smaller) ---- */
+/* ---- BACCARAT: SPECIAL-OUTCOME QUIZ BUTTONS ---- */
+.bac-special-col {
+  display: flex; flex-direction: column; gap: .3rem; align-items: stretch;
+}
 .btn-bac-special {
-  font-size: .7rem !important;
-  padding: .32rem .5rem !important;
-  line-height: 1.25;
+  font-size: .75rem !important;
+  padding: .38rem .75rem !important;
 }
