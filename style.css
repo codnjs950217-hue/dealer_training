@@ -805,7 +805,7 @@ body {
 .bac-bclust-mid {
   width: 80px; flex-shrink: 0;
   display: flex; justify-content: center; align-items: center;
-  min-height: 40px; overflow: visible;
+  min-height: 40px; overflow: visible; position: relative;
 }
 .bac-btn-cluster-quiz .bac-bclust-side {
   min-height: 118px; align-items: center;
@@ -841,6 +841,10 @@ body {
   white-space: nowrap; line-height: 1.2;
   text-shadow: 0 0 28px currentColor;
   background: none; border: none; padding: 0;
+}
+.bac-win-over-divider {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  white-space: nowrap;
 }
 .bac-win-announce.banker-win { color: #FFD700; }
 .bac-win-announce.player-win { color: #FF2020; }

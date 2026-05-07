@@ -1054,14 +1054,10 @@ const Sims = {
       const cls = side === 'banker' ? 'banker-win' : side === 'player' ? 'player-win' : 'tie-win';
       const { lines } = getSpecialLabel(side);
       const [main, sub] = lines;
-      const html = `<div class="bac-win-announce ${cls}">${main}${sub ? `<br><span class="bac-win-sub ${cls}">${sub}</span>` : ''}</div>`;
-      if (side === 'banker') {
-        setBtn('bac-b-btn-top', html);
-      } else if (side === 'player') {
-        setBtn('bac-p-btn-top', html);
-      } else {
-        setBtn('bac-tie-btn', html);
-      }
+      const html = `<div class="bac-win-announce bac-win-over-divider ${cls}">${main}${sub ? `<br><span class="bac-win-sub ${cls}">${sub}</span>` : ''}</div>`;
+      setBtn('bac-b-btn-top', '');
+      setBtn('bac-p-btn-top', '');
+      setBtn('bac-tie-btn', html);
     }
 
     function buildPayPanel() {
