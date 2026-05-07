@@ -959,22 +959,28 @@ const Sims = {
     }
 
     function showSpecialQuiz() {
-      setBtn('bac-b-btn-top', `<button class="btn-bac-banker bac-inline-btn" onclick="Sims.baccarat.quizSpecial('banker-win')">BANKER WIN</button>`);
-      setBtn('bac-b-btn-bot', `
-        <button class="btn-bac-banker bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('banker-small6')">BANKER WIN SMALL 6</button>
-        <button class="btn-bac-banker bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('banker-big6')">BANKER WIN BIG 6</button>
+      setBtn('bac-b-btn-top', `
+        <div class="bac-special-col">
+          <button class="btn-bac-banker bac-inline-btn" onclick="Sims.baccarat.quizSpecial('banker-win')">BANKER WIN</button>
+          <button class="btn-bac-banker bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('banker-big6')">BANKER WIN BIG 6</button>
+          <button class="btn-bac-banker bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('banker-small6')">BANKER WIN SMALL 6</button>
+        </div>
       `);
+      setBtn('bac-b-btn-bot', '');
       setBtn('bac-tie-btn', `
         <div class="bac-special-col bac-special-col-mid">
           <button class="btn-bac-tie bac-inline-btn" onclick="Sims.baccarat.quizSpecial('tie')">TIE</button>
           <button class="btn-bac-super7 bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('super7')">SUPER 7</button>
         </div>
       `);
-      setBtn('bac-p-btn-top', `<button class="btn-bac-player bac-inline-btn" onclick="Sims.baccarat.quizSpecial('player-win')">PLAYER WIN</button>`);
-      setBtn('bac-p-btn-bot', `
-        <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('player-small7')">PLAYER WIN SMALL 7</button>
-        <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('player-big7')">PLAYER WIN BIG 7</button>
+      setBtn('bac-p-btn-top', `
+        <div class="bac-special-col">
+          <button class="btn-bac-player bac-inline-btn" onclick="Sims.baccarat.quizSpecial('player-win')">PLAYER WIN</button>
+          <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('player-big7')">PLAYER WIN BIG 7</button>
+          <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizSpecial('player-small7')">PLAYER WIN SMALL 7</button>
+        </div>
       `);
+      setBtn('bac-p-btn-bot', '');
       msg('Which outcome?');
     }
 
