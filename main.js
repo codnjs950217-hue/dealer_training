@@ -57,6 +57,11 @@ const App = {
       el.innerHTML = Views.baccaratPaySim();
       Sims.baccaratPay && Sims.baccaratPay.init();
     }
+    if (game === 'poker') {
+      if (mode === 'isp') { el.innerHTML = Views.ispSim(); Sims.poker.isp.init(); }
+      if (mode === 'tcp') { el.innerHTML = Views.tcpSim(); Sims.poker.tcp.init(); }
+      if (mode === 'thp') { el.innerHTML = Views.thpSim(); Sims.poker.thp.init(); }
+    }
     window.scrollTo(0, 0);
   },
   init() { this.navigate('home'); }
@@ -68,6 +73,7 @@ const GAMES = {
   baccarat:  { name: 'Baccarat',  icon: '🃏', desc: 'Master the elegant game of Baccarat. Learn dealing procedures, third-card rules, and 5% commission collection.' },
   blackjack: { name: 'Blackjack', icon: '♠',  desc: 'Learn to deal Blackjack with proper procedures, payout calculations, and complete game flow management.' },
   roulette:  { name: 'Roulette',  icon: '🎡', desc: 'Practice roulette procedures, chip handling, wheel spins, and all inside and outside bet payouts.' },
+  poker:     { name: 'Poker',     icon: '🂡', desc: 'Practice three Inspire casino poker variants: ISP (5-card stud), TCP (3 cards + 2 community), and THP (Texas Hold\'em).' },
 };
 
 // ---- VIEWS ----
@@ -107,8 +113,11 @@ const Views = {
     const g = GAMES[game];
     const simBtns = game === 'baccarat'
       ? `<button class="btn btn-secondary" onclick="App.navigate('baccarat','simulation')">⚡ Drawing Practice</button>
-         <button class="btn btn-secondary" onclick="App.navigate('baccarat','paysim')">⚡ Payout Practice</button>
-         `
+         <button class="btn btn-secondary" onclick="App.navigate('baccarat','paysim')">⚡ Payout Practice</button>`
+      : game === 'poker'
+      ? `<button class="btn btn-secondary" onclick="App.navigate('poker','isp')">⚡ ISP Practice</button>
+         <button class="btn btn-secondary" onclick="App.navigate('poker','tcp')">⚡ TCP Practice</button>
+         <button class="btn btn-secondary" onclick="App.navigate('poker','thp')">⚡ THP Practice</button>`
       : `<button class="btn btn-secondary" onclick="App.navigate('${game}','simulation')">⚡ Go to Simulation</button>`;
     return `
       <div class="sim-page">
@@ -127,12 +136,13 @@ const Views = {
   tutorial: (game) => {
     const g = GAMES[game];
     const t = TUTORIALS[game];
+    const simMode = game === 'poker' ? 'isp' : 'simulation';
     return `
       <div class="tutorial-page">
         <div class="tutorial-header">
           <button class="back-btn" onclick="App.navigate('${game}')">← Back</button>
           <h1>${g.icon} ${g.name} Tutorial</h1>
-          <button class="btn btn-primary btn-sm" onclick="App.navigate('${game}','simulation')">Simulation →</button>
+          <button class="btn btn-primary btn-sm" onclick="App.navigate('${game}','${simMode}')">Simulation →</button>
         </div>
         <div class="tutorial-layout">
           <div class="tutorial-main">
@@ -168,7 +178,7 @@ const Views = {
                 ${t.payouts.map(p => `<tr><td>${p.bet}</td><td class="payout-val">${p.pays}</td></tr>`).join('')}
               </table>
             </div>
-            <button class="btn btn-primary btn-full" onclick="App.navigate('${game}','simulation')">⚡ Practice Simulation</button>
+            <button class="btn btn-primary btn-full" onclick="App.navigate('${game}','${simMode}')">⚡ Practice Simulation</button>
           </div>
         </div>
       </div>`;
@@ -331,6 +341,107 @@ const Views = {
       <div class="bpay-comm-panel" id="bpay-comm-panel" style="display:none"></div>
     </div>`,
 
+  ispSim: () => `
+    <div class="sim-page poker-sim">
+      <div class="sim-header">
+        <button class="back-btn" onclick="App.navigate('poker')">← Back</button>
+        <h2>🂡 ISP — Inspire Stud Poker</h2>
+        <div class="sim-stats">
+          <span>Rounds: <strong id="pk-rounds">0</strong></span>
+          <span>Score: <strong id="pk-score">0</strong></span>
+        </div>
+      </div>
+      <div class="poker-table">
+        <div class="pk-zone pk-player-zone">
+          <div class="pk-zone-label pk-label-player">PLAYER</div>
+          <div class="pk-hand" id="pk-player-hand"></div>
+          <div class="pk-hand-rank" id="pk-player-rank"></div>
+        </div>
+        <div class="pk-mid-row">
+          <div class="pk-quiz-wrap" id="pk-quiz"></div>
+          <div class="pk-result-wrap" id="pk-result"></div>
+        </div>
+        <div class="pk-zone pk-dealer-zone">
+          <div class="pk-hand-rank" id="pk-dealer-rank"></div>
+          <div class="pk-hand" id="pk-dealer-hand"></div>
+          <div class="pk-zone-label pk-label-dealer">DEALER</div>
+        </div>
+        <div class="pk-start-bar">
+          <button id="pk-start-btn" class="pk-start-btn" onclick="Sims.poker.isp.deal()">DEAL</button>
+        </div>
+      </div>
+    </div>`,
+
+  tcpSim: () => `
+    <div class="sim-page poker-sim">
+      <div class="sim-header">
+        <button class="back-btn" onclick="App.navigate('poker')">← Back</button>
+        <h2>🂡 TCP — Three Card Poker</h2>
+        <div class="sim-stats">
+          <span>Rounds: <strong id="pk-rounds">0</strong></span>
+          <span>Score: <strong id="pk-score">0</strong></span>
+        </div>
+      </div>
+      <div class="poker-table">
+        <div class="pk-zone pk-player-zone">
+          <div class="pk-zone-label pk-label-player">PLAYER</div>
+          <div class="pk-hand" id="pk-player-hand"></div>
+          <div class="pk-hand-rank" id="pk-player-rank"></div>
+        </div>
+        <div class="pk-community-row">
+          <div class="pk-comm-label">COMMUNITY</div>
+          <div class="pk-hand pk-comm-hand" id="pk-comm-hand"></div>
+        </div>
+        <div class="pk-mid-row">
+          <div class="pk-quiz-wrap" id="pk-quiz"></div>
+          <div class="pk-result-wrap" id="pk-result"></div>
+        </div>
+        <div class="pk-zone pk-dealer-zone">
+          <div class="pk-hand-rank" id="pk-dealer-rank"></div>
+          <div class="pk-hand" id="pk-dealer-hand"></div>
+          <div class="pk-zone-label pk-label-dealer">DEALER</div>
+        </div>
+        <div class="pk-start-bar">
+          <button id="pk-start-btn" class="pk-start-btn" onclick="Sims.poker.tcp.deal()">DEAL</button>
+        </div>
+      </div>
+    </div>`,
+
+  thpSim: () => `
+    <div class="sim-page poker-sim">
+      <div class="sim-header">
+        <button class="back-btn" onclick="App.navigate('poker')">← Back</button>
+        <h2>🂡 THP — Texas Hold'em</h2>
+        <div class="sim-stats">
+          <span>Rounds: <strong id="pk-rounds">0</strong></span>
+          <span>Score: <strong id="pk-score">0</strong></span>
+        </div>
+      </div>
+      <div class="poker-table">
+        <div class="pk-zone pk-player-zone">
+          <div class="pk-zone-label pk-label-player">PLAYER</div>
+          <div class="pk-hand" id="pk-player-hand"></div>
+          <div class="pk-hand-rank" id="pk-player-rank"></div>
+        </div>
+        <div class="pk-community-row">
+          <div class="pk-comm-label">BOARD</div>
+          <div class="pk-hand pk-comm-hand" id="pk-comm-hand"></div>
+        </div>
+        <div class="pk-mid-row">
+          <div class="pk-quiz-wrap" id="pk-quiz"></div>
+          <div class="pk-result-wrap" id="pk-result"></div>
+        </div>
+        <div class="pk-zone pk-dealer-zone">
+          <div class="pk-hand-rank" id="pk-dealer-rank"></div>
+          <div class="pk-hand" id="pk-dealer-hand"></div>
+          <div class="pk-zone-label pk-label-dealer">DEALER</div>
+        </div>
+        <div class="pk-start-bar">
+          <button id="pk-start-btn" class="pk-start-btn" onclick="Sims.poker.thp.deal()">DEAL</button>
+        </div>
+      </div>
+    </div>`,
+
 };
 
 // ---- TUTORIAL DATA ----
@@ -447,7 +558,92 @@ const TUTORIALS = {
       { bet: 'High (19-36)/Low (1-18)',pays: '1:1'  },
     ],
   },
+
+  poker: {
+    videos: [
+      { title: 'Poker Hand Rankings',         dur: '8:00',  desc: 'Royal Flush through High Card — all 9 hand rankings explained' },
+      { title: 'ISP — Inspire Stud Poker',    dur: '10:30', desc: '5-card stud dealing procedure and hand comparison method' },
+      { title: 'TCP — Three Card Poker',       dur: '9:15',  desc: '3 hole cards + 2 community cards: dealing and evaluation' },
+      { title: 'THP — Texas Hold\'em Poker',   dur: '14:20', desc: 'Flop, Turn, River procedure and best-hand determination' },
+      { title: 'Comparing Hands Quickly',     dur: '7:45',  desc: 'Speed techniques for comparing dealer and player hands' },
+      { title: 'Payout Procedures',           dur: '6:30',  desc: 'Collecting losing bets and paying winning hands correctly' },
+    ],
+    steps: [
+      { title: 'Shuffle & Cut',         desc: 'Riffle shuffle 3–5 times. Present cut card to a player. Insert ~1 deck from the bottom.' },
+      { title: 'Burn a Card',           desc: 'Deal one card face-up to the discard tray before beginning the hand.' },
+      { title: 'Deal Hole Cards',       desc: 'Deal clockwise: ISP — 5 cards each. TCP — 3 cards each. THP — 2 cards each.' },
+      { title: 'Reveal Community Cards', desc: 'TCP: place 2 community cards face-up in the center. THP: deal Flop (3), Turn (1), River (1).' },
+      { title: 'Evaluate Hands',        desc: 'Compare hands by rank. Equal rank: compare kickers from highest to lowest until a winner is found.' },
+      { title: 'Announce Winner',       desc: 'Clearly announce "Dealer wins", "Player wins", or "Tie". Flip both hands face-up to show.' },
+      { title: 'Settle Bets',           desc: 'Collect losing bets. Pay winners per the payout schedule. Settle any bonus bets separately.' },
+      { title: 'Prepare Next Hand',     desc: 'Clear all cards to the discard tray. Confirm all bets are settled before the next deal.' },
+    ],
+    rules: [
+      'Standard 52-card deck, no jokers',
+      'Hand ranks (high→low): Royal Flush, Straight Flush, Four of a Kind, Full House, Flush, Straight, Three of a Kind, Two Pair, Pair, High Card',
+      'ISP: best hand from 5 hole cards',
+      'TCP: best 5-card hand using 3 hole cards + 2 community cards',
+      'THP: best 5-card hand from 2 hole cards + 5 community cards (board)',
+      'Equal rank: compare kickers from highest to lowest — if all equal, it is a Tie',
+    ],
+    payouts: [
+      { bet: 'Player Win',      pays: '1:1' },
+      { bet: 'Pair or Better',  pays: 'Bonus' },
+      { bet: 'Straight',        pays: '4:1' },
+      { bet: 'Three of a Kind', pays: '30:1' },
+      { bet: 'Straight Flush',  pays: '40:1' },
+      { bet: 'Royal Flush',     pays: '100:1' },
+    ],
+  },
 };
+
+// ============================================================
+//  POKER HAND EVALUATORS
+// ============================================================
+
+function pkRankVal(r) {
+  return r==='A'?14 : r==='K'?13 : r==='Q'?12 : r==='J'?11 : +r;
+}
+
+function evalPokerHand(hand) {
+  const vals = hand.map(c => pkRankVal(c.rank)).sort((a, b) => b - a);
+  const isFlush = hand.every(c => c.suit === hand[0].suit);
+  let isStraight = vals[0] - vals[4] === 4 && new Set(vals).size === 5;
+  let sHigh = vals[0];
+  if (!isStraight && vals[0] === 14 && vals[1] === 5 && vals[4] === 2) { isStraight = true; sHigh = 5; }
+  const freq = {};
+  vals.forEach(v => freq[v] = (freq[v] || 0) + 1);
+  const grp = Object.entries(freq).map(([v, c]) => [+v, c]).sort((a, b) => b[1] - a[1] || b[0] - a[0]);
+  const cnt = grp.map(g => g[1]), gv = grp.map(g => g[0]);
+  if (isFlush && isStraight) return sHigh === 14 ? {r:9, l:'Royal Flush',    tb:[14]} : {r:8, l:'Straight Flush',  tb:[sHigh]};
+  if (cnt[0] === 4)                               return {r:7, l:'Four of a Kind',  tb:gv};
+  if (cnt[0] === 3 && cnt[1] === 2)               return {r:6, l:'Full House',       tb:gv};
+  if (isFlush)                                    return {r:5, l:'Flush',            tb:vals};
+  if (isStraight)                                 return {r:4, l:'Straight',         tb:[sHigh]};
+  if (cnt[0] === 3)                               return {r:3, l:'Three of a Kind',  tb:gv};
+  if (cnt[0] === 2 && cnt[1] === 2)               return {r:2, l:'Two Pair',         tb:gv};
+  if (cnt[0] === 2)                               return {r:1, l:'Pair',             tb:gv};
+  return                                                 {r:0, l:'High Card',        tb:vals};
+}
+
+function cmpPokerHands(a, b) {
+  if (a.r !== b.r) return a.r > b.r ? 1 : -1;
+  for (let i = 0; i < Math.max(a.tb.length, b.tb.length); i++) {
+    if ((a.tb[i]||0) !== (b.tb[i]||0)) return (a.tb[i]||0) > (b.tb[i]||0) ? 1 : -1;
+  }
+  return 0;
+}
+
+function bestPokerHand(cards) {
+  if (cards.length === 5) return evalPokerHand(cards);
+  let best = null;
+  function pick(i, acc) {
+    if (acc.length === 5) { const ev = evalPokerHand(acc); if (!best || cmpPokerHands(ev, best) > 0) best = ev; return; }
+    for (let j = i; j < cards.length; j++) pick(j + 1, [...acc, cards[j]]);
+  }
+  pick(0, []);
+  return best;
+}
 
 // ============================================================
 //  SIMULATIONS
@@ -1561,6 +1757,73 @@ const Sims = {
         }
         return wins;
       },
+    };
+  })(),
+
+  // ---- POKER ----
+  poker: (() => {
+    function mkSim(key, holeP, holeD, commN) {
+      let S = { rounds: 0, score: 0, phase: 'idle' };
+      const $  = id => document.getElementById(id);
+      const sh = (id, h) => { const e = $(id); if (e) e.innerHTML = h; };
+
+      function init() {
+        S = { rounds: 0, score: 0, phase: 'idle' };
+        sh('pk-rounds', '0'); sh('pk-score', '0');
+        sh('pk-player-hand', ''); sh('pk-dealer-hand', ''); sh('pk-comm-hand', '');
+        sh('pk-player-rank', ''); sh('pk-dealer-rank', '');
+        sh('pk-quiz', ''); sh('pk-result', '');
+      }
+
+      function deal() {
+        if (S.phase === 'quiz') return;
+        S.rounds++;
+        sh('pk-rounds', S.rounds);
+        const deck = createDeck(1);
+        S.pH = deck.splice(0, holeP);
+        S.dH = deck.splice(0, holeD);
+        S.cH = deck.splice(0, commN);
+        sh('pk-player-hand', S.pH.map(c => cardHTML(c)).join(''));
+        sh('pk-dealer-hand', S.dH.map(c => cardHTML(c)).join(''));
+        sh('pk-comm-hand',   S.cH.map(c => cardHTML(c)).join(''));
+        sh('pk-player-rank', ''); sh('pk-dealer-rank', '');
+        sh('pk-result', '');
+        sh('pk-quiz', `<div class="pk-quiz-btns">
+          <button class="btn-pk btn-pk-player" onclick="Sims.poker.${key}.answer('player')">PLAYER WINS</button>
+          <button class="btn-pk btn-pk-tie"    onclick="Sims.poker.${key}.answer('tie')">TIE</button>
+          <button class="btn-pk btn-pk-dealer" onclick="Sims.poker.${key}.answer('dealer')">DEALER WINS</button>
+        </div>`);
+        const b = $('pk-start-btn');
+        if (b) { b.textContent = 'DEAL'; b.disabled = true; }
+        S.phase = 'quiz';
+      }
+
+      function answer(choice) {
+        if (S.phase !== 'quiz') return;
+        S.phase = 'done';
+        const pEv = bestPokerHand([...S.pH, ...S.cH]);
+        const dEv = bestPokerHand([...S.dH, ...S.cH]);
+        const cmp = cmpPokerHands(pEv, dEv);
+        const winner = cmp > 0 ? 'player' : cmp < 0 ? 'dealer' : 'tie';
+        const ok = choice === winner;
+        if (ok) S.score++;
+        sh('pk-score', S.score);
+        sh('pk-player-rank', `<span class="pk-rank-lbl">${pEv.l}</span>`);
+        sh('pk-dealer-rank',  `<span class="pk-rank-lbl">${dEv.l}</span>`);
+        const wText = winner === 'player' ? 'PLAYER WINS' : winner === 'dealer' ? 'DEALER WINS' : 'TIE';
+        sh('pk-result', `<div class="pk-result-msg ${ok ? 'pk-ok' : 'pk-wrong'}">${ok ? '✓' : '✗'} ${ok ? 'CORRECT' : 'WRONG'} — ${wText}</div>`);
+        sh('pk-quiz', '');
+        const b = $('pk-start-btn');
+        if (b) { b.textContent = 'NEXT'; b.disabled = false; b.onclick = () => Sims.poker[key].deal(); }
+      }
+
+      return { init, deal, answer };
+    }
+
+    return {
+      isp: mkSim('isp', 5, 5, 0),
+      tcp: mkSim('tcp', 3, 3, 2),
+      thp: mkSim('thp', 2, 2, 5),
     };
   })(),
 };
