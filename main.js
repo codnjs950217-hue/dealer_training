@@ -220,7 +220,7 @@ const Views = {
           <button class="bac-start-top-btn" id="bac-draw-btn" onclick="Sims.baccarat.deal()">START</button>
         </div>
         <div id="bac-win-header" class="bac-win-header"></div>
-        <div class="bac-btn-cluster">
+        <div class="bac-btn-cluster bac-btn-cluster-quiz">
           <div class="bac-shoe-spacer"></div>
           <div class="bac-bclust-side" id="bac-b-btn-top"></div>
           <div class="bac-bclust-mid" id="bac-tie-btn"></div>
