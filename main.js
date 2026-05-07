@@ -1241,12 +1241,12 @@ const Sims = {
   // ---- BACCARAT PAY SIM ----
   baccaratPay: (() => {
     const COMM_CHIPS = [
-      { key: '100M', label: '1억', val: 100_000_000, bg: '#c62828', fg: '#fff'    },
-      { key: '10M',  label: '1천', val:  10_000_000, bg: '#1565c0', fg: '#fff'    },
-      { key: '1M',   label: '1백', val:   1_000_000, bg: '#fdd835', fg: '#1a1a1a' },
-      { key: '100K', label: '1십', val:     100_000, bg: '#212121', fg: '#fff'    },
-      { key: '10K',  label: '1만', val:      10_000, bg: '#2e7d32', fg: '#fff'    },
-      { key: '5K',   label: '5천', val:       5_000, bg: '#b5176b', fg: '#fff'    },
+      { key: '100M', val: 100_000_000, bg: '#c62828', fg: '#fff'    },
+      { key: '10M',  val:  10_000_000, bg: '#1565c0', fg: '#fff'    },
+      { key: '1M',   val:   1_000_000, bg: '#fdd835', fg: '#1a1a1a' },
+      { key: '100K', val:     100_000, bg: '#212121', fg: '#fff'    },
+      { key: '10K',  val:      10_000, bg: '#2e7d32', fg: '#fff'    },
+      { key: '5K',   val:       5_000, bg: '#b5176b', fg: '#fff'    },
     ];
     // Betting chips: min 100K
     const BET_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[2], COMM_CHIPS[1]]; // 100K, 1M, 10M
@@ -1286,7 +1286,7 @@ const Sims = {
           const chip = COMM_CHIPS.find(c => c.key === key);
           for (let j = 0; j < cnt; j++) {
             const newGroup = j === 0 && groupIdx > 0;
-            discs += `<div class="bpay-chip-disc${newGroup ? ' new-denom' : ''}" style="background:${chip.bg};color:${chip.fg}">${chip.label}</div>`;
+            discs += `<div class="bpay-chip-disc${newGroup ? ' new-denom' : ''}" style="background:${chip.bg};color:${chip.fg}">${chip.key}</div>`;
           }
         });
         bAmt.innerHTML = `<div class="bpay-chip-spread">${discs}</div>`;
@@ -1312,7 +1312,7 @@ const Sims = {
           if (isNewDenom)  cls += ' spread-gap';
           else if (isGroup5Gap) cls += ' spread-gap5';
         }
-        return `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${c.label}</div>`;
+        return `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`;
       }).join('');
       section.innerHTML = `<div class="spread-row">${discs}</div>`;
     }
@@ -1327,7 +1327,7 @@ const Sims = {
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
             <div class="comm-slot">
-              <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.label}</div>
+              <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
               <div class="comm-5k-count" id="bpay-cd-${c.key}">0</div>
               <input type="hidden" id="bpay-ci-${c.key}" value="0">
               <div class="comm-5k-btns">
