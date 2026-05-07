@@ -846,6 +846,7 @@ body {
 .bac-win-sub {
   font-size: 1.05rem; font-weight: 800; letter-spacing: 3px;
   text-shadow: 0 0 20px currentColor;
+  background: none; border: none;
 }
 .bac-win-sub.banker-win { color: #FFD700; }
 .bac-win-sub.player-win { color: #FF2020; }
@@ -1654,11 +1655,7 @@ body {
 }
 .btn-bac-special {
   font-size: .75rem !important;
-  padding: .2rem .5rem !important;
-  background: none !important;
-  border: none !important;
-  opacity: .75;
-  letter-spacing: 1px;
+  padding: .38rem .75rem !important;
 }
 .btn-bac-super7 {
   background: #1a1a3a; color: #b8a0ff;
