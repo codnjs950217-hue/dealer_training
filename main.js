@@ -992,7 +992,7 @@ const Sims = {
     }
 
     function getSpecialLabel(side) {
-      const colors = { player: '#ff4444', banker: '#FFD700', tie: '#6ec864' };
+      const colors = { player: '#FF2020', banker: '#FFD700', tie: '#6ec864' };
       const color  = colors[side];
       if (side === 'tie') return { lines: ['TIE'], color };
       const pp = pts(S.ph), bp = pts(S.bh);
