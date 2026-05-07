@@ -843,6 +843,13 @@ body {
 .bac-win-announce.banker-win { color: #FFD700; }
 .bac-win-announce.player-win { color: #FF2020; }
 .bac-win-announce.tie-win    { color: #6ec864; }
+.bac-win-sub {
+  font-size: 1.05rem; font-weight: 800; letter-spacing: 3px;
+  text-shadow: 0 0 20px currentColor;
+}
+.bac-win-sub.banker-win { color: #FFD700; }
+.bac-win-sub.player-win { color: #FF2020; }
+.bac-win-sub.tie-win    { color: #6ec864; }
 .bac-win-sep { color: rgba(255,255,255,.35); font-size: 1.2rem; }
 
 /* announce quiz: no-box text options with dividers */
@@ -1016,13 +1023,18 @@ body {
 }
 .btn-bac-tie:hover { background: #0e4a0e; }
 .btn-bac-draw {
-  background: #1c3555; color: var(--text);
-  border: 1px solid #2a4f80;
+  background: rgba(90,210,40,.18); color: #aaff55;
+  border: 1px solid rgba(110,230,50,.55);
   padding: .55rem 1.1rem; border-radius: var(--r);
   font-weight: 700; cursor: pointer; font-size: .875rem;
   transition: all .18s; white-space: nowrap;
 }
-.btn-bac-draw:hover { background: #24406a; }
+.btn-bac-draw:hover { background: rgba(90,210,40,.30); }
+.bac-draw-slot-btn {
+  width: 100%; padding: .6rem .1rem;
+  font-size: .78rem; line-height: 1.35; text-align: center;
+  white-space: normal;
+}
 
 /* ---- BACCARAT: PAY PANEL ---- */
 
