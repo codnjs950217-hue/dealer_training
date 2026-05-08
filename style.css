@@ -1569,11 +1569,15 @@ body {
 .spread-disc.spread-gap  { margin-left: 8px; }
 .spread-disc.spread-gap5 { margin-left: 5px; }
 
-/* Chip button counter */
-.comm-5k-count {
-  font-size: 1.15rem; font-weight: 900;
-  color: #f9a8d4; line-height: 1; text-align: center;
-  min-width: 20px;
+/* Chip button counter — hidden */
+.comm-5k-count { display: none; }
+
+/* Order warning */
+.bpay-order-warn {
+  text-align: center; font-size: .78rem; font-weight: 800;
+  color: #ff6b6b; letter-spacing: .5px;
+  background: rgba(255,60,60,.15); border: 1px solid rgba(255,60,60,.35);
+  border-radius: 5px; padding: .22rem .5rem; margin-bottom: .3rem;
 }
 .comm-5k-btns {
   display: flex; flex-direction: row; gap: .1rem; width: 100%;

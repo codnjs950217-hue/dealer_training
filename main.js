@@ -1606,6 +1606,24 @@ const Sims = {
       }, 0);
     }
 
+    function neededKeysForTarget(target) {
+      const needed = new Set();
+      let rem = target;
+      for (const c of COMM_CHIPS) {
+        if (rem >= c.val) { needed.add(c.key); rem -= Math.floor(rem / c.val) * c.val; }
+      }
+      return needed;
+    }
+
+    let warnTimer = null;
+    function showOrderWarning() {
+      const w = $('bpay-order-warn');
+      if (!w) return;
+      w.style.display = 'block';
+      clearTimeout(warnTimer);
+      warnTimer = setTimeout(() => { w.style.display = 'none'; }, 1800);
+    }
+
     function renderPositions() {
       S.bets.forEach((bet, i) => {
         const idx = i + 1;
@@ -1662,11 +1680,11 @@ const Sims = {
       panel.style.display = 'block';
       if (spread) { spread.style.display = 'flex'; spread.innerHTML = ''; }
       panel.innerHTML = `<div class="comm-tray">
+        <div id="bpay-order-warn" class="bpay-order-warn" style="display:none">저액 칩스부터 세팅하세요</div>
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
             <div class="comm-slot">
               <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
-              <div class="comm-5k-count" id="bpay-cd-${c.key}">0</div>
               <input type="hidden" id="bpay-ci-${c.key}" value="0">
               <div class="comm-5k-btns">
                 <button class="comm-5k-btn" onclick="Sims.baccaratPay.addChip('${c.key}',5)">+5개</button>
@@ -1753,30 +1771,34 @@ const Sims = {
       },
 
       addChip(key, n) {
+        const chip = COMM_CHIPS.find(c => c.key === key);
+        if (!chip) return;
+        const needed = neededKeysForTarget(S.commTarget);
+        const lowerUnset = COMM_CHIPS.some(c =>
+          c.val < chip.val &&
+          needed.has(c.key) &&
+          (parseInt($(`bpay-ci-${c.key}`)?.value) || 0) === 0
+        );
+        if (lowerUnset) { showOrderWarning(); return; }
         const inp  = $(`bpay-ci-${key}`);
-        const disp = $(`bpay-cd-${key}`);
-        if (!inp || !disp) return;
-        const next = (parseInt(inp.value) || 0) + n;
-        inp.value = next;
-        disp.textContent = next;
+        if (!inp) return;
+        inp.value = (parseInt(inp.value) || 0) + n;
         updateSpread();
       },
 
       resetChip(key) {
-        const inp  = $(`bpay-ci-${key}`);
-        const disp = $(`bpay-cd-${key}`);
-        if (inp)  inp.value = '0';
-        if (disp) disp.textContent = '0';
+        const inp = $(`bpay-ci-${key}`);
+        if (inp) inp.value = '0';
         updateSpread();
       },
 
       resetAll() {
         COMM_CHIPS.forEach(c => {
-          const inp  = $(`bpay-ci-${c.key}`);
-          const disp = $(`bpay-cd-${c.key}`);
-          if (inp)  inp.value = '0';
-          if (disp) disp.textContent = '0';
+          const inp = $(`bpay-ci-${c.key}`);
+          if (inp) inp.value = '0';
         });
+        const w = $('bpay-order-warn');
+        if (w) w.style.display = 'none';
         updateSpread();
       },
 
@@ -1787,10 +1809,8 @@ const Sims = {
         if (entered !== S.commTarget) {
           showMistake(() => {
             COMM_CHIPS.forEach(c => {
-              const inp  = $(`bpay-ci-${c.key}`);
-              const disp = $(`bpay-cd-${c.key}`);
-              if (inp)  inp.value = '0';
-              if (disp) disp.textContent = '0';
+              const inp = $(`bpay-ci-${c.key}`);
+              if (inp) inp.value = '0';
             });
             updateSpread();
           });
