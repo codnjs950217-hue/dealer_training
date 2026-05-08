@@ -1683,6 +1683,19 @@ body {
   font-size: .75rem !important;
   padding: .38rem .75rem !important;
 }
+.bac-pair-btn {
+  font-size: .68rem !important;
+  line-height: 1.35; text-align: center;
+  padding: .38rem .65rem !important;
+  white-space: normal !important;
+  width: 100%;
+}
+.bac-pair-btn.bac-pair-taken {
+  background: rgba(0,0,0,.65) !important;
+  border-color: rgba(255,255,255,.15) !important;
+  color: rgba(255,255,255,.3) !important;
+  text-decoration: line-through;
+}
 .btn-bac-super7 {
   background: #1a1a3a; color: #b8a0ff;
   border: 1px solid rgba(180,150,255,.5);

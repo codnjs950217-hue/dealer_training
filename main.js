@@ -1170,6 +1170,47 @@ const Sims = {
       { value: 1000,      label: '1천',   color: '#7f8c8d' },
     ];
 
+    function createBacDeck() {
+      const tens = new Set(['10','J','Q','K']);
+      const d = [];
+      for (let i = 0; i < 8; i++)
+        for (const s of SUITS)
+          for (const r of RANKS)
+            if (!tens.has(r) || i < 4)
+              d.push({ suit: s, rank: r, red: s === '♥' || s === '♦' });
+      return shuffle(d);
+    }
+
+    function mc(r, s) { return { rank: r, suit: s, red: s === '♥' || s === '♦' }; }
+
+    // init: [P1,P2,B1,B2], extra: B3 for player7-with-banker-draw, P3 for banker6, null for super7
+    const BSCEN_P7 = [
+      { init: [['7','♠'],['K','♥'],['2','♣'],['3','♦']], extra: ['Q','♠'] },  // pp=7 stand, bp=5→draw Q→5
+      { init: [['7','♥'],['J','♦'],['A','♠'],['3','♣']], extra: ['K','♦'] },  // pp=7 stand, bp=4→draw K→4
+      { init: [['3','♣'],['4','♦'],['2','♥'],['2','♠']], extra: ['J','♣'] },  // pp=7 stand, bp=4→draw J→4
+      { init: [['5','♦'],['2','♣'],['A','♥'],['3','♠']], extra: ['K','♣'] },  // pp=7 stand, bp=4→draw K→4
+      { init: [['7','♦'],['K','♠'],['6','♣'],['Q','♥']], extra: null },       // pp=7, bp=6 both stand → super7
+      { init: [['7','♣'],['J','♥'],['6','♦'],['10','♠']], extra: null },      // pp=7, bp=6 both stand → super7
+    ];
+    const BSCEN_B6 = [
+      { init: [['A','♠'],['2','♥'],['3','♣'],['3','♦']], extra: ['J','♠'] },  // pp=3→J(0)=3, bp=6 stand
+      { init: [['2','♠'],['A','♥'],['4','♣'],['2','♦']], extra: ['K','♠'] },  // pp=3→K(0)=3, bp=6 stand
+      { init: [['3','♠'],['A','♥'],['2','♣'],['4','♦']], extra: ['Q','♦'] },  // pp=4→Q(0)=4, bp=6 stand
+      { init: [['2','♣'],['2','♦'],['3','♥'],['3','♠']], extra: ['10','♣'] }, // pp=4→10(0)=4, bp=6 stand
+      { init: [['A','♣'],['4','♦'],['2','♥'],['4','♠']], extra: ['J','♦'] },  // pp=5→J(0)=5, bp=6 stand
+    ];
+
+    function pushForcedScenario() {
+      const list = Math.random() < 0.5 ? BSCEN_P7 : BSCEN_B6;
+      const s = list[Math.floor(Math.random() * list.length)];
+      const [p1, p2, b1, b2] = s.init.map(c => mc(...c));
+      if (s.extra) {
+        S.deck.push(mc(...s.extra), b2, p1, b1, p2);
+      } else {
+        S.deck.push(b2, p1, b1, p2);
+      }
+    }
+
     let S = {};
     let flipId = 0;
 
@@ -1309,10 +1350,10 @@ const Sims = {
     function showInitialQuiz() {
       const b = winBtns('initial');
       setBtn('bac-b-btn-top', b.banker);
-      setBtn('bac-b-btn-bot', '');
+      setBtn('bac-b-btn-bot', `<button class="btn-bac-banker bac-inline-btn bac-pair-btn" onclick="this.classList.toggle('bac-pair-taken')">BANKER<br>PAIR TAKE</button>`);
       setBtn('bac-tie-btn', b.tie);
       setBtn('bac-p-btn-top', b.player);
-      setBtn('bac-p-btn-bot', '');
+      setBtn('bac-p-btn-bot', `<button class="btn-bac-player bac-inline-btn bac-pair-btn" onclick="this.classList.toggle('bac-pair-taken')">PLAYER<br>PAIR TAKE</button>`);
       setBtn('bac-bh3', `<button class="btn-bac-draw bac-draw-slot-btn" onclick="Sims.baccarat.quizInitial('draw-banker')">BANKER<br>DRAW</button>`);
       setBtn('bac-ph3', `<button class="btn-bac-draw bac-draw-slot-btn" onclick="Sims.baccarat.quizInitial('draw-player')">PLAYER<br>DRAW</button>`);
       msg('Choose action:');
@@ -1445,13 +1486,13 @@ const Sims = {
 
     return {
       init() {
-        S = { deck: createDeck(8), ph: [], bh: [], pThird: null,
+        S = { deck: createBacDeck(), ph: [], bh: [], pThird: null,
               rounds: 0, score: 0, winner: null, bets: [] };
         enableDraw();
       },
 
       deal() {
-        if (S.deck.length < 20) S.deck = createDeck(8);
+        if (S.deck.length < 20) S.deck = createBacDeck();
         S.ph = []; S.bh = []; S.pThird = null; S.winner = null;
         S.rounds++;
         disableDraw();
@@ -1471,6 +1512,7 @@ const Sims = {
         S.bets = generateBets();
         renderBets();
 
+        if (Math.random() < 0.4) pushForcedScenario();
         const cards = [S.deck.pop(), S.deck.pop(), S.deck.pop(), S.deck.pop()];
         // cards[0]=P2(pos4), cards[1]=B1(pos2), cards[2]=P1(pos3), cards[3]=B2(pos1)
         S.ph = [cards[2], cards[0]]; // [P1, P2]
