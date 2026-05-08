@@ -837,7 +837,7 @@ body {
 
 .bac-win-announce {
   display: block; text-align: center;
-  font-size: 1.5rem; font-weight: 900; letter-spacing: 3px;
+  font-size: 2rem; font-weight: 900; letter-spacing: 3px;
   white-space: nowrap; line-height: 1.2;
   text-shadow: 0 0 28px currentColor;
   background: none; border: none; padding: 0;
@@ -850,7 +850,7 @@ body {
 .bac-win-announce.player-win { color: #FF2020; }
 .bac-win-announce.tie-win    { color: #6ec864; }
 .bac-win-sub {
-  font-size: 1.05rem; font-weight: 800; letter-spacing: 3px;
+  font-size: 1.3rem; font-weight: 800; letter-spacing: 3px;
   text-shadow: 0 0 20px currentColor;
   background: none; border: none;
 }

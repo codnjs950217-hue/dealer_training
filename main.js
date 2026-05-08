@@ -1441,7 +1441,7 @@ const Sims = {
       setTimeout(() => {
         el.classList.replace('bac-wf-in', 'bac-wf-out');
         setTimeout(() => { el.className = 'bac-winner-flash'; }, 700);
-      }, 1200);
+      }, 2000);
     }
 
     function doPlayerDraw(onDone) {
