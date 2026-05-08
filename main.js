@@ -408,36 +408,37 @@ const Views = {
     </div>`,
 
   thpSim: () => `
-    <div class="sim-page poker-sim">
+    <div class="sim-page thpc-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('poker')">← Back</button>
-        <h2>🂡 THP — Texas Hold'em</h2>
+        <h2>🂡 THP — 승자 판별 훈련</h2>
         <div class="sim-stats">
-          <span>Rounds: <strong id="pk-rounds">0</strong></span>
-          <span>Score: <strong id="pk-score">0</strong></span>
+          <span>라운드: <strong id="thpc-rounds">0</strong></span>
+          <span>정답: <strong id="thpc-score">0</strong></span>
         </div>
       </div>
-      <div class="poker-table">
-        <div class="pk-zone pk-player-zone">
-          <div class="pk-zone-label pk-label-player">PLAYER</div>
-          <div class="pk-hand" id="pk-player-hand"></div>
-          <div class="pk-hand-rank" id="pk-player-rank"></div>
+
+      <div class="thpc-mode-row">
+        <button id="thpc-btn-random"  class="thpc-mode-btn active" onclick="Sims.poker.thp.setMode('random')">🎲 랜덤</button>
+        <button id="thpc-btn-curated" class="thpc-mode-btn"        onclick="Sims.poker.thp.setMode('curated')">📚 집중 연습</button>
+      </div>
+
+      <div id="thpc-scenario-info"></div>
+
+      <div class="thpc-board">
+        <div class="thpc-community-section">
+          <div class="thpc-section-label">COMMUNITY BOARD</div>
+          <div class="thpc-comm-cards" id="thpc-comm-cards"></div>
         </div>
-        <div class="pk-community-row">
-          <div class="pk-comm-label">BOARD</div>
-          <div class="pk-hand pk-comm-hand" id="pk-comm-hand"></div>
-        </div>
-        <div class="pk-mid-row">
-          <div class="pk-quiz-wrap" id="pk-quiz"></div>
-          <div class="pk-result-wrap" id="pk-result"></div>
-        </div>
-        <div class="pk-zone pk-dealer-zone">
-          <div class="pk-hand-rank" id="pk-dealer-rank"></div>
-          <div class="pk-hand" id="pk-dealer-hand"></div>
-          <div class="pk-zone-label pk-label-dealer">DEALER</div>
-        </div>
+
+        <div class="thpc-players-row" id="thpc-players"></div>
+
+        <div id="thpc-split-btn"></div>
+        <div id="thpc-result"></div>
+        <div id="thpc-explain"></div>
+
         <div class="pk-start-bar">
-          <button id="pk-start-btn" class="pk-start-btn" onclick="Sims.poker.thp.deal()">DEAL</button>
+          <button id="thpc-deal-btn" class="pk-start-btn" onclick="Sims.poker.thp.deal()">DEAL</button>
         </div>
       </div>
     </div>`,
@@ -644,6 +645,147 @@ function bestPokerHand(cards) {
   pick(0, []);
   return best;
 }
+
+function bestPokerHandCards(cards) {
+  let bestEv = null, bestCards = null;
+  function pick(i, acc) {
+    if (acc.length === 5) {
+      const ev = evalPokerHand(acc);
+      if (!bestEv || cmpPokerHands(ev, bestEv) > 0) { bestEv = ev; bestCards = [...acc]; }
+      return;
+    }
+    for (let j = i; j < cards.length; j++) pick(j + 1, [...acc, cards[j]]);
+  }
+  pick(0, []);
+  return { ev: bestEv, bestCards };
+}
+
+function mkCard(rank, suit) {
+  return { rank, suit, red: suit === '♥' || suit === '♦' };
+}
+
+const THP_CURATED = [
+  {
+    title: '키커 결정전',
+    difficulty: 'medium',
+    desc: '셋 다 킹 원페어 — 키커로 승자를 가려보세요',
+    community: [mkCard('K','♠'), mkCard('7','♦'), mkCard('2','♣'), mkCard('9','♥'), mkCard('3','♠')],
+    players: [
+      { name: '플레이어 1', cards: [mkCard('K','♥'), mkCard('A','♦')] },
+      { name: '플레이어 2', cards: [mkCard('K','♦'), mkCard('Q','♠')] },
+      { name: '플레이어 3', cards: [mkCard('5','♣'), mkCard('6','♥')] },
+      { name: '딜러',      cards: [mkCard('K','♣'), mkCard('J','♠')] },
+    ]
+  },
+  {
+    title: '보드 스트레이트 스플릿',
+    difficulty: 'hard',
+    desc: '커뮤니티 카드만으로 최강 스트레이트 완성 — 모두 스플릿일까요?',
+    community: [mkCard('A','♠'), mkCard('K','♦'), mkCard('Q','♣'), mkCard('J','♥'), mkCard('10','♠')],
+    players: [
+      { name: '플레이어 1', cards: [mkCard('2','♥'), mkCard('3','♦')] },
+      { name: '플레이어 2', cards: [mkCard('5','♣'), mkCard('6','♠')] },
+      { name: '플레이어 3', cards: [mkCard('4','♥'), mkCard('7','♣')] },
+      { name: '딜러',      cards: [mkCard('8','♦'), mkCard('9','♠')] },
+    ]
+  },
+  {
+    title: '플러시 키커 비교',
+    difficulty: 'medium',
+    desc: '세 명이 플러시 — 두 번째 카드로 순위를 가려보세요',
+    community: [mkCard('A','♥'), mkCard('J','♥'), mkCard('7','♥'), mkCard('3','♥'), mkCard('2','♣')],
+    players: [
+      { name: '플레이어 1', cards: [mkCard('K','♥'), mkCard('5','♦')] },
+      { name: '플레이어 2', cards: [mkCard('Q','♥'), mkCard('6','♠')] },
+      { name: '플레이어 3', cards: [mkCard('4','♦'), mkCard('8','♦')] },
+      { name: '딜러',      cards: [mkCard('10','♥'), mkCard('4','♠')] },
+    ]
+  },
+  {
+    title: '풀하우스 순위',
+    difficulty: 'hard',
+    desc: '두 명이 풀하우스 — 쓰리오브어카인드가 높은 쪽이 이깁니다',
+    community: [mkCard('8','♠'), mkCard('8','♦'), mkCard('K','♣'), mkCard('K','♥'), mkCard('5','♠')],
+    players: [
+      { name: '플레이어 1', cards: [mkCard('8','♣'), mkCard('3','♦')] },
+      { name: '플레이어 2', cards: [mkCard('K','♦'), mkCard('2','♠')] },
+      { name: '플레이어 3', cards: [mkCard('A','♦'), mkCard('Q','♣')] },
+      { name: '딜러',      cards: [mkCard('J','♠'), mkCard('10','♦')] },
+    ]
+  },
+  {
+    title: '휠 스트레이트',
+    difficulty: 'medium',
+    desc: 'A-2-3-4-5 = 5 하이 스트레이트 (휠) — A가 작은 숫자로 쓰입니다',
+    community: [mkCard('A','♠'), mkCard('2','♦'), mkCard('3','♣'), mkCard('9','♥'), mkCard('K','♠')],
+    players: [
+      { name: '플레이어 1', cards: [mkCard('4','♥'), mkCard('5','♦')] },
+      { name: '플레이어 2', cards: [mkCard('J','♣'), mkCard('Q','♠')] },
+      { name: '플레이어 3', cards: [mkCard('6','♣'), mkCard('7','♦')] },
+      { name: '딜러',      cards: [mkCard('4','♣'), mkCard('8','♠')] },
+    ]
+  },
+  {
+    title: '카운터페이트 (족보 무력화)',
+    difficulty: 'hard',
+    desc: '보드의 AA+KK가 최강 두 쌍 — 홀카드의 페어는 의미 없고 키커로만 순위가 결정됩니다',
+    community: [mkCard('A','♠'), mkCard('A','♦'), mkCard('K','♣'), mkCard('K','♥'), mkCard('7','♠')],
+    players: [
+      { name: '플레이어 1', cards: [mkCard('7','♥'), mkCard('6','♦')] },
+      { name: '플레이어 2', cards: [mkCard('2','♣'), mkCard('3','♠')] },
+      { name: '플레이어 3', cards: [mkCard('Q','♦'), mkCard('J','♠')] },
+      { name: '딜러',      cards: [mkCard('10','♣'), mkCard('9','♦')] },
+    ]
+  },
+  {
+    title: '포카드 키커',
+    difficulty: 'medium',
+    desc: '보드에 포카드 완성 — 홀카드 높은 쪽이 승리',
+    community: [mkCard('9','♠'), mkCard('9','♦'), mkCard('9','♣'), mkCard('9','♥'), mkCard('2','♠')],
+    players: [
+      { name: '플레이어 1', cards: [mkCard('A','♦'), mkCard('K','♦')] },
+      { name: '플레이어 2', cards: [mkCard('K','♣'), mkCard('Q','♠')] },
+      { name: '플레이어 3', cards: [mkCard('Q','♦'), mkCard('J','♠')] },
+      { name: '딜러',      cards: [mkCard('J','♦'), mkCard('7','♠')] },
+    ]
+  },
+  {
+    title: '스트레이트 플러시 vs 포카드',
+    difficulty: 'hard',
+    desc: '스트레이트 플러시(8위)는 포카드(7위)보다 강합니다 — 희귀 상황 숙지',
+    community: [mkCard('5','♥'), mkCard('6','♥'), mkCard('7','♥'), mkCard('7','♠'), mkCard('7','♦')],
+    players: [
+      { name: '플레이어 1', cards: [mkCard('8','♥'), mkCard('9','♥')] },
+      { name: '플레이어 2', cards: [mkCard('7','♣'), mkCard('A','♠')] },
+      { name: '플레이어 3', cards: [mkCard('K','♦'), mkCard('Q','♠')] },
+      { name: '딜러',      cards: [mkCard('J','♦'), mkCard('10','♣')] },
+    ]
+  },
+  {
+    title: '투페어 키커',
+    difficulty: 'easy',
+    desc: '보드 투페어 상황 — 홀카드가 키커 역할',
+    community: [mkCard('J','♠'), mkCard('J','♦'), mkCard('8','♣'), mkCard('8','♥'), mkCard('2','♠')],
+    players: [
+      { name: '플레이어 1', cards: [mkCard('A','♦'), mkCard('3','♦')] },
+      { name: '플레이어 2', cards: [mkCard('K','♣'), mkCard('4','♠')] },
+      { name: '플레이어 3', cards: [mkCard('Q','♦'), mkCard('6','♠')] },
+      { name: '딜러',      cards: [mkCard('10','♠'), mkCard('9','♦')] },
+    ]
+  },
+  {
+    title: '스트레이트 높이 비교',
+    difficulty: 'easy',
+    desc: '모두 스트레이트이지만 가장 높은 끝 카드로 순위 결정',
+    community: [mkCard('5','♠'), mkCard('6','♦'), mkCard('7','♣'), mkCard('8','♥'), mkCard('K','♠')],
+    players: [
+      { name: '플레이어 1', cards: [mkCard('9','♣'), mkCard('10','♠')] },
+      { name: '플레이어 2', cards: [mkCard('4','♥'), mkCard('3','♦')] },
+      { name: '플레이어 3', cards: [mkCard('9','♦'), mkCard('J','♠')] },
+      { name: '딜러',      cards: [mkCard('A','♣'), mkCard('Q','♦')] },
+    ]
+  },
+];
 
 // ============================================================
 //  SIMULATIONS
@@ -1820,10 +1962,158 @@ const Sims = {
       return { init, deal, answer };
     }
 
+    function mkThpCompare() {
+      const $ = id => document.getElementById(id);
+      const sh = (id, h) => { const e = $(id); if (e) e.innerHTML = h; };
+      const NAMES = ['플레이어 1', '플레이어 2', '플레이어 3', '딜러'];
+
+      let S = { rounds: 0, score: 0, phase: 'idle', mode: 'random', curIdx: 0 };
+
+      function init() {
+        S = { rounds: 0, score: 0, phase: 'idle', mode: 'random', curIdx: 0 };
+        sh('thpc-rounds', '0'); sh('thpc-score', '0');
+        sh('thpc-comm-cards', ''); sh('thpc-players', '');
+        sh('thpc-split-btn', ''); sh('thpc-result', ''); sh('thpc-explain', '');
+        sh('thpc-scenario-info', '');
+        updateModeUI();
+        const btn = $('thpc-deal-btn');
+        if (btn) { btn.disabled = false; btn.textContent = 'DEAL'; }
+      }
+
+      function setMode(m) {
+        S.mode = m; S.curIdx = 0; S.phase = 'idle';
+        updateModeUI();
+        sh('thpc-scenario-info', ''); sh('thpc-comm-cards', ''); sh('thpc-players', '');
+        sh('thpc-split-btn', ''); sh('thpc-result', ''); sh('thpc-explain', '');
+        const btn = $('thpc-deal-btn');
+        if (btn) { btn.disabled = false; btn.textContent = 'DEAL'; }
+      }
+
+      function updateModeUI() {
+        const rb = $('thpc-btn-random'), cb = $('thpc-btn-curated');
+        if (rb) rb.classList.toggle('active', S.mode === 'random');
+        if (cb) cb.classList.toggle('active', S.mode === 'curated');
+      }
+
+      function deal() {
+        if (S.phase === 'quiz') return;
+        if (S.mode === 'random') dealRandom(); else dealCurated();
+      }
+
+      function dealRandom() {
+        S.rounds++; sh('thpc-rounds', S.rounds);
+        const deck = createDeck(1);
+        S.players = NAMES.map(name => ({ name, cards: [deck.pop(), deck.pop()] }));
+        S.comm = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
+        sh('thpc-scenario-info', '');
+        renderBoard();
+      }
+
+      function dealCurated() {
+        const sc = THP_CURATED[S.curIdx];
+        S.rounds++; sh('thpc-rounds', S.rounds);
+        S.players = sc.players.map(p => ({ name: p.name, cards: p.cards.map(c => ({...c})) }));
+        S.comm = sc.community.map(c => ({...c}));
+        const thisIdx = S.curIdx;
+        S.curIdx = (S.curIdx + 1) % THP_CURATED.length;
+        const diffMap = { easy: '쉬움', medium: '보통', hard: '어려움' };
+        sh('thpc-scenario-info', `
+          <div class="thpc-scenario-info-box">
+            <div class="thpc-scenario-header">
+              <span class="thpc-diff-badge thpc-diff-${sc.difficulty}">${diffMap[sc.difficulty]}</span>
+              <span class="thpc-scenario-title">${sc.title}</span>
+              <span class="thpc-scenario-count">${thisIdx + 1} / ${THP_CURATED.length}</span>
+            </div>
+            <div class="thpc-scenario-desc">${sc.desc}</div>
+          </div>`);
+        renderBoard();
+      }
+
+      function renderBoard() {
+        S.phase = 'quiz';
+        sh('thpc-result', ''); sh('thpc-explain', '');
+        sh('thpc-comm-cards', S.comm.map(c => cardHTML(c)).join(''));
+        sh('thpc-players', S.players.map((p, i) => `
+          <div class="thpc-player quiz-active" id="thpc-p${i}" onclick="Sims.poker.thp.answer(${i})">
+            <div class="thpc-player-name">${p.name}</div>
+            <div class="thpc-hole-cards">${p.cards.map(c => cardHTML(c)).join('')}</div>
+            <div id="thpc-reveal-${i}"></div>
+          </div>`).join(''));
+        sh('thpc-split-btn', `<div class="thpc-split-row">
+          <button class="btn-pk btn-pk-tie" onclick="Sims.poker.thp.answer('split')">🤝 스플릿 (동점)</button>
+        </div>`);
+        const btn = $('thpc-deal-btn');
+        if (btn) { btn.disabled = true; btn.textContent = 'DEAL'; }
+      }
+
+      function answer(choice) {
+        if (S.phase !== 'quiz') return;
+        S.phase = 'done';
+
+        const results = S.players.map((p, i) => {
+          const { ev, bestCards } = bestPokerHandCards([...p.cards, ...S.comm]);
+          return { name: p.name, idx: i, ev, bestCards };
+        });
+
+        const topEv = results.reduce((b, r) => !b || cmpPokerHands(r.ev, b) > 0 ? r.ev : b, null);
+        const winners = results.filter(r => cmpPokerHands(r.ev, topEv) === 0);
+        const isSplit = winners.length > 1;
+        const correct = isSplit ? 'split' : winners[0].idx;
+        const ok = choice === correct;
+        if (ok) S.score++;
+        sh('thpc-score', S.score);
+
+        results.forEach(r => {
+          const el = $(`thpc-p${r.idx}`);
+          if (!el) return;
+          el.onclick = null;
+          el.classList.remove('quiz-active');
+          const isWin = winners.some(w => w.idx === r.idx);
+          el.classList.add(isWin ? 'thpc-winner' : 'thpc-loser');
+          if (r.idx === choice) el.classList.add(ok ? 'thpc-pick-ok' : 'thpc-pick-wrong');
+          sh(`thpc-reveal-${r.idx}`, `
+            <div class="thpc-hand-reveal">
+              <div class="thpc-hand-name">${r.ev.l}</div>
+              <div class="thpc-best-label">최강 5장</div>
+              <div class="thpc-best-cards">${r.bestCards.map(c => cardHTML(c)).join('')}</div>
+            </div>`);
+        });
+
+        sh('thpc-split-btn', isSplit && choice !== 'split'
+          ? `<div class="thpc-split-row thpc-split-answer">🤝 스플릿이 정답이었습니다</div>`
+          : choice === 'split' ? `<div class="thpc-split-row">${ok ? '✓' : '✗'} 스플릿 선택</div>` : '');
+
+        const winnerNames = winners.map(w => w.name).join(', ');
+        sh('thpc-result', `<div class="pk-result-msg ${ok ? 'pk-ok' : 'pk-wrong'}">
+          ${ok ? '✓ 정답!' : '✗ 오답'} — ${isSplit ? `스플릿 (${winnerNames})` : `${winnerNames} 승리`}
+        </div>`);
+
+        const sorted = [...results].sort((a, b) => cmpPokerHands(b.ev, a.ev));
+        const allSame = results.every(r => r.ev.r === results[0].ev.r);
+        const kickerNote = (allSame && !isSplit)
+          ? `<div class="thpc-kicker-note">⚡ 모두 ${results[0].ev.l} — 키커(kicker)로 승자 결정</div>` : '';
+        const rankIcons = ['🥇','🥈','🥉',''];
+        const rows = sorted.map((r, rank) => {
+          const isWin = winners.some(w => w.idx === r.idx);
+          return `<div class="thpc-explain-entry ${isWin ? 'winner-entry' : 'loser-entry'}">
+            <span class="thpc-explain-icon">${rankIcons[Math.min(rank, 3)]}</span>
+            <span class="thpc-explain-name">${r.name}</span>
+            <span class="thpc-explain-hand">${r.ev.l}</span>
+          </div>`;
+        }).join('');
+        sh('thpc-explain', `<div class="thpc-explain-box">${kickerNote}${rows}</div>`);
+
+        const btn = $('thpc-deal-btn');
+        if (btn) { btn.disabled = false; btn.textContent = 'NEXT'; }
+      }
+
+      return { init, deal, answer, setMode };
+    }
+
     return {
       isp: mkSim('isp', 5, 5, 0),
       tcp: mkSim('tcp', 3, 3, 2),
-      thp: mkSim('thp', 2, 2, 5),
+      thp: mkThpCompare(),
     };
   })(),
 };
