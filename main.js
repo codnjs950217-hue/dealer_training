@@ -1354,11 +1354,11 @@ const Sims = {
       if (!tbl) return;
 
       if (!pPair && !bPair) {
-        const ov = document.createElement('div');
-        ov.className = 'mistake-overlay';
-        ov.innerHTML = '<div class="bac-no-pair-txt">NO PAIR</div>';
-        tbl.appendChild(ov);
-        setTimeout(() => ov.remove(), 1800);
+        const el = document.createElement('div');
+        el.className = 'bac-no-pair-notif';
+        el.textContent = 'NO PAIR';
+        tbl.appendChild(el);
+        setTimeout(() => el.remove(), 1800);
         return;
       }
       function spawnTake(anchorId, side, dur) {
