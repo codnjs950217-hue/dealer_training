@@ -1615,13 +1615,18 @@ const Sims = {
       return needed;
     }
 
-    let warnTimer = null;
     function showOrderWarning() {
-      const w = $('bpay-order-warn');
-      if (!w) return;
-      w.style.display = 'block';
-      clearTimeout(warnTimer);
-      warnTimer = setTimeout(() => { w.style.display = 'none'; }, 1800);
+      const tbl = document.querySelector('.baccarat-table');
+      if (!tbl) return;
+      const ov = document.createElement('div');
+      ov.className = 'mistake-overlay';
+      ov.innerHTML = '<div class="order-warn-text">저액 칩스부터 세팅하세요</div>';
+      tbl.appendChild(ov);
+      setTimeout(() => {
+        ov.remove();
+        COMM_CHIPS.forEach(c => { const inp = $(`bpay-ci-${c.key}`); if (inp) inp.value = '0'; });
+        updateSpread();
+      }, 1600);
     }
 
     function renderPositions() {
@@ -1680,7 +1685,6 @@ const Sims = {
       panel.style.display = 'block';
       if (spread) { spread.style.display = 'flex'; spread.innerHTML = ''; }
       panel.innerHTML = `<div class="comm-tray">
-        <div id="bpay-order-warn" class="bpay-order-warn" style="display:none">저액 칩스부터 세팅하세요</div>
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
             <div class="comm-slot">
@@ -1797,8 +1801,6 @@ const Sims = {
           const inp = $(`bpay-ci-${c.key}`);
           if (inp) inp.value = '0';
         });
-        const w = $('bpay-order-warn');
-        if (w) w.style.display = 'none';
         updateSpread();
       },
 

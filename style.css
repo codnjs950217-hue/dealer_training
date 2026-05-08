@@ -1572,12 +1572,13 @@ body {
 /* Chip button counter — hidden */
 .comm-5k-count { display: none; }
 
-/* Order warning */
-.bpay-order-warn {
-  text-align: center; font-size: .78rem; font-weight: 800;
-  color: #ff6b6b; letter-spacing: .5px;
-  background: rgba(255,60,60,.15); border: 1px solid rgba(255,60,60,.35);
-  border-radius: 5px; padding: .22rem .5rem; margin-bottom: .3rem;
+/* Order warning overlay text */
+.order-warn-text {
+  font-size: clamp(1.1rem, 3.5vw, 2rem);
+  font-weight: 900; color: #ff8c00;
+  text-shadow: 0 0 30px rgba(255,140,0,.9), 0 2px 8px rgba(0,0,0,.8);
+  letter-spacing: 1px; text-align: center; padding: 0 1rem;
+  animation: mistakePop .25s ease-out forwards;
 }
 .comm-5k-btns {
   display: flex; flex-direction: row; gap: .1rem; width: 100%;
