@@ -1347,7 +1347,40 @@ const Sims = {
       };
     }
 
+    function showPairNotif() {
+      const pPair = S.ph[0].rank === S.ph[1].rank;
+      const bPair = S.bh[0].rank === S.bh[1].rank;
+      const tbl = document.querySelector('.baccarat-table');
+      if (!tbl) return;
+
+      if (!pPair && !bPair) {
+        const ov = document.createElement('div');
+        ov.className = 'mistake-overlay';
+        ov.innerHTML = '<div class="bac-no-pair-txt">NO PAIR</div>';
+        tbl.appendChild(ov);
+        setTimeout(() => ov.remove(), 1800);
+        return;
+      }
+      function spawnTake(anchorId, side) {
+        const anchor = document.getElementById(anchorId);
+        const el = document.createElement('div');
+        el.className = 'bac-pair-take-notif bac-pt-' + side;
+        el.textContent = 'PAIR TAKE';
+        if (anchor) {
+          const tr = tbl.getBoundingClientRect();
+          const ar = anchor.getBoundingClientRect();
+          el.style.top  = (ar.top - tr.top) + 'px';
+          el.style.left = (ar.left - tr.left) + 'px';
+        }
+        tbl.appendChild(el);
+        setTimeout(() => el.remove(), 1800);
+      }
+      if (bPair && !pPair) spawnTake('bac-ph', 'player');
+      if (pPair && !bPair) spawnTake('bac-bh', 'banker');
+    }
+
     function showInitialQuiz() {
+      showPairNotif();
       const b = winBtns('initial');
       setBtn('bac-b-btn-top', b.banker);
       setBtn('bac-b-btn-bot', `<button class="btn-bac-banker bac-inline-btn bac-pair-btn" onclick="this.classList.toggle('bac-pair-taken')">BANKER<br>PAIR TAKE</button>`);

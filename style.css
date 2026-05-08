@@ -1696,6 +1696,30 @@ body {
   color: rgba(255,255,255,.3) !important;
   text-decoration: line-through;
 }
+
+/* Pair notification overlays */
+@keyframes pairTakeFade {
+  0%   { opacity: 0; transform: translateY(-8px); }
+  18%  { opacity: 1; transform: translateY(0); }
+  70%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+.bac-pair-take-notif {
+  position: absolute; z-index: 30;
+  font-size: clamp(.85rem, 2.5vw, 1.05rem);
+  font-weight: 900; letter-spacing: 2.5px;
+  pointer-events: none;
+  animation: pairTakeFade 1.8s ease-out forwards;
+}
+.bac-pt-banker { color: #c9a84c; text-shadow: 0 0 10px rgba(201,168,76,.8); }
+.bac-pt-player { color: #4ecdc4; text-shadow: 0 0 10px rgba(78,205,196,.8); }
+.bac-no-pair-txt {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 900; color: #fff;
+  text-shadow: 0 0 30px rgba(255,255,255,.5), 0 2px 8px rgba(0,0,0,.8);
+  letter-spacing: 5px;
+  animation: mistakePop .25s ease-out forwards;
+}
 .btn-bac-super7 {
   background: #1a1a3a; color: #b8a0ff;
   border: 1px solid rgba(180,150,255,.5);
