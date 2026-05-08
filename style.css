@@ -1706,13 +1706,20 @@ body {
 }
 .bac-pair-take-notif {
   position: absolute; z-index: 30;
-  font-size: clamp(.85rem, 2.5vw, 1.05rem);
   font-weight: 900; letter-spacing: 2.5px;
   pointer-events: none;
+}
+.bac-pt-banker {
+  font-size: clamp(.85rem, 2.5vw, 1.05rem);
+  color: #c9a84c; text-shadow: 0 0 10px rgba(201,168,76,.8);
   animation: pairTakeFade 1.8s ease-out forwards;
 }
-.bac-pt-banker { color: #c9a84c; text-shadow: 0 0 10px rgba(201,168,76,.8); }
-.bac-pt-player { color: #4ecdc4; text-shadow: 0 0 10px rgba(78,205,196,.8); }
+.bac-pt-player {
+  font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,.9), 0 0 14px rgba(255,255,255,.35);
+  animation: pairTakeFade 2.8s ease-out forwards;
+}
 .bac-no-pair-txt {
   font-size: clamp(2rem, 6vw, 3.5rem);
   font-weight: 900; color: #fff;

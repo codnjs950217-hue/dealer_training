@@ -1361,7 +1361,7 @@ const Sims = {
         setTimeout(() => ov.remove(), 1800);
         return;
       }
-      function spawnTake(anchorId, side) {
+      function spawnTake(anchorId, side, dur) {
         const anchor = document.getElementById(anchorId);
         const el = document.createElement('div');
         el.className = 'bac-pair-take-notif bac-pt-' + side;
@@ -1373,20 +1373,20 @@ const Sims = {
           el.style.left = (ar.left - tr.left) + 'px';
         }
         tbl.appendChild(el);
-        setTimeout(() => el.remove(), 1800);
+        setTimeout(() => el.remove(), dur);
       }
-      if (bPair && !pPair) spawnTake('bac-ph', 'player');
-      if (pPair && !bPair) spawnTake('bac-bh', 'banker');
+      if (bPair && !pPair) spawnTake('bac-p-btn-top', 'player', 2800);
+      if (pPair && !bPair) spawnTake('bac-bh', 'banker', 1800);
     }
 
     function showInitialQuiz() {
       showPairNotif();
       const b = winBtns('initial');
       setBtn('bac-b-btn-top', b.banker);
-      setBtn('bac-b-btn-bot', `<button class="btn-bac-banker bac-inline-btn bac-pair-btn" onclick="this.classList.toggle('bac-pair-taken')">BANKER<br>PAIR TAKE</button>`);
+      setBtn('bac-b-btn-bot', '');
       setBtn('bac-tie-btn', b.tie);
       setBtn('bac-p-btn-top', b.player);
-      setBtn('bac-p-btn-bot', `<button class="btn-bac-player bac-inline-btn bac-pair-btn" onclick="this.classList.toggle('bac-pair-taken')">PLAYER<br>PAIR TAKE</button>`);
+      setBtn('bac-p-btn-bot', '');
       setBtn('bac-bh3', `<button class="btn-bac-draw bac-draw-slot-btn" onclick="Sims.baccarat.quizInitial('draw-banker')">BANKER<br>DRAW</button>`);
       setBtn('bac-ph3', `<button class="btn-bac-draw bac-draw-slot-btn" onclick="Sims.baccarat.quizInitial('draw-player')">PLAYER<br>DRAW</button>`);
       msg('Choose action:');
