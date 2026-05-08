@@ -1419,7 +1419,6 @@ body {
 }
 .bpay-oval.has-bet {
   box-shadow: 0 0 12px rgba(255,255,255,.28);
-  border-color: #fff;
 }
 .bpay-oval-lbl {
   position: absolute; inset: 0;
