@@ -1502,6 +1502,7 @@ body {
 .bpay-comm-panel { margin-top: .55rem; width: 100%; box-sizing: border-box; }
 
 .comm-tray {
+  position: relative;
   background: linear-gradient(175deg, #d4a843 0%, #96700e 100%);
   border: 2px solid #b8881a;
   border-top-color: #f0cc6a;
@@ -1512,6 +1513,7 @@ body {
               inset 0 1px 0 rgba(255,235,140,.35),
               inset 0 -1px 0 rgba(0,0,0,.5);
   width: 100%; box-sizing: border-box;
+  overflow: hidden;
 }
 .comm-tray-slots {
   display: flex; gap: 0; align-items: stretch;
@@ -1571,14 +1573,20 @@ body {
 /* Chip button counter — hidden */
 .comm-5k-count { display: none; }
 
-/* Order warning inside tray */
+/* Order warning overlay on top of tray */
 .bpay-order-warn {
   display: none;
-  text-align: center; font-size: .85rem; font-weight: 900;
-  color: #ff2222; letter-spacing: .8px;
-  text-shadow: 0 0 8px rgba(255,30,30,.6);
-  background: rgba(0,0,0,.45); border: 1px solid rgba(255,50,50,.5);
-  border-radius: 5px; padding: .3rem .5rem; margin-bottom: .3rem;
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.72);
+  align-items: center; justify-content: center;
+  z-index: 20;
+}
+.bpay-order-warn span {
+  font-size: clamp(1rem, 3.2vw, 1.45rem);
+  font-weight: 900; color: #ff1a1a;
+  text-shadow: 0 0 28px rgba(255,0,0,.9), 0 2px 8px rgba(0,0,0,.8);
+  letter-spacing: .8px; text-align: center;
+  animation: mistakePop .25s ease-out forwards;
 }
 .comm-5k-btns {
   display: flex; flex-direction: row; gap: .1rem; width: 100%;

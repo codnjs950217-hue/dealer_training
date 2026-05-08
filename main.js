@@ -1615,11 +1615,15 @@ const Sims = {
       return needed;
     }
 
+    let warnTimer = null;
     function showOrderWarning() {
       const w = $('bpay-order-warn');
       if (!w) return;
-      w.style.display = 'block';
-      setTimeout(() => {
+      const span = w.querySelector('span');
+      if (span) { span.style.animation = 'none'; void span.offsetWidth; span.style.animation = ''; }
+      w.style.display = 'flex';
+      clearTimeout(warnTimer);
+      warnTimer = setTimeout(() => {
         w.style.display = 'none';
         COMM_CHIPS.forEach(c => { const inp = $(`bpay-ci-${c.key}`); if (inp) inp.value = '0'; });
         updateSpread();
@@ -1682,7 +1686,7 @@ const Sims = {
       panel.style.display = 'block';
       if (spread) { spread.style.display = 'flex'; spread.innerHTML = ''; }
       panel.innerHTML = `<div class="comm-tray">
-        <div id="bpay-order-warn" class="bpay-order-warn">저액 칩스부터 세팅하세요</div>
+        <div id="bpay-order-warn" class="bpay-order-warn"><span>저액 칩스부터 세팅하세요</span></div>
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
             <div class="comm-slot">
