@@ -1376,7 +1376,7 @@ const Sims = {
         el.className = 'bac-no-pair-notif';
         el.textContent = 'NO PAIR';
         tbl.appendChild(el);
-        setTimeout(() => el.remove(), 3000);
+        setTimeout(() => el.remove(), 1800);
         return;
       }
       function spawnSideNoPair(side) {
