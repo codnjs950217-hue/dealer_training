@@ -57,6 +57,10 @@ const App = {
       el.innerHTML = Views.baccaratPaySim();
       Sims.baccaratPay && Sims.baccaratPay.init();
     }
+    if (mode === 'paysim-side' && game === 'baccarat') {
+      el.innerHTML = Views.baccaratSideSim();
+      Sims.baccaratSide && Sims.baccaratSide.init();
+    }
     if (game === 'poker') {
       if (mode === 'isp') { el.innerHTML = Views.ispSim(); Sims.poker.isp.init(); }
       if (mode === 'tcp') { el.innerHTML = Views.tcpSim(); Sims.poker.tcp.init(); }
@@ -113,7 +117,8 @@ const Views = {
     const g = GAMES[game];
     const simBtns = game === 'baccarat'
       ? `<button class="btn btn-secondary" onclick="App.navigate('baccarat','simulation')">⚡ Drawing Practice</button>
-         <button class="btn btn-secondary" onclick="App.navigate('baccarat','paysim')">⚡ Payout Practice</button>`
+         <button class="btn btn-secondary" onclick="App.navigate('baccarat','paysim')">⚡ Commission Practice</button>
+         <button class="btn btn-secondary" onclick="App.navigate('baccarat','paysim-side')">⚡ Side Bet Practice</button>`
       : game === 'poker'
       ? `<button class="btn btn-secondary" onclick="App.navigate('poker','isp')">⚡ ISP Practice</button>
          <button class="btn btn-secondary" onclick="App.navigate('poker','tcp')">⚡ TCP Practice</button>
@@ -303,7 +308,7 @@ const Views = {
     <div class="sim-page baccarat-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
-        <h2>🃏 Baccarat Payout Practice</h2>
+        <h2>🃏 Commission Practice</h2>
         <div class="sim-stats">
           <span>Rounds: <strong id="bpay-rounds">0</strong></span>
           <span>Score: <strong id="bpay-score">0</strong></span>
@@ -313,35 +318,13 @@ const Views = {
         <div class="bpay-positions">
           ${[1,2,3].map(i => `
             <div class="bpay-pos" id="bpay-pos-${i}">
-              <div class="bpay-oval-row">
-                <div class="bpay-oval bpay-p-oval" id="bpay-p-${i}">
-                  <div class="bpay-oval-lbl">PLAYER</div>
-                  <div class="bpay-oval-amt" id="bpay-p-amt-${i}"></div>
-                </div>
-                <div class="bpay-pair-circ-wrap">
-                  <div class="bpay-pair-circ bpay-ppair" id="bpay-pp-${i}">P<br>PAIR</div>
-                  <div class="bpay-circ-bet" id="bpay-pp-amt-${i}"></div>
-                </div>
+              <div class="bpay-oval bpay-p-oval" id="bpay-p-${i}">
+                <div class="bpay-oval-lbl">PLAYER</div>
+                <div class="bpay-oval-amt" id="bpay-p-amt-${i}"></div>
               </div>
-              <div class="bpay-oval-row">
-                <div class="bpay-oval bpay-b-oval" id="bpay-b-${i}">
-                  <div class="bpay-oval-lbl">BANKER</div>
-                  <div class="bpay-oval-amt" id="bpay-b-amt-${i}"></div>
-                </div>
-                <div class="bpay-pair-circ-wrap">
-                  <div class="bpay-pair-circ bpay-bpair" id="bpay-bp-${i}">B<br>PAIR</div>
-                  <div class="bpay-circ-bet" id="bpay-bp-amt-${i}"></div>
-                </div>
-              </div>
-              <div class="bpay-circles">
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger" id="bpay-bt-${i}">BIG<br>TIGER<br><span class="bpay-circ-pay">×50</span></div><div class="bpay-circ-bet" id="bpay-bt-amt-${i}"></div></div>
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger" id="bpay-tt-${i}">TIE<br><span class="bpay-circ-pay">×8</span></div><div class="bpay-circ-bet" id="bpay-tt-amt-${i}"></div></div>
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger" id="bpay-st-${i}">SMALL<br>TIGER<br><span class="bpay-circ-pay">×22</span></div><div class="bpay-circ-bet" id="bpay-st-amt-${i}"></div></div>
-              </div>
-              <div class="bpay-circles">
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon" id="bpay-bd-${i}">BIG<br>DRAGON<br><span class="bpay-circ-pay">×30</span></div><div class="bpay-circ-bet" id="bpay-bd-amt-${i}"></div></div>
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon" id="bpay-s7-${i}">SUPER<br>7<br><span class="bpay-circ-pay">×30/40/100</span></div><div class="bpay-circ-bet" id="bpay-s7-amt-${i}"></div></div>
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon" id="bpay-sd-${i}">SMALL<br>DRAGON<br><span class="bpay-circ-pay">×15</span></div><div class="bpay-circ-bet" id="bpay-sd-amt-${i}"></div></div>
+              <div class="bpay-oval bpay-b-oval" id="bpay-b-${i}">
+                <div class="bpay-oval-lbl">BANKER</div>
+                <div class="bpay-oval-amt" id="bpay-b-amt-${i}"></div>
               </div>
             </div>`).join('')}
         </div>
@@ -351,6 +334,51 @@ const Views = {
         </div>
       </div>
       <div class="bpay-comm-panel" id="bpay-comm-panel" style="display:none"></div>
+    </div>`,
+
+  baccaratSideSim: () => `
+    <div class="sim-page baccarat-sim">
+      <div class="sim-header">
+        <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
+        <h2>🃏 Side Bet Practice</h2>
+        <div class="sim-stats">
+          <span>Rounds: <strong id="bside-rounds">0</strong></span>
+          <span>Score: <strong id="bside-score">0</strong></span>
+        </div>
+      </div>
+      <div class="baccarat-table">
+        <div class="bside-result" id="bside-result"></div>
+        <div class="bpay-positions">
+          ${[1,2,3].map(i => `
+            <div class="bpay-pos" id="bside-pos-${i}">
+              <div class="bside-pairs">
+                <div class="bpay-pair-circ-wrap">
+                  <div class="bpay-pair-circ bpay-ppair" id="bside-pp-${i}">P<br>PAIR</div>
+                  <div class="bpay-circ-bet" id="bside-pp-amt-${i}"></div>
+                </div>
+                <div class="bpay-pair-circ-wrap">
+                  <div class="bpay-pair-circ bpay-bpair" id="bside-bp-${i}">B<br>PAIR</div>
+                  <div class="bpay-circ-bet" id="bside-bp-amt-${i}"></div>
+                </div>
+              </div>
+              <div class="bpay-circles">
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger" id="bside-bt-${i}">BIG<br>TIGER<br><span class="bpay-circ-pay">×50</span></div><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger" id="bside-tt-${i}">TIE<br><span class="bpay-circ-pay">×8</span></div><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger" id="bside-st-${i}">SMALL<br>TIGER<br><span class="bpay-circ-pay">×22</span></div><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div>
+              </div>
+              <div class="bpay-circles">
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon" id="bside-bd-${i}">BIG<br>DRAGON<br><span class="bpay-circ-pay">×30</span></div><div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon" id="bside-s7-${i}">SUPER<br>7<br><span class="bpay-circ-pay">×30/40/100</span></div><div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon" id="bside-sd-${i}">SMALL<br>DRAGON<br><span class="bpay-circ-pay">×15</span></div><div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div>
+              </div>
+            </div>`).join('')}
+        </div>
+        <div class="bpay-spread-section" id="bside-spread-section" style="display:none"></div>
+        <div class="bpay-start-overlay" id="bside-start-overlay">
+          <button class="bpay-start-btn" onclick="Sims.baccaratSide.deal()">START</button>
+        </div>
+      </div>
+      <div class="bpay-comm-panel" id="bside-comm-panel" style="display:none"></div>
     </div>`,
 
   ispSim: () => `
@@ -1686,7 +1714,7 @@ const Sims = {
     };
   })(),
 
-  // ---- BACCARAT PAY SIM ----
+  // ---- BACCARAT COMMISSION SIM ----
   baccaratPay: (() => {
     const COMM_CHIPS = [
       { key: '100M', val: 100_000_000, bg: '#c62828', fg: '#fff'    },
@@ -1696,14 +1724,10 @@ const Sims = {
       { key: '10K',  val:      10_000, bg: '#2e7d32', fg: '#fff'    },
       { key: '5K',   val:       5_000, bg: '#b5176b', fg: '#fff'    },
     ];
-    // Betting chips: min 100K
-    const BET_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[2], COMM_CHIPS[1]]; // 100K, 1M, 10M
-    // Side bet chips: smaller denominations
-    const SIDE_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[4], COMM_CHIPS[5]]; // 100K, 10K, 5K
-    const SIDE_KEYS  = ['bt','tt','st','bd','s7','sd','pp','bp'];
+    const BET_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[2], COMM_CHIPS[1]];
 
     let S = {};
-    const $  = id => document.getElementById(id);
+    const $ = id => document.getElementById(id);
 
     function generateBetChips() {
       const numDenoms = Math.random() > 0.5 ? 1 : 2;
@@ -1711,39 +1735,6 @@ const Sims = {
       const chips = {};
       picked.forEach(d => { chips[d.key] = 1 + Math.floor(Math.random() * 4); });
       return chips;
-    }
-
-    function generateSideChips() {
-      const denom = SIDE_CHIPS[Math.floor(Math.random() * SIDE_CHIPS.length)];
-      return { [denom.key]: 1 + Math.floor(Math.random() * 3) };
-    }
-
-    function renderChipDiscs(chips) {
-      const sorted = Object.entries(chips).sort((a, b) => {
-        const va = COMM_CHIPS.find(c => c.key === a[0])?.val ?? 0;
-        const vb = COMM_CHIPS.find(c => c.key === b[0])?.val ?? 0;
-        return vb - va;
-      });
-      let html = '';
-      sorted.forEach(([key, cnt]) => {
-        const chip = COMM_CHIPS.find(c => c.key === key);
-        if (!chip) return;
-        for (let j = 0; j < cnt; j++)
-          html += `<div class="bpay-circ-disc" style="background:${chip.bg};color:${chip.fg}"></div>`;
-      });
-      return `<div class="bpay-circ-chips">${html}</div>`;
-    }
-
-    function renderSideBets() {
-      S.sideBets.forEach((sbets, posIdx) => {
-        const i = posIdx + 1;
-        SIDE_KEYS.forEach(k => {
-          const el = $(`bpay-${k}-amt-${i}`);
-          if (!el) return;
-          const chips = sbets[k];
-          el.innerHTML = chips ? renderChipDiscs(chips) : '';
-        });
-      });
     }
 
     function chipTotal(chips) {
@@ -1783,7 +1774,6 @@ const Sims = {
         const bAmt  = $(`bpay-b-amt-${idx}`);
         if (!bOval || !bAmt) return;
         bOval.classList.add('has-bet');
-        // Sort denominations high→low (high value on left, low on right like dealer spread)
         const sorted = Object.entries(bet.chips).sort((a, b) => {
           const va = COMM_CHIPS.find(c => c.key === a[0])?.val ?? 0;
           const vb = COMM_CHIPS.find(c => c.key === b[0])?.val ?? 0;
@@ -1880,10 +1870,7 @@ const Sims = {
     }
 
     function startCommAt(idx) {
-      if (idx < 0) {
-        showNextHand();
-        return;
-      }
+      if (idx < 0) { showNextHand(); return; }
       S.commIdx = idx;
       const posNum = idx + 1;
       const pos = positions(); if (pos) pos.classList.add('paying');
@@ -1911,7 +1898,6 @@ const Sims = {
           const bOval = $(`bpay-b-${j}`); if (bOval) bOval.classList.remove('has-bet');
           const bAmt  = $(`bpay-b-amt-${j}`); if (bAmt) bAmt.innerHTML = '';
           const pAmt  = $(`bpay-p-amt-${j}`); if (pAmt) pAmt.innerHTML = '';
-          SIDE_KEYS.forEach(k => { const el = $(`bpay-${k}-amt-${j}`); if (el) el.innerHTML = ''; });
         }
         const panel = $('bpay-comm-panel'); if (panel) panel.style.display = 'none';
         const spread = $('bpay-spread-section'); if (spread) { spread.style.display = 'none'; spread.innerHTML = ''; }
@@ -1919,15 +1905,7 @@ const Sims = {
           const chips = generateBetChips();
           return { chips, total: chipTotal(chips) };
         });
-        S.sideBets = Array.from({length: 3}, () => {
-          const result = {};
-          const count = 1 + Math.floor(Math.random() * 3); // 1–3 side bets per position
-          [...SIDE_KEYS].sort(() => Math.random() - 0.5).slice(0, count)
-            .forEach(k => { result[k] = generateSideChips(); });
-          return result;
-        });
         renderPositions();
-        renderSideBets();
         setTimeout(() => startCommAt(2), 400);
       },
 
@@ -1941,7 +1919,7 @@ const Sims = {
           (parseInt($(`bpay-ci-${c.key}`)?.value) || 0) === 0
         );
         if (lowerUnset) { showOrderWarning(); return; }
-        const inp  = $(`bpay-ci-${key}`);
+        const inp = $(`bpay-ci-${key}`);
         if (!inp) return;
         inp.value = (parseInt(inp.value) || 0) + n;
         updateSpread();
@@ -1976,6 +1954,363 @@ const Sims = {
           return;
         }
         startCommAt(S.commIdx - 1);
+      },
+    };
+  })(),
+
+  // ---- BACCARAT SIDE BET SIM ----
+  baccaratSide: (() => {
+    const COMM_CHIPS = [
+      { key: '100M', val: 100_000_000, bg: '#c62828', fg: '#fff'    },
+      { key: '10M',  val:  10_000_000, bg: '#1565c0', fg: '#fff'    },
+      { key: '1M',   val:   1_000_000, bg: '#fdd835', fg: '#1a1a1a' },
+      { key: '100K', val:     100_000, bg: '#212121', fg: '#fff'    },
+      { key: '10K',  val:      10_000, bg: '#2e7d32', fg: '#fff'    },
+      { key: '5K',   val:       5_000, bg: '#b5176b', fg: '#fff'    },
+    ];
+    const SIDE_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[4], COMM_CHIPS[5]];
+    const SIDE_KEYS  = ['bt','tt','st','bd','s7','sd','pp','bp'];
+    const SIDE_LABEL = { pp:'P PAIR', bp:'B PAIR', tt:'TIE', bt:'BIG TIGER', st:'SMALL TIGER', bd:'BIG DRAGON', sd:'SMALL DRAGON', s7:'SUPER 7' };
+
+    let S = {};
+    const $ = id => document.getElementById(id);
+
+    function generateSideChips() {
+      const denom = SIDE_CHIPS[Math.floor(Math.random() * SIDE_CHIPS.length)];
+      return { [denom.key]: 1 + Math.floor(Math.random() * 3) };
+    }
+
+    function chipTotal(chips) {
+      return Object.entries(chips).reduce((sum, [key, cnt]) => {
+        return sum + (COMM_CHIPS.find(c => c.key === key)?.val ?? 0) * cnt;
+      }, 0);
+    }
+
+    function renderChipDiscs(chips) {
+      const sorted = Object.entries(chips).sort((a, b) => {
+        const va = COMM_CHIPS.find(c => c.key === a[0])?.val ?? 0;
+        const vb = COMM_CHIPS.find(c => c.key === b[0])?.val ?? 0;
+        return vb - va;
+      });
+      let html = '';
+      sorted.forEach(([key, cnt]) => {
+        const chip = COMM_CHIPS.find(c => c.key === key);
+        if (!chip) return;
+        for (let j = 0; j < cnt; j++)
+          html += `<div class="bpay-circ-disc" style="background:${chip.bg};color:${chip.fg}"></div>`;
+      });
+      return `<div class="bpay-circ-chips">${html}</div>`;
+    }
+
+    function neededKeysForTarget(target) {
+      const needed = new Set();
+      let rem = target;
+      for (const c of COMM_CHIPS) {
+        if (rem >= c.val) { needed.add(c.key); rem -= Math.floor(rem / c.val) * c.val; }
+      }
+      return needed;
+    }
+
+    function fmtAmt(val) {
+      if (val >= 1_000_000) return (val / 1_000_000).toFixed(val % 1_000_000 ? 2 : 0).replace(/\.?0+$/, '') + 'M';
+      if (val >= 1_000)     return (val / 1_000).toFixed(val % 1_000 ? 1 : 0).replace(/\.?0+$/, '') + 'K';
+      return val.toString();
+    }
+
+    // Weighted scenario generator to exercise all side bet types
+    function generateResult() {
+      const scenarios = [
+        { w: 4,  make: () => ({ winner: 'tie' }) },
+        { w: 10, make: () => ({ winner: 'banker', bTotal: 6, bCards: 3 }) },
+        { w: 10, make: () => ({ winner: 'banker', bTotal: 6, bCards: 2 }) },
+        { w: 10, make: () => ({ winner: 'banker', bTotal: 7, bCards: 3 }) },
+        { w: 10, make: () => ({ winner: 'banker', bTotal: 7, bCards: 2 }) },
+        { w: 8,  make: () => ({ winner: 'player', pTotal: 7, pCards: 2 }) },
+        { w: 8,  make: () => ({ winner: 'player', pTotal: 7, pCards: 3 }) },
+        { w: 20, make: () => ({ winner: 'banker' }) },
+        { w: 20, make: () => ({ winner: 'player' }) },
+      ];
+      const total = scenarios.reduce((s, sc) => s + sc.w, 0);
+      let r = Math.random() * total;
+      let chosen = scenarios[scenarios.length - 1];
+      for (const sc of scenarios) { r -= sc.w; if (r <= 0) { chosen = sc; break; } }
+      const base = chosen.make();
+      const winner = base.winner;
+      const pCards = base.pCards ?? (Math.random() < 0.4 ? 2 : 3);
+      const bCards = base.bCards ?? (Math.random() < 0.4 ? 2 : 3);
+      let pTotal = base.pTotal ?? (winner === 'player' ? 1 + Math.floor(Math.random() * 9) : Math.floor(Math.random() * 6));
+      let bTotal = base.bTotal ?? (winner === 'banker' ? 1 + Math.floor(Math.random() * 9) : Math.floor(Math.random() * pTotal));
+      if (winner === 'tie') pTotal = bTotal = 1 + Math.floor(Math.random() * 9);
+      const playerPair = Math.random() < 0.12;
+      const bankerPair = Math.random() < 0.12;
+      return { winner, playerCards: pCards, bankerCards: bCards, playerTotal: pTotal, bankerTotal: bTotal, playerPair, bankerPair };
+    }
+
+    function resolveWins(result) {
+      const wins = {};
+      if (result.playerPair) wins.pp = 11;
+      if (result.bankerPair) wins.bp = 11;
+      if (result.winner === 'tie') wins.tt = 8;
+      if (result.winner === 'banker' && result.bankerTotal === 6 && result.bankerCards === 3) wins.bt = 50;
+      if (result.winner === 'banker' && result.bankerTotal === 6 && result.bankerCards === 2) wins.st = 22;
+      if (result.winner === 'banker' && result.bankerTotal === 7 && result.bankerCards === 3) wins.bd = 30;
+      if (result.winner === 'banker' && result.bankerTotal === 7 && result.bankerCards === 2) wins.sd = 15;
+      if (result.winner === 'player' && result.playerTotal === 7) wins.s7 = result.playerCards === 2 ? 40 : 30;
+      return wins;
+    }
+
+    function resultLabel(result) {
+      let w;
+      if (result.winner === 'tie') {
+        w = `<span class="bside-res-tie">TIE  ${result.playerTotal}pts</span>`;
+      } else if (result.winner === 'player') {
+        w = `<span class="bside-res-player">PLAYER WIN  ${result.playerTotal}pts (${result.playerCards}C)</span>`;
+      } else {
+        w = `<span class="bside-res-banker">BANKER WIN  ${result.bankerTotal}pts (${result.bankerCards}C)</span>`;
+      }
+      const pairs = [];
+      if (result.playerPair) pairs.push('<span class="bside-res-pair">P PAIR</span>');
+      if (result.bankerPair) pairs.push('<span class="bside-res-pair">B PAIR</span>');
+      return w + (pairs.length ? '&nbsp;&nbsp;' + pairs.join('&nbsp;') : '');
+    }
+
+    function renderSideBets() {
+      S.sideBets.forEach((sbets, posIdx) => {
+        const i = posIdx + 1;
+        SIDE_KEYS.forEach(k => {
+          const el = $(`bside-${k}-amt-${i}`);
+          if (!el) return;
+          el.innerHTML = sbets[k] ? renderChipDiscs(sbets[k]) : '';
+        });
+      });
+    }
+
+    function highlightCircles() {
+      for (let i = 1; i <= 3; i++) {
+        SIDE_KEYS.forEach(k => {
+          const circ = $(`bside-${k}-${i}`);
+          if (!circ) return;
+          const hasBet = !!S.sideBets[i - 1][k];
+          if (!hasBet) return;
+          if (S.wins[k] != null) {
+            circ.classList.add('bside-win-circ');
+          } else {
+            circ.classList.add('bside-lose-circ');
+          }
+        });
+      }
+    }
+
+    function clearHighlights() {
+      for (let i = 1; i <= 3; i++) {
+        SIDE_KEYS.forEach(k => {
+          const c = $(`bside-${k}-${i}`);
+          if (c) c.classList.remove('bside-win-circ', 'bside-lose-circ', 'bside-paying-circ');
+        });
+      }
+    }
+
+    let warnTimer = null;
+    function showOrderWarning() {
+      const w = $('bside-order-warn');
+      if (!w) return;
+      const span = w.querySelector('span');
+      if (span) { span.style.animation = 'none'; void span.offsetWidth; span.style.animation = ''; }
+      w.style.display = 'flex';
+      clearTimeout(warnTimer);
+      warnTimer = setTimeout(() => {
+        w.style.display = 'none';
+        COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
+        updateSpread();
+      }, 2800);
+    }
+
+    function updateSpread() {
+      const section = $('bside-spread-section');
+      if (!section) return;
+      const items = [];
+      COMM_CHIPS.forEach(c => {
+        const cnt = parseInt($(`bside-ci-${c.key}`)?.value) || 0;
+        for (let i = 0; i < cnt; i++) {
+          items.push({ c, isNewDenom: i === 0, isGroup5Gap: i > 0 && i % 5 === 0 });
+        }
+      });
+      if (items.length === 0) { section.innerHTML = ''; return; }
+      const discs = items.map(({ c, isNewDenom, isGroup5Gap }, idx) => {
+        let cls = 'spread-disc';
+        if (idx > 0) {
+          if (isNewDenom) cls += ' spread-gap';
+          else if (isGroup5Gap) cls += ' spread-gap5';
+        }
+        return `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`;
+      }).join('');
+      section.innerHTML = `<div class="spread-row">${discs}</div>`;
+    }
+
+    function showPayTray() {
+      const item = S.winQueue[S.queueIdx];
+      if (!item) return;
+      S.payTarget = item.target;
+      // Highlight circle being paid
+      for (let i = 1; i <= 3; i++) SIDE_KEYS.forEach(k => { const c = $(`bside-${k}-${i}`); if (c) c.classList.remove('bside-paying-circ'); });
+      const circ = $(`bside-${item.key}-${item.posIdx + 1}`);
+      if (circ) circ.classList.add('bside-paying-circ');
+      const panel = $('bside-comm-panel');
+      const spread = $('bside-spread-section');
+      if (!panel) return;
+      panel.style.display = 'block';
+      if (spread) { spread.style.display = 'flex'; spread.innerHTML = ''; }
+      panel.innerHTML = `<div class="comm-tray">
+        <div class="bside-tray-label">Pos ${item.posIdx + 1} — ${SIDE_LABEL[item.key]} ×${item.mult} &nbsp;|&nbsp; Bet: ${fmtAmt(item.betTotal)}</div>
+        <div id="bside-order-warn" class="bpay-order-warn" style="display:none"><span>저액 칩스부터 세팅하세요</span></div>
+        <div class="comm-tray-slots">
+          ${COMM_CHIPS.map(c => `
+            <div class="comm-slot">
+              <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
+              <input type="hidden" id="bside-ci-${c.key}" value="0">
+              <div class="comm-5k-btns">
+                <button class="comm-5k-btn" onclick="Sims.baccaratSide.addChip('${c.key}',5)">+5개</button>
+                <button class="comm-5k-btn" onclick="Sims.baccaratSide.addChip('${c.key}',1)">+1개</button>
+              </div>
+              <button class="comm-5k-reset" onclick="Sims.baccaratSide.resetChip('${c.key}')">RESET</button>
+            </div>`).join('')}
+          <div class="comm-pay-slot">
+            <button class="comm-pay-btn" onclick="Sims.baccaratSide.submitPay()">PAY</button>
+            <button class="comm-all-reset-btn" onclick="Sims.baccaratSide.resetAll()">ALL RESET</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function showMistake(retryFn) {
+      const tbl = document.querySelector('.baccarat-table');
+      if (!tbl) return;
+      const ov = document.createElement('div');
+      ov.className = 'mistake-overlay';
+      ov.innerHTML = '<div class="mistake-text">MISTAKE!</div>';
+      tbl.appendChild(ov);
+      setTimeout(() => { ov.remove(); retryFn(); }, 1600);
+    }
+
+    function showNextHand() {
+      const panel = $('bside-comm-panel'); if (panel) panel.style.display = 'none';
+      const spread = $('bside-spread-section'); if (spread) { spread.style.display = 'none'; spread.innerHTML = ''; }
+      S.score++;
+      $('bside-score').textContent = S.score;
+      const tbl = document.querySelector('.baccarat-table');
+      if (!tbl) { Sims.baccaratSide.deal(); return; }
+      const ov = document.createElement('div');
+      ov.className = 'next-hand-overlay';
+      ov.innerHTML = '<div class="next-hand-text">NEXT HAND</div>';
+      tbl.appendChild(ov);
+      setTimeout(() => { ov.remove(); Sims.baccaratSide.deal(); }, 1600);
+    }
+
+    function processQueue() {
+      if (S.queueIdx >= S.winQueue.length) { showNextHand(); return; }
+      showPayTray();
+    }
+
+    return {
+      init() {
+        S = { rounds: 0, score: 0, sideBets: [], result: null, wins: {}, winQueue: [], queueIdx: 0, payTarget: 0 };
+      },
+
+      deal() {
+        const startOverlay = $('bside-start-overlay');
+        if (startOverlay) startOverlay.style.display = 'none';
+        S.rounds++; S.queueIdx = 0; S.winQueue = [];
+        $('bside-rounds').textContent = S.rounds;
+        clearHighlights();
+        for (let j = 1; j <= 3; j++) {
+          SIDE_KEYS.forEach(k => { const el = $(`bside-${k}-amt-${j}`); if (el) el.innerHTML = ''; });
+        }
+        const panel = $('bside-comm-panel'); if (panel) panel.style.display = 'none';
+        const spread = $('bside-spread-section'); if (spread) { spread.style.display = 'none'; spread.innerHTML = ''; }
+
+        S.result  = generateResult();
+        S.wins    = resolveWins(S.result);
+        S.sideBets = Array.from({length: 3}, () => {
+          const sbets = {};
+          const count = 1 + Math.floor(Math.random() * 3);
+          [...SIDE_KEYS].sort(() => Math.random() - 0.5).slice(0, count)
+            .forEach(k => { sbets[k] = generateSideChips(); });
+          return sbets;
+        });
+
+        const res = $('bside-result');
+        if (res) res.innerHTML = resultLabel(S.result);
+
+        renderSideBets();
+
+        setTimeout(() => {
+          highlightCircles();
+          // Build payout queue: pos 0→2, side keys in order
+          for (let posIdx = 0; posIdx < 3; posIdx++) {
+            SIDE_KEYS.forEach(k => {
+              const chips = S.sideBets[posIdx][k];
+              const mult  = S.wins[k];
+              if (chips && mult != null) {
+                const betTotal = chipTotal(chips);
+                S.winQueue.push({ posIdx, key: k, chips, betTotal, mult, target: betTotal * mult });
+              }
+            });
+          }
+          if (S.winQueue.length === 0) {
+            setTimeout(() => showNextHand(), 1200);
+          } else {
+            processQueue();
+          }
+        }, 400);
+      },
+
+      addChip(key, n) {
+        const chip = COMM_CHIPS.find(c => c.key === key);
+        if (!chip) return;
+        const needed = neededKeysForTarget(S.payTarget);
+        const lowerUnset = COMM_CHIPS.some(c =>
+          c.val < chip.val &&
+          needed.has(c.key) &&
+          (parseInt($(`bside-ci-${c.key}`)?.value) || 0) === 0
+        );
+        if (lowerUnset) { showOrderWarning(); return; }
+        const inp = $(`bside-ci-${key}`);
+        if (!inp) return;
+        inp.value = (parseInt(inp.value) || 0) + n;
+        updateSpread();
+      },
+
+      resetChip(key) {
+        const inp = $(`bside-ci-${key}`);
+        if (inp) inp.value = '0';
+        updateSpread();
+      },
+
+      resetAll() {
+        COMM_CHIPS.forEach(c => {
+          const inp = $(`bside-ci-${c.key}`);
+          if (inp) inp.value = '0';
+        });
+        updateSpread();
+      },
+
+      submitPay() {
+        const entered = COMM_CHIPS.reduce((sum, c) => {
+          return sum + c.val * (parseInt($(`bside-ci-${c.key}`)?.value) || 0);
+        }, 0);
+        if (entered !== S.payTarget) {
+          showMistake(() => {
+            COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
+            updateSpread();
+          });
+          return;
+        }
+        const circ = $(`bside-${S.winQueue[S.queueIdx].key}-${S.winQueue[S.queueIdx].posIdx + 1}`);
+        if (circ) circ.classList.remove('bside-paying-circ');
+        S.queueIdx++;
+        COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
+        const spread = $('bside-spread-section'); if (spread) spread.innerHTML = '';
+        processQueue();
       },
     };
   })(),

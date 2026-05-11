@@ -2135,3 +2135,36 @@ body {
 .thpc-explain-icon { font-size: .9rem; flex-shrink: 0; width: 1.4rem; }
 .thpc-explain-name { min-width: 78px; flex-shrink: 0; }
 .thpc-explain-hand { flex: 1; }
+
+/* ---- Side Bet Practice ---- */
+.bside-result {
+  min-height: 1.8rem;
+  display: flex; align-items: center; justify-content: center;
+  gap: .4rem; flex-wrap: wrap;
+  font-size: .92rem; font-weight: 700; letter-spacing: .5px;
+  padding: .25rem .4rem .1rem;
+  text-align: center;
+}
+.bside-res-player { color: #c62828; }
+.bside-res-banker  { color: #c9a84c; }
+.bside-res-tie     { color: #6ec864; }
+.bside-res-pair    { color: #ffd700; border: 1px solid rgba(255,215,0,.4); border-radius: 4px; padding: 0 .3rem; }
+.bside-pairs {
+  display: flex; gap: .4rem; justify-content: center; margin-bottom: .2rem;
+}
+.bside-win-circ {
+  box-shadow: 0 0 0 2px #64dc64, 0 0 14px rgba(80,220,80,.55) !important;
+  border-color: #64dc64 !important;
+}
+.bside-lose-circ { opacity: 0.28; }
+.bside-paying-circ {
+  box-shadow: 0 0 0 3px #ffd700, 0 0 18px rgba(255,215,0,.6) !important;
+  border-color: #ffd700 !important;
+  opacity: 1 !important;
+}
+.bside-tray-label {
+  text-align: center;
+  font-size: .88rem; font-weight: 800;
+  color: #ffd700; letter-spacing: .5px;
+  padding: .3rem 0 .6rem;
+}
