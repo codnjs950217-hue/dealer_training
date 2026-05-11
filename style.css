@@ -2175,3 +2175,6 @@ body {
 .bside-gray-oval .bpay-oval-lbl {
   color: rgba(255,255,255,.10);
 }
+
+/* Prevent double-tap zoom */
+* { touch-action: manipulation; }
