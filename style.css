@@ -1442,11 +1442,11 @@ body {
   flex: 1;
 }
 .bpay-pair-circ {
-  width: 44px; height: 44px; flex-shrink: 0;
+  width: 58px; height: 58px; flex-shrink: 0;
   border-radius: 50%;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  font-size: .62rem; font-weight: 800;
+  font-size: .78rem; font-weight: 800;
   text-align: center; line-height: 1.25; letter-spacing: .4px;
   border: 2px solid rgba(255,255,255,.25);
 }
