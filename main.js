@@ -372,14 +372,14 @@ const Views = {
                 </div>
               </div>
               <div class="bpay-circles">
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger" id="bside-bt-${i}">BIG<br>TIGER<br><span class="bpay-circ-pay">×50</span></div><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div>
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger" id="bside-tt-${i}">TIE<br><span class="bpay-circ-pay">×8</span></div><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div>
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger" id="bside-st-${i}">SMALL<br>TIGER<br><span class="bpay-circ-pay">×22</span></div><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-bt-${i}">BIG<br>TIGER<br><span class="bpay-circ-pay">×50</span></div><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-tt-${i}">TIE<br><span class="bpay-circ-pay">×8</span></div><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-st-${i}">SMALL<br>TIGER<br><span class="bpay-circ-pay">×22</span></div><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div>
               </div>
               <div class="bpay-circles">
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon" id="bside-bd-${i}">BIG<br>DRAGON<br><span class="bpay-circ-pay">×30</span></div><div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div>
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon" id="bside-s7-${i}">SUPER<br>7<br><span class="bpay-circ-pay">×30/40/100</span></div><div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div>
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon" id="bside-sd-${i}">SMALL<br>DRAGON<br><span class="bpay-circ-pay">×15</span></div><div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-bd-${i}">BIG<br>DRAGON<br><span class="bpay-circ-pay">×30</span></div><div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-s7-${i}">SUPER<br>7<br><span class="bpay-circ-pay">×30/40/100</span></div><div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-sd-${i}">SMALL<br>DRAGON<br><span class="bpay-circ-pay">×15</span></div><div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div>
               </div>
             </div>`).join('')}
         </div>
@@ -1978,7 +1978,7 @@ const Sims = {
       { key: '10K',  val:      10_000, bg: '#2e7d32', fg: '#fff'    },
       { key: '5K',   val:       5_000, bg: '#b5176b', fg: '#fff'    },
     ];
-    const SIDE_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[4], COMM_CHIPS[5]];
+    const SIDE_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[4]];
     const SIDE_KEYS  = ['bt','tt','st','bd','s7','sd','pp','bp'];
     const SIDE_LABEL = { pp:'P PAIR', bp:'B PAIR', tt:'TIE', bt:'BIG TIGER', st:'SMALL TIGER', bd:'BIG DRAGON', sd:'SMALL DRAGON', s7:'SUPER 7' };
 
@@ -2002,14 +2002,16 @@ const Sims = {
         const vb = COMM_CHIPS.find(c => c.key === b[0])?.val ?? 0;
         return vb - va;
       });
-      let html = '';
-      sorted.forEach(([key, cnt]) => {
+      let discs = '';
+      sorted.forEach(([key, cnt], groupIdx) => {
         const chip = COMM_CHIPS.find(c => c.key === key);
         if (!chip) return;
-        for (let j = 0; j < cnt; j++)
-          html += `<div class="bpay-circ-disc" style="background:${chip.bg};color:${chip.fg}"></div>`;
+        for (let j = 0; j < cnt; j++) {
+          const newGroup = j === 0 && groupIdx > 0;
+          discs += `<div class="bside-bet-disc${newGroup ? ' new-denom' : ''}" style="background:${chip.bg};color:${chip.fg}">${chip.key}</div>`;
+        }
       });
-      return `<div class="bpay-circ-chips">${html}</div>`;
+      return `<div class="bside-bet-spread">${discs}</div>`;
     }
 
     function neededKeysForTarget(target) {
