@@ -1348,6 +1348,8 @@ const Sims = {
     }
 
     function showPairNotif() {
+      const pp = pts(S.ph), bp = pts(S.bh);
+      if (pp >= 8 || bp >= 8 || (pp >= 6 && bp >= 6)) return;
       const pPair = S.ph[0].rank === S.ph[1].rank;
       const bPair = S.bh[0].rank === S.bh[1].rank;
       const tbl = document.querySelector('.baccarat-table');

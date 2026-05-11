@@ -850,8 +850,8 @@ body {
 .bac-win-announce.player-win { color: #FF2020; }
 .bac-win-announce.tie-win    { color: #6ec864; }
 .bac-win-sub {
-  font-size: 1.3rem; font-weight: 800; letter-spacing: 3px;
-  text-shadow: 0 0 20px currentColor;
+  font-size: 2rem; font-weight: 900; letter-spacing: 3px;
+  text-shadow: 0 0 28px currentColor;
   background: none; border: none;
 }
 .bac-win-sub.banker-win { color: #FFD700; }
@@ -1335,6 +1335,7 @@ body {
   .bac-shoe-spacer    { width: 54px; }
   .bac-winner-flash   { padding-left: 54px; }
   .bac-win-announce   { font-size: 1.1rem; letter-spacing: 2px; }
+  .bac-win-sub        { font-size: 1.1rem; }
 
   /* Pay panel mobile */
   .pay-seat-row       { grid-template-columns: 1.8rem 4.5rem 1fr 4rem; font-size: .75rem; }
