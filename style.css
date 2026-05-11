@@ -1030,13 +1030,13 @@ body {
 }
 .btn-bac-tie:hover { background: #0e4a0e; }
 .btn-bac-draw {
-  background: rgba(90,210,40,.18); color: #aaff55;
-  border: 1px solid rgba(110,230,50,.55);
+  background: rgba(220,120,0,.18); color: #ffaa44;
+  border: 1px solid rgba(240,140,0,.55);
   padding: .55rem 1.1rem; border-radius: var(--r);
   font-weight: 700; cursor: pointer; font-size: .875rem;
   transition: all .18s; white-space: nowrap;
 }
-.btn-bac-draw:hover { background: rgba(90,210,40,.30); }
+.btn-bac-draw:hover { background: rgba(220,120,0,.32); }
 .bac-draw-slot-btn {
   width: 100%; padding: .6rem .1rem;
   font-size: .78rem; line-height: 1.35; text-align: center;
