@@ -329,9 +329,6 @@ const Views = {
             </div>`).join('')}
         </div>
         <div class="bpay-spread-section" id="bpay-spread-section" style="display:flex"></div>
-        <div class="bpay-start-overlay" id="bpay-start-overlay">
-          <button class="bpay-start-btn" onclick="Sims.baccaratPay.deal()">START</button>
-        </div>
       </div>
       <div class="bpay-comm-panel" id="bpay-comm-panel"></div>
     </div>`,
@@ -1888,12 +1885,11 @@ const Sims = {
     return {
       init() {
         S = { bets: [], commIdx: 0, rounds: 0, score: 0, commTarget: 0 };
-        showCommTray();
+        const panel = $('bpay-comm-panel');
+        if (panel) panel.innerHTML = `<div class="comm-tray comm-tray-start"><button class="bpay-start-btn" onclick="Sims.baccaratPay.deal()">START</button></div>`;
       },
 
       deal() {
-        const startOverlay = $('bpay-start-overlay');
-        if (startOverlay) startOverlay.style.display = 'none';
         const pos = positions(); if (pos) pos.classList.remove('paying');
         S.rounds++; S.commIdx = 0; S.commTarget = 0;
         $('bpay-rounds').textContent = S.rounds;
