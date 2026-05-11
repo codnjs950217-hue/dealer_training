@@ -313,13 +313,19 @@ const Views = {
         <div class="bpay-positions">
           ${[1,2,3].map(i => `
             <div class="bpay-pos" id="bpay-pos-${i}">
-              <div class="bpay-oval bpay-p-oval" id="bpay-p-${i}">
-                <div class="bpay-oval-lbl">PLAYER</div>
-                <div class="bpay-oval-amt" id="bpay-p-amt-${i}"></div>
+              <div class="bpay-oval-row">
+                <div class="bpay-oval bpay-p-oval" id="bpay-p-${i}">
+                  <div class="bpay-oval-lbl">PLAYER</div>
+                  <div class="bpay-oval-amt" id="bpay-p-amt-${i}"></div>
+                </div>
+                <div class="bpay-pair-circ bpay-ppair" id="bpay-pp-${i}">P<br>PAIR</div>
               </div>
-              <div class="bpay-oval bpay-b-oval" id="bpay-b-${i}">
-                <div class="bpay-oval-lbl">BANKER</div>
-                <div class="bpay-oval-amt" id="bpay-b-amt-${i}"></div>
+              <div class="bpay-oval-row">
+                <div class="bpay-oval bpay-b-oval" id="bpay-b-${i}">
+                  <div class="bpay-oval-lbl">BANKER</div>
+                  <div class="bpay-oval-amt" id="bpay-b-amt-${i}"></div>
+                </div>
+                <div class="bpay-pair-circ bpay-bpair" id="bpay-bp-${i}">B<br>PAIR</div>
               </div>
               <div class="bpay-circles">
                 <div class="bpay-circ bpay-tiger">BIG<br>TIGER<br><span class="bpay-circ-pay">×50</span></div>
@@ -327,9 +333,9 @@ const Views = {
                 <div class="bpay-circ bpay-tiger">SMALL<br>TIGER<br><span class="bpay-circ-pay">×22</span></div>
               </div>
               <div class="bpay-circles">
-                <div class="bpay-circ bpay-dragon">SMALL<br>DRAGON<br><span class="bpay-circ-pay">×15</span></div>
-                <div class="bpay-circ bpay-dragon">SUPER<br>7</div>
                 <div class="bpay-circ bpay-dragon">BIG<br>DRAGON<br><span class="bpay-circ-pay">×30</span></div>
+                <div class="bpay-circ bpay-dragon">SUPER<br>7</div>
+                <div class="bpay-circ bpay-dragon">SMALL<br>DRAGON<br><span class="bpay-circ-pay">×15</span></div>
               </div>
             </div>`).join('')}
         </div>
