@@ -1338,7 +1338,6 @@ const Sims = {
         tie: `
           <div class="bac-special-col bac-special-col-mid">
             <button class="btn-bac-tie bac-inline-btn" onclick="Sims.baccarat.quizWinFull('tie','${source}')">TIE</button>
-            <button class="btn-bac-super7 bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('super7','${source}')">SUPER 7</button>
           </div>`,
         player: `
           <div class="bac-special-col">
@@ -1347,6 +1346,7 @@ const Sims = {
               <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('player-big7','${source}')">BIG 7</button>
               <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('player-small7','${source}')">SMALL 7</button>
             </div>
+            <button class="btn-bac-super7 bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('super7','${source}')">SUPER 7</button>
           </div>`,
       };
     }
@@ -1462,10 +1462,11 @@ const Sims = {
       const { lines, color } = getSpecialLabel(side);
       el.innerHTML = `<div class="bac-winner-flash-text" style="color:${color}">${lines.join('<br>')}</div>`;
       el.className = 'bac-winner-flash bac-wf-in';
+      const dur = lines.length > 1 ? 3200 : 2000;
       setTimeout(() => {
         el.classList.replace('bac-wf-in', 'bac-wf-out');
         setTimeout(() => { el.className = 'bac-winner-flash'; }, 700);
-      }, 2000);
+      }, dur);
     }
 
     function doPlayerDraw(onDone) {

@@ -808,7 +808,7 @@ body {
   min-height: 40px; overflow: visible; position: relative;
 }
 .bac-btn-cluster-quiz .bac-bclust-side {
-  min-height: 118px; align-items: center;
+  min-height: 140px; align-items: center;
 }
 .bac-btn-cluster-quiz .bac-bclust-mid {
   min-height: 82px; align-items: center;
