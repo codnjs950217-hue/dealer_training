@@ -1771,12 +1771,6 @@ body {
 .bac-pnp-svg-flip {
   transform: scaleX(-1);
 }
-.bac-pnp-take {
-  font-size: clamp(.65rem, 1.8vw, .82rem);
-  font-weight: 700; color: rgba(255,255,255,.75); letter-spacing: 1.5px;
-  text-shadow: 0 1px 4px rgba(0,0,0,.9);
-  white-space: nowrap;
-}
 .btn-bac-super7 {
   background: #1a1a3a; color: #b8a0ff;
   border: 1px solid rgba(180,150,255,.5);

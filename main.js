@@ -1389,7 +1389,7 @@ const Sims = {
             <line x1="60" y1="29" x2="51" y2="29" stroke="rgba(255,255,255,.45)" stroke-width="1.5" stroke-dasharray="3,2"/>
             <line x1="60" y1="35" x2="50" y2="35" stroke="rgba(255,255,255,.45)" stroke-width="1.5" stroke-dasharray="3,2"/>
           </svg>
-          <div class="bac-pnp-take">LOSING PAIR BET TAKE</div>`;
+          `;
         if (anchor) {
           const tr = tbl.getBoundingClientRect();
           const ar = anchor.getBoundingClientRect();
@@ -1636,11 +1636,7 @@ const Sims = {
         const showQuiz = source === 'initial' ? showInitialQuiz
                        : source === 'banker'  ? showBankerDrawQuiz
                        : showSpecialQuiz;
-        const bankerFam = new Set(['banker-win','banker-big6','banker-small6']);
-        const playerFam = new Set(['player-win','player-big7','player-small7','super7']);
-        const isCorrect = label === correct
-          || (label === 'banker-win' && bankerFam.has(correct))
-          || (label === 'player-win' && playerFam.has(correct));
+        const isCorrect = label === correct;
         if (!isCorrect) { showMistake(showQuiz); return; }
         clearInlineBtns();
         if (source === 'initial') {
