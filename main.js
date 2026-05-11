@@ -319,7 +319,7 @@ const Views = {
                   <div class="bpay-oval-amt" id="bpay-p-amt-${i}"></div>
                 </div>
                 <div class="bpay-pair-circ-wrap">
-                  <div class="bpay-pair-circ bpay-ppair" id="bpay-pp-${i}">P<br>PAIR</div>
+                  <div class="bpay-pair-circ bpay-ppair" id="bpay-pp-${i}"></div>
                   <div class="bpay-circ-bet" id="bpay-pp-amt-${i}"></div>
                 </div>
               </div>
@@ -329,7 +329,7 @@ const Views = {
                   <div class="bpay-oval-amt" id="bpay-b-amt-${i}"></div>
                 </div>
                 <div class="bpay-pair-circ-wrap">
-                  <div class="bpay-pair-circ bpay-bpair" id="bpay-bp-${i}">B<br>PAIR</div>
+                  <div class="bpay-pair-circ bpay-bpair" id="bpay-bp-${i}"></div>
                   <div class="bpay-circ-bet" id="bpay-bp-amt-${i}"></div>
                 </div>
               </div>
