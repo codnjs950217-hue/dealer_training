@@ -357,8 +357,7 @@ const Views = {
                   <div class="bpay-oval-amt" id="bside-p-amt-${i}"></div>
                 </div>
                 <div class="bpay-pair-circ-wrap">
-                  <div class="bpay-pair-circ bpay-ppair" id="bside-pp-${i}">P<br>PAIR</div>
-                  <div class="bpay-circ-bet" id="bside-pp-amt-${i}"></div>
+                  <div class="bpay-pair-circ bpay-ppair" id="bside-pp-${i}">P<br>PAIR<div class="bpay-circ-bet" id="bside-pp-amt-${i}"></div></div>
                 </div>
               </div>
               <div class="bpay-oval-row">
@@ -367,19 +366,18 @@ const Views = {
                   <div class="bpay-oval-amt" id="bside-b-amt-${i}"></div>
                 </div>
                 <div class="bpay-pair-circ-wrap">
-                  <div class="bpay-pair-circ bpay-bpair" id="bside-bp-${i}">B<br>PAIR</div>
-                  <div class="bpay-circ-bet" id="bside-bp-amt-${i}"></div>
+                  <div class="bpay-pair-circ bpay-bpair" id="bside-bp-${i}">B<br>PAIR<div class="bpay-circ-bet" id="bside-bp-amt-${i}"></div></div>
                 </div>
               </div>
               <div class="bpay-circles">
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-bt-${i}">BIG<br>TIGER<br><span class="bpay-circ-pay">×50</span></div><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div>
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-tt-${i}">TIE<br><span class="bpay-circ-pay">×8</span></div><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div>
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-st-${i}">SMALL<br>TIGER<br><span class="bpay-circ-pay">×22</span></div><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-bt-${i}">BIG<br>TIGER<br><span class="bpay-circ-pay">×50</span><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-tt-${i}">TIE<br><span class="bpay-circ-pay">×8</span><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-st-${i}">SMALL<br>TIGER<br><span class="bpay-circ-pay">×22</span><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div></div>
               </div>
               <div class="bpay-circles">
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-bd-${i}">BIG<br>DRAGON<br><span class="bpay-circ-pay">×30</span></div><div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div>
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-s7-${i}">SUPER<br>7<br><span class="bpay-circ-pay">×30/40/100</span></div><div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div>
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-sd-${i}">SMALL<br>DRAGON<br><span class="bpay-circ-pay">×15</span></div><div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-bd-${i}">BIG<br>DRAGON<br><span class="bpay-circ-pay">×30</span><div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-s7-${i}">SUPER<br>7<br><span class="bpay-circ-pay">×30/40/100</span><div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-sd-${i}">SMALL<br>DRAGON<br><span class="bpay-circ-pay">×15</span><div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div></div>
               </div>
             </div>`).join('')}
         </div>
@@ -1979,7 +1977,7 @@ const Sims = {
       { key: '5K',   val:       5_000, bg: '#b5176b', fg: '#fff'    },
     ];
     const SIDE_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[4]];
-    const SIDE_KEYS  = ['bt','tt','st','bd','s7','sd','pp','bp'];
+    const SIDE_KEYS  = ['st','tt','bt','sd','s7','bd','pp','bp'];
     const SIDE_LABEL = { pp:'P PAIR', bp:'B PAIR', tt:'TIE', bt:'BIG TIGER', st:'SMALL TIGER', bd:'BIG DRAGON', sd:'SMALL DRAGON', s7:'SUPER 7' };
 
     let S = {};
@@ -2163,10 +2161,17 @@ const Sims = {
       const item = S.winQueue[S.queueIdx];
       if (!item) return;
       S.payTarget = item.target;
-      // Highlight circle being paid
-      for (let i = 1; i <= 1; i++) SIDE_KEYS.forEach(k => { const c = $(`bside-${k}-${i}`); if (c) c.classList.remove('bside-paying-circ'); });
+      // Dim all circles with bets; only brighten the currently paying one
+      for (let i = 1; i <= 1; i++) {
+        SIDE_KEYS.forEach(k => {
+          const c = $(`bside-${k}-${i}`);
+          if (!c) return;
+          c.classList.remove('bside-win-circ', 'bside-lose-circ', 'bside-paying-circ');
+          if (S.sideBets[i - 1]?.[k]) c.classList.add('bside-lose-circ');
+        });
+      }
       const circ = $(`bside-${item.key}-${item.posIdx + 1}`);
-      if (circ) circ.classList.add('bside-paying-circ');
+      if (circ) { circ.classList.remove('bside-lose-circ'); circ.classList.add('bside-paying-circ'); }
       const panel = $('bside-comm-panel');
       const spread = $('bside-spread-section');
       if (!panel) return;
@@ -2318,7 +2323,7 @@ const Sims = {
           return;
         }
         const circ = $(`bside-${S.winQueue[S.queueIdx].key}-${S.winQueue[S.queueIdx].posIdx + 1}`);
-        if (circ) circ.classList.remove('bside-paying-circ');
+        if (circ) { circ.classList.remove('bside-paying-circ'); circ.classList.add('bside-win-circ'); }
         S.queueIdx++;
         COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
         const spread = $('bside-spread-section'); if (spread) spread.innerHTML = '';

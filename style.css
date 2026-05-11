@@ -2196,9 +2196,29 @@ body {
 .bside-oval-bet {
   aspect-ratio: unset !important;
   border-radius: 50px !important;
-  min-height: 54px;
-  padding: .3rem .35rem;
+  min-height: 60px;
+  padding: .35rem .35rem 26px;
   flex: 1;
+  position: relative;
+  justify-content: flex-start !important;
+}
+.bside-oval-bet .bpay-circ-bet {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+}
+/* Chips inside pair circles */
+.bside-sim .bpay-pair-circ {
+  position: relative;
+}
+.bside-sim .bpay-pair-circ .bpay-circ-bet {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
 }
 
 /* Spread-style chip discs on side bet spots */
@@ -2233,7 +2253,7 @@ body {
   .bside-layout .bpay-oval-lbl { font-size: 1.1rem; }
   .bside-layout .bpay-pair-circ { width: 42px; height: 42px; font-size: .66rem; }
   .bside-layout .bpay-circ    { max-height: 72px; font-size: .62rem; }
-  .bside-oval-bet             { min-height: 44px; }
+  .bside-oval-bet             { min-height: 52px; padding-bottom: 22px; }
   .bside-layout .bpay-circ-pay { font-size: .5rem; }
   .bside-result               { font-size: .78rem; padding: .15rem .3rem 0; }
   .bside-sim .comm-tray       { padding: .3rem; }
