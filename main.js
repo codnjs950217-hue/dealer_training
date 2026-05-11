@@ -1268,13 +1268,13 @@ const Sims = {
       actions('');
     }
 
-    function showMistake(retryFn) {
+    function showMistake(retryFn, msg = 'MISTAKE!') {
       clearInlineBtns();
       const tbl = document.querySelector('.baccarat-table');
       if (!tbl) return;
       const ov = document.createElement('div');
       ov.className = 'mistake-overlay';
-      ov.innerHTML = '<div class="mistake-text">MISTAKE!</div>';
+      ov.innerHTML = `<div class="mistake-text${msg === 'OVER DRAW' ? ' overdraw-text' : ''}">${msg}</div>`;
       tbl.appendChild(ov);
       setTimeout(() => { ov.remove(); retryFn(); }, 1600);
     }
@@ -1450,7 +1450,7 @@ const Sims = {
     }
 
     function getSpecialLabel(side) {
-      const colors = { player: '#FF2020', banker: '#FFD700', tie: '#6ec864' };
+      const colors = { player: '#cc5555', banker: '#c9a84c', tie: '#6ec864' };
       const color  = colors[side];
       if (side === 'tie') return { lines: ['TIE'], color };
       const pp = pts(S.ph), bp = pts(S.bh);
@@ -1606,7 +1606,11 @@ const Sims = {
         } else {
           correctChoice = 'win';
         }
-        if (choice !== correctChoice) { showMistake(() => showInitialQuiz()); return; }
+        if (choice !== correctChoice) {
+          const isOverDraw = choice.startsWith('draw-');
+          showMistake(() => showInitialQuiz(), isOverDraw ? 'OVER DRAW' : 'MISTAKE!');
+          return;
+        }
         clearInlineBtns();
         const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
         const ph3 = $('bac-ph3'); if (ph3) ph3.innerHTML = '';
@@ -1619,7 +1623,7 @@ const Sims = {
 
       quizBanker() {
         const needsDraw = bankerRule(pts(S.bh), S.pThird);
-        if (!needsDraw) { showMistake(() => showBankerDrawQuiz()); return; }
+        if (!needsDraw) { showMistake(() => showBankerDrawQuiz(), 'OVER DRAW'); return; }
         clearInlineBtns();
         const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
         doBankerDraw(() => showSpecialQuiz());
