@@ -1360,30 +1360,19 @@ const Sims = {
         el.className = 'bac-no-pair-notif';
         el.textContent = 'NO PAIR';
         tbl.appendChild(el);
-        setTimeout(() => el.remove(), 3500);
+        setTimeout(() => el.remove(), 3000);
         return;
       }
-      function spawnTake(anchorId, side, dur) {
+      function spawnSideNoPair(side) {
+        const anchorId = side === 'player' ? 'bac-ph' : 'bac-bh';
         const anchor = document.getElementById(anchorId);
+        const label = side === 'player' ? 'Player No Pair' : 'Banker No Pair';
+        const textColor = side === 'player' ? '#ff6060' : '#ffd700';
         const el = document.createElement('div');
-        el.className = 'bac-pair-take-notif bac-pt-' + side;
-        el.textContent = 'PAIR TAKE';
-        if (anchor) {
-          const tr = tbl.getBoundingClientRect();
-          const ar = anchor.getBoundingClientRect();
-          el.style.top  = (ar.top - tr.top) + 'px';
-          el.style.left = (ar.left - tr.left) + 'px';
-        }
-        tbl.appendChild(el);
-        setTimeout(() => el.remove(), dur);
-      }
-      function spawnPlayerNoPair() {
-        const anchor = document.getElementById('bac-ph');
-        const el = document.createElement('div');
-        el.className = 'bac-player-no-pair-notif';
+        el.className = 'bac-side-no-pair-notif';
         el.innerHTML = `
-          <div class="bac-pnp-text">Player No Pair</div>
-          <svg class="bac-pnp-svg" viewBox="0 0 110 56" xmlns="http://www.w3.org/2000/svg">
+          <div class="bac-pnp-text" style="color:${textColor}">${label}</div>
+          <svg class="bac-pnp-svg${side === 'banker' ? ' bac-pnp-svg-flip' : ''}" viewBox="0 0 110 56" xmlns="http://www.w3.org/2000/svg">
             <circle cx="18" cy="32" r="13" fill="#c9a84c" stroke="#fff" stroke-width="1.5"/>
             <circle cx="18" cy="32" r="9" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="1"/>
             <text x="18" y="36" text-anchor="middle" fill="#111" font-size="6.5" font-weight="bold">PP</text>
@@ -1395,7 +1384,8 @@ const Sims = {
             <rect x="80" y="14" width="5.5" height="15" rx="2.8" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
             <line x1="60" y1="29" x2="51" y2="29" stroke="rgba(255,255,255,.45)" stroke-width="1.5" stroke-dasharray="3,2"/>
             <line x1="60" y1="35" x2="50" y2="35" stroke="rgba(255,255,255,.45)" stroke-width="1.5" stroke-dasharray="3,2"/>
-          </svg>`;
+          </svg>
+          <div class="bac-pnp-take">LOSING PAIR BET TAKE</div>`;
         if (anchor) {
           const tr = tbl.getBoundingClientRect();
           const ar = anchor.getBoundingClientRect();
@@ -1405,8 +1395,8 @@ const Sims = {
         tbl.appendChild(el);
         setTimeout(() => el.remove(), 3200);
       }
-      if (bPair && !pPair) spawnPlayerNoPair();
-      if (pPair && !bPair) spawnTake('bac-bh', 'banker', 1800);
+      if (bPair && !pPair) spawnSideNoPair('player');
+      if (pPair && !bPair) spawnSideNoPair('banker');
     }
 
     function showInitialQuiz() {

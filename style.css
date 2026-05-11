@@ -1742,9 +1742,9 @@ body {
   font-weight: 900; color: #ffd700; letter-spacing: 7px;
   text-shadow: 0 2px 14px rgba(0,0,0,.95), 0 0 40px rgba(255,215,0,.55);
   pointer-events: none;
-  animation: noPairFade 3.5s ease-out forwards;
+  animation: noPairFade 3.0s ease-out forwards;
 }
-.bac-player-no-pair-notif {
+.bac-side-no-pair-notif {
   position: absolute; z-index: 30;
   display: flex; flex-direction: column; align-items: center; gap: 5px;
   pointer-events: none;
@@ -1752,14 +1752,23 @@ body {
 }
 .bac-pnp-text {
   font-size: clamp(1rem, 3vw, 1.35rem);
-  font-weight: 900; color: #ff6060; letter-spacing: 2px;
-  text-shadow: 0 1px 5px rgba(0,0,0,.9), 0 0 14px rgba(255,100,100,.55);
+  font-weight: 900; letter-spacing: 2px;
+  text-shadow: 0 1px 5px rgba(0,0,0,.9);
   white-space: nowrap;
 }
 .bac-pnp-svg {
   width: clamp(80px, 20vw, 115px);
   height: auto;
   filter: drop-shadow(0 1px 4px rgba(0,0,0,.85));
+}
+.bac-pnp-svg-flip {
+  transform: scaleX(-1);
+}
+.bac-pnp-take {
+  font-size: clamp(.65rem, 1.8vw, .82rem);
+  font-weight: 700; color: rgba(255,255,255,.75); letter-spacing: 1.5px;
+  text-shadow: 0 1px 4px rgba(0,0,0,.9);
+  white-space: nowrap;
 }
 .btn-bac-super7 {
   background: #1a1a3a; color: #b8a0ff;
