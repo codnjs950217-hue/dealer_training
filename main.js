@@ -349,12 +349,22 @@ const Views = {
       <div class="baccarat-table">
         <div class="bside-result" id="bside-result"></div>
         <div class="bpay-positions">
-          ${[1,2,3].map(i => `
+          ${[1].map(i => `
             <div class="bpay-pos" id="bside-pos-${i}">
-              <div class="bside-pairs">
+              <div class="bpay-oval-row">
+                <div class="bpay-oval bpay-p-oval bside-gray-oval" id="bside-p-${i}">
+                  <div class="bpay-oval-lbl">PLAYER</div>
+                  <div class="bpay-oval-amt" id="bside-p-amt-${i}"></div>
+                </div>
                 <div class="bpay-pair-circ-wrap">
                   <div class="bpay-pair-circ bpay-ppair" id="bside-pp-${i}">P<br>PAIR</div>
                   <div class="bpay-circ-bet" id="bside-pp-amt-${i}"></div>
+                </div>
+              </div>
+              <div class="bpay-oval-row">
+                <div class="bpay-oval bpay-b-oval bside-gray-oval" id="bside-b-${i}">
+                  <div class="bpay-oval-lbl">BANKER</div>
+                  <div class="bpay-oval-amt" id="bside-b-amt-${i}"></div>
                 </div>
                 <div class="bpay-pair-circ-wrap">
                   <div class="bpay-pair-circ bpay-bpair" id="bside-bp-${i}">B<br>PAIR</div>
@@ -2086,7 +2096,7 @@ const Sims = {
     }
 
     function highlightCircles() {
-      for (let i = 1; i <= 3; i++) {
+      for (let i = 1; i <= 1; i++) {
         SIDE_KEYS.forEach(k => {
           const circ = $(`bside-${k}-${i}`);
           if (!circ) return;
@@ -2102,7 +2112,7 @@ const Sims = {
     }
 
     function clearHighlights() {
-      for (let i = 1; i <= 3; i++) {
+      for (let i = 1; i <= 1; i++) {
         SIDE_KEYS.forEach(k => {
           const c = $(`bside-${k}-${i}`);
           if (c) c.classList.remove('bside-win-circ', 'bside-lose-circ', 'bside-paying-circ');
@@ -2152,7 +2162,7 @@ const Sims = {
       if (!item) return;
       S.payTarget = item.target;
       // Highlight circle being paid
-      for (let i = 1; i <= 3; i++) SIDE_KEYS.forEach(k => { const c = $(`bside-${k}-${i}`); if (c) c.classList.remove('bside-paying-circ'); });
+      for (let i = 1; i <= 1; i++) SIDE_KEYS.forEach(k => { const c = $(`bside-${k}-${i}`); if (c) c.classList.remove('bside-paying-circ'); });
       const circ = $(`bside-${item.key}-${item.posIdx + 1}`);
       if (circ) circ.classList.add('bside-paying-circ');
       const panel = $('bside-comm-panel');
@@ -2222,7 +2232,7 @@ const Sims = {
         S.rounds++; S.queueIdx = 0; S.winQueue = [];
         $('bside-rounds').textContent = S.rounds;
         clearHighlights();
-        for (let j = 1; j <= 3; j++) {
+        for (let j = 1; j <= 1; j++) {
           SIDE_KEYS.forEach(k => { const el = $(`bside-${k}-amt-${j}`); if (el) el.innerHTML = ''; });
         }
         const panel = $('bside-comm-panel'); if (panel) panel.style.display = 'none';
@@ -2230,7 +2240,7 @@ const Sims = {
 
         S.result  = generateResult();
         S.wins    = resolveWins(S.result);
-        S.sideBets = Array.from({length: 3}, () => {
+        S.sideBets = Array.from({length: 1}, () => {
           const sbets = {};
           const count = 1 + Math.floor(Math.random() * 3);
           [...SIDE_KEYS].sort(() => Math.random() - 0.5).slice(0, count)
@@ -2245,8 +2255,8 @@ const Sims = {
 
         setTimeout(() => {
           highlightCircles();
-          // Build payout queue: pos 0→2, side keys in order
-          for (let posIdx = 0; posIdx < 3; posIdx++) {
+          // Build payout queue: side keys in order
+          for (let posIdx = 0; posIdx < 1; posIdx++) {
             SIDE_KEYS.forEach(k => {
               const chips = S.sideBets[posIdx][k];
               const mult  = S.wins[k];

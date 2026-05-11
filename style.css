@@ -2168,3 +2168,10 @@ body {
   color: #ffd700; letter-spacing: .5px;
   padding: .3rem 0 .6rem;
 }
+.bside-gray-oval {
+  background: radial-gradient(ellipse at center, #3a3a3a55 0%, #22222240 100%) !important;
+  border-color: rgba(160,160,160,.3) !important;
+}
+.bside-gray-oval .bpay-oval-lbl {
+  color: rgba(255,255,255,.10);
+}
