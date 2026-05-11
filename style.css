@@ -1704,6 +1704,18 @@ body {
   70%  { opacity: 1; }
   100% { opacity: 0; transform: translateY(-4px); }
 }
+@keyframes noPairFade {
+  0%   { opacity: 0; transform: translate(-50%, -58%); }
+  10%  { opacity: 1; transform: translate(-50%, -50%); }
+  74%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -44%); }
+}
+@keyframes playerNoPairFade {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  12%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  74%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+}
 .bac-pair-take-notif {
   position: absolute; z-index: 30;
   font-weight: 900; letter-spacing: 2.5px;
@@ -1722,12 +1734,29 @@ body {
 }
 .bac-no-pair-notif {
   position: absolute; z-index: 30;
-  top: 50%; left: 50%; transform: translate(-50%, -50%);
-  font-size: clamp(2rem, 6vw, 3.5rem);
-  font-weight: 900; color: #fff; letter-spacing: 5px;
-  text-shadow: 0 2px 10px rgba(0,0,0,.9), 0 0 30px rgba(255,255,255,.3);
+  top: 50%; left: 50%;
+  font-size: clamp(2.8rem, 9vw, 5rem);
+  font-weight: 900; color: #fff; letter-spacing: 7px;
+  text-shadow: 0 2px 14px rgba(0,0,0,.95), 0 0 40px rgba(255,255,255,.4);
   pointer-events: none;
-  animation: pairTakeFade 1.8s ease-out forwards;
+  animation: noPairFade 3.5s ease-out forwards;
+}
+.bac-player-no-pair-notif {
+  position: absolute; z-index: 30;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  pointer-events: none;
+  animation: playerNoPairFade 3.2s ease-out forwards;
+}
+.bac-pnp-text {
+  font-size: clamp(1rem, 3vw, 1.35rem);
+  font-weight: 900; color: #ff6060; letter-spacing: 2px;
+  text-shadow: 0 1px 5px rgba(0,0,0,.9), 0 0 14px rgba(255,100,100,.55);
+  white-space: nowrap;
+}
+.bac-pnp-svg {
+  width: clamp(80px, 20vw, 115px);
+  height: auto;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,.85));
 }
 .btn-bac-super7 {
   background: #1a1a3a; color: #b8a0ff;
