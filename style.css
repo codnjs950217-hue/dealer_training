@@ -1552,7 +1552,6 @@ body {
 
 /* Commission panel — dealer rack style */
 .bpay-comm-panel { margin-top: .55rem; width: 100%; box-sizing: border-box; }
-.comm-tray-start { display: flex; align-items: center; justify-content: center; padding: 1rem 0; }
 
 .comm-tray {
   position: relative;
