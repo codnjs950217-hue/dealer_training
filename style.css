@@ -1705,10 +1705,10 @@ body {
   100% { opacity: 0; transform: translateY(-4px); }
 }
 @keyframes noPairFade {
-  0%   { opacity: 0; transform: translate(-50%, -58%); }
-  10%  { opacity: 1; transform: translate(-50%, -50%); }
-  74%  { opacity: 1; }
-  100% { opacity: 0; transform: translate(-50%, -44%); }
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(.82); }
+  12%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  75%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -54%) scale(1); }
 }
 @keyframes playerNoPairFade {
   0%   { opacity: 0; transform: translateX(-50%) translateY(6px); }
@@ -1735,9 +1735,11 @@ body {
 .bac-no-pair-notif {
   position: absolute; z-index: 30;
   top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
   font-size: clamp(2.8rem, 9vw, 5rem);
-  font-weight: 900; color: #fff; letter-spacing: 7px;
-  text-shadow: 0 2px 14px rgba(0,0,0,.95), 0 0 40px rgba(255,255,255,.4);
+  font-weight: 900; color: #ffd700; letter-spacing: 7px;
+  text-shadow: 0 2px 14px rgba(0,0,0,.95), 0 0 40px rgba(255,215,0,.55);
   pointer-events: none;
   animation: noPairFade 3.5s ease-out forwards;
 }
