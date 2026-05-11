@@ -1538,7 +1538,7 @@ body {
 /* START button overlay centered in baccarat table */
 .bpay-start-overlay {
   display: flex; align-items: center; justify-content: center;
-  padding: .6rem 0 .2rem;
+  padding: .5rem 0 0;
 }
 .bpay-start-btn {
   background: linear-gradient(135deg, #c9a84c 0%, #9a7820 100%);
