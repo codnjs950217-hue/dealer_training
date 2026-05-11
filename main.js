@@ -316,7 +316,7 @@ const Views = {
       </div>
       <div class="baccarat-table">
         <div class="bpay-positions">
-          ${[1,2,3].map(i => `
+          ${[1].map(i => `
             <div class="bpay-pos" id="bpay-pos-${i}">
               <div class="bpay-oval bpay-p-oval" id="bpay-p-${i}">
                 <div class="bpay-oval-lbl">PLAYER</div>
@@ -1857,7 +1857,7 @@ const Sims = {
     function showNextHand() {
       const panel = $('bpay-comm-panel'); if (panel) panel.style.display = 'none';
       const pos = positions(); if (pos) pos.classList.remove('paying');
-      for (let j = 1; j <= 3; j++) { const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active'); }
+      for (let j = 1; j <= 1; j++) { const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active'); }
       S.score++;
       $('bpay-score').textContent = S.score;
       const tbl = document.querySelector('.baccarat-table');
@@ -1874,7 +1874,7 @@ const Sims = {
       S.commIdx = idx;
       const posNum = idx + 1;
       const pos = positions(); if (pos) pos.classList.add('paying');
-      for (let j = 1; j <= 3; j++) {
+      for (let j = 1; j <= 1; j++) {
         const p = $(`bpay-pos-${j}`); if (p) p.classList.toggle('active', j === posNum);
       }
       const comm = Math.floor(S.bets[idx].total * 0.05 / 5000) * 5000;
@@ -1884,16 +1884,16 @@ const Sims = {
 
     return {
       init() {
-        S = { bets: [], commIdx: 2, rounds: 0, score: 0, commTarget: 0 };
+        S = { bets: [], commIdx: 0, rounds: 0, score: 0, commTarget: 0 };
       },
 
       deal() {
         const startOverlay = $('bpay-start-overlay');
         if (startOverlay) startOverlay.style.display = 'none';
         const pos = positions(); if (pos) pos.classList.remove('paying');
-        S.rounds++; S.commIdx = 2; S.commTarget = 0;
+        S.rounds++; S.commIdx = 0; S.commTarget = 0;
         $('bpay-rounds').textContent = S.rounds;
-        for (let j = 1; j <= 3; j++) {
+        for (let j = 1; j <= 1; j++) {
           const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active');
           const bOval = $(`bpay-b-${j}`); if (bOval) bOval.classList.remove('has-bet');
           const bAmt  = $(`bpay-b-amt-${j}`); if (bAmt) bAmt.innerHTML = '';
@@ -1901,12 +1901,12 @@ const Sims = {
         }
         const panel = $('bpay-comm-panel'); if (panel) panel.style.display = 'none';
         const spread = $('bpay-spread-section'); if (spread) { spread.style.display = 'none'; spread.innerHTML = ''; }
-        S.bets = Array.from({length: 3}, () => {
+        S.bets = Array.from({length: 1}, () => {
           const chips = generateBetChips();
           return { chips, total: chipTotal(chips) };
         });
         renderPositions();
-        setTimeout(() => startCommAt(2), 400);
+        setTimeout(() => startCommAt(0), 400);
       },
 
       addChip(key, n) {
