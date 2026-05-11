@@ -347,7 +347,6 @@ const Views = {
         </div>
       </div>
       <div class="baccarat-table">
-        <div class="bside-result" id="bside-result"></div>
         <div class="bpay-positions bside-layout">
           ${[1].map(i => `
             <div class="bpay-pos" id="bside-pos-${i}">
@@ -2023,62 +2022,7 @@ const Sims = {
       return val.toString();
     }
 
-    // Weighted scenario generator to exercise all side bet types
-    function generateResult() {
-      const scenarios = [
-        { w: 4,  make: () => ({ winner: 'tie' }) },
-        { w: 10, make: () => ({ winner: 'banker', bTotal: 6, bCards: 3 }) },
-        { w: 10, make: () => ({ winner: 'banker', bTotal: 6, bCards: 2 }) },
-        { w: 10, make: () => ({ winner: 'banker', bTotal: 7, bCards: 3 }) },
-        { w: 10, make: () => ({ winner: 'banker', bTotal: 7, bCards: 2 }) },
-        { w: 8,  make: () => ({ winner: 'player', pTotal: 7, pCards: 2 }) },
-        { w: 8,  make: () => ({ winner: 'player', pTotal: 7, pCards: 3 }) },
-        { w: 20, make: () => ({ winner: 'banker' }) },
-        { w: 20, make: () => ({ winner: 'player' }) },
-      ];
-      const total = scenarios.reduce((s, sc) => s + sc.w, 0);
-      let r = Math.random() * total;
-      let chosen = scenarios[scenarios.length - 1];
-      for (const sc of scenarios) { r -= sc.w; if (r <= 0) { chosen = sc; break; } }
-      const base = chosen.make();
-      const winner = base.winner;
-      const pCards = base.pCards ?? (Math.random() < 0.4 ? 2 : 3);
-      const bCards = base.bCards ?? (Math.random() < 0.4 ? 2 : 3);
-      let pTotal = base.pTotal ?? (winner === 'player' ? 1 + Math.floor(Math.random() * 9) : Math.floor(Math.random() * 6));
-      let bTotal = base.bTotal ?? (winner === 'banker' ? 1 + Math.floor(Math.random() * 9) : Math.floor(Math.random() * pTotal));
-      if (winner === 'tie') pTotal = bTotal = 1 + Math.floor(Math.random() * 9);
-      const playerPair = Math.random() < 0.12;
-      const bankerPair = Math.random() < 0.12;
-      return { winner, playerCards: pCards, bankerCards: bCards, playerTotal: pTotal, bankerTotal: bTotal, playerPair, bankerPair };
-    }
-
-    function resolveWins(result) {
-      const wins = {};
-      if (result.playerPair) wins.pp = 11;
-      if (result.bankerPair) wins.bp = 11;
-      if (result.winner === 'tie') wins.tt = 8;
-      if (result.winner === 'banker' && result.bankerTotal === 6 && result.bankerCards === 3) wins.bt = 50;
-      if (result.winner === 'banker' && result.bankerTotal === 6 && result.bankerCards === 2) wins.st = 22;
-      if (result.winner === 'banker' && result.bankerTotal === 7 && result.bankerCards === 3) wins.bd = 30;
-      if (result.winner === 'banker' && result.bankerTotal === 7 && result.bankerCards === 2) wins.sd = 15;
-      if (result.winner === 'player' && result.playerTotal === 7) wins.s7 = result.playerCards === 2 ? 40 : 30;
-      return wins;
-    }
-
-    function resultLabel(result) {
-      let w;
-      if (result.winner === 'tie') {
-        w = `<span class="bside-res-tie">TIE  ${result.playerTotal}pts</span>`;
-      } else if (result.winner === 'player') {
-        w = `<span class="bside-res-player">PLAYER WIN  ${result.playerTotal}pts (${result.playerCards}C)</span>`;
-      } else {
-        w = `<span class="bside-res-banker">BANKER WIN  ${result.bankerTotal}pts (${result.bankerCards}C)</span>`;
-      }
-      const pairs = [];
-      if (result.playerPair) pairs.push('<span class="bside-res-pair">P PAIR</span>');
-      if (result.bankerPair) pairs.push('<span class="bside-res-pair">B PAIR</span>');
-      return w + (pairs.length ? '&nbsp;&nbsp;' + pairs.join('&nbsp;') : '');
-    }
+    const SIDE_MULT = { st:22, tt:8, bt:50, sd:15, s7:40, bd:30, pp:11, bp:11 };
 
     function renderSideBets() {
       S.sideBets.forEach((sbets, posIdx) => {
@@ -2089,22 +2033,6 @@ const Sims = {
           el.innerHTML = sbets[k] ? renderChipDiscs(sbets[k]) : '';
         });
       });
-    }
-
-    function highlightCircles() {
-      for (let i = 1; i <= 1; i++) {
-        SIDE_KEYS.forEach(k => {
-          const circ = $(`bside-${k}-${i}`);
-          if (!circ) return;
-          const hasBet = !!S.sideBets[i - 1][k];
-          if (!hasBet) return;
-          if (S.wins[k] != null) {
-            circ.classList.add('bside-win-circ');
-          } else {
-            circ.classList.add('bside-lose-circ');
-          }
-        });
-      }
     }
 
     function clearHighlights() {
@@ -2226,7 +2154,7 @@ const Sims = {
 
     return {
       init() {
-        S = { rounds: 0, score: 0, sideBets: [], result: null, wins: {}, winQueue: [], queueIdx: 0, payTarget: 0 };
+        S = { rounds: 0, score: 0, sideBets: [], winQueue: [], queueIdx: 0, payTarget: 0 };
       },
 
       deal() {
@@ -2241,8 +2169,6 @@ const Sims = {
         const panel = $('bside-comm-panel'); if (panel) panel.style.display = 'none';
         const spread = $('bside-spread-section'); if (spread) { spread.style.display = 'none'; spread.innerHTML = ''; }
 
-        S.result  = generateResult();
-        S.wins    = resolveWins(S.result);
         S.sideBets = Array.from({length: 1}, () => {
           const sbets = {};
           const count = 1 + Math.floor(Math.random() * 3);
@@ -2251,29 +2177,21 @@ const Sims = {
           return sbets;
         });
 
-        const res = $('bside-result');
-        if (res) res.innerHTML = resultLabel(S.result);
-
         renderSideBets();
 
         setTimeout(() => {
-          highlightCircles();
-          // Build payout queue: side keys in order
+          // Build payout queue for all bets using fixed multipliers
           for (let posIdx = 0; posIdx < 1; posIdx++) {
             SIDE_KEYS.forEach(k => {
               const chips = S.sideBets[posIdx][k];
-              const mult  = S.wins[k];
-              if (chips && mult != null) {
+              if (chips) {
                 const betTotal = chipTotal(chips);
+                const mult = SIDE_MULT[k];
                 S.winQueue.push({ posIdx, key: k, chips, betTotal, mult, target: betTotal * mult });
               }
             });
           }
-          if (S.winQueue.length === 0) {
-            setTimeout(() => showNextHand(), 1200);
-          } else {
-            processQueue();
-          }
+          processQueue();
         }, 400);
       },
 
