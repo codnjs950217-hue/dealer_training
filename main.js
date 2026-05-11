@@ -337,7 +337,7 @@ const Views = {
     </div>`,
 
   baccaratSideSim: () => `
-    <div class="sim-page baccarat-sim">
+    <div class="sim-page baccarat-sim bside-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
         <h2>🃏 Side Bet Practice</h2>
@@ -348,7 +348,7 @@ const Views = {
       </div>
       <div class="baccarat-table">
         <div class="bside-result" id="bside-result"></div>
-        <div class="bpay-positions">
+        <div class="bpay-positions bside-layout">
           ${[1].map(i => `
             <div class="bpay-pos" id="bside-pos-${i}">
               <div class="bpay-oval-row">
