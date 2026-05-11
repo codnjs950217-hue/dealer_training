@@ -1680,9 +1680,16 @@ body {
 .bac-special-col-mid {
   align-items: center;
 }
+.bac-sub-btn-row {
+  display: flex; gap: .3rem;
+}
+.bac-sub-btn-row .btn-bac-banker,
+.bac-sub-btn-row .btn-bac-player {
+  flex: 1;
+}
 .btn-bac-special {
   font-size: .75rem !important;
-  padding: .38rem .75rem !important;
+  padding: .38rem .5rem !important;
 }
 .bac-pair-btn {
   font-size: .68rem !important;

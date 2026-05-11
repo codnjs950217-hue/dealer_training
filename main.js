@@ -1330,8 +1330,10 @@ const Sims = {
         banker: `
           <div class="bac-special-col">
             <button class="btn-bac-banker bac-inline-btn" onclick="Sims.baccarat.quizWinFull('banker-win','${source}')">BANKER WIN</button>
-            <button class="btn-bac-banker bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('banker-big6','${source}')">BANKER WIN BIG 6</button>
-            <button class="btn-bac-banker bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('banker-small6','${source}')">BANKER WIN SMALL 6</button>
+            <div class="bac-sub-btn-row">
+              <button class="btn-bac-banker bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('banker-big6','${source}')">BIG 6</button>
+              <button class="btn-bac-banker bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('banker-small6','${source}')">SMALL 6</button>
+            </div>
           </div>`,
         tie: `
           <div class="bac-special-col bac-special-col-mid">
@@ -1341,8 +1343,10 @@ const Sims = {
         player: `
           <div class="bac-special-col">
             <button class="btn-bac-player bac-inline-btn" onclick="Sims.baccarat.quizWinFull('player-win','${source}')">PLAYER WIN</button>
-            <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('player-big7','${source}')">PLAYER WIN BIG 7</button>
-            <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('player-small7','${source}')">PLAYER WIN SMALL 7</button>
+            <div class="bac-sub-btn-row">
+              <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('player-big7','${source}')">BIG 7</button>
+              <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('player-small7','${source}')">SMALL 7</button>
+            </div>
           </div>`,
       };
     }
