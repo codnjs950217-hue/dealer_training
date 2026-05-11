@@ -328,12 +328,12 @@ const Views = {
               </div>
             </div>`).join('')}
         </div>
-        <div class="bpay-spread-section" id="bpay-spread-section" style="display:none"></div>
+        <div class="bpay-spread-section" id="bpay-spread-section" style="display:flex"></div>
         <div class="bpay-start-overlay" id="bpay-start-overlay">
           <button class="bpay-start-btn" onclick="Sims.baccaratPay.deal()">START</button>
         </div>
       </div>
-      <div class="bpay-comm-panel" id="bpay-comm-panel" style="display:none"></div>
+      <div class="bpay-comm-panel" id="bpay-comm-panel"></div>
     </div>`,
 
   baccaratSideSim: () => `
@@ -1825,10 +1825,7 @@ const Sims = {
 
     function showCommTray() {
       const panel = $('bpay-comm-panel');
-      const spread = $('bpay-spread-section');
       if (!panel) return;
-      panel.style.display = 'block';
-      if (spread) { spread.style.display = 'flex'; spread.innerHTML = ''; }
       panel.innerHTML = `<div class="comm-tray">
         <div id="bpay-order-warn" class="bpay-order-warn"><span>저액 칩스부터 세팅하세요</span></div>
         <div class="comm-tray-slots">
@@ -1863,7 +1860,6 @@ const Sims = {
     const positions = () => document.querySelector('.bpay-positions');
 
     function showNextHand() {
-      const panel = $('bpay-comm-panel'); if (panel) panel.style.display = 'none';
       const pos = positions(); if (pos) pos.classList.remove('paying');
       for (let j = 1; j <= 1; j++) { const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active'); }
       S.score++;
@@ -1893,6 +1889,7 @@ const Sims = {
     return {
       init() {
         S = { bets: [], commIdx: 0, rounds: 0, score: 0, commTarget: 0 };
+        showCommTray();
       },
 
       deal() {
@@ -1907,8 +1904,7 @@ const Sims = {
           const bAmt  = $(`bpay-b-amt-${j}`); if (bAmt) bAmt.innerHTML = '';
           const pAmt  = $(`bpay-p-amt-${j}`); if (pAmt) pAmt.innerHTML = '';
         }
-        const panel = $('bpay-comm-panel'); if (panel) panel.style.display = 'none';
-        const spread = $('bpay-spread-section'); if (spread) { spread.style.display = 'none'; spread.innerHTML = ''; }
+        const spread = $('bpay-spread-section'); if (spread) spread.innerHTML = '';
         S.bets = Array.from({length: 1}, () => {
           const chips = generateBetChips();
           return { chips, total: chipTotal(chips) };
