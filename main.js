@@ -318,24 +318,30 @@ const Views = {
                   <div class="bpay-oval-lbl">PLAYER</div>
                   <div class="bpay-oval-amt" id="bpay-p-amt-${i}"></div>
                 </div>
-                <div class="bpay-pair-circ bpay-ppair" id="bpay-pp-${i}">P<br>PAIR</div>
+                <div class="bpay-pair-circ-wrap">
+                  <div class="bpay-pair-circ bpay-ppair" id="bpay-pp-${i}">P<br>PAIR</div>
+                  <div class="bpay-circ-bet" id="bpay-pp-amt-${i}"></div>
+                </div>
               </div>
               <div class="bpay-oval-row">
                 <div class="bpay-oval bpay-b-oval" id="bpay-b-${i}">
                   <div class="bpay-oval-lbl">BANKER</div>
                   <div class="bpay-oval-amt" id="bpay-b-amt-${i}"></div>
                 </div>
-                <div class="bpay-pair-circ bpay-bpair" id="bpay-bp-${i}">B<br>PAIR</div>
+                <div class="bpay-pair-circ-wrap">
+                  <div class="bpay-pair-circ bpay-bpair" id="bpay-bp-${i}">B<br>PAIR</div>
+                  <div class="bpay-circ-bet" id="bpay-bp-amt-${i}"></div>
+                </div>
               </div>
               <div class="bpay-circles">
-                <div class="bpay-circ bpay-tiger">BIG<br>TIGER<br><span class="bpay-circ-pay">×50</span></div>
-                <div class="bpay-circ bpay-tiger">TIE<br><span class="bpay-circ-pay">×8</span></div>
-                <div class="bpay-circ bpay-tiger">SMALL<br>TIGER<br><span class="bpay-circ-pay">×22</span></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger" id="bpay-bt-${i}">BIG<br>TIGER<br><span class="bpay-circ-pay">×50</span></div><div class="bpay-circ-bet" id="bpay-bt-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger" id="bpay-tt-${i}">TIE<br><span class="bpay-circ-pay">×8</span></div><div class="bpay-circ-bet" id="bpay-tt-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger" id="bpay-st-${i}">SMALL<br>TIGER<br><span class="bpay-circ-pay">×22</span></div><div class="bpay-circ-bet" id="bpay-st-amt-${i}"></div></div>
               </div>
               <div class="bpay-circles">
-                <div class="bpay-circ bpay-dragon">BIG<br>DRAGON<br><span class="bpay-circ-pay">×30</span></div>
-                <div class="bpay-circ bpay-dragon">SUPER<br>7</div>
-                <div class="bpay-circ bpay-dragon">SMALL<br>DRAGON<br><span class="bpay-circ-pay">×15</span></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon" id="bpay-bd-${i}">BIG<br>DRAGON<br><span class="bpay-circ-pay">×30</span></div><div class="bpay-circ-bet" id="bpay-bd-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon" id="bpay-s7-${i}">SUPER<br>7<br><span class="bpay-circ-pay">×30/40/100</span></div><div class="bpay-circ-bet" id="bpay-s7-amt-${i}"></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon" id="bpay-sd-${i}">SMALL<br>DRAGON<br><span class="bpay-circ-pay">×15</span></div><div class="bpay-circ-bet" id="bpay-sd-amt-${i}"></div></div>
               </div>
             </div>`).join('')}
         </div>
@@ -1690,6 +1696,9 @@ const Sims = {
     ];
     // Betting chips: min 100K
     const BET_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[2], COMM_CHIPS[1]]; // 100K, 1M, 10M
+    // Side bet chips: smaller denominations
+    const SIDE_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[4], COMM_CHIPS[5]]; // 100K, 10K, 5K
+    const SIDE_KEYS  = ['bt','tt','st','bd','s7','sd','pp','bp'];
 
     let S = {};
     const $  = id => document.getElementById(id);
@@ -1700,6 +1709,39 @@ const Sims = {
       const chips = {};
       picked.forEach(d => { chips[d.key] = 1 + Math.floor(Math.random() * 4); });
       return chips;
+    }
+
+    function generateSideChips() {
+      const denom = SIDE_CHIPS[Math.floor(Math.random() * SIDE_CHIPS.length)];
+      return { [denom.key]: 1 + Math.floor(Math.random() * 3) };
+    }
+
+    function renderChipDiscs(chips) {
+      const sorted = Object.entries(chips).sort((a, b) => {
+        const va = COMM_CHIPS.find(c => c.key === a[0])?.val ?? 0;
+        const vb = COMM_CHIPS.find(c => c.key === b[0])?.val ?? 0;
+        return vb - va;
+      });
+      let html = '';
+      sorted.forEach(([key, cnt]) => {
+        const chip = COMM_CHIPS.find(c => c.key === key);
+        if (!chip) return;
+        for (let j = 0; j < cnt; j++)
+          html += `<div class="bpay-circ-disc" style="background:${chip.bg};color:${chip.fg}"></div>`;
+      });
+      return `<div class="bpay-circ-chips">${html}</div>`;
+    }
+
+    function renderSideBets() {
+      S.sideBets.forEach((sbets, posIdx) => {
+        const i = posIdx + 1;
+        SIDE_KEYS.forEach(k => {
+          const el = $(`bpay-${k}-amt-${i}`);
+          if (!el) return;
+          const chips = sbets[k];
+          el.innerHTML = chips ? renderChipDiscs(chips) : '';
+        });
+      });
     }
 
     function chipTotal(chips) {
@@ -1867,6 +1909,7 @@ const Sims = {
           const bOval = $(`bpay-b-${j}`); if (bOval) bOval.classList.remove('has-bet');
           const bAmt  = $(`bpay-b-amt-${j}`); if (bAmt) bAmt.innerHTML = '';
           const pAmt  = $(`bpay-p-amt-${j}`); if (pAmt) pAmt.innerHTML = '';
+          SIDE_KEYS.forEach(k => { const el = $(`bpay-${k}-amt-${j}`); if (el) el.innerHTML = ''; });
         }
         const panel = $('bpay-comm-panel'); if (panel) panel.style.display = 'none';
         const spread = $('bpay-spread-section'); if (spread) { spread.style.display = 'none'; spread.innerHTML = ''; }
@@ -1874,7 +1917,15 @@ const Sims = {
           const chips = generateBetChips();
           return { chips, total: chipTotal(chips) };
         });
+        S.sideBets = Array.from({length: 3}, () => {
+          const result = {};
+          const count = 1 + Math.floor(Math.random() * 3); // 1–3 side bets per position
+          [...SIDE_KEYS].sort(() => Math.random() - 0.5).slice(0, count)
+            .forEach(k => { result[k] = generateSideChips(); });
+          return result;
+        });
         renderPositions();
+        renderSideBets();
         setTimeout(() => startCommAt(2), 400);
       },
 
