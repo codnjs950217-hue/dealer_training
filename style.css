@@ -2263,41 +2263,6 @@ body {
 }
 .bside-main-grid .bpay-circ-pay { font-size: .55rem; }
 
-/* Tab switcher (Option B) */
-.bside-tabs {
-  display: flex;
-  gap: .3rem;
-  margin: .2rem 0 .35rem;
-}
-.bside-tab {
-  flex: 1;
-  padding: .45rem .5rem;
-  border-radius: 8px;
-  border: 1.5px solid rgba(255,255,255,.2);
-  background: rgba(255,255,255,.08);
-  color: rgba(255,255,255,.5);
-  font-size: .82rem;
-  font-weight: 700;
-  cursor: pointer;
-  letter-spacing: .5px;
-  transition: background .15s, color .15s;
-}
-.bside-tab.active {
-  background: rgba(255,255,255,.22);
-  color: #fff;
-  border-color: rgba(255,255,255,.45);
-}
-.bside-tab-panel {
-  display: flex;
-  gap: .35rem;
-}
-.bside-tab-panel .bpay-circ {
-  flex: 1;
-  aspect-ratio: unset !important;
-  min-height: 96px;
-  font-size: .74rem;
-}
-.bside-tab-panel .bpay-circ-pay { font-size: .57rem; }
 
 /* Tiger/Dragon ovals (wide ellipse, faint text, chips centered on top) */
 .bside-oval-bet {
@@ -2370,9 +2335,7 @@ body {
   .bside-pair-btn             { height: 34px !important; font-size: .72rem !important; }
   .bside-main-grid .bpay-circ { min-height: 64px; font-size: .62rem; }
   .bside-main-grid .bpay-circ-pay { font-size: .5rem; }
-  .bside-tab-panel .bpay-circ { min-height: 82px; font-size: .66rem; }
-  .bside-tab-panel .bpay-circ-pay { font-size: .52rem; }
-  .bside-oval-bet             { min-height: 82px; }
+  .bside-oval-bet             { min-height: 64px; }
   .bside-result               { font-size: .78rem; padding: .15rem .3rem 0; }
   .bside-sim .comm-tray       { padding: .3rem; }
   .bside-sim .comm-slot       { padding: .3rem .08rem .28rem; gap: .18rem; }
