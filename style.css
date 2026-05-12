@@ -1522,7 +1522,7 @@ body {
 /* Chip spread display inside banker oval — dealer style (high left, low right) */
 .bpay-chip-spread {
   display: flex; flex-direction: row;
-  justify-content: center; align-items: center;
+  justify-content: center; align-items: flex-end;
   padding: .15rem 0;
 }
 .bpay-chip-disc {
@@ -1548,6 +1548,7 @@ body {
 .bpay-chip-spread .bpay-chip-stack { margin-left: 10px; }
 /* ×10 — 4 visible chip layers below the top */
 .bpay-chip-stack-10 {
+  margin-bottom: 41px;
   box-shadow:
     0 6px 0 0 rgba(0,0,0,.45),  0 7px 0 0 #245f25,
     0 13px 0 0 rgba(0,0,0,.45), 0 14px 0 0 #2e7d32,
@@ -1557,6 +1558,7 @@ body {
 }
 /* ×20 — 7 visible chip layers below the top */
 .bpay-chip-stack-20 {
+  margin-bottom: 63px;
   box-shadow:
     0 6px 0 0 rgba(0,0,0,.45),  0 7px 0 0 #245f25,
     0 13px 0 0 rgba(0,0,0,.45), 0 14px 0 0 #2e7d32,
@@ -1567,8 +1569,8 @@ body {
     0 48px 0 0 rgba(0,0,0,.45), 0 49px 0 0 #245f25,
     0 56px 7px rgba(0,0,0,.45);
 }
-.bpay-stack-key { font-size: 7px;  font-weight: 900; line-height: 1; letter-spacing: .3px; opacity: .9; }
-.bpay-stack-cnt { font-size: 9px; font-weight: 900; line-height: 1; }
+.bpay-stack-key { font-size: 9px;  font-weight: 900; line-height: 1; letter-spacing: .3px; }
+.bpay-stack-cnt { font-size: 13px; font-weight: 900; line-height: 1; }
 
 /* Controls area: action buttons only */
 #bpay-controls { padding: .6rem 1rem; }
