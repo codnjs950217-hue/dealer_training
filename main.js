@@ -348,16 +348,22 @@ const Views = {
           ${[1].map(i => `
             <div class="bpay-pos" id="bside-pos-${i}">
               <div class="bside-pairs-bar">
-                <div class="bpay-pair-circ bpay-ppair bside-pair-btn" id="bside-pp-${i}">P PAIR<div class="bpay-circ-bet" id="bside-pp-amt-${i}"></div></div>
-                <div class="bpay-pair-circ bpay-bpair bside-pair-btn" id="bside-bp-${i}">B PAIR<div class="bpay-circ-bet" id="bside-bp-amt-${i}"></div></div>
+                <div class="bside-circ-wrap">
+                  <div class="bpay-pair-circ bpay-ppair bside-pair-btn" id="bside-pp-${i}">P PAIR<div class="bpay-circ-bet" id="bside-pp-amt-${i}"></div></div>
+                  <div class="bside-circ-pay-lbl">×11</div>
+                </div>
+                <div class="bside-circ-wrap">
+                  <div class="bpay-pair-circ bpay-bpair bside-pair-btn" id="bside-bp-${i}">B PAIR<div class="bpay-circ-bet" id="bside-bp-amt-${i}"></div></div>
+                  <div class="bside-circ-pay-lbl">×11</div>
+                </div>
               </div>
               <div class="bside-main-grid">
-                <div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-bt-${i}"><span class="bside-big-num">6</span>BIG<span class="bpay-circ-pay">×50</span><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div>
-                <div class="bpay-circ bpay-tie bside-oval-bet" id="bside-tt-${i}"><span class="bside-big-num">TIE</span><span class="bpay-circ-pay">×8</span><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div>
-                <div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-st-${i}"><span class="bside-big-num">6</span>SMALL<span class="bpay-circ-pay">×22</span><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div>
-                <div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-bd-${i}"><span class="bside-big-num">7</span>BIG<span class="bpay-circ-pay">×30</span><div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div>
-                <div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-s7-${i}"><span class="bside-big-num">7</span>SUPER<span class="bpay-circ-pay">×30/40/100</span><div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div>
-                <div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-sd-${i}"><span class="bside-big-num">7</span>SMALL<span class="bpay-circ-pay">×15</span><div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div>
+                <div class="bside-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-bt-${i}"><span class="bside-big-num">6</span>BIG<div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div><div class="bside-circ-pay-lbl">×50</div></div>
+                <div class="bside-circ-wrap"><div class="bpay-circ bpay-tie bside-oval-bet" id="bside-tt-${i}"><span class="bside-big-num">TIE</span><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div><div class="bside-circ-pay-lbl">×8</div></div>
+                <div class="bside-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-st-${i}"><span class="bside-big-num">6</span>SMALL<div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div><div class="bside-circ-pay-lbl">×22</div></div>
+                <div class="bside-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-bd-${i}"><span class="bside-big-num">7</span>BIG<div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div><div class="bside-circ-pay-lbl">×30</div></div>
+                <div class="bside-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-s7-${i}"><span class="bside-big-num">7</span>SUPER<div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div><div class="bside-circ-pay-lbl" id="bside-s7-pay-lbl-${i}">×30/40/100</div></div>
+                <div class="bside-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-sd-${i}"><span class="bside-big-num">7</span>SMALL<div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div><div class="bside-circ-pay-lbl">×15</div></div>
               </div>
             </div>`).join('')}
         </div>
@@ -2047,18 +2053,8 @@ const Sims = {
       return val.toString();
     }
 
-    const SIDE_MULT = { st:22, tt:8, bt:50, sd:15, s7:40, bd:30, pp:11, bp:11 };
-
-    function renderSideBets() {
-      S.sideBets.forEach((sbets, posIdx) => {
-        const i = posIdx + 1;
-        SIDE_KEYS.forEach(k => {
-          const el = $(`bside-${k}-amt-${i}`);
-          if (!el) return;
-          el.innerHTML = sbets[k] ? renderChipDiscs(sbets[k]) : '';
-        });
-      });
-    }
+    const SIDE_MULT = { st:22, tt:8, bt:50, sd:15, bd:30, pp:11, bp:11 };
+    const S7_MULTS  = [30, 40, 100];
 
     function clearHighlights() {
       for (let i = 1; i <= 1; i++) {
@@ -2107,27 +2103,13 @@ const Sims = {
     }
 
     function showPayTray() {
-      const item = S.winQueue[S.queueIdx];
-      if (!item) return;
-      S.payTarget = item.target;
-      // Dim all circles with bets; only brighten the currently paying one
-      for (let i = 1; i <= 1; i++) {
-        SIDE_KEYS.forEach(k => {
-          const c = $(`bside-${k}-${i}`);
-          if (!c) return;
-          c.classList.remove('bside-win-circ', 'bside-lose-circ', 'bside-paying-circ');
-          if (S.sideBets[i - 1]?.[k]) c.classList.add('bside-lose-circ');
-        });
-      }
-      const circ = $(`bside-${item.key}-${item.posIdx + 1}`);
-      if (circ) { circ.classList.remove('bside-lose-circ'); circ.classList.add('bside-paying-circ'); }
       const panel = $('bside-comm-panel');
       const spread = $('bside-spread-section');
       if (!panel) return;
       panel.style.display = 'block';
       if (spread) { spread.style.display = 'flex'; spread.innerHTML = ''; }
       panel.innerHTML = `<div class="comm-tray">
-        <div class="bside-tray-label">Pos ${item.posIdx + 1} — ${SIDE_LABEL[item.key]} ×${item.mult} &nbsp;|&nbsp; Bet: ${fmtAmt(item.betTotal)}</div>
+        <div class="bside-tray-label">${SIDE_LABEL[S.currentKey]} ×${S.currentMult} &nbsp;|&nbsp; Bet: ${fmtAmt(S.currentBet)}</div>
         <div id="bside-order-warn" class="bpay-order-warn" style="display:none"><span>저액 칩스부터 세팅하세요</span></div>
         <div class="comm-tray-slots">
           ${COMM_CHIPS.filter(c => c.val >= 10000).map(c => `
@@ -2158,66 +2140,53 @@ const Sims = {
       setTimeout(() => { ov.remove(); retryFn(); }, 1600);
     }
 
-    function showNextHand() {
-      const panel = $('bside-comm-panel'); if (panel) panel.style.display = 'none';
-      const spread = $('bside-spread-section'); if (spread) { spread.style.display = 'none'; spread.innerHTML = ''; }
-      S.score++;
-      $('bside-score').textContent = S.score;
-      const tbl = document.querySelector('.baccarat-table');
-      if (!tbl) { Sims.baccaratSide.deal(); return; }
-      const ov = document.createElement('div');
-      ov.className = 'next-hand-overlay';
-      ov.innerHTML = '<div class="next-hand-text">NEXT HAND</div>';
-      tbl.appendChild(ov);
-      setTimeout(() => { ov.remove(); Sims.baccaratSide.deal(); }, 1600);
-    }
-
-    function processQueue() {
-      if (S.queueIdx >= S.winQueue.length) { showNextHand(); return; }
-      showPayTray();
-    }
-
     return {
       init() {
-        S = { rounds: 0, score: 0, sideBets: [], winQueue: [], queueIdx: 0, payTarget: 0 };
+        S = { rounds: 0, score: 0, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0 };
       },
 
       deal() {
         const startOverlay = $('bside-start-overlay');
         if (startOverlay) startOverlay.style.display = 'none';
-        S.rounds++; S.queueIdx = 0; S.winQueue = [];
+        S.rounds++;
         $('bside-rounds').textContent = S.rounds;
         clearHighlights();
-        for (let j = 1; j <= 1; j++) {
-          SIDE_KEYS.forEach(k => { const el = $(`bside-${k}-amt-${j}`); if (el) el.innerHTML = ''; });
-        }
+        SIDE_KEYS.forEach(k => { const el = $(`bside-${k}-amt-1`); if (el) el.innerHTML = ''; });
         const panel = $('bside-comm-panel'); if (panel) panel.style.display = 'none';
         const spread = $('bside-spread-section'); if (spread) { spread.style.display = 'none'; spread.innerHTML = ''; }
 
-        S.sideBets = Array.from({length: 1}, () => {
-          const sbets = {};
-          const count = 1 + Math.floor(Math.random() * 3);
-          [...SIDE_KEYS].sort(() => Math.random() - 0.5).slice(0, count)
-            .forEach(k => { sbets[k] = generateSideChips(); });
-          return sbets;
-        });
+        // Pick a random key different from the last one
+        let key;
+        do { key = SIDE_KEYS[Math.floor(Math.random() * SIDE_KEYS.length)]; }
+        while (key === S.lastKey);
+        S.lastKey = key;
+        S.currentKey = key;
 
-        renderSideBets();
+        // Determine multiplier
+        const mult = key === 's7'
+          ? S7_MULTS[Math.floor(Math.random() * S7_MULTS.length)]
+          : SIDE_MULT[key];
+        S.currentMult = mult;
 
-        setTimeout(() => {
-          // Build payout queue for all bets using fixed multipliers
-          for (let posIdx = 0; posIdx < 1; posIdx++) {
-            SIDE_KEYS.forEach(k => {
-              const chips = S.sideBets[posIdx][k];
-              if (chips) {
-                const betTotal = chipTotal(chips);
-                const mult = SIDE_MULT[k];
-                S.winQueue.push({ posIdx, key: k, chips, betTotal, mult, target: betTotal * mult });
-              }
-            });
-          }
-          processQueue();
-        }, 400);
+        // Update Super 7 label to show the chosen mult
+        if (key === 's7') {
+          const lbl = $('bside-s7-pay-lbl-1');
+          if (lbl) lbl.textContent = `×${mult}`;
+        }
+
+        // Generate bet chips and show on circle
+        const chips = generateSideChips();
+        const betTotal = chipTotal(chips);
+        S.currentBet = betTotal;
+        S.payTarget = betTotal * mult;
+
+        const amtEl = $(`bside-${key}-amt-1`);
+        if (amtEl) amtEl.innerHTML = renderChipDiscs(chips);
+
+        const circ = $(`bside-${key}-1`);
+        if (circ) circ.classList.add('bside-paying-circ');
+
+        showPayTray();
       },
 
       addChip(key, n) {
@@ -2261,12 +2230,17 @@ const Sims = {
           });
           return;
         }
-        const circ = $(`bside-${S.winQueue[S.queueIdx].key}-${S.winQueue[S.queueIdx].posIdx + 1}`);
+        // Correct — flash green then deal next
+        const circ = $(`bside-${S.currentKey}-1`);
         if (circ) { circ.classList.remove('bside-paying-circ'); circ.classList.add('bside-win-circ'); }
-        S.queueIdx++;
         COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
         const spread = $('bside-spread-section'); if (spread) spread.innerHTML = '';
-        processQueue();
+        S.score++;
+        $('bside-score').textContent = S.score;
+        // Reset Super 7 label back to all options
+        const s7lbl = $('bside-s7-pay-lbl-1');
+        if (s7lbl && S.currentKey !== 's7') {} // leave as-is until next deal resets it
+        setTimeout(() => { Sims.baccaratSide.deal(); }, 900);
       },
     };
   })(),
