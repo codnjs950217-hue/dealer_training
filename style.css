@@ -2242,14 +2242,14 @@ body {
 .bside-layout .bpay-oval     { min-height: 36px; max-height: 42px; padding: .12rem .3rem; }
 .bside-layout .bpay-oval-lbl { font-size: 1rem; }
 
-/* Pair: fills 1-col cell, wide/flat */
+/* Pair: fills 1-col cell, same pill shape as bet circles */
 .bside-layout .bpay-pair-circ-wrap { display: flex; align-items: stretch; }
 .bside-layout .bpay-pair-circ {
   flex: 1;
   width: 100% !important;
   height: auto !important;
   min-height: 36px;
-  border-radius: 8px !important;
+  border-radius: 50px !important;
   font-size: .66rem;
 }
 
@@ -2331,7 +2331,7 @@ body {
   .bside-sim .sim-header h2   { font-size: 1.1rem; }
   .bside-layout .bpay-oval    { min-height: 34px; max-height: 40px; }
   .bside-layout .bpay-oval-lbl { font-size: .9rem; }
-  .bside-layout .bpay-pair-circ { font-size: .6rem; min-height: 34px; }
+  .bside-layout .bpay-pair-circ { font-size: .6rem; min-height: 34px; border-radius: 50px !important; }
   .bside-layout .bpay-circ    { max-height: 40px; font-size: .58rem; }
   .bside-oval-bet             { min-height: 34px; max-height: 40px; }
   .bside-oval-bet .bside-big-num { font-size: 1rem; }
