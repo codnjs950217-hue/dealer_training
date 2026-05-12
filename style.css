@@ -1384,6 +1384,18 @@ body {
 }
 
 /* 3 Player betting positions */
+.bpay-mode-row {
+  display: flex; gap: .6rem; justify-content: center; margin-bottom: .75rem;
+}
+.bpay-mode-btn {
+  padding: .42rem 1.1rem;
+  border: 2px solid rgba(255,255,255,.14); border-radius: 20px;
+  background: transparent; color: rgba(255,255,255,.5);
+  font-size: .82rem; font-weight: 700; cursor: pointer; transition: all .15s;
+}
+.bpay-mode-btn.active  { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,.1); }
+.bpay-mode-btn:not(.active):hover { border-color: rgba(255,255,255,.3); color: var(--text); }
+
 .bpay-positions {
   display: flex; gap: 1.6rem;
 }

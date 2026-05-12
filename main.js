@@ -117,7 +117,7 @@ const Views = {
     const g = GAMES[game];
     const simBtns = game === 'baccarat'
       ? `<button class="btn btn-secondary" onclick="App.navigate('baccarat','simulation')">⚡ Drawing Practice</button>
-         <button class="btn btn-secondary" onclick="App.navigate('baccarat','paysim')">⚡ Commission Practice</button>
+         <button class="btn btn-secondary" onclick="App.navigate('baccarat','paysim')">⚡ Banker Payout Practice</button>
          <button class="btn btn-secondary" onclick="App.navigate('baccarat','paysim-side')">⚡ Side Bet Practice</button>`
       : game === 'poker'
       ? `<button class="btn btn-secondary" onclick="App.navigate('poker','isp')">⚡ ISP Practice</button>
@@ -308,11 +308,15 @@ const Views = {
     <div class="sim-page baccarat-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
-        <h2>🃏 Commission Practice</h2>
+        <h2>🃏 Banker Payout Practice</h2>
         <div class="sim-stats">
           <span>Rounds: <strong id="bpay-rounds">0</strong></span>
           <span>Score: <strong id="bpay-score">0</strong></span>
         </div>
+      </div>
+      <div class="bpay-mode-row">
+        <button id="bpay-btn-commission" class="bpay-mode-btn active" onclick="Sims.baccaratPay.setMode('commission')">💰 Commission (5%)</button>
+        <button id="bpay-btn-halfpay"    class="bpay-mode-btn"        onclick="Sims.baccaratPay.setMode('halfpay')">½ Half Pay (1:2)</button>
       </div>
       <div class="baccarat-table">
         <div class="bpay-positions">
@@ -1880,15 +1884,29 @@ const Sims = {
       for (let j = 1; j <= 1; j++) {
         const p = $(`bpay-pos-${j}`); if (p) p.classList.toggle('active', j === posNum);
       }
-      const comm = Math.floor(S.bets[idx].total * 0.05 / 5000) * 5000;
-      S.commTarget = S.bets[idx].total - comm;
+      const total = S.bets[idx].total;
+      if (S.mode === 'halfpay') {
+        S.commTarget = Math.floor(total / 2 / 5000) * 5000;
+      } else {
+        const comm = Math.floor(total * 0.05 / 5000) * 5000;
+        S.commTarget = total - comm;
+      }
       showCommTray();
     }
 
     return {
       init() {
-        S = { bets: [], commIdx: 0, rounds: 0, score: 0, commTarget: 0 };
+        S = { bets: [], commIdx: 0, rounds: 0, score: 0, commTarget: 0, mode: 'commission' };
         showCommTray();
+      },
+
+      setMode(mode) {
+        S.mode = mode;
+        const btnComm = document.getElementById('bpay-btn-commission');
+        const btnHalf = document.getElementById('bpay-btn-halfpay');
+        if (btnComm) btnComm.classList.toggle('active', mode === 'commission');
+        if (btnHalf) btnHalf.classList.toggle('active', mode === 'halfpay');
+        this.deal();
       },
 
       deal() {
