@@ -1538,12 +1538,11 @@ body {
 /* Controls area: action buttons only */
 #bpay-controls { padding: .6rem 1rem; }
 
-/* START bar below Banker oval */
-.bpay-start-bar {
+
+/* START button (used in side bet screen) */
+.bpay-start-overlay {
   display: flex; align-items: center; justify-content: center;
-  border-top: 1px solid rgba(255,255,255,.18);
-  padding: .55rem 0 .1rem;
-  margin-top: .1rem;
+  padding: .5rem 0 0;
 }
 .bpay-start-btn {
   background: linear-gradient(135deg, #c9a84c 0%, #9a7820 100%);
