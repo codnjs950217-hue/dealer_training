@@ -351,10 +351,16 @@ const Views = {
                 <div class="bpay-pair-circ bpay-ppair bside-pair-btn" id="bside-pp-${i}">P PAIR<div class="bpay-circ-bet" id="bside-pp-amt-${i}"></div></div>
                 <div class="bpay-pair-circ bpay-bpair bside-pair-btn" id="bside-bp-${i}">B PAIR<div class="bpay-circ-bet" id="bside-bp-amt-${i}"></div></div>
               </div>
-              <div class="bside-main-grid">
+              <div class="bside-tabs">
+                <button class="bside-tab active" id="bside-tab-btn-0" onclick="Sims.baccaratSide.setTab(0)">6 / TIE</button>
+                <button class="bside-tab" id="bside-tab-btn-1" onclick="Sims.baccaratSide.setTab(1)">7s</button>
+              </div>
+              <div class="bside-tab-panel" id="bside-tab-panel-0">
                 <div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-bt-${i}"><span class="bside-big-num">6</span>BIG 6<span class="bpay-circ-pay">×50</span><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div>
                 <div class="bpay-circ bpay-tie bside-oval-bet" id="bside-tt-${i}"><span class="bside-big-num">TIE</span><span class="bpay-circ-pay">×8</span><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div>
                 <div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-st-${i}"><span class="bside-big-num">6</span>SMALL 6<span class="bpay-circ-pay">×22</span><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div>
+              </div>
+              <div class="bside-tab-panel" id="bside-tab-panel-1" style="display:none">
                 <div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-bd-${i}"><span class="bside-big-num">7</span>BIG 7<span class="bpay-circ-pay">×30</span><div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div>
                 <div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-s7-${i}"><span class="bside-big-num">7</span>SUPER 7<span class="bpay-circ-pay">×30/40/100</span><div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div>
                 <div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-sd-${i}"><span class="bside-big-num">7</span>SMALL 7<span class="bpay-circ-pay">×15</span><div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div>
@@ -2106,10 +2112,25 @@ const Sims = {
       section.innerHTML = `<div class="spread-row">${discs}</div>`;
     }
 
+    const TAB1_KEYS = new Set(['bt','tt','st']);
+
+    function setTabUI(idx) {
+      [0, 1].forEach(t => {
+        const panel = $(`bside-tab-panel-${t}`);
+        const btn   = $(`bside-tab-btn-${t}`);
+        if (panel) panel.style.display = t === idx ? 'flex' : 'none';
+        if (btn)   btn.classList.toggle('active', t === idx);
+      });
+    }
+
     function showPayTray() {
       const item = S.winQueue[S.queueIdx];
       if (!item) return;
       S.payTarget = item.target;
+      // Auto-switch tab to show the paying circle
+      if (!['pp','bp'].includes(item.key)) {
+        setTabUI(TAB1_KEYS.has(item.key) ? 0 : 1);
+      }
       // Dim all circles with bets; only brighten the currently paying one
       for (let i = 1; i <= 1; i++) {
         SIDE_KEYS.forEach(k => {
@@ -2181,6 +2202,8 @@ const Sims = {
       init() {
         S = { rounds: 0, score: 0, sideBets: [], winQueue: [], queueIdx: 0, payTarget: 0 };
       },
+
+      setTab(idx) { setTabUI(idx); },
 
       deal() {
         const startOverlay = $('bside-start-overlay');
