@@ -1894,8 +1894,16 @@ const Sims = {
     function showStartPanel() {
       const panel = $('bpay-comm-panel');
       if (!panel) return;
-      panel.innerHTML = `<div class="comm-tray comm-start-tray">
-        <button class="bpay-start-btn" onclick="Sims.baccaratPay.deal()">START</button>
+      panel.innerHTML = `<div class="comm-tray">
+        <div class="comm-tray-slots">
+          ${COMM_CHIPS.map(c => `
+            <div class="comm-slot comm-slot-idle">
+              <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
+            </div>`).join('')}
+          <div class="comm-pay-slot">
+            <button class="bpay-start-btn comm-start-btn" onclick="Sims.baccaratPay.deal()">START</button>
+          </div>
+        </div>
       </div>`;
     }
 
