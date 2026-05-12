@@ -2232,29 +2232,29 @@ body {
 .bside-sim .bpay-spread-section { min-height: 44px; padding: .3rem .3rem .2rem; }
 .bside-sim .spread-disc      { width: 34px; height: 34px; font-size: .58rem; margin-left: -9px; }
 
-/* 3-column grid: oval spans 2 cols, pair + each circle take 1 col each */
-.bside-layout .bpay-pos      { display: grid; grid-template-columns: repeat(3, 1fr); gap: .2rem; }
-.bside-layout .bpay-oval-row { display: contents; }
-.bside-layout .bpay-oval-row .bpay-oval { grid-column: span 2; }
-.bside-layout .bpay-circles  { display: contents; }
+/* Two-column layout: main area (ovals + circles) | narrow pair column */
+.bside-pos-wrap   { display: flex; flex-direction: row; gap: .2rem; align-items: flex-start; }
+.bside-pos-main   { flex: 1; display: flex; flex-direction: column; gap: .2rem; }
+.bside-pos-pairs  { width: 40px; display: flex; flex-direction: column; gap: .2rem; }
 
 /* Oval: chip height */
 .bside-layout .bpay-oval     { min-height: 36px; max-height: 42px; padding: .12rem .3rem; }
 .bside-layout .bpay-oval-lbl { font-size: 1rem; }
 
-/* Pair: fills 1-col cell, same pill shape as bet circles */
-.bside-layout .bpay-pair-circ-wrap { display: flex; align-items: stretch; }
-.bside-layout .bpay-pair-circ {
-  flex: 1;
+/* Pair: narrow pill column */
+.bside-pos-pairs .bpay-pair-circ {
   width: 100% !important;
   height: auto !important;
   min-height: 36px;
+  max-height: 42px;
   border-radius: 50px !important;
-  font-size: .66rem;
+  font-size: .52rem;
+  position: relative;
 }
 
-/* Circle cells: chip height */
-.bside-layout .bpay-circ-wrap { display: flex; align-items: stretch; }
+/* Circle rows: full width of main area */
+.bside-layout .bpay-circles  { display: flex; gap: .2rem; }
+.bside-layout .bpay-circ-wrap { flex: 1; display: flex; align-items: stretch; }
 .bside-layout .bpay-circ      { flex: 1; max-height: 44px; font-size: .62rem; }
 .bside-layout .bpay-circ-pay  { font-size: .5rem; }
 
@@ -2329,13 +2329,14 @@ body {
   .bside-sim .baccarat-table  { padding: .7rem .5rem; }
   .bside-sim .sim-header      { margin-bottom: .5rem; padding-bottom: .45rem; }
   .bside-sim .sim-header h2   { font-size: 1.1rem; }
-  .bside-layout .bpay-oval    { min-height: 34px; max-height: 40px; }
-  .bside-layout .bpay-oval-lbl { font-size: .9rem; }
-  .bside-layout .bpay-pair-circ { font-size: .6rem; min-height: 34px; border-radius: 50px !important; }
-  .bside-layout .bpay-circ    { max-height: 40px; font-size: .58rem; }
-  .bside-oval-bet             { min-height: 34px; max-height: 40px; }
-  .bside-oval-bet .bside-big-num { font-size: 1rem; }
-  .bside-layout .bpay-circ-pay { font-size: .46rem; }
+  .bside-layout .bpay-oval    { min-height: 32px; max-height: 38px; }
+  .bside-layout .bpay-oval-lbl { font-size: .88rem; }
+  .bside-pos-pairs            { width: 36px; }
+  .bside-pos-pairs .bpay-pair-circ { min-height: 32px; max-height: 38px; font-size: .48rem; }
+  .bside-layout .bpay-circ    { max-height: 38px; font-size: .56rem; }
+  .bside-oval-bet             { min-height: 32px; max-height: 38px; }
+  .bside-oval-bet .bside-big-num { font-size: .95rem; }
+  .bside-layout .bpay-circ-pay { font-size: .44rem; }
   .bside-result               { font-size: .78rem; padding: .15rem .3rem 0; }
   .bside-sim .comm-tray       { padding: .3rem; }
   .bside-sim .comm-slot       { padding: .3rem .08rem .28rem; gap: .18rem; }
