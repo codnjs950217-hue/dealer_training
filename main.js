@@ -1732,7 +1732,8 @@ const Sims = {
       { key: '10K',  val:      10_000, bg: '#2e7d32', fg: '#fff'    },
       { key: '5K',   val:       5_000, bg: '#b5176b', fg: '#fff'    },
     ];
-    const BET_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[2], COMM_CHIPS[1]];
+    const BET_CHIPS_MAIN  = [COMM_CHIPS[3], COMM_CHIPS[2]];        // 100K, 1M
+    const BET_CHIPS_EXTRA = [COMM_CHIPS[3], COMM_CHIPS[2], COMM_CHIPS[1]]; // 100K, 1M, 10M
 
     let S = {};
     const $ = id => document.getElementById(id);
@@ -1740,7 +1741,8 @@ const Sims = {
     function generateBetChips() {
       const r = Math.random();
       const numDenoms = r < 0.4 ? 1 : r < 0.7 ? 2 : 3;
-      const picked = [...BET_CHIPS].sort(() => Math.random() - 0.5).slice(0, numDenoms);
+      const pool = numDenoms === 3 ? BET_CHIPS_EXTRA : BET_CHIPS_MAIN;
+      const picked = [...pool].sort(() => Math.random() - 0.5).slice(0, numDenoms);
       const chips = {};
       picked.forEach(d => { chips[d.key] = 1 + Math.floor(Math.random() * 4); });
       return chips;
