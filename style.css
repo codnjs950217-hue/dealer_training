@@ -433,7 +433,7 @@ body {
   justify-content: center;
 }
 .dealer-area-bj .hand-display .bj-flip-card:not(:first-child) {
-  margin-left: -12px;
+  margin-left: 6px;
 }
 /* Match dealer cards to player-spot card size */
 .dealer-area-bj .card {
@@ -445,10 +445,10 @@ body {
 .dealer-area-bj .card-suit-center  { font-size: 1.4rem; }
 .dealer-area-bj .card-pattern      { width: 44px; height: 66px; }
 .dealer-ctrl-area {
-  margin-top: .4rem;
-  display: flex;
-  gap: .3rem;
-  flex-wrap: wrap;
+  display: none !important;
+}
+.sim-controls {
+  display: none !important;
 }
 .dealer-ctrl-btn {
   padding: .25rem .6rem;
@@ -2243,11 +2243,12 @@ body {
 .bside-pair-btn {
   flex: 1;
   width: auto !important;
-  height: 52px !important;
-  border-radius: 20px !important;
-  font-size: .9rem !important;
-  flex-direction: row !important;
-  gap: 4px !important;
+  min-height: 52px !important;
+  max-height: 58px !important;
+  border-radius: 999px !important;
+  font-size: .78rem !important;
+  flex-direction: column !important;
+  gap: 2px !important;
 }
 
 /* 2×3 grid for 6 main bets */
@@ -2347,7 +2348,7 @@ body {
   .bside-sim .baccarat-table  { padding: .7rem .5rem; }
   .bside-sim .sim-header      { margin-bottom: .5rem; padding-bottom: .45rem; }
   .bside-sim .sim-header h2   { font-size: 1.1rem; }
-  .bside-pair-btn             { height: 46px !important; font-size: .82rem !important; }
+  .bside-pair-btn             { min-height: 44px !important; max-height: 50px !important; font-size: .72rem !important; }
   .bside-main-grid .bpay-circ { min-height: 44px; max-height: 50px; font-size: .6rem; }
   .bside-oval-bet             { min-height: 44px; max-height: 50px; }
   .bside-main-grid .bside-big-num { font-size: 1.15rem; }
