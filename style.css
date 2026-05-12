@@ -2230,7 +2230,9 @@ body {
 .bside-sim .baccarat-table   { padding: .8rem .6rem; }
 .bside-sim .sim-header       { margin-bottom: .6rem; padding-bottom: .5rem; }
 .bside-sim .bpay-spread-section { min-height: 44px; padding: .3rem .3rem .2rem; }
-.bside-sim .spread-disc      { width: 34px; height: 34px; font-size: .58rem; margin-left: -9px; }
+.bside-sim .spread-disc             { width: 34px; height: 34px; font-size: .58rem; margin-left: -9px; }
+.bside-sim .spread-disc.spread-gap  { margin-left: 8px; }
+.bside-sim .spread-disc.spread-gap5 { margin-left: 5px; }
 
 /* Two-column layout: main area (ovals + circles) | narrow pair column */
 .bside-pos-wrap   { display: flex; flex-direction: row; gap: .2rem; align-items: flex-start; }
