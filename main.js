@@ -1758,7 +1758,7 @@ const Sims = {
         const picked = [...pool].sort(() => Math.random() - 0.5).slice(0, numDenoms);
         chips = {};
         picked.forEach(d => { chips[d.key] = 1 + Math.floor(Math.random() * 4); });
-        if (allow10kStack && Math.random() < (S.mode === 'halfpay' ? 0.55 : 0.25)) {
+        if (allow10kStack && Math.random() < (S.mode === 'halfpay' ? 0.40 : 0.25)) {
           chips['10K'] = Math.random() < 0.5 ? 10 : 20;
         }
         total = Object.entries(chips).reduce((s, [k, c]) => s + (COMM_CHIPS.find(x => x.key === k)?.val ?? 0) * c, 0);
