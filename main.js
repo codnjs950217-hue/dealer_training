@@ -1737,7 +1737,11 @@ const Sims = {
     function generateBetChips() {
       const round = S.rounds;
       let numDenoms, allow10kStack;
-      if (round <= 2) {
+      if (S.mode === 'halfpay') {
+        const r = Math.random();
+        numDenoms = r < 0.4 ? 1 : r < 0.7 ? 2 : 3;
+        allow10kStack = true;
+      } else if (round <= 2) {
         numDenoms = 1;
         allow10kStack = false;
       } else if (round <= 4) {
