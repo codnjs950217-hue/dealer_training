@@ -1424,6 +1424,7 @@ body {
 .bpay-b-oval {
   background: radial-gradient(ellipse at center, #9a7a0066 0%, #4a3a0044 100%);
   border-color: #c9a84c;
+  overflow: visible;
 }
 .bpay-oval.has-bet {
   box-shadow: 0 0 12px rgba(255,255,255,.28);
@@ -1534,9 +1535,27 @@ body {
 }
 .bpay-chip-spread .bpay-chip-disc + .bpay-chip-disc { margin-left: -12px; }
 .bpay-chip-spread .bpay-chip-disc.new-denom { margin-left: 8px; }
-.bpay-chip-stack { flex-direction: column; gap: 1px; width: 44px; height: 44px; }
-.bpay-stack-key  { font-size: .62rem; font-weight: 900; line-height: 1; }
-.bpay-stack-cnt  { font-size: .7rem;  font-weight: 900; line-height: 1; opacity: .9; }
+.bpay-chip-stack {
+  width: 40px; height: 64px;
+  border-radius: 20px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 3px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.18) 0px, rgba(255,255,255,.18) 1px,
+      transparent 1px, transparent 7px,
+      rgba(0,0,0,.28) 7px, rgba(0,0,0,.28) 8px
+    ),
+    #2e7d32;
+  border: 2px solid rgba(255,255,255,.3);
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 2px 4px 10px rgba(0,0,0,.55);
+}
+.bpay-chip-spread .bpay-chip-stack { margin-left: 8px; }
+.bpay-stack-key { font-size: .6rem;  font-weight: 900; line-height: 1; letter-spacing: .3px; }
+.bpay-stack-cnt { font-size: .72rem; font-weight: 900; line-height: 1; opacity: .95; }
 
 /* Controls area: action buttons only */
 #bpay-controls { padding: .6rem 1rem; }
