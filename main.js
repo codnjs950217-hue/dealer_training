@@ -1745,6 +1745,9 @@ const Sims = {
       const picked = [...pool].sort(() => Math.random() - 0.5).slice(0, numDenoms);
       const chips = {};
       picked.forEach(d => { chips[d.key] = 1 + Math.floor(Math.random() * 4); });
+      if (Math.random() < 0.25) {
+        chips['10K'] = Math.random() < 0.5 ? 10 : 20;
+      }
       return chips;
     }
 
@@ -1793,9 +1796,14 @@ const Sims = {
         let discs = '';
         sorted.forEach(([key, cnt], groupIdx) => {
           const chip = COMM_CHIPS.find(c => c.key === key);
-          for (let j = 0; j < cnt; j++) {
-            const newGroup = j === 0 && groupIdx > 0;
-            discs += `<div class="bpay-chip-disc${newGroup ? ' new-denom' : ''}" style="background:${chip.bg};color:${chip.fg}">${chip.key}</div>`;
+          const newGroup = groupIdx > 0;
+          if (key === '10K' && cnt >= 10) {
+            discs += `<div class="bpay-chip-disc bpay-chip-stack${newGroup ? ' new-denom' : ''}" style="background:${chip.bg};color:${chip.fg}"><span class="bpay-stack-key">${chip.key}</span><span class="bpay-stack-cnt">×${cnt}</span></div>`;
+          } else {
+            for (let j = 0; j < cnt; j++) {
+              const sep = j === 0 && newGroup;
+              discs += `<div class="bpay-chip-disc${sep ? ' new-denom' : ''}" style="background:${chip.bg};color:${chip.fg}">${chip.key}</div>`;
+            }
           }
         });
         bAmt.innerHTML = `<div class="bpay-chip-spread">${discs}</div>`;

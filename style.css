@@ -1534,6 +1534,9 @@ body {
 }
 .bpay-chip-spread .bpay-chip-disc + .bpay-chip-disc { margin-left: -12px; }
 .bpay-chip-spread .bpay-chip-disc.new-denom { margin-left: 8px; }
+.bpay-chip-stack { flex-direction: column; gap: 1px; width: 44px; height: 44px; }
+.bpay-stack-key  { font-size: .62rem; font-weight: 900; line-height: 1; }
+.bpay-stack-cnt  { font-size: .7rem;  font-weight: 900; line-height: 1; opacity: .9; }
 
 /* Controls area: action buttons only */
 #bpay-controls { padding: .6rem 1rem; }
