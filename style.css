@@ -2257,11 +2257,7 @@ body {
 .bside-layout .bpay-circ-wrap { flex: 1; display: flex; align-items: stretch; }
 .bside-layout .bpay-circ      { flex: 1; max-height: 44px; font-size: .62rem; }
 
-/* 6-line / 7-line gap: space for the 45° labels between rows */
-.bside-line6 { padding-bottom: 1.4rem; }
-.bside-line7 { padding-top: .1rem; }
-
-/* Tiger/Dragon ovals: original wide pill, slightly rounder */
+/* Tiger/Dragon ovals: original wide pill */
 .bside-oval-bet {
   aspect-ratio: unset !important;
   border-radius: 50px !important;
@@ -2275,31 +2271,19 @@ body {
 }
 .bside-oval-bet .bside-big-num { font-size: 1.1rem; }
 
-/* 6-line labels: 45° outside bottom-right corner, pointing into gap */
-.bside-line6 .bside-oval-bet .bpay-circ-pay {
-  position: absolute;
-  bottom: -1.1rem;
-  right: .3rem;
-  font-size: .52rem;
-  font-weight: 700;
-  white-space: nowrap;
-  color: rgba(255,255,255,.8) !important;
-  line-height: 1;
-  transform: rotate(45deg);
-  transform-origin: right top;
-}
-/* 7-line labels: 45° outside top-right corner, pointing into gap */
+/* Pay labels: inside oval, bottom-right corner, rotated -45° (reads ↗) */
+.bside-line6 .bside-oval-bet .bpay-circ-pay,
 .bside-line7 .bside-oval-bet .bpay-circ-pay {
   position: absolute;
-  top: -1.1rem;
-  right: .3rem;
-  font-size: .52rem;
+  bottom: .18rem;
+  right: .22rem;
+  font-size: .5rem;
   font-weight: 700;
   white-space: nowrap;
-  color: rgba(255,255,255,.8) !important;
+  color: rgba(255,255,255,.72) !important;
   line-height: 1;
   transform: rotate(-45deg);
-  transform-origin: right bottom;
+  transform-origin: bottom right;
 }
 .bside-oval-bet .bpay-circ-bet {
   position: absolute;
@@ -2373,8 +2357,7 @@ body {
   .bside-oval-bet             { min-height: 32px; max-height: 38px; }
   .bside-oval-bet .bside-big-num { font-size: .95rem; }
   .bside-line6 .bside-oval-bet .bpay-circ-pay,
-  .bside-line7 .bside-oval-bet .bpay-circ-pay { font-size: .46rem; }
-  .bside-line6 { padding-bottom: 1.2rem; }
+  .bside-line7 .bside-oval-bet .bpay-circ-pay { font-size: .44rem; }
   .bside-result               { font-size: .78rem; padding: .15rem .3rem 0; }
   .bside-sim .comm-tray       { padding: .3rem; }
   .bside-sim .comm-slot       { padding: .3rem .08rem .28rem; gap: .18rem; }
