@@ -2266,24 +2266,22 @@ body {
   padding: .1rem .25rem;
   flex: 1;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
   color: rgba(255,255,255,.55) !important;
 }
 .bside-oval-bet .bside-big-num { font-size: 1.1rem; }
 
-/* Pay labels: inside oval, bottom-right corner, rotated -45° (reads ↗) */
+/* Pay labels: inside oval, bottom-right corner */
 .bside-line6 .bside-oval-bet .bpay-circ-pay,
 .bside-line7 .bside-oval-bet .bpay-circ-pay {
   position: absolute;
-  bottom: .18rem;
-  right: .22rem;
-  font-size: .5rem;
+  bottom: .2rem;
+  right: .4rem;
+  font-size: .48rem;
   font-weight: 700;
   white-space: nowrap;
-  color: rgba(255,255,255,.72) !important;
+  color: rgba(255,255,255,.75) !important;
   line-height: 1;
-  transform: rotate(-45deg);
-  transform-origin: bottom right;
 }
 .bside-oval-bet .bpay-circ-bet {
   position: absolute;
