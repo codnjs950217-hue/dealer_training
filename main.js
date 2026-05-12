@@ -1736,29 +1736,35 @@ const Sims = {
 
     function generateBetChips() {
       const round = S.rounds;
-      let numDenoms, allow10kStack;
-      if (S.mode === 'halfpay') {
-        const r = Math.random();
-        numDenoms = r < 0.4 ? 1 : r < 0.7 ? 2 : 3;
-        allow10kStack = true;
-      } else if (round <= 2) {
-        numDenoms = 1;
-        allow10kStack = false;
-      } else if (round <= 4) {
-        numDenoms = Math.random() < 0.6 ? 1 : 2;
-        allow10kStack = false;
-      } else {
-        const r = Math.random();
-        numDenoms = r < 0.4 ? 1 : r < 0.7 ? 2 : 3;
-        allow10kStack = true;
-      }
-      const pool = numDenoms === 3 ? BET_CHIPS_EXTRA : BET_CHIPS_MAIN;
-      const picked = [...pool].sort(() => Math.random() - 0.5).slice(0, numDenoms);
-      const chips = {};
-      picked.forEach(d => { chips[d.key] = 1 + Math.floor(Math.random() * 4); });
-      if (allow10kStack && Math.random() < 0.25) {
-        chips['10K'] = Math.random() < 0.5 ? 10 : 20;
-      }
+      let chips, total, attempts = 0;
+      do {
+        let numDenoms, allow10kStack;
+        if (S.mode === 'halfpay') {
+          const r = Math.random();
+          numDenoms = r < 0.4 ? 1 : r < 0.7 ? 2 : 3;
+          allow10kStack = true;
+        } else if (round <= 2) {
+          numDenoms = 1;
+          allow10kStack = false;
+        } else if (round <= 4) {
+          numDenoms = Math.random() < 0.6 ? 1 : 2;
+          allow10kStack = false;
+        } else {
+          const r = Math.random();
+          numDenoms = r < 0.4 ? 1 : r < 0.7 ? 2 : 3;
+          allow10kStack = true;
+        }
+        const pool = numDenoms === 3 ? BET_CHIPS_EXTRA : BET_CHIPS_MAIN;
+        const picked = [...pool].sort(() => Math.random() - 0.5).slice(0, numDenoms);
+        chips = {};
+        picked.forEach(d => { chips[d.key] = 1 + Math.floor(Math.random() * 4); });
+        if (allow10kStack && Math.random() < 0.25) {
+          chips['10K'] = Math.random() < 0.5 ? 10 : 20;
+        }
+        total = Object.entries(chips).reduce((s, [k, c]) => s + (COMM_CHIPS.find(x => x.key === k)?.val ?? 0) * c, 0);
+        attempts++;
+      } while (total === S.lastTotal && attempts < 10);
+      S.lastTotal = total;
       return chips;
     }
 
@@ -1915,7 +1921,7 @@ const Sims = {
 
     return {
       init() {
-        S = { bets: [], commIdx: 0, rounds: 0, score: 0, commTarget: 0, mode: 'commission' };
+        S = { bets: [], commIdx: 0, rounds: 0, score: 0, commTarget: 0, mode: 'commission', lastTotal: 0 };
         this.deal();
       },
 
