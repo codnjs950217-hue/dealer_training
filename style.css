@@ -1538,10 +1538,12 @@ body {
 /* Controls area: action buttons only */
 #bpay-controls { padding: .6rem 1rem; }
 
-/* START button overlay centered in baccarat table */
-.bpay-start-overlay {
+/* START bar below Banker oval */
+.bpay-start-bar {
   display: flex; align-items: center; justify-content: center;
-  padding: .5rem 0 0;
+  border-top: 1px solid rgba(255,255,255,.18);
+  padding: .55rem 0 .1rem;
+  margin-top: .1rem;
 }
 .bpay-start-btn {
   background: linear-gradient(135deg, #c9a84c 0%, #9a7820 100%);
@@ -1555,8 +1557,6 @@ body {
 
 /* Commission panel — dealer rack style */
 .bpay-comm-panel { margin-top: .55rem; width: 100%; box-sizing: border-box; }
-.comm-slot-idle { opacity: .45; pointer-events: none; }
-.comm-start-btn { flex: 1; width: 100%; padding: 0 .4rem; letter-spacing: 2px; font-size: .95rem; border-radius: 6px; }
 
 .comm-tray {
   position: relative;
