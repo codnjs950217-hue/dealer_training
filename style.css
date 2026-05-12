@@ -1402,16 +1402,7 @@ body {
 .bpay-pos {
   flex: 1; display: flex; flex-direction: column;
   align-items: stretch; gap: .35rem;
-  border: 2px solid transparent; border-radius: 12px;
-  padding: .3rem; transition: border-color .2s, opacity .25s;
-}
-.bpay-pos.active {
-  border-color: rgba(201,168,76,.6);
-  background: rgba(201,168,76,.04);
-}
-/* Dim non-active positions while paying */
-.bpay-positions.paying .bpay-pos:not(.active) {
-  opacity: 0.3;
+  padding: .3rem;
 }
 
 /* Ovals: PLAYER (red) and BANKER (gold) */
@@ -1564,6 +1555,7 @@ body {
 
 /* Commission panel — dealer rack style */
 .bpay-comm-panel { margin-top: .55rem; width: 100%; box-sizing: border-box; }
+.comm-start-tray { display: flex; align-items: center; justify-content: center; padding: .8rem; }
 
 .comm-tray {
   position: relative;
