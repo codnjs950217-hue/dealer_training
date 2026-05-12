@@ -2253,32 +2253,49 @@ body {
 }
 
 /* Circle rows: full width of main area */
-.bside-layout .bpay-circles  { display: flex; gap: .2rem; padding-bottom: 1.1rem; }
-.bside-layout .bpay-circ-wrap { flex: 1; display: flex; align-items: stretch; }
-.bside-layout .bpay-circ      { flex: 1; max-height: 44px; font-size: .62rem; }
-.bside-layout .bpay-circ-pay  { font-size: .5rem; }
+.bside-layout .bpay-circles  { display: flex; gap: .15rem; }
+.bside-layout .bpay-circ-wrap { flex: 1; display: flex; align-items: center; justify-content: center; }
+.bside-layout .bpay-circ      { max-height: 44px; font-size: .62rem; }
 
-/* Tiger/Dragon ovals (wide ellipse, faint text, chips centered on top) */
+/* 6-line row: padding-bottom creates the shared gap zone for both sets of labels */
+.bside-line6 { padding-bottom: 1.5rem; }
+
+/* Tiger/Dragon ovals: compact + rounder */
 .bside-oval-bet {
   aspect-ratio: unset !important;
-  border-radius: 50px !important;
+  border-radius: 50% !important;
   min-height: 36px;
   max-height: 44px;
-  padding: .1rem .25rem;
+  max-width: 62px;
+  width: 100%;
   flex: 1;
+  padding: .1rem .15rem;
   position: relative;
   overflow: visible;
   color: rgba(255,255,255,.55) !important;
 }
 .bside-oval-bet .bside-big-num { font-size: 1.1rem; }
-.bside-oval-bet .bpay-circ-pay {
+
+/* 6-line labels: appear below oval, into the gap zone */
+.bside-line6 .bside-oval-bet .bpay-circ-pay {
   position: absolute;
-  bottom: -1rem;
-  right: .25rem;
+  bottom: -0.85rem;
+  right: .05rem;
   font-size: .55rem;
   font-weight: 700;
   white-space: nowrap;
-  color: rgba(255,255,255,.75) !important;
+  color: rgba(255,255,255,.78) !important;
+  line-height: 1;
+}
+/* 7-line labels: appear above oval, into the gap zone */
+.bside-line7 .bside-oval-bet .bpay-circ-pay {
+  position: absolute;
+  top: -0.85rem;
+  right: .05rem;
+  font-size: .55rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: rgba(255,255,255,.78) !important;
   line-height: 1;
 }
 .bside-oval-bet .bpay-circ-bet {
@@ -2288,6 +2305,12 @@ body {
   transform: translate(-50%, -50%);
   width: max-content;
 }
+/* Quiz mode: dim all non-active bet spots */
+.bside-oval-bet, .bpay-pair-circ, .bside-gray-oval { transition: opacity .2s; }
+.bside-layout.bside-quiz-mode .bside-oval-bet:not(.bside-paying-circ):not(.bside-win-circ),
+.bside-layout.bside-quiz-mode .bpay-pair-circ:not(.bside-paying-circ):not(.bside-win-circ),
+.bside-layout.bside-quiz-mode .bside-gray-oval { opacity: 0.18; }
+
 /* Pair circles: faint text, chips centered */
 .bside-sim .bpay-ppair { color: rgba(255,144,144,.6) !important; }
 .bside-sim .bpay-bpair { color: rgba(255,208,96,.6)  !important; }
@@ -2341,10 +2364,14 @@ body {
   .bside-layout .bpay-oval-lbl { font-size: .88rem; }
   .bside-pos-pairs            { width: 36px; }
   .bside-pos-pairs .bpay-pair-circ { min-height: 32px; max-height: 38px; font-size: .48rem; }
-  .bside-layout .bpay-circ    { max-height: 38px; font-size: .56rem; }
-  .bside-oval-bet             { min-height: 32px; max-height: 38px; }
+  .bside-pos-pairs            { width: 64px; }
+  .bside-pos-pairs .bpay-pair-circ { min-height: 34px; max-height: 42px; font-size: .58rem; }
+  .bside-layout .bpay-circ    { max-height: 40px; font-size: .58rem; }
+  .bside-oval-bet             { min-height: 32px; max-height: 40px; max-width: 56px; }
   .bside-oval-bet .bside-big-num { font-size: .95rem; }
-  .bside-layout .bpay-circ-pay { font-size: .44rem; }
+  .bside-line6 .bside-oval-bet .bpay-circ-pay,
+  .bside-line7 .bside-oval-bet .bpay-circ-pay { font-size: .48rem; }
+  .bside-line6 { padding-bottom: 1.4rem; }
   .bside-result               { font-size: .78rem; padding: .15rem .3rem 0; }
   .bside-sim .comm-tray       { padding: .3rem; }
   .bside-sim .comm-slot       { padding: .3rem .08rem .28rem; gap: .18rem; }
