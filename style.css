@@ -1535,27 +1535,40 @@ body {
 }
 .bpay-chip-spread .bpay-chip-disc + .bpay-chip-disc { margin-left: -12px; }
 .bpay-chip-spread .bpay-chip-disc.new-denom { margin-left: 8px; }
+/* 10K chip stack — ellipse viewed from upper-diagonal, layers stacked downward */
 .bpay-chip-stack {
-  width: 40px; height: 64px;
-  border-radius: 20px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 3px;
-  background:
-    repeating-linear-gradient(
-      to bottom,
-      rgba(255,255,255,.18) 0px, rgba(255,255,255,.18) 1px,
-      transparent 1px, transparent 7px,
-      rgba(0,0,0,.28) 7px, rgba(0,0,0,.28) 8px
-    ),
-    #2e7d32;
-  border: 2px solid rgba(255,255,255,.3);
+  width: 56px; height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(165deg, #66bb6a 0%, #2e7d32 55%, #1a5220 100%);
+  border: 2px solid rgba(255,255,255,.38);
   color: #fff;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
   flex-shrink: 0;
-  box-shadow: 2px 4px 10px rgba(0,0,0,.55);
 }
-.bpay-chip-spread .bpay-chip-stack { margin-left: 8px; }
-.bpay-stack-key { font-size: .6rem;  font-weight: 900; line-height: 1; letter-spacing: .3px; }
-.bpay-stack-cnt { font-size: .72rem; font-weight: 900; line-height: 1; opacity: .95; }
+.bpay-chip-spread .bpay-chip-stack { margin-left: 10px; }
+/* ×10 — 4 visible chip layers below the top */
+.bpay-chip-stack-10 {
+  box-shadow:
+    0 6px 0 0 rgba(0,0,0,.45),  0 7px 0 0 #245f25,
+    0 13px 0 0 rgba(0,0,0,.45), 0 14px 0 0 #2e7d32,
+    0 20px 0 0 rgba(0,0,0,.45), 0 21px 0 0 #245f25,
+    0 27px 0 0 rgba(0,0,0,.45), 0 28px 0 0 #2e7d32,
+    0 34px 7px rgba(0,0,0,.45);
+}
+/* ×20 — 7 visible chip layers below the top */
+.bpay-chip-stack-20 {
+  box-shadow:
+    0 6px 0 0 rgba(0,0,0,.45),  0 7px 0 0 #245f25,
+    0 13px 0 0 rgba(0,0,0,.45), 0 14px 0 0 #2e7d32,
+    0 20px 0 0 rgba(0,0,0,.45), 0 21px 0 0 #245f25,
+    0 27px 0 0 rgba(0,0,0,.45), 0 28px 0 0 #2e7d32,
+    0 34px 0 0 rgba(0,0,0,.45), 0 35px 0 0 #245f25,
+    0 41px 0 0 rgba(0,0,0,.45), 0 42px 0 0 #2e7d32,
+    0 48px 0 0 rgba(0,0,0,.45), 0 49px 0 0 #245f25,
+    0 56px 7px rgba(0,0,0,.45);
+}
+.bpay-stack-key { font-size: 7px;  font-weight: 900; line-height: 1; letter-spacing: .3px; opacity: .9; }
+.bpay-stack-cnt { font-size: 9px; font-weight: 900; line-height: 1; }
 
 /* Controls area: action buttons only */
 #bpay-controls { padding: .6rem 1rem; }

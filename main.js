@@ -1815,7 +1815,7 @@ const Sims = {
           const chip = COMM_CHIPS.find(c => c.key === key);
           const newGroup = groupIdx > 0;
           if (key === '10K' && cnt >= 10) {
-            discs += `<div class="bpay-chip-stack"><span class="bpay-stack-key">${chip.key}</span><span class="bpay-stack-cnt">×${cnt}</span></div>`;
+            discs += `<div class="bpay-chip-stack bpay-chip-stack-${cnt}"><span class="bpay-stack-key">10K</span><span class="bpay-stack-cnt">×${cnt}</span></div>`;
           } else {
             for (let j = 0; j < cnt; j++) {
               const sep = j === 0 && newGroup;
