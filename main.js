@@ -316,16 +316,12 @@ const Views = {
       </div>
       <div class="bpay-mode-row">
         <button id="bpay-btn-commission" class="bpay-mode-btn active" onclick="Sims.baccaratPay.setMode('commission')">💰 Commission (5%)</button>
-        <button id="bpay-btn-halfpay"    class="bpay-mode-btn"        onclick="Sims.baccaratPay.setMode('halfpay')">½ Half Pay (1:2)</button>
+        <button id="bpay-btn-halfpay"    class="bpay-mode-btn"        onclick="Sims.baccaratPay.setMode('halfpay')">½ Half Pay</button>
       </div>
       <div class="baccarat-table">
         <div class="bpay-positions">
           ${[1].map(i => `
             <div class="bpay-pos" id="bpay-pos-${i}">
-              <div class="bpay-oval bpay-p-oval" id="bpay-p-${i}">
-                <div class="bpay-oval-lbl">PLAYER</div>
-                <div class="bpay-oval-amt" id="bpay-p-amt-${i}"></div>
-              </div>
               <div class="bpay-oval bpay-b-oval" id="bpay-b-${i}">
                 <div class="bpay-oval-lbl">BANKER</div>
                 <div class="bpay-oval-amt" id="bpay-b-amt-${i}"></div>
@@ -1739,13 +1735,24 @@ const Sims = {
     const $ = id => document.getElementById(id);
 
     function generateBetChips() {
-      const r = Math.random();
-      const numDenoms = r < 0.4 ? 1 : r < 0.7 ? 2 : 3;
+      const round = S.rounds;
+      let numDenoms, allow10kStack;
+      if (round <= 2) {
+        numDenoms = 1;
+        allow10kStack = false;
+      } else if (round <= 4) {
+        numDenoms = Math.random() < 0.6 ? 1 : 2;
+        allow10kStack = false;
+      } else {
+        const r = Math.random();
+        numDenoms = r < 0.4 ? 1 : r < 0.7 ? 2 : 3;
+        allow10kStack = true;
+      }
       const pool = numDenoms === 3 ? BET_CHIPS_EXTRA : BET_CHIPS_MAIN;
       const picked = [...pool].sort(() => Math.random() - 0.5).slice(0, numDenoms);
       const chips = {};
       picked.forEach(d => { chips[d.key] = 1 + Math.floor(Math.random() * 4); });
-      if (Math.random() < 0.25) {
+      if (allow10kStack && Math.random() < 0.25) {
         chips['10K'] = Math.random() < 0.5 ? 10 : 20;
       }
       return chips;
@@ -1894,7 +1901,7 @@ const Sims = {
       }
       const total = S.bets[idx].total;
       if (S.mode === 'halfpay') {
-        S.commTarget = Math.floor(total / 2 / 5000) * 5000;
+        S.commTarget = Math.floor(total / 2 / 10000) * 10000;
       } else {
         const comm = Math.floor(total * 0.05 / 5000) * 5000;
         S.commTarget = total - comm;
