@@ -2258,18 +2258,20 @@ body {
 }
 .bside-main-grid .bpay-circ {
   aspect-ratio: unset !important;
-  min-height: 74px;
-  font-size: .7rem;
+  min-height: 52px;
+  max-height: 58px;
+  font-size: .68rem;
 }
-.bside-main-grid .bpay-circ-pay { font-size: .55rem; }
+.bside-main-grid .bpay-circ-pay { font-size: .53rem; }
 
 
 /* Tiger/Dragon ovals (wide ellipse, faint text, chips centered on top) */
 .bside-oval-bet {
   aspect-ratio: unset !important;
-  border-radius: 16px !important;
-  min-height: 74px;
-  padding: .3rem .35rem;
+  border-radius: 50% !important;
+  min-height: 52px;
+  max-height: 58px;
+  padding: .2rem .3rem;
   position: relative;
   color: rgba(255,255,255,.55) !important;
 }
@@ -2333,9 +2335,9 @@ body {
   .bside-sim .sim-header      { margin-bottom: .5rem; padding-bottom: .45rem; }
   .bside-sim .sim-header h2   { font-size: 1.1rem; }
   .bside-pair-btn             { height: 34px !important; font-size: .72rem !important; }
-  .bside-main-grid .bpay-circ { min-height: 64px; font-size: .62rem; }
-  .bside-main-grid .bpay-circ-pay { font-size: .5rem; }
-  .bside-oval-bet             { min-height: 64px; }
+  .bside-main-grid .bpay-circ { min-height: 46px; max-height: 52px; font-size: .6rem; }
+  .bside-main-grid .bpay-circ-pay { font-size: .48rem; }
+  .bside-oval-bet             { min-height: 46px; max-height: 52px; }
   .bside-result               { font-size: .78rem; padding: .15rem .3rem 0; }
   .bside-sim .comm-tray       { padding: .3rem; }
   .bside-sim .comm-slot       { padding: .3rem .08rem .28rem; gap: .18rem; }

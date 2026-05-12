@@ -352,12 +352,12 @@ const Views = {
                 <div class="bpay-pair-circ bpay-bpair bside-pair-btn" id="bside-bp-${i}">B PAIR<div class="bpay-circ-bet" id="bside-bp-amt-${i}"></div></div>
               </div>
               <div class="bside-main-grid">
-                <div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-bt-${i}"><span class="bside-big-num">6</span>BIG 6<span class="bpay-circ-pay">×50</span><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div>
+                <div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-bt-${i}"><span class="bside-big-num">6</span>BIG<span class="bpay-circ-pay">×50</span><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div>
                 <div class="bpay-circ bpay-tie bside-oval-bet" id="bside-tt-${i}"><span class="bside-big-num">TIE</span><span class="bpay-circ-pay">×8</span><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div>
-                <div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-st-${i}"><span class="bside-big-num">6</span>SMALL 6<span class="bpay-circ-pay">×22</span><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div>
-                <div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-bd-${i}"><span class="bside-big-num">7</span>BIG 7<span class="bpay-circ-pay">×30</span><div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div>
-                <div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-s7-${i}"><span class="bside-big-num">7</span>SUPER 7<span class="bpay-circ-pay">×30/40/100</span><div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div>
-                <div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-sd-${i}"><span class="bside-big-num">7</span>SMALL 7<span class="bpay-circ-pay">×15</span><div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div>
+                <div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-st-${i}"><span class="bside-big-num">6</span>SMALL<span class="bpay-circ-pay">×22</span><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div>
+                <div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-bd-${i}"><span class="bside-big-num">7</span>BIG<span class="bpay-circ-pay">×30</span><div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div>
+                <div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-s7-${i}"><span class="bside-big-num">7</span>SUPER<span class="bpay-circ-pay">×30/40/100</span><div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div>
+                <div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-sd-${i}"><span class="bside-big-num">7</span>SMALL<span class="bpay-circ-pay">×15</span><div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div>
               </div>
             </div>`).join('')}
         </div>
@@ -1998,7 +1998,7 @@ const Sims = {
     ];
     const SIDE_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[4]];
     const SIDE_KEYS  = ['st','tt','bt','sd','s7','bd','pp','bp'];
-    const SIDE_LABEL = { pp:'P PAIR', bp:'B PAIR', tt:'TIE', bt:'BIG 6', st:'SMALL 6', bd:'BIG 7', sd:'SMALL 7', s7:'SUPER 7' };
+    const SIDE_LABEL = { pp:'P PAIR', bp:'B PAIR', tt:'TIE', bt:'BIG (6)', st:'SMALL (6)', bd:'BIG (7)', sd:'SMALL (7)', s7:'SUPER (7)' };
 
     let S = {};
     const $ = id => document.getElementById(id);
