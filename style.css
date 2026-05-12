@@ -1518,6 +1518,12 @@ body {
   color: #ff9090;
   border-color: #c62828;
 }
+.bpay-tie {
+  background: radial-gradient(circle, #aed58188, #33691e66);
+  color: #ccff33;
+  border-color: #8bc34a;
+}
+.bpay-tie .bside-big-num { font-size: 1.4rem; }
 
 /* Chip spread display inside banker oval — dealer style (high left, low right) */
 .bpay-chip-spread {
@@ -2241,10 +2247,10 @@ body {
   padding: .3rem .35rem;
   flex: 1;
   position: relative;
-  color: rgba(255,255,255,.13) !important;
+  color: rgba(255,255,255,.55) !important;
 }
 .bside-oval-bet .bpay-circ-pay {
-  color: rgba(255,255,255,.13) !important;
+  color: rgba(255,255,255,.55) !important;
 }
 .bside-oval-bet .bpay-circ-bet {
   position: absolute;
@@ -2254,8 +2260,8 @@ body {
   width: max-content;
 }
 /* Pair circles: faint text, chips centered */
-.bside-sim .bpay-ppair { color: rgba(255,144,144,.2) !important; }
-.bside-sim .bpay-bpair { color: rgba(255,208,96,.2)  !important; }
+.bside-sim .bpay-ppair { color: rgba(255,144,144,.6) !important; }
+.bside-sim .bpay-bpair { color: rgba(255,208,96,.6)  !important; }
 .bside-sim .bpay-pair-circ {
   position: relative;
 }

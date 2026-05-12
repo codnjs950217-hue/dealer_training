@@ -367,7 +367,7 @@ const Views = {
               </div>
               <div class="bpay-circles">
                 <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-bt-${i}"><span class="bside-big-num">6</span>BIG 6<span class="bpay-circ-pay">×50</span><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div></div>
-                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-tt-${i}">TIE<br><span class="bpay-circ-pay">×8</span><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div></div>
+                <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tie bside-oval-bet" id="bside-tt-${i}"><span class="bside-big-num">TIE</span><span class="bpay-circ-pay">×8</span><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div></div>
                 <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-st-${i}"><span class="bside-big-num">6</span>SMALL 6<span class="bpay-circ-pay">×22</span><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div></div>
               </div>
               <div class="bpay-circles">
@@ -2146,7 +2146,7 @@ const Sims = {
         <div class="bside-tray-label">Pos ${item.posIdx + 1} — ${SIDE_LABEL[item.key]} ×${item.mult} &nbsp;|&nbsp; Bet: ${fmtAmt(item.betTotal)}</div>
         <div id="bside-order-warn" class="bpay-order-warn" style="display:none"><span>저액 칩스부터 세팅하세요</span></div>
         <div class="comm-tray-slots">
-          ${COMM_CHIPS.map(c => `
+          ${COMM_CHIPS.filter(c => c.val >= 10000).map(c => `
             <div class="comm-slot">
               <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
               <input type="hidden" id="bside-ci-${c.key}" value="0">
