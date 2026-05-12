@@ -2044,8 +2044,12 @@ const Sims = {
         const chip = COMM_CHIPS.find(c => c.key === key);
         if (!chip) return;
         for (let j = 0; j < cnt; j++) {
-          const newGroup = j === 0 && groupIdx > 0;
-          discs += `<div class="bside-bet-disc${newGroup ? ' new-denom' : ''}" style="background:${chip.bg};color:${chip.fg}">${chip.key}</div>`;
+          const newGroup   = j === 0 && groupIdx > 0;
+          const group5gap  = !newGroup && j > 0 && j % 5 === 0;
+          let cls = 'bside-bet-disc';
+          if (newGroup)  cls += ' new-denom';
+          else if (group5gap) cls += ' group5gap';
+          discs += `<div class="${cls}" style="background:${chip.bg};color:${chip.fg}">${chip.key}</div>`;
         }
       });
       return `<div class="bside-bet-spread">${discs}</div>`;
