@@ -2243,9 +2243,9 @@ body {
 .bside-pair-btn {
   flex: 1;
   width: auto !important;
-  height: 38px !important;
+  height: 52px !important;
   border-radius: 20px !important;
-  font-size: .78rem !important;
+  font-size: .9rem !important;
   flex-direction: row !important;
   gap: 4px !important;
 }
@@ -2347,7 +2347,7 @@ body {
   .bside-sim .baccarat-table  { padding: .7rem .5rem; }
   .bside-sim .sim-header      { margin-bottom: .5rem; padding-bottom: .45rem; }
   .bside-sim .sim-header h2   { font-size: 1.1rem; }
-  .bside-pair-btn             { height: 34px !important; font-size: .72rem !important; }
+  .bside-pair-btn             { height: 46px !important; font-size: .82rem !important; }
   .bside-main-grid .bpay-circ { min-height: 44px; max-height: 50px; font-size: .6rem; }
   .bside-oval-bet             { min-height: 44px; max-height: 50px; }
   .bside-main-grid .bside-big-num { font-size: 1.15rem; }
