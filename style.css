@@ -2268,12 +2268,15 @@ body {
 /* Tiger/Dragon ovals (wide ellipse, faint text, chips centered on top) */
 .bside-oval-bet {
   aspect-ratio: unset !important;
-  border-radius: 50% !important;
+  border-radius: 999px !important;
   min-height: 52px;
   max-height: 58px;
-  padding: .2rem .3rem;
+  padding: .2rem .5rem;
   position: relative;
   color: rgba(255,255,255,.55) !important;
+}
+.bside-main-grid .bside-big-num {
+  font-size: 1.3rem;
 }
 .bside-oval-bet .bpay-circ-pay {
   color: rgba(255,255,255,.55) !important;
@@ -2337,7 +2340,8 @@ body {
   .bside-pair-btn             { height: 34px !important; font-size: .72rem !important; }
   .bside-main-grid .bpay-circ { min-height: 46px; max-height: 52px; font-size: .6rem; }
   .bside-main-grid .bpay-circ-pay { font-size: .48rem; }
-  .bside-oval-bet             { min-height: 46px; max-height: 52px; }
+  .bside-oval-bet             { min-height: 44px; max-height: 50px; }
+  .bside-main-grid .bside-big-num { font-size: 1.15rem; }
   .bside-result               { font-size: .78rem; padding: .15rem .3rem 0; }
   .bside-sim .comm-tray       { padding: .3rem; }
   .bside-sim .comm-slot       { padding: .3rem .08rem .28rem; gap: .18rem; }
