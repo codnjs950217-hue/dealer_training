@@ -2339,7 +2339,7 @@ body {
   letter-spacing: -1px;
 }
 .bside-bet-disc:first-child { margin-left: 0; }
-.bside-bet-disc.new-denom   { margin-left: 4px; }
+.bside-bet-disc.new-denom   { margin-left: 10px; }
 
 @media (max-width: 768px) {
   .bside-sim .baccarat-table  { padding: .7rem .5rem; }
