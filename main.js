@@ -1738,7 +1738,8 @@ const Sims = {
     const $ = id => document.getElementById(id);
 
     function generateBetChips() {
-      const numDenoms = Math.random() > 0.5 ? 1 : 2;
+      const r = Math.random();
+      const numDenoms = r < 0.4 ? 1 : r < 0.7 ? 2 : 3;
       const picked = [...BET_CHIPS].sort(() => Math.random() - 0.5).slice(0, numDenoms);
       const chips = {};
       picked.forEach(d => { chips[d.key] = 1 + Math.floor(Math.random() * 4); });
