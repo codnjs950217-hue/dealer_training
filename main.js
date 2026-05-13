@@ -87,8 +87,13 @@ const Views = {
   home: () => `
     <section class="hero">
       <div class="hero-content">
+        <div class="badge">♠ Professional Dealer Training</div>
         <h1 class="hero-title">Casino Dealer<br><span class="gold">Training System</span></h1>
         <p class="hero-sub">왼쪽 메뉴에서 연습할 항목을 선택하세요.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="App.navigate('baccarat','simulation')">🃏 Drawing Practice</button>
+          <button class="btn btn-outline" onclick="App.navigate('baccarat','paysim')">💰 Payout Practice</button>
+        </div>
       </div>
       <div class="hero-cards">
         <div class="floating-card card red" style="transform:rotate(-14deg) translate(-30px,8px)">
