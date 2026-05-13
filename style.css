@@ -590,37 +590,71 @@ body {
   position: relative;
   background: var(--felt);
   border-radius: 12px;
-  padding: 1.2rem 1.2rem 1rem;
+  padding: 1.4rem 1.4rem 1.2rem;
   margin-bottom: .6rem;
   display: flex; align-items: center; justify-content: center;
-  min-height: 130px;
+  min-height: 180px;
+  overflow: visible;
 }
-.rpay-single-card {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 1.2rem;
-  padding: 1rem 1.4rem;
-  border-radius: 12px;
-  border: 2px solid var(--bet-color, rgba(255,255,255,.2));
-  background: color-mix(in srgb, var(--bet-color, #333) 18%, transparent);
-  width: 100%; max-width: 480px;
-  box-shadow: 0 0 18px color-mix(in srgb, var(--bet-color, #333) 30%, transparent);
-}
-.rpay-single-label {
-  font-size: 1.3rem; font-weight: 900;
-  color: #fff; letter-spacing: .5px; flex: 1;
-}
-.rpay-single-odds {
-  font-size: 1.1rem; font-weight: 900;
-  color: var(--gold); white-space: nowrap;
-}
-.rpay-single-chips { display: flex; gap: 3px; flex-wrap: wrap; }
-.rpay-chip {
-  width: 28px; height: 28px; border-radius: 50%;
-  font-size: .44rem; font-weight: 800;
+.rpay-grid-wrap { overflow: visible; }
+.rpay-grid { position: relative; overflow: visible; }
+.rpay-cell {
+  position: absolute;
   display: flex; align-items: center; justify-content: center;
-  border: 1.5px solid rgba(255,255,255,.3); flex-shrink: 0;
+  font-size: .9rem; font-weight: 800;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 4px;
+  user-select: none;
 }
+.rpay-cell-red { background: #c62828; color: #fff; }
+.rpay-cell-blk { background: #1a1a1a; color: #fff; }
+.rpay-cell-win {
+  outline: 2.5px solid #ffd700;
+  outline-offset: -2px;
+  box-shadow: 0 0 14px rgba(255,215,0,.55);
+  z-index: 2;
+}
+.rpay-spot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 1px; z-index: 6;
+  transition: opacity .2s;
+}
+.rpay-spot-chips { display: flex; flex-direction: column; align-items: center; }
+.rpay-spot-chip {
+  width: 24px; height: 24px; border-radius: 50%;
+  font-size: .4rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid rgba(255,255,255,.3);
+  flex-shrink: 0; margin-bottom: -5px;
+}
+.rpay-spot-chips .rpay-spot-chip:last-child { margin-bottom: 0; }
+.rpay-spot-label {
+  font-size: .5rem; font-weight: 700; margin-top: 3px;
+  color: rgba(255,255,255,.6);
+  background: rgba(0,0,0,.65);
+  padding: 1px 3px; border-radius: 2px;
+  white-space: nowrap;
+}
+.rpay-spot-paying .rpay-spot-chips {
+  filter: drop-shadow(0 0 7px #ffd700) drop-shadow(0 0 3px #ffd700);
+}
+.rpay-spot-paying .rpay-spot-label { color: #ffd700; }
+.rpay-spot-paid { opacity: .25; }
+.rpay-tray-info {
+  display: flex; align-items: baseline; gap: 1rem;
+  padding: .35rem .7rem .1rem;
+}
+.rpay-tray-type { font-size: 1rem; font-weight: 900; color: var(--gold); }
+.rpay-tray-bet { font-size: .8rem; color: var(--text-dim); }
 .rpay-spread-row { margin-top: .5rem; padding: .3rem .2rem 0; }
+.rpay-win-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #ffd700; color: #1a1a1a;
+  font-size: .72rem; font-weight: 900; letter-spacing: .5px;
+  padding: 2px 7px; border-radius: 10px; margin-left: 6px;
+}
 
 /* ---- ROULETTE ---- */
 
