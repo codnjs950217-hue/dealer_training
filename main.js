@@ -1013,7 +1013,7 @@ const Sims = {
       inner.textContent = type === 'hit' ? '✊' : '🤚';
       wrap.appendChild(inner);
       spot.appendChild(wrap);
-      setTimeout(() => { wrap.remove(); callback(); }, 1000);
+      setTimeout(() => { wrap.remove(); callback(); }, 480);
     }
 
     function autoDecide() {

@@ -1215,8 +1215,8 @@ body {
   100% { transform: translateX(0); }
 }
 
-.hand-anim-hit  { animation: knockD .9s ease-in-out; }
-.hand-anim-stay { animation: waveD  .9s ease-in-out; }
+.hand-anim-hit  { animation: knockD .45s ease-in-out; }
+.hand-anim-stay { animation: waveD  .45s ease-in-out; }
 
 /* ---- BLACKJACK: SPOT INLINE BUTTONS ---- */
 
