@@ -1984,7 +1984,7 @@ const Sims = {
           if (bsideContent) bsideContent.style.display = '';
           if (statsComm) statsComm.style.display = 'none';
           if (statsSide) statsSide.style.display = '';
-          Sims.baccaratSide && Sims.baccaratSide.init();
+          if (Sims.baccaratSide) { Sims.baccaratSide.init(); Sims.baccaratSide.deal(); }
         } else {
           if (bpayContent) bpayContent.style.display = '';
           if (bsideContent) bsideContent.style.display = 'none';
