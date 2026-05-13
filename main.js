@@ -2203,6 +2203,8 @@ const Sims = {
         S.rounds++;
         $('bside-rounds').textContent = S.rounds;
         clearHighlights();
+        const s7lbl = $('bside-s7-pay-1');
+        if (s7lbl) s7lbl.innerHTML = '×30/40/100';
         SIDE_KEYS.forEach(k => { const el = $(`bside-${k}-amt-1`); if (el) el.innerHTML = ''; });
         const panel = $('bside-comm-panel'); if (panel) panel.style.display = 'none';
         const spread = $('bside-spread-section'); if (spread) { spread.style.display = 'none'; spread.innerHTML = ''; }
