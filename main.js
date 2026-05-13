@@ -57,6 +57,10 @@ const App = {
       el.innerHTML = Views.baccaratPaySim();
       Sims.baccaratPay && Sims.baccaratPay.init();
     }
+    if (mode === 'paysim' && game === 'roulette') {
+      el.innerHTML = Views.roulettePaySim();
+      Sims.roulettePay && Sims.roulettePay.init();
+    }
 
     if (game === 'poker') {
       if (mode === 'isp') { el.innerHTML = Views.ispSim(); Sims.poker.isp.init(); }
@@ -113,6 +117,9 @@ const Views = {
       ? `<button class="btn btn-secondary" onclick="App.navigate('poker','isp')">⚡ ISP Practice</button>
          <button class="btn btn-secondary" onclick="App.navigate('poker','tcp')">⚡ TCP Practice</button>
          <button class="btn btn-secondary" onclick="App.navigate('poker','thp')">⚡ THP Practice</button>`
+      : game === 'roulette'
+      ? `<button class="btn btn-secondary" onclick="App.navigate('roulette','simulation')">⚡ Simulation</button>
+         <button class="btn btn-secondary" onclick="App.navigate('roulette','paysim')">⚡ Payout Practice</button>`
       : `<button class="btn btn-secondary" onclick="App.navigate('${game}','simulation')">⚡ Go to Simulation</button>`;
     return `
       <div class="sim-page">
@@ -288,6 +295,26 @@ const Views = {
         </div>
       </div>
       <div class="payout-panel" id="rou-payouts"></div>
+    </div>`,
+
+  roulettePaySim: () => `
+    <div class="sim-page rpay-sim">
+      <div class="sim-header">
+        <button class="back-btn" onclick="App.navigate('roulette')">← Back</button>
+        <h2>🎡 Payout Practice</h2>
+        <div class="sim-stats">
+          <span>Rounds: <strong id="rpay-rounds">0</strong></span>
+          <span>Score: <strong id="rpay-score">0</strong></span>
+        </div>
+      </div>
+      <div class="rpay-table">
+        <div class="rpay-spin-result" id="rpay-spin-result"></div>
+        <div class="rpay-bets-area" id="rpay-bets-area"></div>
+        <div class="bpay-start-overlay" id="rpay-start-overlay">
+          <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
+        </div>
+      </div>
+      <div class="bpay-comm-panel" id="rpay-comm-panel"></div>
     </div>`,
 
   baccaratPaySim: () => `
@@ -2397,6 +2424,282 @@ const Sims = {
           if (bet === `col${col}`     && col > 0)             wins.push(`Column ${col}: 2:1`);
         }
         return wins;
+      },
+    };
+  })(),
+
+  // ---- ROULETTE PAYOUT PRACTICE ----
+  roulettePay: (() => {
+    const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+    const BET_CHIPS = [
+      { key: '100K', val: 100_000, bg: '#212121', fg: '#fff' },
+      { key: '10K',  val:  10_000, bg: '#2e7d32', fg: '#fff' },
+    ];
+    const PAY_CHIPS = [
+      { key: '10M',  val: 10_000_000, bg: '#1565c0', fg: '#fff'    },
+      { key: '1M',   val:  1_000_000, bg: '#fdd835', fg: '#1a1a1a' },
+      { key: '100K', val:    100_000, bg: '#212121', fg: '#fff'    },
+      { key: '10K',  val:     10_000, bg: '#2e7d32', fg: '#fff'    },
+      { key: '5K',   val:      5_000, bg: '#b5176b', fg: '#fff'    },
+    ];
+    const numColor = n => n === 0 ? 'green' : RED_NUMS.has(n) ? 'red' : 'black';
+
+    const OUTSIDE_DEFS = [
+      { id:'red',   label:'Red',         pays:1, check: n => n!==0 && RED_NUMS.has(n) },
+      { id:'black', label:'Black',       pays:1, check: n => n!==0 && !RED_NUMS.has(n) },
+      { id:'odd',   label:'Odd',         pays:1, check: n => n!==0 && n%2===1 },
+      { id:'even',  label:'Even',        pays:1, check: n => n!==0 && n%2===0 },
+      { id:'low',   label:'1–18',        pays:1, check: n => n>=1 && n<=18 },
+      { id:'high',  label:'19–36',       pays:1, check: n => n>=19 && n<=36 },
+      { id:'doz1',  label:'1st Dozen',   pays:2, check: n => n>=1  && n<=12 },
+      { id:'doz2',  label:'2nd Dozen',   pays:2, check: n => n>=13 && n<=24 },
+      { id:'doz3',  label:'3rd Dozen',   pays:2, check: n => n>=25 && n<=36 },
+      { id:'col1',  label:'Column 1',    pays:2, check: n => n!==0 && n%3===1 },
+      { id:'col2',  label:'Column 2',    pays:2, check: n => n!==0 && n%3===2 },
+      { id:'col3',  label:'Column 3',    pays:2, check: n => n!==0 && n%3===0 },
+    ];
+
+    function genInsideBet() {
+      const t = Math.floor(Math.random() * 5);
+      if (t === 0) {
+        const n = 1 + Math.floor(Math.random() * 36);
+        return { id:`st${n}`, label:`Straight Up  ${n}`, pays:35, check: x => x===n };
+      }
+      if (t === 1) {
+        const n = 1 + Math.floor(Math.random() * 34);
+        const horiz = Math.random()<0.5 && n%3!==0;
+        const n2 = horiz ? n+1 : n+3;
+        return { id:`sp${n}_${n2}`, label:`Split  ${n} · ${n2}`, pays:17, check: x => x===n||x===n2 };
+      }
+      if (t === 2) {
+        const r = Math.floor(Math.random() * 12);
+        const n = r*3+1;
+        return { id:`stre${n}`, label:`Street  ${n}–${n+2}`, pays:11, check: x => x>=n&&x<=n+2 };
+      }
+      if (t === 3) {
+        const c = Math.floor(Math.random()*2), r = Math.floor(Math.random()*11);
+        const n = r*3+c+1;
+        return { id:`cor${n}`, label:`Corner  ${n}/${n+1}/${n+3}/${n+4}`, pays:8, check: x => [n,n+1,n+3,n+4].includes(x) };
+      }
+      const r = Math.floor(Math.random()*11), n = r*3+1;
+      return { id:`six${n}`, label:`Six Line  ${n}–${n+5}`, pays:5, check: x => x>=n&&x<=n+5 };
+    }
+
+    function genChips() {
+      const r = Math.random();
+      if (r < 0.4) return { '10K': 1+Math.floor(Math.random()*5) };
+      if (r < 0.75) return { '100K': 1+Math.floor(Math.random()*4) };
+      return { '100K': 1+Math.floor(Math.random()*3), '10K': 1+Math.floor(Math.random()*4) };
+    }
+
+    function chipTotal(chips) {
+      return Object.entries(chips).reduce((s,[k,c]) => s+(BET_CHIPS.find(x=>x.key===k)?.val??0)*c, 0);
+    }
+
+    function generateBets() {
+      const count = 2 + Math.floor(Math.random()*2);
+      const usedIds = new Set();
+      const bets = [];
+      const wantInside = Math.random() < 0.45;
+      if (wantInside) {
+        const b = genInsideBet();
+        usedIds.add(b.id);
+        const chips = genChips();
+        bets.push({ ...b, chips, total: chipTotal(chips) });
+      }
+      const pool = [...OUTSIDE_DEFS].sort(() => Math.random()-0.5);
+      for (const def of pool) {
+        if (bets.length >= count) break;
+        if (usedIds.has(def.id)) continue;
+        usedIds.add(def.id);
+        const chips = genChips();
+        bets.push({ ...def, chips, total: chipTotal(chips) });
+      }
+      return bets;
+    }
+
+    function renderChips(chips) {
+      return Object.entries(chips).flatMap(([key, cnt]) => {
+        const c = BET_CHIPS.find(x => x.key===key);
+        return Array.from({length:cnt}, () =>
+          `<div class="rpay-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>`);
+      }).join('');
+    }
+
+    function renderBets(spinNum) {
+      const area = document.getElementById('rpay-bets-area');
+      if (!area) return;
+      area.innerHTML = S.bets.map((b,i) => {
+        const win = spinNum !== null && b.check(spinNum);
+        const isPaying = S.payIdx !== null && S.payQueue[S.payIdx] === i;
+        let cls = 'rpay-bet-card';
+        if (spinNum === null) cls += '';
+        else if (isPaying) cls += ' rpay-paying';
+        else if (win) cls += ' rpay-win';
+        else cls += ' rpay-lose';
+        const colorDot = b.id==='red' ? '🔴' : b.id==='black' ? '⚫' : '';
+        return `<div class="${cls}" id="rpay-bet-${i}">
+          <div class="rpay-bet-label">${colorDot}${b.label}</div>
+          <div class="rpay-bet-odds">${b.pays}:1</div>
+          <div class="rpay-bet-chips">${renderChips(b.chips)}</div>
+          ${win && !isPaying && spinNum!==null ? '<div class="rpay-win-tag">WIN</div>' : ''}
+          ${isPaying ? '<div class="rpay-pay-tag">PAY →</div>' : ''}
+        </div>`;
+      }).join('');
+    }
+
+    function showTray() {
+      const panel = document.getElementById('rpay-comm-panel');
+      if (!panel) return;
+      const b = S.bets[S.payQueue[S.payIdx]];
+      panel.innerHTML = `<div class="comm-tray">
+        <div class="rpay-tray-target">Pay: <strong>${b.label}</strong> &nbsp;·&nbsp; ${b.pays}:1 &nbsp;·&nbsp; Bet: ${(b.total/10000).toFixed(0)}만</div>
+        <div class="comm-tray-slots">
+          ${PAY_CHIPS.map(c => `
+            <div class="comm-slot">
+              <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
+              <input type="hidden" id="rpay-ci-${c.key}" value="0">
+              <div class="comm-5k-btns">
+                <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',5)">+5개</button>
+                <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">+1개</button>
+              </div>
+              <button class="comm-5k-reset" onclick="Sims.roulettePay.resetChip('${c.key}')">RESET</button>
+            </div>`).join('')}
+          <div class="comm-pay-slot">
+            <button class="comm-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
+            <button class="comm-all-reset-btn" onclick="Sims.roulettePay.resetAll()">ALL RESET</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function showSpread() {
+      const panel = document.getElementById('rpay-comm-panel');
+      if (!panel) return;
+      const items = [];
+      PAY_CHIPS.forEach(c => {
+        const cnt = parseInt(document.getElementById(`rpay-ci-${c.key}`)?.value)||0;
+        for (let i=0; i<cnt; i++) items.push(c);
+      });
+      const spread = items.map((c,i) => {
+        const prev = items[i-1];
+        const gap = i>0 && prev && prev.key!==c.key ? ' spread-gap' : '';
+        return `<div class="spread-disc${gap}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`;
+      }).join('');
+      const existing = panel.querySelector('.rpay-spread-row');
+      if (existing) existing.innerHTML = spread;
+      else {
+        const row = document.createElement('div');
+        row.className = 'rpay-spread-row spread-row';
+        row.innerHTML = spread;
+        panel.querySelector('.comm-tray')?.appendChild(row);
+      }
+    }
+
+    function showMistake(retry) {
+      const tbl = document.querySelector('.rpay-table');
+      if (!tbl) { retry(); return; }
+      const ov = document.createElement('div');
+      ov.className = 'mistake-overlay';
+      ov.innerHTML = '<div class="mistake-text">MISTAKE!</div>';
+      tbl.appendChild(ov);
+      setTimeout(() => { ov.remove(); retry(); }, 1600);
+    }
+
+    function advancePay() {
+      S.payIdx++;
+      if (S.payIdx >= S.payQueue.length) {
+        S.score++;
+        document.getElementById('rpay-score').textContent = S.score;
+        const panel = document.getElementById('rpay-comm-panel');
+        if (panel) panel.innerHTML = '';
+        renderBets(S.spinNum);
+        const tbl = document.querySelector('.rpay-table');
+        if (tbl) {
+          const ov = document.createElement('div');
+          ov.className = 'next-hand-overlay';
+          ov.innerHTML = '<div class="next-hand-text">NEXT HAND</div>';
+          tbl.appendChild(ov);
+          setTimeout(() => { ov.remove(); Sims.roulettePay.deal(); }, 1600);
+        }
+        return;
+      }
+      renderBets(S.spinNum);
+      showTray();
+    }
+
+    let S = {};
+    const $ = id => document.getElementById(id);
+
+    return {
+      init() {
+        S = { bets:[], spinNum:null, payQueue:[], payIdx:null, rounds:0, score:0 };
+      },
+
+      deal() {
+        const ov = $('rpay-start-overlay');
+        if (ov) ov.style.display = 'none';
+        S.rounds++;
+        $('rpay-rounds').textContent = S.rounds;
+        S.bets = generateBets();
+        S.spinNum = Math.floor(Math.random() * 37);
+        S.payQueue = S.bets.map((b,i) => b.check(S.spinNum) ? i : -1).filter(i => i>=0);
+        S.payIdx = null;
+        const comm = $('rpay-comm-panel');
+        if (comm) comm.innerHTML = '';
+
+        const col = numColor(S.spinNum);
+        const colIcon = col==='red'?'🔴':col==='black'?'⚫':'🟢';
+        const info = S.spinNum===0 ? 'GREEN · ZERO'
+          : `${col.toUpperCase()} · ${S.spinNum%2===1?'ODD':'EVEN'} · ${S.spinNum<=18?'1–18':'19–36'}`;
+        const sr = $('rpay-spin-result');
+        if (sr) sr.innerHTML = `
+          <div class="rpay-result-wrap">
+            <div class="rpay-num rpay-num-${col}">${S.spinNum}</div>
+            <div class="rpay-result-info">${colIcon} ${info}</div>
+          </div>`;
+
+        if (S.payQueue.length === 0) {
+          renderBets(S.spinNum);
+          setTimeout(() => Sims.roulettePay.deal(), 1200);
+          return;
+        }
+        S.payIdx = 0;
+        renderBets(S.spinNum);
+        showTray();
+      },
+
+      addChip(key, n) {
+        const inp = $(`rpay-ci-${key}`);
+        if (!inp) return;
+        inp.value = (parseInt(inp.value)||0) + n;
+        showSpread();
+      },
+
+      resetChip(key) {
+        const inp = $(`rpay-ci-${key}`);
+        if (inp) inp.value = '0';
+        showSpread();
+      },
+
+      resetAll() {
+        PAY_CHIPS.forEach(c => { const e=$(`rpay-ci-${c.key}`); if(e) e.value='0'; });
+        showSpread();
+      },
+
+      submitPay() {
+        const entered = PAY_CHIPS.reduce((s,c) => s+c.val*(parseInt($(`rpay-ci-${c.key}`)?.value)||0), 0);
+        const b = S.bets[S.payQueue[S.payIdx]];
+        const target = b.total * b.pays;
+        if (entered !== target) {
+          showMistake(() => {
+            PAY_CHIPS.forEach(c => { const e=$(`rpay-ci-${c.key}`); if(e) e.value='0'; });
+            showSpread();
+            showTray();
+          });
+          return;
+        }
+        advancePay();
       },
     };
   })(),
