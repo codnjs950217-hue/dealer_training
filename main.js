@@ -2080,14 +2080,15 @@ const Sims = {
     const $ = id => document.getElementById(id);
 
     function generateSideChips() {
+      const randCnt = () => 1 + Math.floor(Math.random() * 8);
       if (Math.random() < 1 / 3) {
         return {
-          [SIDE_CHIPS[0].key]: 1 + Math.floor(Math.random() * 3),
-          [SIDE_CHIPS[1].key]: 1 + Math.floor(Math.random() * 3),
+          [SIDE_CHIPS[0].key]: randCnt(),
+          [SIDE_CHIPS[1].key]: randCnt(),
         };
       }
       const denom = SIDE_CHIPS[Math.floor(Math.random() * SIDE_CHIPS.length)];
-      return { [denom.key]: 1 + Math.floor(Math.random() * 3) };
+      return { [denom.key]: randCnt() };
     }
 
     function chipTotal(chips) {

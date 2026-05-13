@@ -2243,7 +2243,7 @@ body {
 * { touch-action: manipulation; }
 
 /* ---- Side Bet Practice: compact mobile layout ---- */
-.bside-sim .baccarat-table   { padding: .8rem .6rem; }
+.bside-sim .baccarat-table   { padding: .8rem .6rem; overflow: visible; }
 .bside-sim .sim-header       { margin-bottom: .6rem; padding-bottom: .5rem; }
 .bside-sim .bpay-spread-section { min-height: 44px; padding: .3rem .3rem .2rem; }
 .bside-sim .spread-disc             { width: 34px; height: 34px; font-size: .58rem; margin-left: -9px; }
@@ -2284,7 +2284,7 @@ body {
   padding: .1rem .25rem;
   flex: 1;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   color: rgba(255,255,255,.55) !important;
 }
 .bside-oval-bet .bside-big-num { font-size: 1.1rem; }
