@@ -308,7 +308,7 @@ const Views = {
         </div>
       </div>
       <div class="rpay-table">
-        <div class="rpay-grid-wrap" id="rpay-grid-wrap"></div>
+        <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
         <div class="bpay-start-overlay" id="rpay-start-overlay">
           <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
         </div>
@@ -2429,8 +2429,6 @@ const Sims = {
 
   // ---- ROULETTE PAYOUT PRACTICE (Option A: single-bet drill) ----
   roulettePay: (() => {
-    const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
-
     const BET_CHIPS = [
       { key: '100K', val: 100_000, bg: '#212121', fg: '#fff' },
       { key: '10K',  val:  10_000, bg: '#2e7d32', fg: '#fff' },
@@ -2477,37 +2475,24 @@ const Sims = {
     }
 
     function renderFullGrid(N, activeSpots) {
-      const rows = [
-        Array.from({length:12}, (_,i) => 3+i*3),
-        Array.from({length:12}, (_,i) => 2+i*3),
-        Array.from({length:12}, (_,i) => 1+i*3),
-      ];
-      let html = `<div class="rpay-full-table" id="rpay-full-table">
-        <table class="roulette-grid rpay-ro-grid"><tbody>`;
-      rows.forEach((row, ri) => {
-        html += `<tr>`;
-        if (ri === 0) html += `<td rowspan="3" class="zero-cell"><div class="bet-spot green-num">0</div></td>`;
-        row.forEach(n => {
-          const cls = RED_NUMS.has(n) ? 'red-num' : 'black-num';
-          const win = n === N ? ' rpay-win-cell' : '';
-          html += `<td id="rpay-td-${n}"><div class="bet-spot ${cls}${win}">${n}</div></td>`;
-        });
-        html += `<td class="rpay-col-sp"></td></tr>`;
-      });
-      html += `</tbody></table></div>`;
+      const tbl = document.getElementById('rpay-full-table');
+      if (!tbl) return;
 
-      const wrap = document.getElementById('rpay-grid-wrap');
-      if (wrap) wrap.innerHTML = html;
+      // Reset win highlight and remove old chip spots
+      tbl.querySelectorAll('.rpay-win-cell').forEach(el => el.classList.remove('rpay-win-cell'));
+      tbl.querySelectorAll('.rpay-spot').forEach(el => el.remove());
+
+      // Highlight winning number
+      const winEl = tbl.querySelector(`[data-bet="${N}"]`);
+      if (winEl) winEl.classList.add('rpay-win-cell');
 
       requestAnimationFrame(() => {
-        const tbl = document.getElementById('rpay-full-table');
-        if (!tbl) return;
         const tRect = tbl.getBoundingClientRect();
 
         function cc(num) {
-          const td = document.getElementById(`rpay-td-${num}`);
-          if (!td) return null;
-          const r = td.getBoundingClientRect();
+          const el = tbl.querySelector(`[data-bet="${num}"]`);
+          if (!el) return null;
+          const r = el.getBoundingClientRect();
           return {
             x: r.left - tRect.left + r.width/2,
             y: r.top  - tRect.top  + r.height/2,

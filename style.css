@@ -594,18 +594,16 @@ body {
   margin-bottom: .6rem;
   overflow: visible;
 }
-.rpay-grid-wrap { overflow: visible; }
 .rpay-full-table {
   position: relative; overflow: visible;
+  pointer-events: none;
 }
-.rpay-ro-grid .bet-spot { cursor: default; pointer-events: none; }
-.rpay-win-cell .bet-spot {
-  outline: 2.5px solid #ffd700;
+.rpay-win-cell {
+  outline: 2.5px solid #ffd700 !important;
   outline-offset: -2px;
-  box-shadow: 0 0 14px rgba(255,215,0,.55);
+  box-shadow: 0 0 14px rgba(255,215,0,.55) !important;
   z-index: 2;
 }
-.rpay-col-sp { width: 8px; }
 .rpay-spot {
   position: absolute;
   transform: translate(-50%, -50%);
