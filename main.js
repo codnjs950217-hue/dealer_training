@@ -203,7 +203,7 @@ const Views = {
                 <div class="hand-display" id="bj-hand-${i}"></div>
                 <div class="spot-status-wrap" id="bj-status-${i}"></div>
                 <div class="spot-inline-act" id="bj-spot-act-${i}"></div>
-                <div class="area-label">P${i+1}</div>
+                <div class="area-label">P${i < 3 ? i+1 : i+2}</div>
               </div>`).join('')}
           </div>
           <div class="dealer-area-bj" id="bj-dealer-wrap">
@@ -212,10 +212,6 @@ const Views = {
             <div class="dealer-ctrl-area" id="bj-dealer-controls"></div>
           </div>
         </div>
-      </div>
-      <div class="sim-controls">
-        <div class="message-board" id="bj-msg">Press Start to deal.</div>
-        <div class="action-buttons" id="bj-actions"></div>
       </div>
     </div>`,
 
@@ -879,9 +875,9 @@ const Sims = {
     let bjFlipId = 0;
 
     const $ = id => document.getElementById(id);
-    const msg    = t      => { $('bj-msg').textContent = t; $('bj-msg').style.color = ''; };
-    const msgCol = (t, c) => { $('bj-msg').textContent = t; $('bj-msg').style.color = c; };
-    const actions = h     => { $('bj-actions').innerHTML = h; };
+    const msg    = () => {};
+    const msgCol = () => {};
+    const actions = () => {};
     const stats   = ()    => { $('bj-rounds').textContent = S.rounds; $('bj-score').textContent = S.score; };
     const dealerCtrl      = h => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = h; };
     const clearDealerCtrl = () => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = ''; };
@@ -1069,13 +1065,18 @@ const Sims = {
       S.phase = 'done';
       for (let i = 0; i < N; i++) clearSpotAct(i);
       renderPlayers();
-      const wins   = S.players.filter(p => p.status === 'win').length;
-      const losses = S.players.filter(p => p.status === 'lose').length;
-      const pushes = S.players.filter(p => p.status === 'push').length;
-      msgCol(`Round complete! Paid: ${wins} · Took: ${losses} · Push: ${pushes}`, '#c9a84c');
-      S.score += wins;
+      S.score += S.players.filter(p => p.status === 'win').length;
       stats();
-      enableStart();
+      const table = document.querySelector('.blackjack-table');
+      if (table) {
+        const ov = document.createElement('div');
+        ov.className = 'next-hand-overlay';
+        ov.innerHTML = '<div class="next-hand-text">NEXT HAND</div>';
+        table.appendChild(ov);
+        setTimeout(() => { ov.remove(); Sims.blackjack.newGame(); }, 1600);
+      } else {
+        setTimeout(() => Sims.blackjack.newGame(), 1600);
+      }
     }
 
     return {
