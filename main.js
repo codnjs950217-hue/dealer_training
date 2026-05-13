@@ -2186,10 +2186,17 @@ const Sims = {
           : SIDE_MULT[key];
         S.currentMult = mult;
 
-        // Update Super 7 label to show the chosen mult
+        // Update Super 7 label — highlight chosen mult in white, others stay dimmed
         if (key === 's7') {
           const lbl = $('bside-s7-pay-1');
-          if (lbl) lbl.textContent = `×${mult}`;
+          if (lbl) {
+            const hi = `<span style="color:#fff;opacity:1;font-weight:900">`;
+            lbl.innerHTML = mult === 30
+              ? `×${hi}30</span>/40/100`
+              : mult === 40
+              ? `×30/${hi}40</span>/100`
+              : `×30/40/${hi}100</span>`;
+          }
         }
 
         // Generate bet chips and show on circle
@@ -2257,10 +2264,8 @@ const Sims = {
         S.score++;
         $('bside-score').textContent = S.score;
         // Reset Super 7 label back to all options
-        if (S.currentKey !== 's7') {
-          const s7lbl = $('bside-s7-pay-1');
-          if (s7lbl) s7lbl.textContent = '×30/40/100';
-        }
+        const s7lbl = $('bside-s7-pay-1');
+        if (s7lbl) s7lbl.textContent = '×30/40/100';
         setTimeout(() => { Sims.baccaratSide.deal(); }, 900);
       },
     };
