@@ -377,7 +377,6 @@ const Views = {
         <div class="bpay-start-overlay" id="bside-start-overlay">
           <button class="bpay-start-btn" onclick="Sims.baccaratSide.deal()">START</button>
         </div>
-        <div id="bside-correct-overlay" style="display:none"></div>
       </div>
       <div class="bpay-comm-panel" id="bside-comm-panel" style="display:none"></div>
     </div>`,
@@ -2191,7 +2190,7 @@ const Sims = {
         if (key === 's7') {
           const lbl = $('bside-s7-pay-1');
           if (lbl) {
-            const hi = `<span style="color:#fff;opacity:1;font-weight:900">`;
+            const hi = `<span style="color:#fff;opacity:1;font-weight:900;font-size:1.35em;vertical-align:middle">`;
             lbl.innerHTML = mult === 30
               ? `×${hi}30</span>/40/100`
               : mult === 40
@@ -2261,22 +2260,17 @@ const Sims = {
         const circ = $(`bside-${S.currentKey}-1`);
         if (circ) { circ.classList.remove('bside-paying-circ'); circ.classList.add('bside-win-circ'); }
         COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
-        const spread = $('bside-spread-section'); if (spread) spread.innerHTML = '';
+        // Show CORRECT in the spread (chip placement) area with animation
+        const spread = $('bside-spread-section');
+        if (spread) {
+          spread.style.display = 'flex';
+          spread.innerHTML = '<div class="bside-correct-inline">✓ CORRECT!</div>';
+        }
         S.score++;
         $('bside-score').textContent = S.score;
         // Reset Super 7 label back to all options
         const s7lbl = $('bside-s7-pay-1');
         if (s7lbl) s7lbl.textContent = '×30/40/100';
-        // Show correct overlay
-        const ov = $('bside-correct-overlay');
-        if (ov) {
-          ov.textContent = '✓ CORRECT!';
-          ov.style.display = 'block';
-          ov.style.animation = 'none';
-          void ov.offsetWidth; // reflow to restart animation
-          ov.style.animation = '';
-          setTimeout(() => { ov.style.display = 'none'; }, 900);
-        }
         setTimeout(() => { Sims.baccaratSide.deal(); }, 900);
       },
     };
