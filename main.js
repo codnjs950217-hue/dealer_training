@@ -1476,19 +1476,22 @@ const Sims = {
         el.className = 'bac-side-no-pair-notif';
         el.innerHTML = `
           <div class="bac-pnp-text" style="color:${textColor}">${label}</div>
-          <svg class="bac-pnp-svg${side === 'banker' ? ' bac-pnp-svg-flip' : ''}" viewBox="0 0 110 56" xmlns="http://www.w3.org/2000/svg">
+          <svg class="bac-pnp-svg${side === 'banker' ? ' bac-pnp-svg-flip' : ''}" viewBox="0 0 115 56" xmlns="http://www.w3.org/2000/svg">
             <circle cx="18" cy="32" r="13" fill="#c9a84c" stroke="#fff" stroke-width="1.5"/>
             <circle cx="18" cy="32" r="9" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="1"/>
             <text x="18" y="36" text-anchor="middle" fill="#111" font-size="6.5" font-weight="bold">PP</text>
             <line x1="35" y1="32" x2="50" y2="32" stroke="#ff6060" stroke-width="2.2" stroke-linecap="round"/>
             <polygon points="50,27.5 59,32 50,36.5" fill="#ff6060"/>
-            <rect x="62" y="26" width="30" height="17" rx="5.5" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
-            <rect x="65" y="14" width="5.5" height="15" rx="2.8" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
-            <rect x="72.5" y="12" width="5.5" height="17" rx="2.8" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
-            <rect x="80" y="14" width="5.5" height="15" rx="2.8" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
+            <rect x="61" y="26" width="35" height="17" rx="5.5" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
+            <rect x="58" y="28" width="5" height="11" rx="2.5" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8" transform="rotate(-30, 60.5, 34)"/>
+            <rect x="64" y="14" width="5.5" height="15" rx="2.8" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
+            <rect x="71.5" y="12" width="5.5" height="17" rx="2.8" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
+            <rect x="79" y="14" width="5.5" height="15" rx="2.8" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
+            <rect x="86.5" y="16" width="4.5" height="13" rx="2.2" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
             <line x1="60" y1="29" x2="51" y2="29" stroke="rgba(255,255,255,.45)" stroke-width="1.5" stroke-dasharray="3,2"/>
             <line x1="60" y1="35" x2="50" y2="35" stroke="rgba(255,255,255,.45)" stroke-width="1.5" stroke-dasharray="3,2"/>
           </svg>
+          <div class="bac-pnp-take-text">Losing Pair bet Take</div>
           `;
         if (anchor) {
           const tr = tbl.getBoundingClientRect();
