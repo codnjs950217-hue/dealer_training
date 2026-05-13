@@ -334,7 +334,7 @@ const Views = {
         </div>
         <div class="bpay-comm-panel" id="bpay-comm-panel"></div>
       </div>
-      <div id="bside-content" style="display:none">
+      <div id="bside-content" class="bside-sim" style="display:none">
         <div class="baccarat-table">
           <div class="bpay-positions bside-layout">
             ${[1].map(i => `
