@@ -2429,7 +2429,6 @@ const Sims = {
 
   // ---- ROULETTE PAYOUT PRACTICE (Option A: single-bet drill) ----
   roulettePay: (() => {
-    const CW = 68, CH = 44, LPAD = 38;
     const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
     const BET_CHIPS = [
@@ -2444,8 +2443,6 @@ const Sims = {
       { key: '5K',   val:      5_000, bg: '#b5176b', fg: '#fff'    },
     ];
 
-    function numColor(n) { return RED_NUMS.has(n) ? 'red' : 'blk'; }
-
     function genChips() {
       const r = Math.random();
       let chips;
@@ -2459,78 +2456,99 @@ const Sims = {
     function getValidSpots(N) {
       const row = Math.floor((N-1)/3);
       const col = (N-1) % 3;
-      const rStart = Math.max(0, row-1);
-      const dr = row - rStart;
       const spots = [];
 
-      // Straight Up
-      spots.push({ type:'Straight', pays:35, nums:[N],
-        x: LPAD+col*CW+CW/2, y: dr*CH+CH/2 });
+      spots.push({ type:'Straight', pays:35, nums:[N] });
 
-      // Horizontal Splits
-      if (col > 0) spots.push({ type:'Split', pays:17, nums:[N-1,N],
-        x: LPAD+col*CW, y: dr*CH+CH/2 });
-      if (col < 2) spots.push({ type:'Split', pays:17, nums:[N,N+1],
-        x: LPAD+(col+1)*CW, y: dr*CH+CH/2 });
+      if (col > 0) spots.push({ type:'Split', pays:17, nums:[N-1,N] });
+      if (col < 2) spots.push({ type:'Split', pays:17, nums:[N,N+1] });
 
-      // Vertical Splits
-      if (row > 0) spots.push({ type:'Split', pays:17, nums:[N-3,N],
-        x: LPAD+col*CW+CW/2, y: dr*CH });
-      if (row < 11) spots.push({ type:'Split', pays:17, nums:[N,N+3],
-        x: LPAD+col*CW+CW/2, y: (dr+1)*CH });
+      if (row > 0) spots.push({ type:'Split', pays:17, nums:[N-3,N] });
+      if (row < 11) spots.push({ type:'Split', pays:17, nums:[N,N+3] });
 
-      // Corners
-      if (row > 0 && col > 0) spots.push({ type:'Corner', pays:8, nums:[N-4,N-3,N-1,N],
-        x: LPAD+col*CW, y: dr*CH });
-      if (row > 0 && col < 2) spots.push({ type:'Corner', pays:8, nums:[N-3,N-2,N,N+1],
-        x: LPAD+(col+1)*CW, y: dr*CH });
-      if (row < 11 && col > 0) spots.push({ type:'Corner', pays:8, nums:[N-1,N,N+2,N+3],
-        x: LPAD+col*CW, y: (dr+1)*CH });
-      if (row < 11 && col < 2) spots.push({ type:'Corner', pays:8, nums:[N,N+1,N+3,N+4],
-        x: LPAD+(col+1)*CW, y: (dr+1)*CH });
+      if (row > 0 && col > 0) spots.push({ type:'Corner', pays:8, nums:[N-4,N-3,N-1,N] });
+      if (row > 0 && col < 2) spots.push({ type:'Corner', pays:8, nums:[N-3,N-2,N,N+1] });
+      if (row < 11 && col > 0) spots.push({ type:'Corner', pays:8, nums:[N-1,N,N+2,N+3] });
+      if (row < 11 && col < 2) spots.push({ type:'Corner', pays:8, nums:[N,N+1,N+3,N+4] });
 
-      // Street
-      spots.push({ type:'Street', pays:11, nums:[row*3+1,row*3+2,row*3+3],
-        x: LPAD/2, y: dr*CH+CH/2 });
+      spots.push({ type:'Street', pays:11, nums:[row*3+1,row*3+2,row*3+3] });
 
       return spots;
     }
 
-    function renderGrid(N, activeSpots) {
-      const row = Math.floor((N-1)/3);
-      const rStart = Math.max(0, row-1);
-      const rEnd = Math.min(11, row+1);
-      const numRows = rEnd - rStart + 1;
-      const W = LPAD + 3*CW;
-      const H = numRows * CH;
-
-      let html = `<div class="rpay-grid" style="width:${W}px;height:${H}px">`;
-
-      for (let r = rStart; r <= rEnd; r++) {
-        const dr = r - rStart;
-        for (let c = 0; c < 3; c++) {
-          const num = r*3+c+1;
-          const isWin = num === N;
-          html += `<div class="rpay-cell rpay-cell-${numColor(num)}${isWin?' rpay-cell-win':''}"
-            style="left:${LPAD+c*CW}px;top:${dr*CH}px;width:${CW}px;height:${CH}px">${num}</div>`;
-        }
-      }
-
-      activeSpots.forEach((sp, i) => {
-        const chipHtml = Object.entries(sp.chips).flatMap(([key,cnt]) => {
-          const c = BET_CHIPS.find(x=>x.key===key);
-          return Array.from({length:cnt}, () =>
-            `<div class="rpay-spot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>`);
-        }).join('');
-        html += `<div class="rpay-spot" id="rpay-spot-${i}" style="left:${sp.x}px;top:${sp.y}px">
-          <div class="rpay-spot-chips">${chipHtml}</div>
-          <div class="rpay-spot-label">${sp.type}</div>
-        </div>`;
+    function renderFullGrid(N, activeSpots) {
+      const rows = [
+        Array.from({length:12}, (_,i) => 3+i*3),
+        Array.from({length:12}, (_,i) => 2+i*3),
+        Array.from({length:12}, (_,i) => 1+i*3),
+      ];
+      let html = `<div class="rpay-full-table" id="rpay-full-table">
+        <table class="roulette-grid rpay-ro-grid"><tbody>`;
+      rows.forEach((row, ri) => {
+        html += `<tr>`;
+        if (ri === 0) html += `<td rowspan="3" class="zero-cell"><div class="bet-spot green-num">0</div></td>`;
+        row.forEach(n => {
+          const cls = RED_NUMS.has(n) ? 'red-num' : 'black-num';
+          const win = n === N ? ' rpay-win-cell' : '';
+          html += `<td id="rpay-td-${n}"><div class="bet-spot ${cls}${win}">${n}</div></td>`;
+        });
+        html += `<td class="rpay-col-sp"></td></tr>`;
       });
+      html += `</tbody></table></div>`;
 
-      html += '</div>';
       const wrap = document.getElementById('rpay-grid-wrap');
       if (wrap) wrap.innerHTML = html;
+
+      requestAnimationFrame(() => {
+        const tbl = document.getElementById('rpay-full-table');
+        if (!tbl) return;
+        const tRect = tbl.getBoundingClientRect();
+
+        function cc(num) {
+          const td = document.getElementById(`rpay-td-${num}`);
+          if (!td) return null;
+          const r = td.getBoundingClientRect();
+          return {
+            x: r.left - tRect.left + r.width/2,
+            y: r.top  - tRect.top  + r.height/2,
+            bottom: r.bottom - tRect.top,
+          };
+        }
+
+        activeSpots.forEach((sp, i) => {
+          let x, y;
+          if (sp.type === 'Straight') {
+            const c = cc(N); if (!c) return;
+            x = c.x; y = c.y;
+          } else if (sp.type === 'Split' || sp.type === 'Corner') {
+            const cs = sp.nums.map(n => cc(n)).filter(Boolean);
+            if (!cs.length) return;
+            x = cs.reduce((s,c) => s+c.x, 0)/cs.length;
+            y = cs.reduce((s,c) => s+c.y, 0)/cs.length;
+          } else if (sp.type === 'Street') {
+            const cs = sp.nums.map(n => cc(n)).filter(Boolean);
+            if (!cs.length) return;
+            x = cs.reduce((s,c) => s+c.x, 0)/cs.length;
+            y = Math.max(...cs.map(c => c.bottom)) + 16;
+          }
+          if (x === undefined) return;
+
+          const chipHtml = Object.entries(sp.chips).flatMap(([key,cnt]) => {
+            const c = BET_CHIPS.find(b => b.key===key);
+            return Array.from({length:cnt}, () =>
+              `<div class="rpay-spot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>`);
+          }).join('');
+
+          const el = document.createElement('div');
+          el.className = 'rpay-spot';
+          el.id = `rpay-spot-${i}`;
+          el.style.cssText = `left:${x}px;top:${y}px`;
+          el.innerHTML = `<div class="rpay-spot-chips">${chipHtml}</div><div class="rpay-spot-label">${sp.type}</div>`;
+          tbl.appendChild(el);
+        });
+
+        highlightSpot(0);
+      });
     }
 
     function highlightSpot(idx) {
@@ -2625,8 +2643,7 @@ const Sims = {
           return { ...sp, chips, total };
         });
 
-        renderGrid(N, S.spots);
-        highlightSpot(0);
+        renderFullGrid(N, S.spots);
         showTray();
       },
 
