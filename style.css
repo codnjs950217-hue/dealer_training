@@ -1167,7 +1167,7 @@ body {
   height: 74px;
   position: relative;
   transform-style: preserve-3d;
-  transition: transform .55s ease;
+  transition: transform .28s ease;
 }
 .bj-flip-card.bj-revealed .bj-flip-inner { transform: rotateY(180deg); }
 .bj-flip-back, .bj-flip-front {
@@ -1562,7 +1562,7 @@ body {
 }
 /* Each subsequent chip edge */
 .bpay-chip-stack-layer {
-  width: 34px; height: 1.5px;
+  width: 34px; height: 1px;
   background: #2e7d32;
   border-radius: 0 0 50% 50%;
   border-left: 1px solid rgba(255,255,255,.2);
@@ -1580,7 +1580,7 @@ body {
   z-index: 2; pointer-events: none;
   text-shadow: 0 1px 3px rgba(0,0,0,.7);
 }
-.bpay-stack-key { font-size: 8px;  font-weight: 900; line-height: 1; letter-spacing: .3px; color: #fff; }
+.bpay-stack-key { font-size: 12px; font-weight: 900; line-height: 1; letter-spacing: .3px; color: #fff; }
 .bpay-stack-cnt { font-size: 12px; font-weight: 900; line-height: 1; color: #fff; }
 
 /* Controls area: action buttons only */

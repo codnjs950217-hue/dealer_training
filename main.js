@@ -1128,14 +1128,14 @@ const Sims = {
               const el = $(`bj-hand-${step.idx}`);
               if (!el) return;
               el.insertAdjacentHTML('beforeend', bjFlipHTML(step.card, id, false));
-              setTimeout(() => bjReveal(id), 180);
+              setTimeout(() => bjReveal(id), 90);
             } else {
               const el = $('bj-dealer-hand');
               if (!el) return;
               el.insertAdjacentHTML('beforeend', bjFlipHTML(step.card, id, false));
-              setTimeout(() => bjReveal(id), 180);
+              setTimeout(() => bjReveal(id), 90);
             }
-          }, n * 260);
+          }, n * 140);
         });
 
         setTimeout(() => {
@@ -1143,7 +1143,7 @@ const Sims = {
           msg('Game started!');
           S.current = -1;
           advancePlayer();
-        }, steps.length * 260 + 600);
+        }, steps.length * 140 + 320);
       },
 
       executeAction() {
@@ -1159,26 +1159,26 @@ const Sims = {
             const handEl = $(`bj-hand-${i}`);
             const id = ++bjFlipId;
             if (handEl) handEl.insertAdjacentHTML('beforeend', bjFlipHTML(newCard, id, false));
-            setTimeout(() => bjReveal(id), 180);
+            setTimeout(() => bjReveal(id), 90);
             setTimeout(() => {
               const pv = total(p.hand);
               if (pv > 21) {
                 p.status = 'bust';
                 renderPlayers();
                 msg(`Player ${i + 1}: Bust!`);
-                setTimeout(() => advancePlayer(), 700);
+                setTimeout(() => advancePlayer(), 400);
               } else if (pv === 21) {
                 p.status = 'stand';
                 renderPlayers();
                 msg(`Player ${i + 1}: 21`);
-                setTimeout(() => advancePlayer(), 700);
+                setTimeout(() => advancePlayer(), 400);
               } else {
                 autoDecide();
               }
-            }, 750);
+            }, 420);
           } else {
             p.status = 'stand';
-            setTimeout(() => advancePlayer(), 650);
+            setTimeout(() => advancePlayer(), 380);
           }
         });
       },
@@ -1194,8 +1194,8 @@ const Sims = {
         const el = $('bj-dealer-hand');
         const id = ++bjFlipId;
         if (el) el.insertAdjacentHTML('beforeend', bjFlipHTML(newCard, id, false));
-        setTimeout(() => bjReveal(id), 180);
-        setTimeout(() => showDealerControls(), 700);
+        setTimeout(() => bjReveal(id), 90);
+        setTimeout(() => showDealerControls(), 400);
       },
 
       dealerStop() {
