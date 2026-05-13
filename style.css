@@ -1606,14 +1606,8 @@ body {
 /* Correct answer inline — shown inside the spread (chip placement) area */
 .bside-correct-inline {
   display: inline-block;
-  background: rgba(20, 160, 70, .95);
   color: #fff;
   font-size: 1.45rem; font-weight: 900; letter-spacing: 3px;
-  text-shadow: 0 2px 6px rgba(0,0,0,.55), 0 0 12px rgba(0,0,0,.3);
-  -webkit-text-stroke: .5px rgba(0,0,0,.25);
-  padding: .5rem 2.2rem;
-  border-radius: 12px;
-  border: 2px solid rgba(255,255,255,.4);
   white-space: nowrap;
   animation: bsideCorrectPop .85s ease-out forwards;
 }
@@ -2259,7 +2253,7 @@ body {
 /* Two-column layout: main area (ovals + circles) | narrow pair column */
 .bside-pos-wrap   { display: flex; flex-direction: row; gap: .2rem; align-items: flex-start; }
 .bside-pos-main   { flex: 1; display: flex; flex-direction: column; gap: .2rem; }
-.bside-pos-pairs  { width: 92px; display: flex; flex-direction: column; gap: .2rem; }
+.bside-pos-pairs  { width: 120px; display: flex; flex-direction: column; gap: .2rem; }
 
 /* Oval: chip height */
 .bside-layout .bpay-oval     { min-height: 36px; max-height: 42px; padding: .12rem .3rem; }
@@ -2372,7 +2366,7 @@ body {
   .bside-sim .sim-header h2   { font-size: 1.1rem; }
   .bside-layout .bpay-oval    { min-height: 32px; max-height: 38px; }
   .bside-layout .bpay-oval-lbl { font-size: .88rem; }
-  .bside-pos-pairs            { width: 82px; }
+  .bside-pos-pairs            { width: 108px; }
   .bside-pos-pairs .bpay-pair-circ { min-height: 34px; max-height: 42px; font-size: .58rem; }
   .bside-layout .bpay-circ    { flex: 1; max-height: 38px; font-size: .56rem; }
   .bside-oval-bet             { min-height: 32px; max-height: 38px; }
