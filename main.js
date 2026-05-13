@@ -57,10 +57,7 @@ const App = {
       el.innerHTML = Views.baccaratPaySim();
       Sims.baccaratPay && Sims.baccaratPay.init();
     }
-    if (mode === 'paysim-side' && game === 'baccarat') {
-      el.innerHTML = Views.baccaratSideSim();
-      Sims.baccaratSide && Sims.baccaratSide.init();
-    }
+
     if (game === 'poker') {
       if (mode === 'isp') { el.innerHTML = Views.ispSim(); Sims.poker.isp.init(); }
       if (mode === 'tcp') { el.innerHTML = Views.tcpSim(); Sims.poker.tcp.init(); }
@@ -117,8 +114,7 @@ const Views = {
     const g = GAMES[game];
     const simBtns = game === 'baccarat'
       ? `<button class="btn btn-secondary" onclick="App.navigate('baccarat','simulation')">⚡ Drawing Practice</button>
-         <button class="btn btn-secondary" onclick="App.navigate('baccarat','paysim')">⚡ Banker Payout Practice</button>
-         <button class="btn btn-secondary" onclick="App.navigate('baccarat','paysim-side')">⚡ Side Bet Practice</button>`
+         <button class="btn btn-secondary" onclick="App.navigate('baccarat','paysim')">⚡ Payout Practice</button>`
       : game === 'poker'
       ? `<button class="btn btn-secondary" onclick="App.navigate('poker','isp')">⚡ ISP Practice</button>
          <button class="btn btn-secondary" onclick="App.navigate('poker','tcp')">⚡ TCP Practice</button>
@@ -193,7 +189,7 @@ const Views = {
     <div class="sim-page blackjack-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('blackjack')">← Back</button>
-        <h2>♠ Blackjack Card Counting Practice</h2>
+        <h2>♠ Card Counting Practice</h2>
         <div class="sim-stats"><span>Rounds: <strong id="bj-rounds">0</strong></span><span>Score: <strong id="bj-score">0</strong></span></div>
       </div>
       <div class="blackjack-table">
@@ -227,7 +223,7 @@ const Views = {
     <div class="sim-page baccarat-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
-        <h2>🃏 Baccarat Drawing Practice</h2>
+        <h2>🃏 Drawing Practice</h2>
         <div class="sim-stats"><span>Rounds: <strong id="bac-rounds">0</strong></span><span>Score: <strong id="bac-score">0</strong></span></div>
       </div>
       <div class="baccarat-table">
@@ -308,29 +304,74 @@ const Views = {
     <div class="sim-page baccarat-sim">
       <div class="sim-header">
         <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
-        <h2>🃏 Banker Payout Practice</h2>
-        <div class="sim-stats">
+        <h2>🃏 Payout Practice</h2>
+        <div class="sim-stats" id="bpay-stats-comm">
           <span>Rounds: <strong id="bpay-rounds">0</strong></span>
           <span>Score: <strong id="bpay-score">0</strong></span>
+        </div>
+        <div class="sim-stats" id="bpay-stats-side" style="display:none">
+          <span>Rounds: <strong id="bside-rounds">0</strong></span>
+          <span>Score: <strong id="bside-score">0</strong></span>
         </div>
       </div>
       <div class="bpay-mode-row">
         <button id="bpay-btn-commission" class="bpay-mode-btn active" onclick="Sims.baccaratPay.setMode('commission')">💰 Commission (5%)</button>
         <button id="bpay-btn-halfpay"    class="bpay-mode-btn"        onclick="Sims.baccaratPay.setMode('halfpay')">½ Half Pay</button>
+        <button id="bpay-btn-side"       class="bpay-mode-btn"        onclick="Sims.baccaratPay.setMode('side')">🎯 Side Bet</button>
       </div>
-      <div class="baccarat-table">
-        <div class="bpay-positions">
-          ${[1].map(i => `
-            <div class="bpay-pos" id="bpay-pos-${i}">
-              <div class="bpay-oval bpay-b-oval" id="bpay-b-${i}">
-                <div class="bpay-oval-lbl">BANKER</div>
-                <div class="bpay-oval-amt" id="bpay-b-amt-${i}"></div>
-              </div>
-            </div>`).join('')}
+      <div id="bpay-content">
+        <div class="baccarat-table">
+          <div class="bpay-positions">
+            ${[1].map(i => `
+              <div class="bpay-pos" id="bpay-pos-${i}">
+                <div class="bpay-oval bpay-b-oval" id="bpay-b-${i}">
+                  <div class="bpay-oval-lbl">BANKER</div>
+                  <div class="bpay-oval-amt" id="bpay-b-amt-${i}"></div>
+                </div>
+              </div>`).join('')}
+          </div>
+          <div class="bpay-spread-section" id="bpay-spread-section" style="display:flex"></div>
         </div>
-        <div class="bpay-spread-section" id="bpay-spread-section" style="display:flex"></div>
+        <div class="bpay-comm-panel" id="bpay-comm-panel"></div>
       </div>
-      <div class="bpay-comm-panel" id="bpay-comm-panel"></div>
+      <div id="bside-content" style="display:none">
+        <div class="baccarat-table">
+          <div class="bpay-positions bside-layout">
+            ${[1].map(i => `
+              <div class="bpay-pos bside-pos-wrap" id="bside-pos-${i}">
+                <div class="bside-pos-main">
+                  <div class="bpay-oval bpay-p-oval bside-gray-oval" id="bside-p-${i}">
+                    <div class="bpay-oval-lbl">PLAYER</div>
+                    <div class="bpay-oval-amt" id="bside-p-amt-${i}"></div>
+                  </div>
+                  <div class="bpay-oval bpay-b-oval bside-gray-oval" id="bside-b-${i}">
+                    <div class="bpay-oval-lbl">BANKER</div>
+                    <div class="bpay-oval-amt" id="bside-b-amt-${i}"></div>
+                  </div>
+                  <div class="bpay-circles bside-line6">
+                    <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-bt-${i}"><span class="bside-big-num">6</span>BIG<span class="bpay-circ-pay">×50</span><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div></div>
+                    <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tie bside-oval-bet" id="bside-tt-${i}"><span class="bside-big-num">TIE</span><span class="bpay-circ-pay">×8</span><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div></div>
+                    <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-st-${i}"><span class="bside-big-num">6</span>SMALL<span class="bpay-circ-pay">×22</span><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div></div>
+                  </div>
+                  <div class="bpay-circles bside-line7">
+                    <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-bd-${i}"><span class="bside-big-num">7</span>BIG<span class="bpay-circ-pay">×30</span><div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div></div>
+                    <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-s7-${i}"><span class="bside-big-num">7</span>SUPER 7<span class="bpay-circ-pay" id="bside-s7-pay-${i}">×30/40/100</span><div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div></div>
+                    <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-sd-${i}"><span class="bside-big-num">7</span>SMALL<span class="bpay-circ-pay">×15</span><div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div></div>
+                  </div>
+                </div>
+                <div class="bside-pos-pairs">
+                  <div class="bpay-pair-circ bpay-ppair" id="bside-pp-${i}">P<br>PAIR<div class="bpay-circ-bet" id="bside-pp-amt-${i}"></div></div>
+                  <div class="bpay-pair-circ bpay-bpair" id="bside-bp-${i}">B<br>PAIR<div class="bpay-circ-bet" id="bside-bp-amt-${i}"></div></div>
+                </div>
+              </div>`).join('')}
+          </div>
+          <div class="bpay-spread-section" id="bside-spread-section" style="display:none"></div>
+          <div class="bpay-start-overlay" id="bside-start-overlay">
+            <button class="bpay-start-btn" onclick="Sims.baccaratSide.deal()">START</button>
+          </div>
+        </div>
+        <div class="bpay-comm-panel" id="bside-comm-panel" style="display:none"></div>
+      </div>
     </div>`,
 
   baccaratSideSim: () => `
@@ -1930,9 +1971,27 @@ const Sims = {
         S.mode = mode;
         const btnComm = document.getElementById('bpay-btn-commission');
         const btnHalf = document.getElementById('bpay-btn-halfpay');
+        const btnSide = document.getElementById('bpay-btn-side');
         if (btnComm) btnComm.classList.toggle('active', mode === 'commission');
         if (btnHalf) btnHalf.classList.toggle('active', mode === 'halfpay');
-        this.deal();
+        if (btnSide) btnSide.classList.toggle('active', mode === 'side');
+        const bpayContent = document.getElementById('bpay-content');
+        const bsideContent = document.getElementById('bside-content');
+        const statsComm = document.getElementById('bpay-stats-comm');
+        const statsSide = document.getElementById('bpay-stats-side');
+        if (mode === 'side') {
+          if (bpayContent) bpayContent.style.display = 'none';
+          if (bsideContent) bsideContent.style.display = '';
+          if (statsComm) statsComm.style.display = 'none';
+          if (statsSide) statsSide.style.display = '';
+          Sims.baccaratSide && Sims.baccaratSide.init();
+        } else {
+          if (bpayContent) bpayContent.style.display = '';
+          if (bsideContent) bsideContent.style.display = 'none';
+          if (statsComm) statsComm.style.display = '';
+          if (statsSide) statsSide.style.display = 'none';
+          this.deal();
+        }
       },
 
       deal() {
