@@ -88,6 +88,7 @@ const Views = {
     <section class="hero">
       <div class="hero-content">
         <h1 class="hero-title">Casino Dealer<br><span class="gold">Training System</span></h1>
+        <p class="hero-sub">왼쪽 메뉴에서 연습할 항목을 선택하세요.</p>
       </div>
       <div class="hero-cards">
         <div class="floating-card card red" style="transform:rotate(-14deg) translate(-30px,8px)">
