@@ -842,7 +842,8 @@ const Sims = {
     const msgCol = (t, c) => { $('bj-msg').textContent = t; $('bj-msg').style.color = c; };
     const actions = h     => { $('bj-actions').innerHTML = h; };
     const stats   = ()    => { $('bj-rounds').textContent = S.rounds; $('bj-score').textContent = S.score; };
-    const clearDealerCtrl = () => {};
+    const dealerCtrl      = h => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = h; };
+    const clearDealerCtrl = () => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = ''; };
     const setSpotAct  = (i, h) => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = h; };
     const clearSpotAct = i     => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = ''; };
     const enableStart  = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = false; e.style.opacity = ''; e.textContent = 'Start'; } };
@@ -898,22 +899,14 @@ const Sims = {
       return false;
     }
     function showDealerControls() {
-      if (dealerShouldDraw(S.dh)) {
-        setTimeout(() => {
-          const newCard = safeHit(S.dh);
-          S.dh.push(newCard);
-          const el = $('bj-dealer-hand');
-          const id = ++bjFlipId;
-          if (el) el.insertAdjacentHTML('beforeend', bjFlipHTML(newCard, id, false));
-          setTimeout(() => bjReveal(id), 180);
-          setTimeout(() => showDealerControls(), 850);
-        }, 450);
-      } else {
-        setTimeout(() => {
-          S.payTestIdx = 4;
-          startPayTest();
-        }, 450);
-      }
+      const dv = total(S.dh);
+      const soft = isSoftHand(S.dh);
+      const label = (soft && dv === 17) ? `Soft ${dv}` : `${dv}`;
+      msg(`Dealer: ${label}. Draw or Stop?`);
+      dealerCtrl(`
+        <button class="dealer-ctrl-btn dealer-draw-btn" onclick="Sims.blackjack.dealerDraw()">Draw Card</button>
+        <button class="dealer-ctrl-btn dealer-stop-btn" onclick="Sims.blackjack.dealerStop()">Stop</button>
+      `);
     }
     function showDealerAlert(text, callback) {
       const area = $('bj-dealer-wrap');
