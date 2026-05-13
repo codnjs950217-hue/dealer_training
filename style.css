@@ -2237,7 +2237,7 @@ body {
 /* Two-column layout: main area (ovals + circles) | narrow pair column */
 .bside-pos-wrap   { display: flex; flex-direction: row; gap: .2rem; align-items: flex-start; }
 .bside-pos-main   { flex: 1; display: flex; flex-direction: column; gap: .2rem; }
-.bside-pos-pairs  { width: 72px; display: flex; flex-direction: column; gap: .2rem; }
+.bside-pos-pairs  { width: 92px; display: flex; flex-direction: column; gap: .2rem; }
 
 /* Oval: chip height */
 .bside-layout .bpay-oval     { min-height: 36px; max-height: 42px; padding: .12rem .3rem; }
@@ -2296,7 +2296,7 @@ body {
 .bside-oval-bet, .bpay-pair-circ, .bside-gray-oval { transition: opacity .2s; }
 .bside-layout.bside-quiz-mode .bside-oval-bet:not(.bside-paying-circ):not(.bside-win-circ),
 .bside-layout.bside-quiz-mode .bpay-pair-circ:not(.bside-paying-circ):not(.bside-win-circ),
-.bside-layout.bside-quiz-mode .bside-gray-oval { opacity: 0.18; }
+.bside-layout.bside-quiz-mode .bside-gray-oval { opacity: 0.35; }
 
 /* Pair circles: faint text, chips centered */
 .bside-sim .bpay-ppair { color: rgba(255,144,144,.6) !important; }
@@ -2350,9 +2350,7 @@ body {
   .bside-sim .sim-header h2   { font-size: 1.1rem; }
   .bside-layout .bpay-oval    { min-height: 32px; max-height: 38px; }
   .bside-layout .bpay-oval-lbl { font-size: .88rem; }
-  .bside-pos-pairs            { width: 36px; }
-  .bside-pos-pairs .bpay-pair-circ { min-height: 32px; max-height: 38px; font-size: .48rem; }
-  .bside-pos-pairs            { width: 64px; }
+  .bside-pos-pairs            { width: 82px; }
   .bside-pos-pairs .bpay-pair-circ { min-height: 34px; max-height: 42px; font-size: .58rem; }
   .bside-layout .bpay-circ    { flex: 1; max-height: 38px; font-size: .56rem; }
   .bside-oval-bet             { min-height: 32px; max-height: 38px; }
