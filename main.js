@@ -2016,15 +2016,16 @@ const Sims = {
     const $ = id => document.getElementById(id);
 
     function generateSideChips() {
+      const COUNTS = [1, 2, 3, 5, 10, 20];
+      const pick = () => COUNTS[Math.floor(Math.random() * COUNTS.length)];
       if (Math.random() < 1 / 3) {
-        // Two-color: one stack of each SIDE_CHIP denomination
         return {
-          [SIDE_CHIPS[0].key]: 1 + Math.floor(Math.random() * 3),
-          [SIDE_CHIPS[1].key]: 1 + Math.floor(Math.random() * 3),
+          [SIDE_CHIPS[0].key]: pick(),
+          [SIDE_CHIPS[1].key]: pick(),
         };
       }
       const denom = SIDE_CHIPS[Math.floor(Math.random() * SIDE_CHIPS.length)];
-      return { [denom.key]: 1 + Math.floor(Math.random() * 3) };
+      return { [denom.key]: pick() };
     }
 
     function chipTotal(chips) {
@@ -2039,29 +2040,20 @@ const Sims = {
         const vb = COMM_CHIPS.find(c => c.key === b[0])?.val ?? 0;
         return vb - va;
       });
-      let discs = '';
-      sorted.forEach(([key, cnt], groupIdx) => {
+      const cols = sorted.map(([key, cnt]) => {
         const chip = COMM_CHIPS.find(c => c.key === key);
-        if (!chip) return;
-        for (let j = 0; j < cnt; j++) {
-          const newGroup   = j === 0 && groupIdx > 0;
-          const group5gap  = !newGroup && j > 0 && j % 5 === 0;
-          let cls = 'bside-bet-disc';
-          if (newGroup)  cls += ' new-denom';
-          else if (group5gap) cls += ' group5gap';
-          discs += `<div class="${cls}" style="background:${chip.bg};color:${chip.fg}">${chip.key}</div>`;
+        if (!chip) return '';
+        const label = cnt > 3 ? `×${cnt}` : chip.key;
+        // Each additional chip = one layer strip below the face
+        let layers = '';
+        for (let i = 1; i < cnt; i++) {
+          layers += `<div class="bside-chip-layer" style="background:${chip.bg}"></div>`;
         }
-      });
-      return `<div class="bside-bet-spread">${discs}</div>`;
-    }
-
-    function neededKeysForTarget(target) {
-      const needed = new Set();
-      let rem = target;
-      for (const c of COMM_CHIPS) {
-        if (rem >= c.val) { needed.add(c.key); rem -= Math.floor(rem / c.val) * c.val; }
-      }
-      return needed;
+        return `<div class="bside-chip-col">` +
+          `<div class="bside-chip-face" style="background:${chip.bg};color:${chip.fg}">${label}</div>` +
+          layers + `</div>`;
+      }).join('');
+      return `<div class="bside-chip-stacks">${cols}</div>`;
     }
 
 

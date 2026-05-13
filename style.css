@@ -2281,11 +2281,10 @@ body {
   aspect-ratio: unset !important;
   border-radius: 50px !important;
   min-height: 36px;
-  max-height: 44px;
-  padding: .1rem .25rem;
+  padding: .1rem .25rem .15rem;
   flex: 1;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   color: rgba(255,255,255,.55) !important;
 }
 .bside-oval-bet .bside-big-num { font-size: 1.1rem; }
@@ -2302,12 +2301,52 @@ body {
   color: rgba(255,255,255,.75) !important;
   line-height: 1;
 }
+/* Chip stacks sit below the oval, centered */
 .bside-oval-bet .bpay-circ-bet {
   position: absolute;
-  top: 50%;
+  top: calc(100% + 3px);
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: max-content;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+}
+/* Chip stack visuals */
+.bside-chip-stacks {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 5px;
+}
+.bside-chip-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 34px;
+  flex-shrink: 0;
+}
+.bside-chip-face {
+  width: 34px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .32rem;
+  font-weight: 900;
+  letter-spacing: .3px;
+  flex-shrink: 0;
+}
+.bside-chip-layer {
+  width: 30px;
+  height: 4px;
+  border-radius: 0 0 50% 50%;
+  border-left: 1px solid rgba(255,255,255,.2);
+  border-right: 1px solid rgba(255,255,255,.2);
+  border-bottom: 1.5px solid rgba(255,255,255,.25);
+  border-top: 1.5px solid rgba(0,0,0,.45);
+  flex-shrink: 0;
 }
 /* Quiz mode: dim all non-active bet spots */
 .bside-oval-bet, .bpay-pair-circ, .bside-gray-oval { transition: opacity .2s; }
@@ -2370,7 +2409,9 @@ body {
   .bside-pos-pairs            { width: 82px; }
   .bside-pos-pairs .bpay-pair-circ { min-height: 34px; max-height: 42px; font-size: .58rem; }
   .bside-layout .bpay-circ    { flex: 1; max-height: 38px; font-size: .56rem; }
-  .bside-oval-bet             { min-height: 32px; max-height: 38px; }
+  .bside-oval-bet             { min-height: 32px; }
+  .bside-chip-face            { width: 28px; height: 10px; font-size: .28rem; }
+  .bside-chip-layer           { width: 24px; height: 3px; }
   .bside-oval-bet .bside-big-num { font-size: .95rem; }
   .bside-line6 .bside-oval-bet .bpay-circ-pay,
   .bside-line7 .bside-oval-bet .bpay-circ-pay { font-size: .44rem; }
