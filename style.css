@@ -445,10 +445,10 @@ body {
 .dealer-area-bj .card-suit-center  { font-size: 1.4rem; }
 .dealer-area-bj .card-pattern      { width: 44px; height: 66px; }
 .dealer-ctrl-area {
-  display: none !important;
-}
-.sim-controls {
-  display: none !important;
+  margin-top: .4rem;
+  display: flex;
+  gap: .3rem;
+  flex-wrap: wrap;
 }
 .dealer-ctrl-btn {
   padding: .25rem .6rem;
