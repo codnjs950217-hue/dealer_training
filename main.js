@@ -87,7 +87,13 @@ const Views = {
   home: () => `
     <section class="hero">
       <div class="hero-content">
+        <div class="badge">♠ Professional Dealer Training</div>
         <h1 class="hero-title">Casino Dealer<br><span class="gold">Training System</span></h1>
+        <p class="hero-sub">Master the art of dealing with interactive video tutorials and hands-on simulations — designed to professional casino standards.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary"  onclick="App.navigate('blackjack','simulation')">Start Training</button>
+          <button class="btn btn-outline"  onclick="App.navigate('baccarat','tutorial')">Watch Tutorial</button>
+        </div>
       </div>
       <div class="hero-cards">
         <div class="floating-card card red" style="transform:rotate(-14deg) translate(-30px,8px)">
@@ -105,6 +111,34 @@ const Views = {
           <div class="card-suit-center">♦</div>
           <div class="card-corner bottom"><span class="rank">Q</span><span class="suit">♦</span></div>
         </div>
+      </div>
+    </section>
+
+    <section class="games-section">
+      <div class="section-header">
+        <h2>Choose Your Game</h2>
+        <p>Select a game to begin your professional dealer training</p>
+      </div>
+      <div class="games-grid">
+        ${Object.entries(GAMES).map(([k, g]) => `
+          <div class="game-card" onclick="App.navigate('${k}')">
+            <div class="game-card-icon">${g.icon}</div>
+            <h3>${g.name}</h3>
+            <p>${g.desc}</p>
+            <div class="game-card-actions">
+              <button class="btn btn-sm btn-tutorial" onclick="event.stopPropagation();App.navigate('${k}','tutorial')">▶ Tutorial</button>
+              <button class="btn btn-sm btn-sim"      onclick="event.stopPropagation();App.navigate('${k}','simulation')">⚡ Simulate</button>
+            </div>
+          </div>`).join('')}
+      </div>
+    </section>
+
+    <section class="features-section">
+      <div class="features-grid">
+        <div class="feature"><div class="feature-icon">📹</div><h4>Video Tutorials</h4><p>Step-by-step video guides covering all procedures and techniques</p></div>
+        <div class="feature"><div class="feature-icon">🎮</div><h4>Interactive Simulation</h4><p>Practice dealing in a realistic environment without pressure</p></div>
+        <div class="feature"><div class="feature-icon">📋</div><h4>Rule References</h4><p>Quick-access rule sheets and payout tables for all games</p></div>
+        <div class="feature"><div class="feature-icon">🏆</div><h4>Industry Standards</h4><p>Trained to procedures used in real casinos worldwide</p></div>
       </div>
     </section>`,
 
