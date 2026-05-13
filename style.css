@@ -2232,12 +2232,6 @@ body {
   border-color: #ffd700 !important;
   opacity: 1 !important;
 }
-.bside-tray-label {
-  text-align: center;
-  font-size: .88rem; font-weight: 800;
-  color: #ffd700; letter-spacing: .5px;
-  padding: .3rem 0 .6rem;
-}
 .bside-gray-oval {
   background: radial-gradient(ellipse at center, #3a3a3a55 0%, #22222240 100%) !important;
   border-color: rgba(160,160,160,.3) !important;
@@ -2386,6 +2380,5 @@ body {
   .bside-sim .comm-slot-chip  { width: 32px; height: 32px; font-size: .58rem; }
   .bside-sim .comm-5k-btn     { font-size: .55rem; padding: .22rem .04rem; }
   .bside-sim .comm-5k-reset   { font-size: .5rem; padding: .14rem 0; }
-  .bside-tray-label           { font-size: .78rem; padding: .2rem 0 .4rem; }
   .bside-bet-disc             { width: 28px; height: 28px; font-size: .44rem; margin-left: -7px; }
 }

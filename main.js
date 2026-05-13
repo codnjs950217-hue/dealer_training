@@ -2010,12 +2010,19 @@ const Sims = {
     ];
     const SIDE_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[4]];
     const SIDE_KEYS  = ['st','tt','bt','sd','s7','bd','pp','bp'];
-    const SIDE_LABEL = { pp:'P PAIR', bp:'B PAIR', tt:'TIE', bt:'BIG 6', st:'SMALL 6', bd:'BIG 7', sd:'SMALL 7', s7:'SUPER 7' };
+
 
     let S = {};
     const $ = id => document.getElementById(id);
 
     function generateSideChips() {
+      if (Math.random() < 1 / 3) {
+        // Two-color: one stack of each SIDE_CHIP denomination
+        return {
+          [SIDE_CHIPS[0].key]: 1 + Math.floor(Math.random() * 3),
+          [SIDE_CHIPS[1].key]: 1 + Math.floor(Math.random() * 3),
+        };
+      }
       const denom = SIDE_CHIPS[Math.floor(Math.random() * SIDE_CHIPS.length)];
       return { [denom.key]: 1 + Math.floor(Math.random() * 3) };
     }
@@ -2057,11 +2064,7 @@ const Sims = {
       return needed;
     }
 
-    function fmtAmt(val) {
-      if (val >= 1_000_000) return (val / 1_000_000).toFixed(val % 1_000_000 ? 2 : 0).replace(/\.?0+$/, '') + 'M';
-      if (val >= 1_000)     return (val / 1_000).toFixed(val % 1_000 ? 1 : 0).replace(/\.?0+$/, '') + 'K';
-      return val.toString();
-    }
+
 
     const SIDE_MULT = { st:22, tt:8, bt:50, sd:15, bd:30, pp:11, bp:11 };
     const S7_MULTS  = [30, 40, 100];
@@ -2074,21 +2077,6 @@ const Sims = {
           if (c) c.classList.remove('bside-win-circ', 'bside-lose-circ', 'bside-paying-circ');
         });
       }
-    }
-
-    let warnTimer = null;
-    function showOrderWarning() {
-      const w = $('bside-order-warn');
-      if (!w) return;
-      const span = w.querySelector('span');
-      if (span) { span.style.animation = 'none'; void span.offsetWidth; span.style.animation = ''; }
-      w.style.display = 'flex';
-      clearTimeout(warnTimer);
-      warnTimer = setTimeout(() => {
-        w.style.display = 'none';
-        COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
-        updateSpread();
-      }, 2800);
     }
 
     function updateSpread() {
@@ -2120,8 +2108,6 @@ const Sims = {
       panel.style.display = 'block';
       if (spread) { spread.style.display = 'flex'; spread.innerHTML = ''; }
       panel.innerHTML = `<div class="comm-tray">
-        <div class="bside-tray-label">${SIDE_LABEL[S.currentKey]} ×${S.currentMult} &nbsp;|&nbsp; Bet: ${fmtAmt(S.currentBet)}</div>
-        <div id="bside-order-warn" class="bpay-order-warn" style="display:none"><span>저액 칩스부터 세팅하세요</span></div>
         <div class="comm-tray-slots">
           ${COMM_CHIPS.filter(c => c.val >= 10000).map(c => `
             <div class="comm-slot">
@@ -2211,13 +2197,6 @@ const Sims = {
       addChip(key, n) {
         const chip = COMM_CHIPS.find(c => c.key === key);
         if (!chip) return;
-        const needed = neededKeysForTarget(S.payTarget);
-        const lowerUnset = COMM_CHIPS.some(c =>
-          c.val < chip.val &&
-          needed.has(c.key) &&
-          (parseInt($(`bside-ci-${c.key}`)?.value) || 0) === 0
-        );
-        if (lowerUnset) { showOrderWarning(); return; }
         const inp = $(`bside-ci-${key}`);
         if (!inp) return;
         inp.value = (parseInt(inp.value) || 0) + n;
