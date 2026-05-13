@@ -590,61 +590,37 @@ body {
   position: relative;
   background: var(--felt);
   border-radius: 12px;
-  padding: 1rem 1.2rem .8rem;
+  padding: 1.2rem 1.2rem 1rem;
   margin-bottom: .6rem;
-}
-.rpay-result-wrap {
-  display: flex; align-items: center; gap: 1rem;
-  margin-bottom: .9rem;
-}
-.rpay-num {
-  width: 62px; height: 62px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.9rem; font-weight: 900; flex-shrink: 0;
+  min-height: 130px;
 }
-.rpay-num-red   { background: #c62828; color: #fff; }
-.rpay-num-black { background: #111; color: #fff; border: 2px solid #555; }
-.rpay-num-green { background: #2e7d32; color: #fff; }
-.rpay-result-info {
-  font-size: .82rem; font-weight: 700; color: rgba(255,255,255,.75); letter-spacing: .5px;
+.rpay-single-card {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1.2rem;
+  padding: 1rem 1.4rem;
+  border-radius: 12px;
+  border: 2px solid var(--bet-color, rgba(255,255,255,.2));
+  background: color-mix(in srgb, var(--bet-color, #333) 18%, transparent);
+  width: 100%; max-width: 480px;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--bet-color, #333) 30%, transparent);
 }
-.rpay-bets-area {
-  display: flex; flex-direction: column; gap: .45rem;
+.rpay-single-label {
+  font-size: 1.3rem; font-weight: 900;
+  color: #fff; letter-spacing: .5px; flex: 1;
 }
-.rpay-bet-card {
-  display: flex; align-items: center; gap: .7rem;
-  padding: .45rem .75rem;
-  border-radius: 8px;
-  background: rgba(255,255,255,.06);
-  border: 1.5px solid rgba(255,255,255,.1);
-  transition: all .2s;
+.rpay-single-odds {
+  font-size: 1.1rem; font-weight: 900;
+  color: var(--gold); white-space: nowrap;
 }
-.rpay-bet-card.rpay-win  { background: rgba(60,180,80,.15); border-color: rgba(80,200,100,.4); }
-.rpay-bet-card.rpay-lose { opacity: .35; }
-.rpay-bet-card.rpay-paying {
-  background: rgba(201,168,76,.18); border-color: var(--gold);
-  box-shadow: 0 0 10px rgba(201,168,76,.25);
-}
-.rpay-bet-label { flex: 1; font-size: .82rem; font-weight: 700; color: rgba(255,255,255,.9); }
-.rpay-bet-odds  { font-size: .75rem; font-weight: 800; color: var(--gold); white-space: nowrap; }
-.rpay-bet-chips { display: flex; gap: 2px; }
+.rpay-single-chips { display: flex; gap: 3px; flex-wrap: wrap; }
 .rpay-chip {
-  width: 26px; height: 26px; border-radius: 50%;
+  width: 28px; height: 28px; border-radius: 50%;
   font-size: .44rem; font-weight: 800;
   display: flex; align-items: center; justify-content: center;
   border: 1.5px solid rgba(255,255,255,.3); flex-shrink: 0;
 }
-.rpay-win-tag  { font-size: .65rem; font-weight: 800; color: #66bb6a; letter-spacing: .5px; }
-.rpay-pay-tag  { font-size: .65rem; font-weight: 800; color: var(--gold); letter-spacing: .5px; white-space: nowrap; }
-.rpay-tray-target {
-  padding: .3rem .5rem .5rem;
-  font-size: .78rem; color: rgba(255,255,255,.75);
-  border-bottom: 1px solid rgba(255,255,255,.08);
-  margin-bottom: .3rem;
-}
-.rpay-spread-row {
-  margin-top: .5rem; padding: .3rem .2rem 0;
-}
+.rpay-spread-row { margin-top: .5rem; padding: .3rem .2rem 0; }
 
 /* ---- ROULETTE ---- */
 
