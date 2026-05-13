@@ -1811,7 +1811,9 @@ const Sims = {
           const chip = COMM_CHIPS.find(c => c.key === key);
           const newGroup = groupIdx > 0;
           if (key === '10K' && cnt >= 10) {
-            discs += `<div class="bpay-chip-stack bpay-chip-stack-${cnt}"><span class="bpay-stack-key">10K</span><span class="bpay-stack-cnt">×${cnt}</span></div>`;
+            let layers = '';
+            for (let i = 1; i < cnt; i++) layers += '<div class="bpay-chip-stack-layer"></div>';
+            discs += `<div class="bpay-chip-stack${newGroup ? ' new-denom' : ''}"><div class="bpay-chip-stack-face"><span class="bpay-stack-key">10K</span><span class="bpay-stack-cnt">×${cnt}</span></div>${layers}</div>`;
           } else {
             for (let j = 0; j < cnt; j++) {
               const sep = j === 0 && newGroup;
@@ -2016,16 +2018,14 @@ const Sims = {
     const $ = id => document.getElementById(id);
 
     function generateSideChips() {
-      const COUNTS = [1, 2, 3, 5, 10, 20];
-      const pick = () => COUNTS[Math.floor(Math.random() * COUNTS.length)];
       if (Math.random() < 1 / 3) {
         return {
-          [SIDE_CHIPS[0].key]: pick(),
-          [SIDE_CHIPS[1].key]: pick(),
+          [SIDE_CHIPS[0].key]: 1 + Math.floor(Math.random() * 3),
+          [SIDE_CHIPS[1].key]: 1 + Math.floor(Math.random() * 3),
         };
       }
       const denom = SIDE_CHIPS[Math.floor(Math.random() * SIDE_CHIPS.length)];
-      return { [denom.key]: pick() };
+      return { [denom.key]: 1 + Math.floor(Math.random() * 3) };
     }
 
     function chipTotal(chips) {
@@ -2040,20 +2040,20 @@ const Sims = {
         const vb = COMM_CHIPS.find(c => c.key === b[0])?.val ?? 0;
         return vb - va;
       });
-      const cols = sorted.map(([key, cnt]) => {
+      let discs = '';
+      sorted.forEach(([key, cnt], groupIdx) => {
         const chip = COMM_CHIPS.find(c => c.key === key);
-        if (!chip) return '';
-        const label = cnt > 3 ? `×${cnt}` : chip.key;
-        // Each additional chip = one layer strip below the face
-        let layers = '';
-        for (let i = 1; i < cnt; i++) {
-          layers += `<div class="bside-chip-layer" style="background:${chip.bg}"></div>`;
+        if (!chip) return;
+        for (let j = 0; j < cnt; j++) {
+          const newGroup  = j === 0 && groupIdx > 0;
+          const group5gap = !newGroup && j > 0 && j % 5 === 0;
+          let cls = 'bside-bet-disc';
+          if (newGroup)       cls += ' new-denom';
+          else if (group5gap) cls += ' group5gap';
+          discs += `<div class="${cls}" style="background:${chip.bg};color:${chip.fg}">${chip.key}</div>`;
         }
-        return `<div class="bside-chip-col">` +
-          `<div class="bside-chip-face" style="background:${chip.bg};color:${chip.fg}">${label}</div>` +
-          layers + `</div>`;
-      }).join('');
-      return `<div class="bside-chip-stacks">${cols}</div>`;
+      });
+      return `<div class="bside-bet-spread">${discs}</div>`;
     }
 
 
