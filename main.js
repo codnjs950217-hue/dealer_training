@@ -377,6 +377,7 @@ const Views = {
         <div class="bpay-start-overlay" id="bside-start-overlay">
           <button class="bpay-start-btn" onclick="Sims.baccaratSide.deal()">START</button>
         </div>
+        <div id="bside-correct-overlay" style="display:none"></div>
       </div>
       <div class="bpay-comm-panel" id="bside-comm-panel" style="display:none"></div>
     </div>`,
@@ -2266,6 +2267,16 @@ const Sims = {
         // Reset Super 7 label back to all options
         const s7lbl = $('bside-s7-pay-1');
         if (s7lbl) s7lbl.textContent = '×30/40/100';
+        // Show correct overlay
+        const ov = $('bside-correct-overlay');
+        if (ov) {
+          ov.textContent = '✓ CORRECT!';
+          ov.style.display = 'block';
+          ov.style.animation = 'none';
+          void ov.offsetWidth; // reflow to restart animation
+          ov.style.animation = '';
+          setTimeout(() => { ov.style.display = 'none'; }, 900);
+        }
         setTimeout(() => { Sims.baccaratSide.deal(); }, 900);
       },
     };
