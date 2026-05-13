@@ -1813,7 +1813,10 @@ const Sims = {
           if (key === '10K' && cnt >= 10) {
             let layers = '';
             for (let i = 1; i < cnt; i++) layers += '<div class="bpay-chip-stack-layer"></div>';
-            discs += `<div class="bpay-chip-stack${newGroup ? ' new-denom' : ''}"><div class="bpay-chip-stack-face"><span class="bpay-stack-key">10K</span><span class="bpay-stack-cnt">×${cnt}</span></div>${layers}</div>`;
+            discs += `<div class="bpay-chip-stack${newGroup ? ' new-denom' : ''}">` +
+              `<div class="bpay-chip-stack-face"></div>${layers}` +
+              `<div class="bpay-chip-stack-label"><span class="bpay-stack-key">10K</span><span class="bpay-stack-cnt">×${cnt}</span></div>` +
+              `</div>`;
           } else {
             for (let j = 0; j < cnt; j++) {
               const sep = j === 0 && newGroup;

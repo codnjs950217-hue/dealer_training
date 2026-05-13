@@ -1546,6 +1546,7 @@ body {
   width: 38px;          /* matches bpay-chip-disc width */
   display: flex; flex-direction: column; align-items: center;
   flex-shrink: 0;
+  position: relative;
 }
 .bpay-chip-spread .bpay-chip-stack { margin-left: 8px; }
 .bpay-chip-spread .bpay-chip-stack.new-denom { margin-left: 8px; }
@@ -1570,8 +1571,17 @@ body {
   border-top: 1.5px solid rgba(0,0,0,.5);
   flex-shrink: 0;
 }
-.bpay-stack-key { font-size: 8px;  font-weight: 900; line-height: 1; letter-spacing: .3px; }
-.bpay-stack-cnt { font-size: 11px; font-weight: 900; line-height: 1; }
+/* Label floats at vertical center of the full stack */
+.bpay-chip-stack-label {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  z-index: 2; pointer-events: none;
+  text-shadow: 0 1px 3px rgba(0,0,0,.7);
+}
+.bpay-stack-key { font-size: 8px;  font-weight: 900; line-height: 1; letter-spacing: .3px; color: #fff; }
+.bpay-stack-cnt { font-size: 12px; font-weight: 900; line-height: 1; color: #fff; }
 
 /* Controls area: action buttons only */
 #bpay-controls { padding: .6rem 1rem; }
@@ -1727,7 +1737,7 @@ body {
   color: rgba(255,255,255,.5);
   border-radius: 4px; cursor: pointer;
   font-size: .55rem; font-weight: 700; letter-spacing: .3px;
-  padding: .18rem 0; text-align: center;
+  padding: .38rem 0; text-align: center;
   transition: background .12s, color .12s;
 }
 .comm-5k-reset:hover  { background: rgba(255,255,255,.12); color: rgba(255,255,255,.85); }
@@ -1757,7 +1767,7 @@ body {
   color: rgba(255,255,255,.7);
   font-size: .55rem; font-weight: 700; letter-spacing: .3px;
   border-radius: 4px; cursor: pointer;
-  padding: .18rem .45rem;
+  padding: .38rem .45rem;
   text-align: center; line-height: 1.2;
   white-space: nowrap;
   transition: background .12s, color .12s;
