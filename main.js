@@ -1289,8 +1289,8 @@ const Sims = {
       { init: [['7','♥'],['J','♦'],['A','♠'],['3','♣']], extra: ['K','♦'] },  // pp=7 stand, bp=4→draw K→4
       { init: [['3','♣'],['4','♦'],['2','♥'],['2','♠']], extra: ['J','♣'] },  // pp=7 stand, bp=4→draw J→4
       { init: [['5','♦'],['2','♣'],['A','♥'],['3','♠']], extra: ['K','♣'] },  // pp=7 stand, bp=4→draw K→4
-      { init: [['7','♦'],['K','♠'],['6','♣'],['Q','♥']], extra: null },       // pp=7, bp=6 both stand → super7
-      { init: [['7','♣'],['J','♥'],['6','♦'],['10','♠']], extra: null },      // pp=7, bp=6 both stand → super7
+      { init: [['7','♦'],['K','♠'],['6','♣'],['Q','♥']], extra: null },       // pp=7, bp=6 both stand → super-small7
+      { init: [['7','♣'],['J','♥'],['6','♦'],['10','♠']], extra: null },      // pp=7, bp=6 both stand → super-small7
     ];
     const BSCEN_B6 = [
       { init: [['A','♠'],['2','♥'],['3','♣'],['3','♦']], extra: ['J','♠'] },  // pp=3→J(0)=3, bp=6 stand
@@ -1298,6 +1298,8 @@ const Sims = {
       { init: [['3','♠'],['A','♥'],['2','♣'],['4','♦']], extra: ['Q','♦'] },  // pp=4→Q(0)=4, bp=6 stand
       { init: [['2','♣'],['2','♦'],['3','♥'],['3','♠']], extra: ['10','♣'] }, // pp=4→10(0)=4, bp=6 stand
       { init: [['A','♣'],['4','♦'],['2','♥'],['4','♠']], extra: ['J','♦'] },  // pp=5→J(0)=5, bp=6 stand
+      { init: [['3','♣'],['A','♥'],['6','♦'],['Q','♠']], extra: ['3','♠'] },  // pp=4→3=7(BIG), bp=6 stand → super-big7
+      { init: [['A','♣'],['2','♥'],['6','♠'],['J','♣']], extra: ['4','♦'] },  // pp=3→4=7(BIG), bp=6 stand → super-big7
     ];
 
     function pushForcedScenario() {
@@ -1446,7 +1448,10 @@ const Sims = {
               <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('player-big7','${source}')">BIG 7</button>
               <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('player-small7','${source}')">SMALL 7</button>
             </div>
-            <button class="btn-bac-super7 bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('super7','${source}')">SUPER 7</button>
+            <div class="bac-sub-btn-row">
+              <button class="btn-bac-super7 bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('super-big7','${source}')">SUPER BIG 7</button>
+              <button class="btn-bac-super7 bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('super-small7','${source}')">SUPER SMALL 7</button>
+            </div>
           </div>`,
       };
     }
@@ -1553,9 +1558,10 @@ const Sims = {
       }
       // player win
       const lines = ['PLAYER WIN'];
-      if (pp === 7 && bp === 6)               lines.push('SUPER 7');
-      else if (pp === 7 && S.ph.length === 2) lines.push('SMALL 7');
-      else if (pp === 7 && S.ph.length === 3) lines.push('BIG 7');
+      if (pp === 7 && bp === 6 && S.ph.length === 3)      lines.push('SUPER BIG 7');
+      else if (pp === 7 && bp === 6 && S.ph.length === 2) lines.push('SUPER SMALL 7');
+      else if (pp === 7 && S.ph.length === 2)             lines.push('SMALL 7');
+      else if (pp === 7 && S.ph.length === 3)             lines.push('BIG 7');
       return { lines, color };
     }
 
@@ -1736,9 +1742,10 @@ const Sims = {
           else if (bp === 6 && S.bh.length === 3) correct = 'banker-big6';
           else                                     correct = 'banker-win';
         } else {
-          if (pp === 7 && bp === 6)               correct = 'super7';
-          else if (pp === 7 && S.ph.length === 2) correct = 'player-small7';
-          else if (pp === 7 && S.ph.length === 3) correct = 'player-big7';
+          if (pp === 7 && bp === 6 && S.ph.length === 3)      correct = 'super-big7';
+          else if (pp === 7 && bp === 6 && S.ph.length === 2) correct = 'super-small7';
+          else if (pp === 7 && S.ph.length === 2)             correct = 'player-small7';
+          else if (pp === 7 && S.ph.length === 3)             correct = 'player-big7';
           else                                    correct = 'player-win';
         }
         const showQuiz = source === 'initial' ? showInitialQuiz
