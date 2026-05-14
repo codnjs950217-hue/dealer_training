@@ -1720,6 +1720,13 @@ body {
   width: 100%; box-sizing: border-box;
   overflow: hidden;
 }
+.bside-mult-badge {
+  text-align: center;
+  font-size: 1.1rem; font-weight: 900; letter-spacing: 1.5px;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,.8);
+  padding: .15rem 0 .3rem;
+}
 .comm-tray-slots {
   display: flex; gap: 0; align-items: stretch;
   background: rgba(0,0,0,.32); border-radius: 7px;

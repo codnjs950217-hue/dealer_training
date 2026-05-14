@@ -2203,7 +2203,10 @@ const Sims = {
       if (!panel) return;
       panel.style.display = 'block';
       if (spread) { spread.style.display = 'flex'; spread.innerHTML = ''; }
+      const multBadge = S.currentMult !== undefined
+        ? `<div class="bside-mult-badge">×${S.currentMult}</div>` : '';
       panel.innerHTML = `<div class="comm-tray">
+        ${multBadge}
         <div class="comm-tray-slots">
           ${COMM_CHIPS.filter(c => c.val >= 10000).map(c => `
             <div class="comm-slot">
@@ -2262,19 +2265,6 @@ const Sims = {
           ? S7_MULTS[Math.floor(Math.random() * S7_MULTS.length)]
           : SIDE_MULT[key];
         S.currentMult = mult;
-
-        // Update Super 7 label — highlight chosen mult in white, others stay dimmed
-        if (key === 's7') {
-          const lbl = $('bside-s7-pay-1');
-          if (lbl) {
-            const hi = `<span style="color:#fff;opacity:1;font-weight:900;font-size:1.35em;vertical-align:middle">`;
-            lbl.innerHTML = mult === 30
-              ? `×${hi}30</span>/40/100`
-              : mult === 40
-              ? `×30/${hi}40</span>/100`
-              : `×30/40/${hi}100</span>`;
-          }
-        }
 
         // Generate bet chips and show on circle
         const chips = generateSideChips();
