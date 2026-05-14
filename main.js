@@ -2439,9 +2439,13 @@ const Sims = {
 
   // ---- ROULETTE PAYOUT PRACTICE (Option A: single-bet drill) ----
   roulettePay: (() => {
-    const BET_CHIPS = [
-      { key: '100K', val: 100_000, bg: '#212121', fg: '#fff' },
-      { key: '10K',  val:  10_000, bg: '#2e7d32', fg: '#fff' },
+    const COLOR_CHIPS = [
+      { key: 'red',    val:   5_000, bg: '#e53935', fg: '#fff'    },
+      { key: 'blue',   val:  10_000, bg: '#1565c0', fg: '#fff'    },
+      { key: 'green',  val:  25_000, bg: '#2e7d32', fg: '#fff'    },
+      { key: 'yellow', val:  50_000, bg: '#f9a825', fg: '#1a1a1a' },
+      { key: 'purple', val: 100_000, bg: '#7b1fa2', fg: '#fff'    },
+      { key: 'orange', val: 200_000, bg: '#e65100', fg: '#fff'    },
     ];
     const PAY_CHIPS = [
       { key: '10M',  val: 10_000_000, bg: '#1565c0', fg: '#fff'    },
@@ -2452,13 +2456,9 @@ const Sims = {
     ];
 
     function genChips() {
-      const r = Math.random();
-      let chips;
-      if (r < 0.35)      chips = { '10K': 1+Math.floor(Math.random()*4) };
-      else if (r < 0.7)  chips = { '100K': 1+Math.floor(Math.random()*3) };
-      else               chips = { '100K': 1+Math.floor(Math.random()*2), '10K': 1+Math.floor(Math.random()*3) };
-      const total = Object.entries(chips).reduce((s,[k,c]) => s+(BET_CHIPS.find(x=>x.key===k)?.val??0)*c, 0);
-      return { chips, total };
+      const color = COLOR_CHIPS[Math.floor(Math.random() * COLOR_CHIPS.length)];
+      const count = 1 + Math.floor(Math.random() * 5);
+      return { chips: { [color.key]: count }, total: color.val * count };
     }
 
     function getValidSpots(N) {
@@ -2529,9 +2529,9 @@ const Sims = {
           if (x === undefined) return;
 
           const chipHtml = Object.entries(sp.chips).flatMap(([key,cnt]) => {
-            const c = BET_CHIPS.find(b => b.key===key);
+            const c = COLOR_CHIPS.find(b => b.key===key);
             return Array.from({length:cnt}, () =>
-              `<div class="rpay-spot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>`);
+              `<div class="rpay-spot-chip" style="background:${c.bg}"></div>`);
           }).join('');
 
           const el = document.createElement('div');
@@ -2558,12 +2558,25 @@ const Sims = {
       if (!panel) return;
       const sp = S.spots[S.spotIdx];
       const totalK = (sp.total/1000).toFixed(0);
+      const activeColorKey = Object.keys(sp.chips)[0];
+
+      const colorTrayHtml = COLOR_CHIPS.map(c => `
+        <div class="rpay-color-slot${c.key === activeColorKey ? ' rpay-color-active' : ''}">
+          <div class="rpay-color-stack">
+            <div class="rpay-color-chip-disc" style="background:${c.bg};border-color:${c.fg === '#fff' ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.2)'}"></div>
+            <div class="rpay-color-chip-disc" style="background:${c.bg};border-color:${c.fg === '#fff' ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.2)'}"></div>
+            <div class="rpay-color-chip-disc" style="background:${c.bg};border-color:${c.fg === '#fff' ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.2)'}"></div>
+          </div>
+          <div class="rpay-color-val">${(c.val/1000).toFixed(0)}K</div>
+        </div>`).join('');
+
       panel.innerHTML = `<div class="comm-tray">
         <div class="rpay-tray-info">
           <span class="rpay-tray-type">${sp.type} (${sp.pays}:1)</span>
           <span class="rpay-tray-bet">Bet: ${totalK}K</span>
           <span class="rpay-tray-bet">${S.spotIdx+1} / ${S.spots.length}</span>
         </div>
+        <div class="rpay-color-tray">${colorTrayHtml}</div>
         <div class="comm-tray-slots">
           ${PAY_CHIPS.map(c => `
             <div class="comm-slot">

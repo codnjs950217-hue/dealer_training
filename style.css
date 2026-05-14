@@ -615,9 +615,8 @@ body {
 .rpay-spot-chips { display: flex; flex-direction: column; align-items: center; }
 .rpay-spot-chip {
   width: 24px; height: 24px; border-radius: 50%;
-  font-size: .4rem; font-weight: 800;
-  display: flex; align-items: center; justify-content: center;
-  border: 1.5px solid rgba(255,255,255,.3);
+  border: 2px solid rgba(255,255,255,.4);
+  box-shadow: 0 1px 4px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.2);
   flex-shrink: 0; margin-bottom: -5px;
 }
 .rpay-spot-chips .rpay-spot-chip:last-child { margin-bottom: 0; }
@@ -645,6 +644,44 @@ body {
   background: #ffd700; color: #1a1a1a;
   font-size: .72rem; font-weight: 900; letter-spacing: .5px;
   padding: 2px 7px; border-radius: 10px; margin-left: 6px;
+}
+
+/* Color chip tray */
+.rpay-color-tray {
+  display: flex; gap: .55rem;
+  align-items: flex-end; justify-content: center;
+  padding: .4rem .6rem .25rem;
+  background: rgba(0,0,0,.25);
+  border-radius: 7px;
+  margin-bottom: .35rem;
+  border: 1px solid rgba(255,190,50,.12);
+}
+.rpay-color-slot {
+  display: flex; flex-direction: column; align-items: center;
+  transition: transform .15s;
+}
+.rpay-color-slot.rpay-color-active { transform: translateY(-3px); }
+.rpay-color-stack {
+  display: flex; flex-direction: column; align-items: center;
+}
+.rpay-color-chip-disc {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.3);
+  box-shadow: 0 2px 5px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.15);
+  margin-bottom: -9px; position: relative; flex-shrink: 0;
+}
+.rpay-color-chip-disc:last-child { margin-bottom: 0; }
+.rpay-color-val {
+  font-size: .53rem; font-weight: 700;
+  color: rgba(255,255,255,.55);
+  margin-top: 11px;
+}
+.rpay-color-slot.rpay-color-active .rpay-color-chip-disc {
+  box-shadow: 0 0 10px 3px rgba(255,215,0,.55), 0 2px 5px rgba(0,0,0,.5);
+  border-color: rgba(255,215,0,.75) !important;
+}
+.rpay-color-slot.rpay-color-active .rpay-color-val {
+  color: #ffd700;
 }
 
 /* ---- ROULETTE ---- */
