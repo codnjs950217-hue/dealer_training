@@ -1505,7 +1505,7 @@ const Sims = {
           el.style.left = (ar.left - tr.left + ar.width / 2) + 'px';
         }
         tbl.appendChild(el);
-        setTimeout(() => el.remove(), 3200);
+        setTimeout(() => el.remove(), 4500);
       }
       if (bPair && !pPair) spawnSideNoPair('player');
       if (pPair && !bPair) spawnSideNoPair('banker');
