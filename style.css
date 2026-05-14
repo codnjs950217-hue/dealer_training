@@ -595,6 +595,9 @@ body {
   margin-bottom: .6rem;
   overflow: visible;
 }
+.rpay-sim .rpay-table.rpay-zoomed {
+  overflow: hidden;
+}
 .rpay-full-table {
   position: relative; overflow: visible;
   pointer-events: none;
@@ -1473,11 +1476,6 @@ body {
   .btn-bac-player, .btn-bac-banker, .btn-bac-tie, .btn-bac-draw { font-size: .8rem; padding: .5rem .75rem; }
   .btn-pay, .btn-push-ans, .btn-take { font-size: .8rem; padding: .5rem .75rem; }
 
-  /* Roulette payout — enlarge active bet spot on mobile */
-  .rpay-spot-paying {
-    transform: translate(-50%, -50%) scale(2.2);
-    z-index: 20;
-  }
   .rpay-spot-chip { width: 22px; height: 22px; }
 }
 

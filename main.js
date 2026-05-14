@@ -2488,6 +2488,13 @@ const Sims = {
       const tbl = document.getElementById('rpay-full-table');
       if (!tbl) return;
 
+      // Reset zoom before re-rendering
+      tbl.style.transition = 'none';
+      tbl.style.transform = '';
+      tbl.style.transformOrigin = '';
+      const tableWrap = document.querySelector('.rpay-sim .rpay-table');
+      if (tableWrap) tableWrap.classList.remove('rpay-zoomed');
+
       // Reset win highlight and remove old chip spots
       tbl.querySelectorAll('.rpay-win-cell').forEach(el => el.classList.remove('rpay-win-cell'));
       tbl.querySelectorAll('.rpay-spot').forEach(el => el.remove());
@@ -2546,11 +2553,44 @@ const Sims = {
       });
     }
 
+    function zoomToSpot(idx) {
+      const tbl = document.getElementById('rpay-full-table');
+      const tableWrap = document.querySelector('.rpay-sim .rpay-table');
+      if (!tbl || !tableWrap) return;
+
+      if (idx < 0) {
+        tbl.style.transition = 'transform 0.35s ease';
+        tbl.style.transform = '';
+        tableWrap.classList.remove('rpay-zoomed');
+        return;
+      }
+
+      const spotEl = document.getElementById(`rpay-spot-${idx}`);
+      if (!spotEl) return;
+
+      const x = parseFloat(spotEl.style.left);
+      const y = parseFloat(spotEl.style.top);
+      const tw = tbl.offsetWidth;
+      const th = tbl.offsetHeight;
+      const scale = 2.5;
+
+      // scale(s) translate(tx, ty) with origin 0 0 maps (x,y) → ((x+tx)*s, (y+ty)*s)
+      // Solve for tx, ty so the spot appears at the center (tw/2, th/2):
+      const tx = tw / (2 * scale) - x;
+      const ty = th / (2 * scale) - y;
+
+      tableWrap.classList.add('rpay-zoomed');
+      tbl.style.transition = 'transform 0.35s ease';
+      tbl.style.transformOrigin = '0 0';
+      tbl.style.transform = `scale(${scale}) translate(${tx}px, ${ty}px)`;
+    }
+
     function highlightSpot(idx) {
       document.querySelectorAll('.rpay-spot').forEach((el,i) => {
         el.classList.toggle('rpay-spot-paying', i === idx);
         el.classList.toggle('rpay-spot-paid', i < idx);
       });
+      zoomToSpot(idx);
     }
 
     function showTray() {
