@@ -1886,7 +1886,8 @@ body {
   display: flex; gap: .3rem;
 }
 .bac-sub-btn-row .btn-bac-banker,
-.bac-sub-btn-row .btn-bac-player {
+.bac-sub-btn-row .btn-bac-player,
+.bac-sub-btn-row .btn-bac-super7 {
   flex: 1;
 }
 .btn-bac-special {
