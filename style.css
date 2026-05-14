@@ -929,7 +929,7 @@ body {
   white-space: nowrap;
 }
 .bac-win-announce.banker-win { color: #c9a84c; }
-.bac-win-announce.player-win { color: #ff0000; }
+.bac-win-announce.player-win { color: #e03030; }
 .bac-win-announce.tie-win    { color: #6ec864; }
 .bac-win-sub {
   font-size: 2rem; font-weight: 900; letter-spacing: 3px;
@@ -937,7 +937,7 @@ body {
   background: none; border: none;
 }
 .bac-win-sub.banker-win { color: #c9a84c; }
-.bac-win-sub.player-win { color: #ff0000; }
+.bac-win-sub.player-win { color: #e03030; }
 .bac-win-sub.tie-win    { color: #6ec864; }
 .bac-win-sep { color: rgba(255,255,255,.35); font-size: 1.2rem; }
 
