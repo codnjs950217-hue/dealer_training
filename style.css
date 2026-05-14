@@ -1623,8 +1623,10 @@ body {
 }
 .bpay-chip-spread .bpay-chip-disc + .bpay-chip-disc { margin-left: -12px; }
 .bpay-chip-spread .bpay-chip-disc.new-denom { margin-left: 8px; }
-.bpay-chip-spread .bpay-chip-stack + .bpay-stack-spread-disc { margin-left: 6px; }
+.bpay-chip-spread .bpay-chip-stack + .bpay-stack-spread-disc { margin-left: -12px; }
 .bpay-chip-spread .bpay-stack-spread-disc + .bpay-stack-spread-disc { margin-left: -12px; }
+.bpay-chip-stack-half { height: 38px; justify-content: flex-end; }
+.bpay-chip-stack-half .bpay-chip-stack-layer { height: 6px; }
 /* 10K chip stack — same width as disc, face + layer elements stacked downward */
 .bpay-chip-stack {
   width: 38px;          /* matches bpay-chip-disc width */
