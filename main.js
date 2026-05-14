@@ -1882,7 +1882,17 @@ const Sims = {
         sorted.forEach(([key, cnt], groupIdx) => {
           const chip = COMM_CHIPS.find(c => c.key === key);
           const newGroup = groupIdx > 0;
-          if (key === '10K' && cnt >= 10) {
+          if (key === '10K' && cnt === 10) {
+            let layers = '';
+            for (let i = 1; i < 5; i++) layers += '<div class="bpay-chip-stack-layer"></div>';
+            discs += `<div class="bpay-chip-stack${newGroup ? ' new-denom' : ''}">` +
+              `<div class="bpay-chip-stack-face"></div>${layers}` +
+              `<div class="bpay-chip-stack-label"><span class="bpay-stack-key">10K</span><span class="bpay-stack-cnt">×5</span></div>` +
+              `</div>`;
+            for (let j = 0; j < 5; j++) {
+              discs += `<div class="bpay-chip-disc bpay-stack-spread-disc" style="background:${chip.bg};color:${chip.fg}">${chip.key}</div>`;
+            }
+          } else if (key === '10K' && cnt > 10) {
             let layers = '';
             for (let i = 1; i < cnt; i++) layers += '<div class="bpay-chip-stack-layer"></div>';
             discs += `<div class="bpay-chip-stack${newGroup ? ' new-denom' : ''}">` +
