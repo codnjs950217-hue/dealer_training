@@ -2533,6 +2533,7 @@ const Sims = {
           return {
             x: r.left - tRect.left + r.width/2,
             y: r.top  - tRect.top  + r.height/2,
+            left: r.left - tRect.left,
             bottom: r.bottom - tRect.top,
           };
         }
@@ -2550,8 +2551,8 @@ const Sims = {
           } else if (sp.type === 'Street') {
             const cs = sp.nums.map(n => cc(n)).filter(Boolean);
             if (!cs.length) return;
-            x = cs.reduce((s,c) => s+c.x, 0)/cs.length;
-            y = Math.max(...cs.map(c => c.bottom)) + 16;
+            x = Math.min(...cs.map(c => c.left));
+            y = cs.reduce((s,c) => s+c.y, 0)/cs.length;
           } else if (sp.betKey) {
             const c = cc(sp.betKey); if (!c) return;
             x = c.x; y = c.y;

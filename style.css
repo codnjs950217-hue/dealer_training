@@ -610,14 +610,27 @@ body {
 }
 .rpay-dolly {
   position: absolute;
-  width: 34px; height: 34px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.18);
-  border: 2.5px solid rgba(255,255,255,.85);
-  box-shadow: 0 0 10px rgba(255,255,255,.35), inset 0 2px 0 rgba(255,255,255,.4);
-  transform: translate(-50%, -50%);
+  width: 13px; height: 19px;
+  transform: translate(-50%, -85%);
   z-index: 8;
   pointer-events: none;
+}
+.rpay-dolly::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 1px; right: 1px; height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 35%, rgba(255,255,255,.8) 0%, rgba(255,255,255,.3) 45%, rgba(255,255,255,.08) 100%);
+  border: 1.5px solid rgba(255,255,255,.85);
+}
+.rpay-dolly::after {
+  content: '';
+  position: absolute;
+  top: 6px; left: 0; right: 0; bottom: 0;
+  border-radius: 3px 3px 5px 5px;
+  background: linear-gradient(90deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,.12) 45%, rgba(0,0,0,.2) 100%);
+  border: 1.5px solid rgba(255,255,255,.65);
+  border-top: none;
 }
 .rpay-spot {
   position: absolute;
@@ -628,21 +641,25 @@ body {
 }
 .rpay-spot-chips { display: flex; flex-direction: column; align-items: center; }
 .rpay-spot-chip {
-  width: 24px; height: 24px; border-radius: 50%;
-  border: 2px solid rgba(255,255,255,.4);
-  box-shadow: 0 1px 4px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.2);
-  flex-shrink: 0; margin-bottom: -5px;
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.45);
+  box-shadow: 0 1px 3px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.25);
+  flex-shrink: 0; margin-bottom: -4px;
 }
 .rpay-spot-chips .rpay-spot-chip:last-child { margin-bottom: 0; }
 .rpay-spot-label {
-  font-size: .5rem; font-weight: 700; margin-top: 3px;
-  color: rgba(255,255,255,.6);
-  background: rgba(0,0,0,.65);
+  position: absolute;
+  top: 100%;
+  margin-top: 3px;
+  font-size: .45rem; font-weight: 700;
+  color: rgba(255,255,255,.65);
+  background: rgba(0,0,0,.7);
   padding: 1px 3px; border-radius: 2px;
   white-space: nowrap;
+  pointer-events: none;
 }
 .rpay-spot-paying .rpay-spot-chips {
-  filter: drop-shadow(0 0 7px #ffd700) drop-shadow(0 0 3px #ffd700);
+  filter: drop-shadow(0 0 6px #ffd700) drop-shadow(0 0 2px #ffd700);
 }
 .rpay-spot-paying .rpay-spot-label { color: #ffd700; }
 .rpay-spot-paid { opacity: .25; }
@@ -1487,7 +1504,7 @@ body {
   .btn-bac-player, .btn-bac-banker, .btn-bac-tie, .btn-bac-draw { font-size: .8rem; padding: .5rem .75rem; }
   .btn-pay, .btn-push-ans, .btn-take { font-size: .8rem; padding: .5rem .75rem; }
 
-  .rpay-spot-chip { width: 22px; height: 22px; }
+  .rpay-spot-chip { width: 16px; height: 16px; }
 }
 
 /* ============================================================
