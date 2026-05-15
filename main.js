@@ -2466,35 +2466,38 @@ const Sims = {
 
     const BET_LABEL = { Straight:'Straight', Split:'Split', Corner:'Corner', Street:'Street', SixNum:'Six Number' };
 
+    function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+
     function getValidSpots(N) {
       const row = Math.floor((N-1)/3);
       const col = (N-1) % 3;
-      const spots = [];
-      const s1 = row*3+1; // first number of this street
+      const s1  = row*3+1;
+      const byType = [];
 
-      spots.push({ type:'Straight', pays:35, nums:[N] });
+      byType.push({ type:'Straight', pays:35, nums:[N] });
 
-      // Splits (same column group, vertical)
-      if (col > 0) spots.push({ type:'Split', pays:17, nums:[N-1,N] });
-      if (col < 2) spots.push({ type:'Split', pays:17, nums:[N,N+1] });
-      // Splits (adjacent column groups, horizontal)
-      if (row > 0)  spots.push({ type:'Split', pays:17, nums:[N-3,N] });
-      if (row < 11) spots.push({ type:'Split', pays:17, nums:[N,N+3] });
+      const splits = [];
+      if (col > 0)  splits.push([N-1,N]);
+      if (col < 2)  splits.push([N,N+1]);
+      if (row > 0)  splits.push([N-3,N]);
+      if (row < 11) splits.push([N,N+3]);
+      if (splits.length) byType.push({ type:'Split', pays:17, nums: pick(splits) });
 
-      // Corners
-      if (row > 0  && col > 0) spots.push({ type:'Corner', pays:8, nums:[N-4,N-3,N-1,N] });
-      if (row > 0  && col < 2) spots.push({ type:'Corner', pays:8, nums:[N-3,N-2,N,N+1] });
-      if (row < 11 && col > 0) spots.push({ type:'Corner', pays:8, nums:[N-1,N,N+2,N+3] });
-      if (row < 11 && col < 2) spots.push({ type:'Corner', pays:8, nums:[N,N+1,N+3,N+4] });
+      const corners = [];
+      if (row > 0  && col > 0) corners.push([N-4,N-3,N-1,N]);
+      if (row > 0  && col < 2) corners.push([N-3,N-2,N,N+1]);
+      if (row < 11 && col > 0) corners.push([N-1,N,N+2,N+3]);
+      if (row < 11 && col < 2) corners.push([N,N+1,N+3,N+4]);
+      if (corners.length) byType.push({ type:'Corner', pays:8, nums: pick(corners) });
 
-      // Street
-      spots.push({ type:'Street', pays:11, nums:[s1,s1+1,s1+2] });
+      byType.push({ type:'Street', pays:11, nums:[s1,s1+1,s1+2] });
 
-      // Six Number (two adjacent streets)
-      if (row > 0)  spots.push({ type:'SixNum', pays:5, nums:[s1-3,s1-2,s1-1,s1,s1+1,s1+2] });
-      if (row < 11) spots.push({ type:'SixNum', pays:5, nums:[s1,s1+1,s1+2,s1+3,s1+4,s1+5] });
+      const sixNums = [];
+      if (row > 0)  sixNums.push([s1-3,s1-2,s1-1,s1,s1+1,s1+2]);
+      if (row < 11) sixNums.push([s1,s1+1,s1+2,s1+3,s1+4,s1+5]);
+      if (sixNums.length) byType.push({ type:'SixNum', pays:5, nums: pick(sixNums) });
 
-      return spots;
+      return byType;
     }
 
     function renderFullGrid(N, activeSpots) {
@@ -2762,7 +2765,7 @@ const Sims = {
         S.spotIdx = 0;
 
         const allSpots = getValidSpots(N);
-        const count = 3+Math.floor(Math.random()*3);
+        const count = 3 + Math.floor(Math.random()*2); // 3 or 4
         const picked = [...allSpots].sort(() => Math.random()-.5).slice(0, Math.min(count, allSpots.length));
         S.spots = picked.map(sp => {
           const { chips, total } = genChips();
