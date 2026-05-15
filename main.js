@@ -2454,6 +2454,7 @@ const Sims = {
       { key: '10K',  val:     10_000, bg: '#2e7d32', fg: '#fff'    },
       { key: '5K',   val:      5_000, bg: '#b5176b', fg: '#fff'    },
     ];
+    const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
     function genChips() {
       const color = COLOR_CHIPS[Math.floor(Math.random() * COLOR_CHIPS.length)];
@@ -2481,6 +2482,24 @@ const Sims = {
 
       spots.push({ type:'Street', pays:11, nums:[row*3+1,row*3+2,row*3+3] });
 
+      const colKeys = ['col1','col2','col3'];
+      spots.push({ type:'Column', pays:2, nums:[], betKey: colKeys[col] });
+
+      const dozKeys = ['dozen1','dozen2','dozen3'];
+      spots.push({ type:'Dozen', pays:2, nums:[], betKey: dozKeys[Math.floor((N-1)/12)] });
+
+      spots.push(RED_NUMS.has(N)
+        ? { type:'Red',   pays:1, nums:[], betKey:'red' }
+        : { type:'Black', pays:1, nums:[], betKey:'black' });
+
+      spots.push(N%2===1
+        ? { type:'Odd',  pays:1, nums:[], betKey:'odd' }
+        : { type:'Even', pays:1, nums:[], betKey:'even' });
+
+      spots.push(N<=18
+        ? { type:'Low',  pays:1, nums:[], betKey:'low' }
+        : { type:'High', pays:1, nums:[], betKey:'high' });
+
       return spots;
     }
 
@@ -2495,9 +2514,10 @@ const Sims = {
       const tableWrap = document.querySelector('.rpay-sim .rpay-table');
       if (tableWrap) tableWrap.classList.remove('rpay-zoomed');
 
-      // Reset win highlight and remove old chip spots
+      // Reset win highlight and remove old chip spots/dolly
       tbl.querySelectorAll('.rpay-win-cell').forEach(el => el.classList.remove('rpay-win-cell'));
       tbl.querySelectorAll('.rpay-spot').forEach(el => el.remove());
+      tbl.querySelectorAll('.rpay-dolly').forEach(el => el.remove());
 
       // Highlight winning number
       const winEl = tbl.querySelector(`[data-bet="${N}"]`);
@@ -2532,6 +2552,9 @@ const Sims = {
             if (!cs.length) return;
             x = cs.reduce((s,c) => s+c.x, 0)/cs.length;
             y = Math.max(...cs.map(c => c.bottom)) + 16;
+          } else if (sp.betKey) {
+            const c = cc(sp.betKey); if (!c) return;
+            x = c.x; y = c.y;
           }
           if (x === undefined) return;
 
@@ -2548,6 +2571,15 @@ const Sims = {
           el.innerHTML = `<div class="rpay-spot-chips">${chipHtml}</div><div class="rpay-spot-label">${sp.type}</div>`;
           tbl.appendChild(el);
         });
+
+        // Dolly marker on winning number
+        const winC = cc(N);
+        if (winC) {
+          const dolly = document.createElement('div');
+          dolly.className = 'rpay-dolly';
+          dolly.style.cssText = `left:${winC.x}px;top:${winC.y}px`;
+          tbl.appendChild(dolly);
+        }
 
         highlightSpot(0);
       });
