@@ -2464,43 +2464,35 @@ const Sims = {
       return { chips: { [color.key]: count }, total: color.val * count };
     }
 
+    const BET_LABEL = { Straight:'Straight', Split:'Split', Corner:'Corner', Street:'Street', SixNum:'Six Number' };
+
     function getValidSpots(N) {
       const row = Math.floor((N-1)/3);
       const col = (N-1) % 3;
       const spots = [];
+      const s1 = row*3+1; // first number of this street
 
       spots.push({ type:'Straight', pays:35, nums:[N] });
 
+      // Splits (same column group, vertical)
       if (col > 0) spots.push({ type:'Split', pays:17, nums:[N-1,N] });
       if (col < 2) spots.push({ type:'Split', pays:17, nums:[N,N+1] });
-
-      if (row > 0) spots.push({ type:'Split', pays:17, nums:[N-3,N] });
+      // Splits (adjacent column groups, horizontal)
+      if (row > 0)  spots.push({ type:'Split', pays:17, nums:[N-3,N] });
       if (row < 11) spots.push({ type:'Split', pays:17, nums:[N,N+3] });
 
-      if (row > 0 && col > 0) spots.push({ type:'Corner', pays:8, nums:[N-4,N-3,N-1,N] });
-      if (row > 0 && col < 2) spots.push({ type:'Corner', pays:8, nums:[N-3,N-2,N,N+1] });
+      // Corners
+      if (row > 0  && col > 0) spots.push({ type:'Corner', pays:8, nums:[N-4,N-3,N-1,N] });
+      if (row > 0  && col < 2) spots.push({ type:'Corner', pays:8, nums:[N-3,N-2,N,N+1] });
       if (row < 11 && col > 0) spots.push({ type:'Corner', pays:8, nums:[N-1,N,N+2,N+3] });
       if (row < 11 && col < 2) spots.push({ type:'Corner', pays:8, nums:[N,N+1,N+3,N+4] });
 
-      spots.push({ type:'Street', pays:11, nums:[row*3+1,row*3+2,row*3+3] });
+      // Street
+      spots.push({ type:'Street', pays:11, nums:[s1,s1+1,s1+2] });
 
-      const colKeys = ['col1','col2','col3'];
-      spots.push({ type:'Column', pays:2, nums:[], betKey: colKeys[col] });
-
-      const dozKeys = ['dozen1','dozen2','dozen3'];
-      spots.push({ type:'Dozen', pays:2, nums:[], betKey: dozKeys[Math.floor((N-1)/12)] });
-
-      spots.push(RED_NUMS.has(N)
-        ? { type:'Red',   pays:1, nums:[], betKey:'red' }
-        : { type:'Black', pays:1, nums:[], betKey:'black' });
-
-      spots.push(N%2===1
-        ? { type:'Odd',  pays:1, nums:[], betKey:'odd' }
-        : { type:'Even', pays:1, nums:[], betKey:'even' });
-
-      spots.push(N<=18
-        ? { type:'Low',  pays:1, nums:[], betKey:'low' }
-        : { type:'High', pays:1, nums:[], betKey:'high' });
+      // Six Number (two adjacent streets)
+      if (row > 0)  spots.push({ type:'SixNum', pays:5, nums:[s1-3,s1-2,s1-1,s1,s1+1,s1+2] });
+      if (row < 11) spots.push({ type:'SixNum', pays:5, nums:[s1,s1+1,s1+2,s1+3,s1+4,s1+5] });
 
       return spots;
     }
@@ -2545,7 +2537,7 @@ const Sims = {
           if (sp.type === 'Straight') {
             const c = cc(N); if (!c) return;
             x = c.x; y = c.y;
-          } else if (sp.type === 'Split' || sp.type === 'Corner') {
+          } else if (sp.type === 'Split' || sp.type === 'Corner' || sp.type === 'SixNum') {
             const cs = sp.nums.map(n => cc(n)).filter(Boolean);
             if (!cs.length) return;
             x = cs.reduce((s,c) => s+c.x, 0)/cs.length;
@@ -2555,9 +2547,6 @@ const Sims = {
             if (!cs.length) return;
             x = Math.min(...cs.map(c => c.left));
             y = cs.reduce((s,c) => s+c.y, 0)/cs.length;
-          } else if (sp.betKey) {
-            const c = cc(sp.betKey); if (!c) return;
-            x = c.x; y = c.y;
           }
           if (x === undefined) return;
 
@@ -2571,7 +2560,7 @@ const Sims = {
           el.className = 'rpay-spot';
           el.id = `rpay-spot-${i}`;
           el.style.cssText = `left:${x}px;top:${y}px`;
-          el.innerHTML = `<div class="rpay-spot-chips">${chipHtml}</div><div class="rpay-spot-label">${sp.type} ×${cnt}</div>`;
+          el.innerHTML = `<div class="rpay-spot-chips">${chipHtml}</div><div class="rpay-spot-label">${BET_LABEL[sp.type]||sp.type} ×${cnt}</div>`;
           tbl.appendChild(el);
         });
 
@@ -2681,7 +2670,7 @@ const Sims = {
         </div>
         <div class="comm-tray" style="margin-top:.45rem">
           <div class="rpay-tray-info">
-            <span class="rpay-tray-type">${sp.type} (${sp.pays}:1)</span>
+            <span class="rpay-tray-type">${BET_LABEL[sp.type]||sp.type} (${sp.pays}:1)</span>
           </div>
           <div class="comm-tray-slots">
             ${PAY_CHIPS.map(c => `
