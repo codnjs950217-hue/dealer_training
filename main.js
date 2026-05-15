@@ -2774,8 +2774,9 @@ const Sims = {
         S.spotIdx = 0;
 
         const allSpots = getValidSpots(N);
-        const count = 3 + Math.floor(Math.random()*2); // 3 or 4
-        const picked = [...allSpots].sort(() => Math.random()-.5).slice(0, Math.min(count, allSpots.length));
+        const picked = ['Straight', 'Corner']
+          .map(t => allSpots.find(s => s.type === t))
+          .filter(Boolean);
         S.spots = picked.map(sp => {
           const { chips, total } = genChips();
           return { ...sp, chips, total };
