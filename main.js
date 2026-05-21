@@ -2315,11 +2315,12 @@ const Sims = {
       { key: 'orange', val: 200_000, bg: '#e65100', fg: '#fff'    },
     ];
     const MONEY_CHIPS = [
-      { key: '5K',   val:     5_000, bg: '#546e7a', fg: '#fff' },
-      { key: '10K',  val:    10_000, bg: '#1565c0', fg: '#fff' },
-      { key: '100K', val:   100_000, bg: '#212121', fg: '#fff' },
-      { key: '1M',   val: 1_000_000, bg: '#6a1b9a', fg: '#fff' },
-      { key: '10M',  val:10_000_000, bg: '#e65100', fg: '#fff' },
+      { key: '100M', val: 100_000_000, bg: '#c62828', fg: '#fff'    },
+      { key: '10M',  val:  10_000_000, bg: '#1565c0', fg: '#fff'    },
+      { key: '1M',   val:   1_000_000, bg: '#fdd835', fg: '#1a1a1a' },
+      { key: '100K', val:     100_000, bg: '#212121', fg: '#fff'    },
+      { key: '10K',  val:      10_000, bg: '#2e7d32', fg: '#fff'    },
+      { key: '5K',   val:       5_000, bg: '#b5176b', fg: '#fff'    },
     ];
     const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
@@ -2544,12 +2545,9 @@ const Sims = {
       const sp = S.spots[S.spotIdx];
       const color = S.roundColor;
 
-      S.payChips = { color: 0, '5K': 0, '10K': 0, '100K': 0, '1M': 0, '10M': 0 };
+      S.payChips = { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
 
-      const allChips = [
-        { key: 'color', bg: color.bg, fg: color.fg, label: color.key[0].toUpperCase() },
-        ...MONEY_CHIPS.map(mc => ({ key: mc.key, bg: mc.bg, fg: mc.fg, label: mc.key }))
-      ];
+      const colorLabel = color.key[0].toUpperCase();
 
       panel.innerHTML = `
         <div class="comm-tray rpay-btray">
@@ -2558,16 +2556,24 @@ const Sims = {
             <span class="rpay-btray-spot">${S.spotIdx+1} / ${S.spots.length}</span>
             <span class="rpay-btray-total">₩<strong id="rpay-v-entered">0</strong></span>
           </div>
+          <div id="rpay-order-warn" class="bpay-order-warn" style="display:none"><span>저액 칩스부터 세팅하세요</span></div>
           <div class="comm-tray-slots">
-            ${allChips.map(c => `
+            <div class="comm-slot">
+              <div class="comm-slot-chip" id="rpay-disc-color" style="background:${color.bg};color:${color.fg}">${colorLabel}</div>
+              <div class="comm-5k-btns">
+                <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',5)">+5개</button>
+                <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',1)">+1개</button>
+              </div>
+              <button class="comm-5k-reset" onclick="Sims.roulettePay.resetChip('color')">RESET</button>
+            </div>
+            ${MONEY_CHIPS.map(c => `
               <div class="comm-slot">
-                <div class="comm-slot-chip" id="rpay-disc-${c.key}" style="background:${c.bg};color:${c.fg}">${c.label}</div>
+                <div class="comm-slot-chip" id="rpay-disc-${c.key}" style="background:${c.bg};color:${c.fg}">${c.key}</div>
                 <div class="comm-5k-btns">
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',20)">+20</button>
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',5)">+5</button>
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">+1</button>
+                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',5)">+5개</button>
+                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">+1개</button>
                 </div>
-                <button class="comm-5k-reset" onclick="Sims.roulettePay.resetChip('${c.key}')">R</button>
+                <button class="comm-5k-reset" onclick="Sims.roulettePay.resetChip('${c.key}')">RESET</button>
               </div>`).join('')}
             <div class="comm-pay-slot">
               <button class="comm-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
@@ -2641,12 +2647,28 @@ const Sims = {
       },
 
       addChip(key, n) {
+        if (key !== 'color') {
+          const chip = MONEY_CHIPS.find(c => c.key === key);
+          if (chip) {
+            const lowerUnset = MONEY_CHIPS.some(c => c.val < chip.val && (S.payChips[c.key] || 0) === 0);
+            if (lowerUnset) {
+              const warn = document.getElementById('rpay-order-warn');
+              if (warn) { warn.style.display = ''; setTimeout(() => { warn.style.display = 'none'; }, 1800); }
+              return;
+            }
+          }
+        }
         S.payChips[key] = (S.payChips[key] || 0) + n;
         updateTray();
       },
 
+      resetChip(key) {
+        S.payChips[key] = 0;
+        updateTray();
+      },
+
       resetPay() {
-        S.payChips = { color: 0, '5K': 0, '10K': 0, '100K': 0, '1M': 0, '10M': 0 };
+        S.payChips = { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
         updateTray();
       },
 
@@ -2660,7 +2682,7 @@ const Sims = {
         }
         if (entered !== target) {
           showMistake(() => {
-            S.payChips = { color: 0, '5K': 0, '10K': 0, '100K': 0, '1M': 0, '10M': 0 };
+            S.payChips = { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
             updateTray();
           });
           return;
