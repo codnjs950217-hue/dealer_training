@@ -39,7 +39,6 @@ function cardHTML(c, faceDown = false) {
 
 const App = {
   navigate(game, mode) {
-    document.body.classList.remove('rpay-fullscreen');
     document.querySelectorAll('.sidebar-link, .sidebar-sub-link').forEach(el => {
       el.classList.toggle('active',
         el.dataset.game === game && el.dataset.mode === (mode || ''));
@@ -60,7 +59,6 @@ const App = {
     if (mode === 'paysim' && game === 'roulette') {
       el.innerHTML = Views.roulettePaySim();
       Sims.roulettePay && Sims.roulettePay.init();
-      document.body.classList.add('rpay-fullscreen');
     }
 
     if (game === 'poker') {
@@ -277,17 +275,13 @@ const Views = {
           <span>Score: <strong id="rpay-score">0</strong></span>
         </div>
       </div>
-      <div class="rpay-main">
-        <div class="rpay-table-side">
-          <div class="rpay-table">
-            <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
-            <div class="bpay-start-overlay" id="rpay-start-overlay">
-              <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
-            </div>
-          </div>
+      <div class="rpay-table">
+        <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
+        <div class="bpay-start-overlay" id="rpay-start-overlay">
+          <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
         </div>
-        <div class="rpay-pay-side" id="rpay-comm-panel"></div>
       </div>
+      <div class="bpay-comm-panel" id="rpay-comm-panel"></div>
     </div>`,
 
   baccaratPaySim: () => `
@@ -2551,33 +2545,40 @@ const Sims = {
 
       S.payChips = { color: 0, '5K': 0, '10K': 0, '100K': 0, '1M': 0, '10M': 0 };
 
-      const mkCol = (key, discHtml) => `
-        <div class="rpay-h-col">
-          ${discHtml}
-          <span class="rpay-h-cnt" id="rpay-cnt-${key}">0</span>
-          <button class="rpay-h-btn" onclick="Sims.roulettePay.addChip('${key}',1)">+1</button>
-          <button class="rpay-h-btn" onclick="Sims.roulettePay.addChip('${key}',5)">+5</button>
-          <button class="rpay-h-btn" onclick="Sims.roulettePay.addChip('${key}',20)">+20</button>
-        </div>`;
+      const colorDisc = `<div class="rpay-v-disc" style="background:${color.bg};border-color:${color.fg==='#fff'?'rgba(255,255,255,.5)':'rgba(0,0,0,.25)'}">
+        <span style="color:${color.fg};font-size:.42rem">${color.key[0].toUpperCase()}</span>
+      </div>`;
 
-      const colorDisc = `<div class="rpay-h-disc" style="background:${color.bg};border-color:${color.fg==='#fff'?'rgba(255,255,255,.5)':'rgba(0,0,0,.25)'}"><span style="color:${color.fg}">${color.key[0].toUpperCase()}</span></div>`;
+      const allRows = [
+        { key: 'color', disc: colorDisc },
+        ...MONEY_CHIPS.map(mc => ({
+          key: mc.key,
+          disc: `<div class="rpay-v-disc" style="background:${mc.bg};border-color:rgba(255,255,255,.3)">
+            <span style="color:${mc.fg};font-size:.38rem">${mc.key}</span>
+          </div>`
+        }))
+      ];
 
       panel.innerHTML = `
-        <div class="rpay-h-tray">
-          <div class="rpay-h-info">
-            <span class="rpay-h-bet-type">${BET_LABEL[sp.type]||sp.type} (${sp.pays}:1)</span>
-            <span class="rpay-h-spot-num">${S.spotIdx+1} / ${S.spots.length}</span>
+        <div class="rpay-v-tray">
+          <div class="rpay-v-info">
+            <span class="rpay-v-bet-type">${BET_LABEL[sp.type]||sp.type} (${sp.pays}:1)</span>
+            <span class="rpay-v-spot-num">${S.spotIdx+1} / ${S.spots.length}</span>
           </div>
-          <div class="rpay-h-chips">
-            ${mkCol('color', colorDisc)}
-            ${MONEY_CHIPS.map(mc => mkCol(mc.key,
-              `<div class="rpay-h-disc" style="background:${mc.bg};border-color:rgba(255,255,255,.3)"><span style="color:${mc.fg}">${mc.key}</span></div>`
-            )).join('')}
-          </div>
-          <div class="rpay-h-footer">
-            <span class="rpay-h-total">₩<strong id="rpay-v-entered">0</strong></span>
-            <button class="rpay-h-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
-            <button class="rpay-h-reset-btn" onclick="Sims.roulettePay.resetPay()">RESET</button>
+          ${allRows.map(r => `
+            <div class="rpay-v-row">
+              ${r.disc}
+              <span class="rpay-v-cnt" id="rpay-cnt-${r.key}">0</span>
+              <div class="rpay-v-btns">
+                <button class="rpay-v-btn" onclick="Sims.roulettePay.addChip('${r.key}',1)">+1</button>
+                <button class="rpay-v-btn" onclick="Sims.roulettePay.addChip('${r.key}',5)">+5</button>
+                <button class="rpay-v-btn" onclick="Sims.roulettePay.addChip('${r.key}',20)">+20</button>
+              </div>
+            </div>`).join('')}
+          <div class="rpay-v-total">₩<strong id="rpay-v-entered">0</strong></div>
+          <div class="rpay-v-actions">
+            <button class="rpay-v-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
+            <button class="rpay-v-reset-btn" onclick="Sims.roulettePay.resetPay()">RESET</button>
           </div>
         </div>`;
     }
