@@ -599,7 +599,11 @@ body {
   flex: 1; min-width: 0; position: relative;
   padding: .8rem .8rem 2.4rem;
   overflow: visible;
-  border-right: 1px solid rgba(255,255,255,.15);
+}
+.rpay-bet-side::after {
+  content: '';
+  position: absolute; right: 0; top: .7rem; bottom: .7rem;
+  width: 1px; background: rgba(255,255,255,.18);
 }
 .rpay-bet-side.rpay-zoomed { overflow: hidden; }
 .rpay-pay-zone {
