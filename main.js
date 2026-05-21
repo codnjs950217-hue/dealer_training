@@ -275,13 +275,17 @@ const Views = {
           <span>Score: <strong id="rpay-score">0</strong></span>
         </div>
       </div>
-      <div class="rpay-table">
-        <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
-        <div class="bpay-start-overlay" id="rpay-start-overlay">
-          <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
+      <div class="rpay-main">
+        <div class="rpay-table-side">
+          <div class="rpay-table">
+            <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
+            <div class="bpay-start-overlay" id="rpay-start-overlay">
+              <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
+            </div>
+          </div>
         </div>
+        <div class="rpay-tray-side" id="rpay-comm-panel"></div>
       </div>
-      <div class="bpay-comm-panel" id="rpay-comm-panel"></div>
     </div>`,
 
   baccaratPaySim: () => `
@@ -2314,6 +2318,13 @@ const Sims = {
       { key: 'purple', val: 100_000, bg: '#7b1fa2', fg: '#fff'    },
       { key: 'orange', val: 200_000, bg: '#e65100', fg: '#fff'    },
     ];
+    const MONEY_CHIPS = [
+      { key: '5K',   val:     5_000, bg: '#546e7a', fg: '#fff' },
+      { key: '10K',  val:    10_000, bg: '#1565c0', fg: '#fff' },
+      { key: '100K', val:   100_000, bg: '#212121', fg: '#fff' },
+      { key: '1M',   val: 1_000_000, bg: '#6a1b9a', fg: '#fff' },
+      { key: '10M',  val:10_000_000, bg: '#e65100', fg: '#fff' },
+    ];
     const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
     function genChips(color) {
@@ -2534,129 +2545,60 @@ const Sims = {
       const panel = document.getElementById('rpay-comm-panel');
       if (!panel) return;
       const sp = S.spots[S.spotIdx];
-      const activeColorKey = Object.keys(sp.chips)[0];
-      const color = COLOR_CHIPS.find(c => c.key === activeColorKey);
-      const bg = color.bg;
-      const bc = color.fg === '#fff' ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.2)';
+      const color = S.roundColor;
 
-      S.colorStacks = 0;
-      S.colorLoose  = 0;
-      S.payStacks   = 0;
-      S.payLoose    = 0;
+      S.payChips = { color: 0, '5K': 0, '10K': 0, '100K': 0, '1M': 0, '10M': 0 };
 
-      const layers = Array.from({length:4}, () =>
-        `<div class="rpay-cstack-layer" style="background:${bg}"></div>`).join('');
-      const stack20 = `<div class="rpay-cstack">
-        <div class="rpay-cstack-face" style="background:${bg};border-color:${bc}"></div>
-        ${layers}
-        <div class="rpay-cstack-label">×20</div>
+      const colorDisc = `<div class="rpay-v-disc" style="background:${color.bg};border-color:${color.fg==='#fff'?'rgba(255,255,255,.5)':'rgba(0,0,0,.25)'}">
+        <span style="color:${color.fg};font-size:.42rem">${color.key[0].toUpperCase()}</span>
       </div>`;
-      const singleChip = `<div class="comm-slot-chip" style="background:${bg};color:${color.fg}">${color.key[0].toUpperCase()}</div>`;
+
+      const allRows = [
+        { key: 'color', disc: colorDisc },
+        ...MONEY_CHIPS.map(mc => ({
+          key: mc.key,
+          disc: `<div class="rpay-v-disc" style="background:${mc.bg};border-color:rgba(255,255,255,.3)">
+            <span style="color:${mc.fg};font-size:.38rem">${mc.key}</span>
+          </div>`
+        }))
+      ];
 
       panel.innerHTML = `
-        <div class="comm-tray rpay-color-section">
-          <div class="rpay-tray-info">
-            <span class="rpay-tray-type">Color Chip Count</span>
-            <span class="rpay-tray-bet">${S.spotIdx+1} / ${S.spots.length}</span>
+        <div class="rpay-v-tray">
+          <div class="rpay-v-info">
+            <span class="rpay-v-bet-type">${BET_LABEL[sp.type]||sp.type} (${sp.pays}:1)</span>
+            <span class="rpay-v-spot-num">${S.spotIdx+1} / ${S.spots.length}</span>
           </div>
-          <div class="comm-tray-slots">
-            <div class="comm-slot">
-              ${stack20}
-              <div class="comm-5k-btns">
-                <button class="comm-5k-btn" onclick="Sims.roulettePay.addColorStack(5)">+5개</button>
-                <button class="comm-5k-btn" onclick="Sims.roulettePay.addColorStack(1)">+1개</button>
+          ${allRows.map(r => `
+            <div class="rpay-v-row">
+              ${r.disc}
+              <span class="rpay-v-cnt" id="rpay-cnt-${r.key}">0</span>
+              <div class="rpay-v-btns">
+                <button class="rpay-v-btn" onclick="Sims.roulettePay.addChip('${r.key}',1)">+1</button>
+                <button class="rpay-v-btn" onclick="Sims.roulettePay.addChip('${r.key}',5)">+5</button>
+                <button class="rpay-v-btn" onclick="Sims.roulettePay.addChip('${r.key}',20)">+20</button>
               </div>
-              <button class="comm-5k-reset" onclick="Sims.roulettePay.resetColorStack()">RESET</button>
-            </div>
-            <div class="comm-slot">
-              ${singleChip}
-              <div class="comm-5k-btns">
-                <button class="comm-5k-btn" onclick="Sims.roulettePay.addColorLoose(5)">+5개</button>
-                <button class="comm-5k-btn" onclick="Sims.roulettePay.addColorLoose(1)">+1개</button>
-              </div>
-              <button class="comm-5k-reset" onclick="Sims.roulettePay.resetColorLoose()">RESET</button>
-            </div>
-            <div class="comm-pay-slot">
-              <button class="comm-pay-btn" onclick="Sims.roulettePay.submitColorCount()">PAY</button>
-              <button class="comm-all-reset-btn" onclick="Sims.roulettePay.resetAllColor()">ALL RESET</button>
-            </div>
+            </div>`).join('')}
+          <div class="rpay-v-total">₩<strong id="rpay-v-entered">0</strong></div>
+          <div class="rpay-v-actions">
+            <button class="rpay-v-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
+            <button class="rpay-v-reset-btn" onclick="Sims.roulettePay.resetPay()">RESET</button>
           </div>
-          <div class="rpay-color-spread-row" id="rpay-color-spread"></div>
-        </div>
-        <div class="comm-tray" style="margin-top:.45rem">
-          <div class="rpay-tray-info">
-            <span class="rpay-tray-type">${BET_LABEL[sp.type]||sp.type} (${sp.pays}:1)</span>
-          </div>
-          <div class="comm-tray-slots">
-            <div class="comm-slot">
-              ${stack20}
-              <div class="comm-5k-btns">
-                <button class="comm-5k-btn" onclick="Sims.roulettePay.addPayStack(5)">+5개</button>
-                <button class="comm-5k-btn" onclick="Sims.roulettePay.addPayStack(1)">+1개</button>
-              </div>
-              <button class="comm-5k-reset" onclick="Sims.roulettePay.resetPayStack()">RESET</button>
-            </div>
-            <div class="comm-slot">
-              ${singleChip}
-              <div class="comm-5k-btns">
-                <button class="comm-5k-btn" onclick="Sims.roulettePay.addPayLoose(5)">+5개</button>
-                <button class="comm-5k-btn" onclick="Sims.roulettePay.addPayLoose(1)">+1개</button>
-              </div>
-              <button class="comm-5k-reset" onclick="Sims.roulettePay.resetPayLoose()">RESET</button>
-            </div>
-            <div class="comm-pay-slot">
-              <button class="comm-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
-              <button class="comm-all-reset-btn" onclick="Sims.roulettePay.resetAllPay()">ALL RESET</button>
-            </div>
-          </div>
-          <div class="rpay-color-spread-row" id="rpay-pay-spread"></div>
         </div>`;
     }
 
-    function showColorSpread() {
-      const sp = S.spots[S.spotIdx];
-      const activeColorKey = Object.keys(sp.chips)[0];
-      const color = COLOR_CHIPS.find(c => c.key === activeColorKey);
-      const el = document.getElementById('rpay-color-spread');
-      if (!el) return;
-      const bg = color.bg;
-      const bc = color.fg === '#fff' ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.2)';
-      const st = `background:${bg};border-color:${bc}`;
-      const stacks = S.colorStacks || 0;
-      const loose  = S.colorLoose  || 0;
-      let html = '';
-      for (let s = 0; s < stacks; s++) {
-        html += `<div class="rpay-count-stack">`;
-        for (let i = 0; i < 5; i++) html += `<div class="rpay-count-chip" style="${st}"></div>`;
-        html += `</div>`;
+    function updateTray() {
+      const colorVal = S.roundColor ? S.roundColor.val : 0;
+      let total = (S.payChips.color || 0) * colorVal;
+      const colorEl = document.getElementById('rpay-cnt-color');
+      if (colorEl) colorEl.textContent = S.payChips.color || 0;
+      for (const mc of MONEY_CHIPS) {
+        const el = document.getElementById(`rpay-cnt-${mc.key}`);
+        if (el) el.textContent = S.payChips[mc.key] || 0;
+        total += (S.payChips[mc.key] || 0) * mc.val;
       }
-      for (let i = 0; i < loose; i++) {
-        html += `<div class="rpay-loose-chip${i===0 && stacks>0 ? ' gap' : ''}" style="${st}"></div>`;
-      }
-      el.innerHTML = html;
-    }
-
-    function showPaySpread() {
-      const sp = S.spots[S.spotIdx];
-      const activeColorKey = Object.keys(sp.chips)[0];
-      const color = COLOR_CHIPS.find(c => c.key === activeColorKey);
-      const el = document.getElementById('rpay-pay-spread');
-      if (!el) return;
-      const bg = color.bg;
-      const bc = color.fg === '#fff' ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.2)';
-      const st = `background:${bg};border-color:${bc}`;
-      const stacks = S.payStacks || 0;
-      const loose  = S.payLoose  || 0;
-      let html = '';
-      for (let s = 0; s < stacks; s++) {
-        html += `<div class="rpay-count-stack">`;
-        for (let i = 0; i < 5; i++) html += `<div class="rpay-count-chip" style="${st}"></div>`;
-        html += `</div>`;
-      }
-      for (let i = 0; i < loose; i++) {
-        html += `<div class="rpay-loose-chip${i===0 && stacks>0 ? ' gap' : ''}" style="${st}"></div>`;
-      }
-      el.innerHTML = html;
+      const totalEl = document.getElementById('rpay-v-entered');
+      if (totalEl) totalEl.textContent = total.toLocaleString();
     }
 
     function showMistake(retry) {
@@ -2674,7 +2616,8 @@ const Sims = {
 
     return {
       init() {
-        S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, colorStacks: 0, colorLoose: 0, payStacks: 0, payLoose: 0 };
+        S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, roundColor: null,
+              payChips: { color: 0, '5K': 0, '10K': 0, '100K': 0, '1M': 0, '10M': 0 } };
       },
 
       deal() {
@@ -2692,6 +2635,7 @@ const Sims = {
 
         const allSpots = getValidSpots(N);
         const roundColor = COLOR_CHIPS[Math.floor(Math.random() * COLOR_CHIPS.length)];
+        S.roundColor = roundColor;
         S.spots = allSpots.map(sp => {
           const { chips, total } = genChips(roundColor);
           return { ...sp, chips, total };
@@ -2701,40 +2645,29 @@ const Sims = {
         showTray();
       },
 
-      addColorStack(n) { S.colorStacks = (S.colorStacks||0)+n; showColorSpread(); },
-      addColorLoose(n) { S.colorLoose  = (S.colorLoose ||0)+n; showColorSpread(); },
-      resetColorStack() { S.colorStacks = 0; showColorSpread(); },
-      resetColorLoose()  { S.colorLoose  = 0; showColorSpread(); },
-      resetAllColor() { S.colorStacks = 0; S.colorLoose = 0; showColorSpread(); },
-
-      submitColorCount() {
-        const sp = S.spots[S.spotIdx];
-        const betCount = Object.values(sp.chips)[0];
-        const entered  = (S.colorStacks||0)*20 + (S.colorLoose||0);
-        if (entered !== betCount) {
-          showMistake(() => { S.colorStacks=0; S.colorLoose=0; showColorSpread(); });
-          return;
-        }
-        const spreadEl = document.getElementById('rpay-color-spread');
-        if (spreadEl) {
-          spreadEl.style.outline = '2px solid #4caf50';
-          setTimeout(() => { if (spreadEl) spreadEl.style.outline = ''; }, 900);
-        }
+      addChip(key, n) {
+        S.payChips[key] = (S.payChips[key] || 0) + n;
+        updateTray();
       },
 
-      addPayStack(n) { S.payStacks = (S.payStacks||0)+n; showPaySpread(); },
-      addPayLoose(n) { S.payLoose  = (S.payLoose ||0)+n; showPaySpread(); },
-      resetPayStack() { S.payStacks = 0; showPaySpread(); },
-      resetPayLoose() { S.payLoose  = 0; showPaySpread(); },
-      resetAllPay() { S.payStacks = 0; S.payLoose = 0; showPaySpread(); },
+      resetPay() {
+        S.payChips = { color: 0, '5K': 0, '10K': 0, '100K': 0, '1M': 0, '10M': 0 };
+        updateTray();
+      },
 
       submitPay() {
         const sp = S.spots[S.spotIdx];
-        const betCount = Object.values(sp.chips)[0];
-        const target = betCount * sp.pays;
-        const entered = (S.payStacks||0)*20 + (S.payLoose||0);
+        const target = sp.total * sp.pays;
+        const colorVal = S.roundColor ? S.roundColor.val : 0;
+        let entered = (S.payChips.color || 0) * colorVal;
+        for (const mc of MONEY_CHIPS) {
+          entered += (S.payChips[mc.key] || 0) * mc.val;
+        }
         if (entered !== target) {
-          showMistake(() => { S.payStacks=0; S.payLoose=0; showPaySpread(); });
+          showMistake(() => {
+            S.payChips = { color: 0, '5K': 0, '10K': 0, '100K': 0, '1M': 0, '10M': 0 };
+            updateTray();
+          });
           return;
         }
         S.spotIdx++;
