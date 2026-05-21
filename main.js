@@ -2409,7 +2409,7 @@ const Sims = {
           } else if (sp.type === 'Street') {
             const cs = sp.nums.map(n => cc(n)).filter(Boolean);
             if (!cs.length) return;
-            x = Math.min(...cs.map(c => c.left));
+            x = cs.reduce((s,c) => s+c.x, 0)/cs.length;
             y = cs.reduce((s,c) => s+c.y, 0)/cs.length;
           }
           if (x === undefined) return;
@@ -2426,8 +2426,12 @@ const Sims = {
           el.style.cssText = `left:${x}px;top:${y}px`;
           el.innerHTML = `<div class="rpay-spot-chips">${chipHtml}</div>`;
 
+          // store bet nums for cell highlighting
+          const betNums = sp.type === 'Straight' ? [N] : sp.nums;
+          el.dataset.betNums = betNums.join(',');
+
           // store bbox of bet numbers for zoom
-          const bboxNums = sp.type === 'Straight' ? [N] : sp.nums;
+          const bboxNums = betNums;
           const bboxCC = bboxNums.map(n => cc(n)).filter(Boolean);
           if (bboxCC.length) {
             const minL = Math.min(...bboxCC.map(c => c.left));
@@ -2502,10 +2506,27 @@ const Sims = {
     }
 
     function highlightSpot(idx) {
+      const tbl = document.getElementById('rpay-full-table');
+
+      // clear previous bet cell highlights
+      if (tbl) tbl.querySelectorAll('.rpay-bet-cell').forEach(el => el.classList.remove('rpay-bet-cell'));
+
       document.querySelectorAll('.rpay-spot').forEach((el,i) => {
         el.classList.toggle('rpay-spot-paying', i === idx);
         el.classList.toggle('rpay-spot-paid', i < idx);
       });
+
+      // highlight cells of the active bet
+      if (tbl && idx >= 0) {
+        const spotEl = document.getElementById(`rpay-spot-${idx}`);
+        if (spotEl && spotEl.dataset.betNums) {
+          spotEl.dataset.betNums.split(',').forEach(n => {
+            const cell = tbl.querySelector(`[data-bet="${n}"]`);
+            if (cell) cell.classList.add('rpay-bet-cell');
+          });
+        }
+      }
+
       zoomToSpot(idx);
     }
 

@@ -608,6 +608,12 @@ body {
   box-shadow: 0 0 14px rgba(255,215,0,.55) !important;
   z-index: 2;
 }
+.rpay-bet-cell {
+  background: rgba(120,190,255,.22) !important;
+  outline: 2px solid rgba(100,170,255,.7) !important;
+  outline-offset: -2px;
+  z-index: 1;
+}
 .rpay-dolly {
   position: absolute;
   width: 13px; height: 19px;
