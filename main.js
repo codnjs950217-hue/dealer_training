@@ -2415,15 +2415,15 @@ const Sims = {
 
           const [[key, cnt]] = Object.entries(sp.chips);
           const c = COLOR_CHIPS.find(b => b.key === key);
-          const visCount = Math.min(cnt, 4);
-          const chipHtml = Array.from({length: visCount}, () =>
-            `<div class="rpay-spot-chip" style="background:${c.bg}"></div>`).join('');
+          const chipHtml = `<div class="rpay-spot-chip" style="background:${c.bg};border-color:${c.fg==='#fff'?'rgba(255,255,255,.5)':'rgba(0,0,0,.25)'}">
+            <span class="rpay-spot-count" style="color:${c.fg}">${cnt}</span>
+          </div>`;
 
           const el = document.createElement('div');
           el.className = 'rpay-spot';
           el.id = `rpay-spot-${i}`;
           el.style.cssText = `left:${x}px;top:${y}px`;
-          el.innerHTML = `<div class="rpay-spot-chips">${chipHtml}</div><div class="rpay-spot-label">${BET_LABEL[sp.type]||sp.type} ×${cnt}</div>`;
+          el.innerHTML = `<div class="rpay-spot-chips">${chipHtml}</div><div class="rpay-spot-label">${BET_LABEL[sp.type]||sp.type}</div>`;
           tbl.appendChild(el);
         });
 
