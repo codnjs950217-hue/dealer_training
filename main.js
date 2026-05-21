@@ -284,9 +284,8 @@ const Views = {
             </div>
           </div>
         </div>
-        <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
+        <div class="rpay-tray-side" id="rpay-comm-panel"></div>
       </div>
-      <div class="rpay-tray-row" id="rpay-comm-panel"></div>
     </div>`,
 
   baccaratPaySim: () => `
@@ -2550,83 +2549,56 @@ const Sims = {
 
       S.payChips = { color: 0, '5K': 0, '10K': 0, '100K': 0, '1M': 0, '10M': 0 };
 
-      const allChips = [
-        { key: 'color', bg: color.bg, fg: color.fg, label: color.key[0].toUpperCase() },
-        ...MONEY_CHIPS.map(mc => ({ key: mc.key, bg: mc.bg, fg: mc.fg, label: mc.key }))
+      const colorDisc = `<div class="rpay-v-disc" style="background:${color.bg};border-color:${color.fg==='#fff'?'rgba(255,255,255,.5)':'rgba(0,0,0,.25)'}">
+        <span style="color:${color.fg};font-size:.42rem">${color.key[0].toUpperCase()}</span>
+      </div>`;
+
+      const allRows = [
+        { key: 'color', disc: colorDisc },
+        ...MONEY_CHIPS.map(mc => ({
+          key: mc.key,
+          disc: `<div class="rpay-v-disc" style="background:${mc.bg};border-color:rgba(255,255,255,.3)">
+            <span style="color:${mc.fg};font-size:.38rem">${mc.key}</span>
+          </div>`
+        }))
       ];
 
       panel.innerHTML = `
-        <div class="comm-tray rpay-btray">
-          <div class="rpay-btray-hdr">
-            <span class="rpay-btray-type">${BET_LABEL[sp.type]||sp.type} (${sp.pays}:1)</span>
-            <span class="rpay-btray-spot">${S.spotIdx+1} / ${S.spots.length}</span>
-            <span class="rpay-btray-total">₩<strong id="rpay-v-entered">0</strong></span>
+        <div class="rpay-v-tray">
+          <div class="rpay-v-info">
+            <span class="rpay-v-bet-type">${BET_LABEL[sp.type]||sp.type} (${sp.pays}:1)</span>
+            <span class="rpay-v-spot-num">${S.spotIdx+1} / ${S.spots.length}</span>
           </div>
-          <div class="comm-tray-slots">
-            ${allChips.map(c => `
-              <div class="comm-slot">
-                <div class="comm-slot-chip" id="rpay-disc-${c.key}" style="background:${c.bg};color:${c.fg}">${c.label}</div>
-                <div class="comm-5k-btns">
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',20)">+20</button>
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',5)">+5</button>
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">+1</button>
-                </div>
-                <button class="comm-5k-reset" onclick="Sims.roulettePay.resetChip('${c.key}')">R</button>
-              </div>`).join('')}
-            <div class="comm-pay-slot">
-              <button class="comm-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
-              <button class="comm-all-reset-btn" onclick="Sims.roulettePay.resetPay()">ALL RESET</button>
-            </div>
+          ${allRows.map(r => `
+            <div class="rpay-v-row">
+              ${r.disc}
+              <span class="rpay-v-cnt" id="rpay-cnt-${r.key}">0</span>
+              <div class="rpay-v-btns">
+                <button class="rpay-v-btn" onclick="Sims.roulettePay.addChip('${r.key}',1)">+1</button>
+                <button class="rpay-v-btn" onclick="Sims.roulettePay.addChip('${r.key}',5)">+5</button>
+                <button class="rpay-v-btn" onclick="Sims.roulettePay.addChip('${r.key}',20)">+20</button>
+              </div>
+            </div>`).join('')}
+          <div class="rpay-v-total">₩<strong id="rpay-v-entered">0</strong></div>
+          <div class="rpay-v-actions">
+            <button class="rpay-v-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
+            <button class="rpay-v-reset-btn" onclick="Sims.roulettePay.resetPay()">RESET</button>
           </div>
         </div>`;
-
-      updatePayZone();
     }
 
     function updateTray() {
-      const color = S.roundColor;
-      const colorVal = color ? color.val : 0;
+      const colorVal = S.roundColor ? S.roundColor.val : 0;
       let total = (S.payChips.color || 0) * colorVal;
-
-      const cDisc = document.getElementById('rpay-disc-color');
-      if (cDisc) {
-        const n = S.payChips.color || 0;
-        cDisc.textContent = n > 0 ? n : (color ? color.key[0].toUpperCase() : '?');
-      }
+      const colorEl = document.getElementById('rpay-cnt-color');
+      if (colorEl) colorEl.textContent = S.payChips.color || 0;
       for (const mc of MONEY_CHIPS) {
-        const cnt = S.payChips[mc.key] || 0;
-        const disc = document.getElementById(`rpay-disc-${mc.key}`);
-        if (disc) disc.textContent = cnt > 0 ? cnt : mc.key;
-        total += cnt * mc.val;
+        const el = document.getElementById(`rpay-cnt-${mc.key}`);
+        if (el) el.textContent = S.payChips[mc.key] || 0;
+        total += (S.payChips[mc.key] || 0) * mc.val;
       }
       const totalEl = document.getElementById('rpay-v-entered');
       if (totalEl) totalEl.textContent = total.toLocaleString();
-      updatePayZone();
-    }
-
-    function updatePayZone() {
-      const zone = document.getElementById('rpay-pay-zone');
-      if (!zone || !S.roundColor) return;
-      const color = S.roundColor;
-      const allChips = [
-        { key: 'color', bg: color.bg, fg: color.fg },
-        ...MONEY_CHIPS
-      ].filter(c => (S.payChips[c.key] || 0) > 0);
-
-      if (!allChips.length) { zone.innerHTML = ''; return; }
-
-      zone.innerHTML = allChips.map(c => {
-        const cnt = S.payChips[c.key] || 0;
-        const show = Math.min(cnt, 18);
-        const bc = c.fg === '#fff' ? 'rgba(255,255,255,.4)' : 'rgba(0,0,0,.25)';
-        const discs = Array.from({length: show}, () =>
-          `<div class="rpay-pz-disc" style="background:${c.bg};border-color:${bc}"></div>`
-        ).join('');
-        return `<div class="rpay-pz-row">
-          <div class="rpay-pz-stack">${discs}</div>
-          <span class="rpay-pz-cnt" style="color:${c.bg}">&times;${cnt}</span>
-        </div>`;
-      }).join('');
     }
 
     function showMistake(retry) {
@@ -2675,11 +2647,6 @@ const Sims = {
 
       addChip(key, n) {
         S.payChips[key] = (S.payChips[key] || 0) + n;
-        updateTray();
-      },
-
-      resetChip(key) {
-        S.payChips[key] = 0;
         updateTray();
       },
 
