@@ -50,7 +50,6 @@ const App = {
     if (mode === 'simulation') {
       if (game === 'blackjack') el.innerHTML = Views.blackjackSim();
       if (game === 'baccarat')  el.innerHTML = Views.baccaratSim();
-      if (game === 'roulette')  el.innerHTML = Views.rouletteSim();
       Sims[game] && Sims[game].init();
     }
     if (mode === 'paysim' && game === 'baccarat') {
@@ -118,8 +117,7 @@ const Views = {
          <button class="btn btn-secondary" onclick="App.navigate('poker','tcp')">⚡ TCP Practice</button>
          <button class="btn btn-secondary" onclick="App.navigate('poker','thp')">⚡ THP Practice</button>`
       : game === 'roulette'
-      ? `<button class="btn btn-secondary" onclick="App.navigate('roulette','simulation')">⚡ Simulation</button>
-         <button class="btn btn-secondary" onclick="App.navigate('roulette','paysim')">⚡ Payout Practice</button>`
+      ? `<button class="btn btn-secondary" onclick="App.navigate('roulette','paysim')">⚡ Payout Practice</button>`
       : `<button class="btn btn-secondary" onclick="App.navigate('${game}','simulation')">⚡ Go to Simulation</button>`;
     return `
       <div class="sim-page">
@@ -265,36 +263,6 @@ const Views = {
         </div>
       </div>
       <div class="bac-pay-panel" id="bac-pay-panel" style="display:none"></div>
-    </div>`,
-
-  rouletteSim: () => `
-    <div class="sim-page roulette-sim">
-      <div class="sim-header">
-        <button class="back-btn" onclick="App.navigate('roulette')">← Back</button>
-        <h2>🎡 Roulette Simulation</h2>
-        <div class="sim-stats"><span>Rounds: <strong id="rou-rounds">0</strong></span></div>
-      </div>
-      <div class="roulette-layout">
-        <div class="wheel-area">
-          <div class="roulette-wheel">
-            <div class="wheel-inner" id="wheel-inner">${buildWheel()}</div>
-            <div class="wheel-center"><div class="wheel-center-dot"></div></div>
-          </div>
-          <div class="result-display" id="rou-result"></div>
-        </div>
-        <div class="betting-area">
-          <div class="betting-table" id="betting-table">${buildBettingTable()}</div>
-          <div class="bet-summary">Active bets: <strong id="bet-list">None</strong></div>
-        </div>
-      </div>
-      <div class="sim-controls">
-        <div class="message-board" id="rou-msg">Place bets on the table, then click "No More Bets / Spin".</div>
-        <div class="action-buttons" id="rou-actions">
-          <button class="btn btn-secondary" onclick="Sims.roulette.clearBets()">Clear Bets</button>
-          <button class="btn btn-primary"   onclick="Sims.roulette.spin()">No More Bets / Spin</button>
-        </div>
-      </div>
-      <div class="payout-panel" id="rou-payouts"></div>
     </div>`,
 
   roulettePaySim: () => `
@@ -2336,107 +2304,6 @@ const Sims = {
     };
   })(),
 
-  // ---- ROULETTE ----
-  roulette: (() => {
-    const WHEEL    = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
-    const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
-
-    let S = {};
-    const numColor = n => n === 0 ? 'green' : RED_NUMS.has(n) ? 'red' : 'black';
-
-    return {
-      init() {
-        S = { bets: {}, spinning: false, rounds: 0 };
-        document.querySelectorAll('.bet-spot').forEach(el => {
-          el.addEventListener('click', () => this.toggleBet(el));
-        });
-      },
-
-      toggleBet(el) {
-        if (S.spinning) return;
-        const k = el.dataset.bet;
-        if (S.bets[k]) { delete S.bets[k]; el.classList.remove('active-bet'); }
-        else           { S.bets[k] = 1;    el.classList.add('active-bet'); }
-        document.getElementById('bet-list').textContent = Object.keys(S.bets).join(', ') || 'None';
-      },
-
-      clearBets() {
-        S.bets = {};
-        document.querySelectorAll('.bet-spot').forEach(el => el.classList.remove('active-bet'));
-        document.getElementById('bet-list').textContent = 'None';
-        document.getElementById('rou-msg').textContent = 'Bets cleared. Place new bets.';
-        document.getElementById('rou-payouts').innerHTML = '';
-        document.getElementById('rou-result').innerHTML = '';
-      },
-
-      spin() {
-        if (S.spinning) return;
-        S.spinning = true;
-        S.rounds++;
-        document.getElementById('rou-rounds').textContent = S.rounds;
-        document.getElementById('rou-msg').textContent = 'No more bets! Ball is spinning...';
-        document.getElementById('rou-actions').innerHTML = '';
-        document.getElementById('rou-payouts').innerHTML = '';
-
-        const num = Math.floor(Math.random() * 37);
-        const idx = WHEEL.indexOf(num);
-        const cur = parseFloat(document.getElementById('wheel-inner').style.transform.replace(/[^0-9.]/g, '')) || 0;
-        const deg = cur + 1440 + idx * (360 / 37) + Math.random() * 90;
-
-        const inner = document.getElementById('wheel-inner');
-        inner.style.transition = 'transform 4.5s cubic-bezier(0.2, 0.6, 0.15, 1)';
-        inner.style.transform  = `rotate(${deg}deg)`;
-
-        setTimeout(() => { this.showResult(num); S.spinning = false; }, 4700);
-      },
-
-      showResult(num) {
-        const color = numColor(num);
-        const isOdd = num !== 0 && num % 2 !== 0;
-        const isLow = num >= 1 && num <= 18;
-        const icon  = color === 'red' ? '🔴' : color === 'black' ? '⚫' : '🟢';
-
-        document.getElementById('rou-result').innerHTML = `
-          <div class="result-number ${color}">${num}</div>
-          <div class="result-info">${icon} ${color.toUpperCase()} · ${num === 0 ? 'ZERO' : (isOdd ? 'ODD' : 'EVEN')} · ${num === 0 ? '—' : (isLow ? 'LOW (1-18)' : 'HIGH (19-36)')}</div>`;
-
-        document.getElementById('rou-msg').textContent =
-          `Result: ${num} ${color.toUpperCase()}${num !== 0 ? (isOdd ? ' ODD' : ' EVEN') : ''}`;
-
-        const wins = this.calcPayouts(num);
-        document.getElementById('rou-payouts').innerHTML = wins.length
-          ? `<div class="payout-results"><h4>Winning Bets:</h4>${wins.map(w => `<div class="win-item">✓ ${w}</div>`).join('')}</div>`
-          : `<div class="payout-results no-win">No active bets won this round.</div>`;
-
-        document.getElementById('rou-actions').innerHTML = `
-          <button class="btn btn-secondary" onclick="Sims.roulette.clearBets()">Clear Bets</button>
-          <button class="btn btn-primary"   onclick="Sims.roulette.spin()">Spin Again</button>`;
-      },
-
-      calcPayouts(num) {
-        const wins = [];
-        const color = numColor(num);
-        const isOdd = num !== 0 && num % 2 !== 0;
-        const isLow = num >= 1 && num <= 18;
-        const dozen = num === 0 ? 0 : Math.ceil(num / 12);
-        const col   = num === 0 ? 0 : (num % 3 === 0 ? 3 : num % 3);
-
-        for (const bet of Object.keys(S.bets)) {
-          if (bet === String(num))       wins.push(`Straight Up ${num}: 35:1`);
-          if (bet === 'red'   && color === 'red')             wins.push('Red: 1:1');
-          if (bet === 'black' && color === 'black')           wins.push('Black: 1:1');
-          if (bet === 'odd'   && isOdd)                       wins.push('Odd: 1:1');
-          if (bet === 'even'  && !isOdd && num !== 0)         wins.push('Even: 1:1');
-          if (bet === 'low'   && isLow)                       wins.push('Low (1-18): 1:1');
-          if (bet === 'high'  && !isLow && num !== 0)         wins.push('High (19-36): 1:1');
-          if (bet === `dozen${dozen}` && dozen > 0)           wins.push(`Dozen ${dozen}: 2:1`);
-          if (bet === `col${col}`     && col > 0)             wins.push(`Column ${col}: 2:1`);
-        }
-        return wins;
-      },
-    };
-  })(),
-
   // ---- ROULETTE PAYOUT PRACTICE (Option A: single-bet drill) ----
   roulettePay: (() => {
     const COLOR_CHIPS = [
@@ -3063,15 +2930,6 @@ const Sims = {
 //  ROULETTE LAYOUT BUILDERS
 // ============================================================
 
-function buildWheel() {
-  const WHEEL    = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
-  const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
-  return WHEEL.map((n, i) => {
-    const cls = n === 0 ? 'g' : RED_NUMS.has(n) ? 'r' : 'b';
-    const deg = i * (360 / 37);
-    return `<div class="wheel-num wheel-num-${cls}" style="transform:rotate(${deg}deg) translateY(-105px)">${n}</div>`;
-  }).join('');
-}
 
 function buildBettingTable() {
   const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);

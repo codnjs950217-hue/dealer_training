@@ -769,53 +769,7 @@ body {
 
 /* ---- ROULETTE ---- */
 
-.roulette-layout {
-  display: grid; grid-template-columns: 320px 1fr;
-  gap: 2rem; margin-bottom: 1.4rem;
-}
-.wheel-area { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-
-.roulette-wheel {
-  width: 290px; height: 290px; border-radius: 50%;
-  background: #111; border: 8px solid #7a6428;
-  position: relative; overflow: hidden;
-  box-shadow: 0 0 36px rgba(0,0,0,.7), inset 0 0 22px rgba(0,0,0,.5);
-}
-.wheel-inner { width: 100%; height: 100%; position: absolute; }
-.wheel-num {
-  position: absolute; top: 50%; left: 50%;
-  width: 26px; height: 26px; margin: -13px 0 0 -13px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: .58rem; font-weight: 700; border-radius: 50%;
-}
-.wheel-num-r { background: #b01e1e; color: #fff; }
-.wheel-num-b { background: #1a1a1a; color: #fff; border: 1px solid #333; }
-.wheel-num-g { background: #145c14; color: #fff; }
-
-.wheel-center {
-  position: absolute; top: 50%; left: 50%; z-index: 5;
-  transform: translate(-50%,-50%);
-  width: 44px; height: 44px; background: #8B7536;
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 10px rgba(0,0,0,.5);
-}
-.wheel-center-dot { width: 14px; height: 14px; background: #0a1628; border-radius: 50%; }
-
-.result-display { text-align: center; }
-.result-number {
-  font-size: 2.8rem; font-weight: 800;
-  width: 80px; height: 80px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto .5rem;
-}
-.result-number.red   { background: #b01e1e; color: #fff; }
-.result-number.black { background: #111; color: #fff; border: 2px solid #444; }
-.result-number.green { background: #145c14; color: #fff; }
-.result-info { font-size: .845rem; color: var(--text-dim); }
-
 /* ---- BETTING TABLE ---- */
-
-.betting-area { display: flex; flex-direction: column; gap: 1rem; }
 .betting-table {
   background: #0b3018; border: 2px solid #1a5530;
   border-radius: 12px; padding: 1rem; user-select: none;
@@ -849,21 +803,6 @@ body {
 .outside:hover { background: rgba(255,255,255,.17); }
 .red-bet    { background: #8b1414 !important; }
 .black-bet  { background: #171717 !important; border: 1px solid #3a3a3a !important; }
-
-.bet-summary { font-size: .845rem; color: var(--text-dim); padding: .4rem .2rem; }
-
-.payout-panel { min-height: 40px; }
-.payout-results {
-  background: #0c1e30; border: 1px solid rgba(255,255,255,.07);
-  border-radius: 10px; padding: 1rem 1.25rem; margin-top: .5rem;
-}
-.payout-results h4 { color: var(--gold); margin-bottom: .5rem; font-size: .925rem; }
-.win-item {
-  padding: .3rem 0; font-size: .845rem; color: var(--win);
-  border-bottom: 1px solid rgba(255,255,255,.04);
-}
-.win-item:last-child { border-bottom: none; }
-.no-win { color: var(--text-dim); font-size: .855rem; }
 
 /* ---- BACCARAT: TABLE LAYOUT ---- */
 
@@ -1513,8 +1452,6 @@ body {
 
 @media (max-width: 1060px) {
   .tutorial-layout    { grid-template-columns: 1fr; }
-  .roulette-layout    { grid-template-columns: 1fr; }
-  .wheel-area         { flex-direction: row; flex-wrap: wrap; justify-content: center; }
 }
 @media (max-width: 768px) {
   .sidebar            { width: 160px; }
