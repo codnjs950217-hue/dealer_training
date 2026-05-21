@@ -2423,7 +2423,7 @@ const Sims = {
           el.className = 'rpay-spot';
           el.id = `rpay-spot-${i}`;
           el.style.cssText = `left:${x}px;top:${y}px`;
-          el.innerHTML = `<div class="rpay-spot-chips">${chipHtml}</div><div class="rpay-spot-label">${BET_LABEL[sp.type]||sp.type}</div>`;
+          el.innerHTML = `<div class="rpay-spot-chips">${chipHtml}</div>`;
           tbl.appendChild(el);
         });
 
