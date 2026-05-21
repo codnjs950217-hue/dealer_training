@@ -2387,9 +2387,11 @@ const Sims = {
           if (!el) return null;
           const r = el.getBoundingClientRect();
           return {
-            x: r.left - tRect.left + r.width/2,
-            y: r.top  - tRect.top  + r.height/2,
-            left: r.left - tRect.left,
+            x:      r.left - tRect.left + r.width/2,
+            y:      r.top  - tRect.top  + r.height/2,
+            left:   r.left   - tRect.left,
+            right:  r.right  - tRect.left,
+            top:    r.top    - tRect.top,
             bottom: r.bottom - tRect.top,
           };
         }
@@ -2423,6 +2425,21 @@ const Sims = {
           el.id = `rpay-spot-${i}`;
           el.style.cssText = `left:${x}px;top:${y}px`;
           el.innerHTML = `<div class="rpay-spot-chips">${chipHtml}</div>`;
+
+          // store bbox of bet numbers for zoom
+          const bboxNums = sp.type === 'Straight' ? [N] : sp.nums;
+          const bboxCC = bboxNums.map(n => cc(n)).filter(Boolean);
+          if (bboxCC.length) {
+            const minL = Math.min(...bboxCC.map(c => c.left));
+            const maxR = Math.max(...bboxCC.map(c => c.right));
+            const minT = Math.min(...bboxCC.map(c => c.top));
+            const maxB = Math.max(...bboxCC.map(c => c.bottom));
+            el.dataset.bboxCx = (minL + maxR) / 2;
+            el.dataset.bboxCy = (minT + maxB) / 2;
+            el.dataset.bboxW  = maxR - minL;
+            el.dataset.bboxH  = maxB - minT;
+          }
+
           tbl.appendChild(el);
         });
 
@@ -2454,16 +2471,21 @@ const Sims = {
       const spotEl = document.getElementById(`rpay-spot-${idx}`);
       if (!spotEl) return;
 
-      const x = parseFloat(spotEl.style.left);
-      const y = parseFloat(spotEl.style.top);
+      const cx    = parseFloat(spotEl.dataset.bboxCx ?? spotEl.style.left);
+      const cy    = parseFloat(spotEl.dataset.bboxCy ?? spotEl.style.top);
+      const bboxW = parseFloat(spotEl.dataset.bboxW  ?? '30');
+      const bboxH = parseFloat(spotEl.dataset.bboxH  ?? '30');
+
+      const cw = tableWrap.offsetWidth;
+      const ch = tableWrap.offsetHeight;
+      // fit bbox inside container with 15% padding on each side
+      const scale = Math.min(cw * 0.7 / bboxW, ch * 0.7 / bboxH, 4.5);
+
+      // center the bbox in table-coordinate space
       const tw = tbl.offsetWidth;
       const th = tbl.offsetHeight;
-      const scale = 2.5;
-
-      // scale(s) translate(tx, ty) with origin 0 0 maps (x,y) → ((x+tx)*s, (y+ty)*s)
-      // Solve for tx, ty so the spot appears at the center (tw/2, th/2):
-      const tx = tw / (2 * scale) - x;
-      const ty = th / (2 * scale) - y;
+      const tx = tw / (2 * scale) - cx;
+      const ty = th / (2 * scale) - cy;
 
       tableWrap.classList.add('rpay-zoomed');
       tbl.style.transition = 'transform 0.35s ease';
