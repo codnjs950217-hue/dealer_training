@@ -2316,8 +2316,7 @@ const Sims = {
     ];
     const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
-    function genChips() {
-      const color = COLOR_CHIPS[Math.floor(Math.random() * COLOR_CHIPS.length)];
+    function genChips(color) {
       const stacks = Math.floor(Math.random() * 3);      // 0-2 full stacks of 20
       const loose  = 1 + Math.floor(Math.random() * 19); // 1-19 loose chips
       const count  = stacks * 20 + loose;
@@ -2641,8 +2640,9 @@ const Sims = {
         S.spotIdx = 0;
 
         const allSpots = getValidSpots(N);
+        const roundColor = COLOR_CHIPS[Math.floor(Math.random() * COLOR_CHIPS.length)];
         S.spots = allSpots.map(sp => {
-          const { chips, total } = genChips();
+          const { chips, total } = genChips(roundColor);
           return { ...sp, chips, total };
         });
 
