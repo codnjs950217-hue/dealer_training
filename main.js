@@ -2490,7 +2490,7 @@ const Sims = {
         gridCy = (tR.top - tblRect.top) + gridH / 2;
       }
 
-      const scale = Math.min(ch * 0.88 / gridH, 4.5);
+      const scale = Math.min(ch * 0.68 / gridH, 4.5);
 
       const tx = tw / (2 * scale) - cx;
       const ty = th / (2 * scale) - gridCy;
