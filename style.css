@@ -587,9 +587,14 @@ body {
 }
 
 /* ---- ROULETTE PAYOUT PRACTICE ---- */
+
+/* Hide sidebar and reclaim full viewport when in roulette paysim */
+body.rpay-fullscreen .sidebar      { display: none; }
+body.rpay-fullscreen .main-content { margin-left: 0; }
+
 .rpay-sim.sim-page {
   display: flex; flex-direction: column;
-  height: 100vh; overflow: hidden;
+  height: 100vh; height: 100svh; overflow: hidden;
   padding: .6rem .8rem; box-sizing: border-box;
 }
 .rpay-sim .sim-header { margin-bottom: .5rem; }
@@ -602,7 +607,7 @@ body {
   display: flex; flex-direction: column;
 }
 .rpay-tray-side {
-  width: 132px; flex-shrink: 0;
+  width: 140px; flex-shrink: 0;
   display: flex; flex-direction: column;
 }
 .rpay-sim .rpay-table {
@@ -1528,15 +1533,15 @@ body {
   .rpay-spot-chip { width: 13px; height: 13px; }
   .rpay-spot-count { font-size: .38rem; }
 
-  /* Roulette pay split layout on mobile */
+  /* Roulette pay — sidebar hidden so full viewport is available */
   .rpay-sim.sim-page { padding: .4rem .5rem; }
   .rpay-sim .sim-header { margin-bottom: .3rem; padding-bottom: .4rem; }
   .rpay-sim .sim-header h2 { font-size: 1rem; }
-  .rpay-tray-side { width: 118px; }
-  .rpay-v-disc { width: 24px; height: 24px; }
-  .rpay-v-btn { font-size: .46rem; padding: .14rem .03rem; }
-  .rpay-v-bet-type { font-size: .58rem; }
-  .rpay-v-pay-btn, .rpay-v-reset-btn { font-size: .52rem; padding: .28rem .04rem; }
+  .rpay-tray-side { width: 130px; }
+  .rpay-v-disc { width: 25px; height: 25px; }
+  .rpay-v-btn { font-size: .48rem; padding: .15rem .03rem; }
+  .rpay-v-bet-type { font-size: .6rem; }
+  .rpay-v-pay-btn, .rpay-v-reset-btn { font-size: .54rem; padding: .3rem .04rem; }
 }
 
 /* ============================================================
