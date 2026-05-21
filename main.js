@@ -2567,10 +2567,10 @@ const Sims = {
               <div class="comm-slot">
                 <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.label}</div>
                 <span class="rpay-chip-cnt" id="rpay-cnt-${c.key}">0</span>
-                <div class="comm-5k-btns rpay-btns-col">
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',20)">+20개</button>
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',5)">+5개</button>
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">+1개</button>
+                <div class="comm-5k-btns">
+                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',20)">+20</button>
+                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',5)">+5</button>
+                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">+1</button>
                 </div>
                 <button class="comm-5k-reset" onclick="Sims.roulettePay.resetChip('${c.key}')">RESET</button>
               </div>`).join('')}

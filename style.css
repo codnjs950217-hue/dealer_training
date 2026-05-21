@@ -662,18 +662,16 @@ body {
   text-shadow: 0 1px 2px rgba(0,0,0,.6); min-height: 1em;
 }
 
-/* +20개/+5개/+1개 stack vertically inside each slot */
-.rpay-btns-col { flex-direction: column !important; }
-
 /* Compact slots for roulette tray */
-.rpay-btray .comm-tray { padding: .32rem .35rem; }
-.rpay-btray .comm-slot { padding: .28rem .06rem .24rem; gap: .12rem; }
-.rpay-btray .comm-slot-chip { width: 28px; height: 28px; font-size: .52rem; }
-.rpay-btray .comm-5k-btn { font-size: .48rem; padding: .16rem .03rem; }
-.rpay-btray .comm-5k-reset { font-size: .44rem; padding: .12rem 0; }
+.rpay-btray .comm-tray { padding: .28rem .3rem; }
+.rpay-btray .comm-slot { padding: .25rem .06rem .22rem; gap: .1rem; }
+.rpay-btray .comm-slot-chip { width: 26px; height: 26px; font-size: .48rem; }
+.rpay-btray .comm-5k-btns { gap: .06rem; }
+.rpay-btray .comm-5k-btn { font-size: .44rem; padding: .14rem .02rem; }
+.rpay-btray .comm-5k-reset { font-size: .42rem; padding: .1rem 0; }
 .rpay-btray .comm-pay-slot { gap: .3rem; }
-.rpay-btray .comm-pay-btn { font-size: .6rem; padding: .35rem .5rem; }
-.rpay-btray .comm-all-reset-btn { font-size: .55rem; }
+.rpay-btray .comm-pay-btn { font-size: .58rem; padding: .3rem .45rem; }
+.rpay-btray .comm-all-reset-btn { font-size: .52rem; }
 .rpay-sim .rpay-table.rpay-zoomed {
   overflow: hidden;
 }
