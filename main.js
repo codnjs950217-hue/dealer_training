@@ -2565,14 +2565,13 @@ const Sims = {
           <div class="comm-tray-slots">
             ${allChips.map(c => `
               <div class="comm-slot">
-                <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.label}</div>
-                <span class="rpay-chip-cnt" id="rpay-cnt-${c.key}">0</span>
+                <div class="comm-slot-chip" id="rpay-disc-${c.key}" style="background:${c.bg};color:${c.fg}">${c.label}</div>
                 <div class="comm-5k-btns">
                   <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',20)">+20</button>
                   <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',5)">+5</button>
                   <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">+1</button>
                 </div>
-                <button class="comm-5k-reset" onclick="Sims.roulettePay.resetChip('${c.key}')">RESET</button>
+                <button class="comm-5k-reset" onclick="Sims.roulettePay.resetChip('${c.key}')">R</button>
               </div>`).join('')}
             <div class="comm-pay-slot">
               <button class="comm-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
@@ -2585,14 +2584,20 @@ const Sims = {
     }
 
     function updateTray() {
-      const colorVal = S.roundColor ? S.roundColor.val : 0;
+      const color = S.roundColor;
+      const colorVal = color ? color.val : 0;
       let total = (S.payChips.color || 0) * colorVal;
-      const colorEl = document.getElementById('rpay-cnt-color');
-      if (colorEl) colorEl.textContent = S.payChips.color || 0;
+
+      const cDisc = document.getElementById('rpay-disc-color');
+      if (cDisc) {
+        const n = S.payChips.color || 0;
+        cDisc.textContent = n > 0 ? n : (color ? color.key[0].toUpperCase() : '?');
+      }
       for (const mc of MONEY_CHIPS) {
-        const el = document.getElementById(`rpay-cnt-${mc.key}`);
-        if (el) el.textContent = S.payChips[mc.key] || 0;
-        total += (S.payChips[mc.key] || 0) * mc.val;
+        const cnt = S.payChips[mc.key] || 0;
+        const disc = document.getElementById(`rpay-disc-${mc.key}`);
+        if (disc) disc.textContent = cnt > 0 ? cnt : mc.key;
+        total += cnt * mc.val;
       }
       const totalEl = document.getElementById('rpay-v-entered');
       if (totalEl) totalEl.textContent = total.toLocaleString();
