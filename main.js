@@ -276,10 +276,13 @@ const Views = {
         </div>
       </div>
       <div class="rpay-table">
-        <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
-        <div class="bpay-start-overlay" id="rpay-start-overlay">
-          <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
+        <div class="rpay-bet-side">
+          <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
+          <div class="bpay-start-overlay" id="rpay-start-overlay">
+            <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
+          </div>
         </div>
+        <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
       </div>
       <div class="rpay-tray-row" id="rpay-comm-panel"></div>
     </div>`,
@@ -2470,7 +2473,7 @@ const Sims = {
 
     function zoomToSpot(idx) {
       const tbl = document.getElementById('rpay-full-table');
-      const tableWrap = document.querySelector('.rpay-sim .rpay-table');
+      const tableWrap = document.querySelector('.rpay-bet-side');
       if (!tbl || !tableWrap) return;
 
       if (idx < 0) {
@@ -2600,6 +2603,30 @@ const Sims = {
       }
       const totalEl = document.getElementById('rpay-v-entered');
       if (totalEl) totalEl.textContent = total.toLocaleString();
+      updatePayZone();
+    }
+
+    function updatePayZone() {
+      const zone = document.getElementById('rpay-pay-zone');
+      if (!zone || !S.roundColor) return;
+      const color = S.roundColor;
+      const allChips = [
+        { key: 'color', bg: color.bg, fg: color.fg },
+        ...MONEY_CHIPS
+      ].filter(c => (S.payChips[c.key] || 0) > 0);
+      if (!allChips.length) { zone.innerHTML = ''; return; }
+      zone.innerHTML = allChips.map(c => {
+        const cnt = S.payChips[c.key] || 0;
+        const show = Math.min(cnt, 20);
+        const bc = c.fg === '#fff' ? 'rgba(255,255,255,.4)' : 'rgba(0,0,0,.25)';
+        const discs = Array.from({length: show}, () =>
+          `<div class="rpay-pz-disc" style="background:${c.bg};border-color:${bc}"></div>`
+        ).join('');
+        return `<div class="rpay-pz-row">
+          <div class="rpay-pz-stack">${discs}</div>
+          <span class="rpay-pz-cnt" style="color:${c.bg}">&times;${cnt}</span>
+        </div>`;
+      }).join('');
     }
 
     function showMistake(retry) {
@@ -2618,7 +2645,7 @@ const Sims = {
     return {
       init() {
         S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, roundColor: null,
-              payChips: { color: 0, '5K': 0, '10K': 0, '100K': 0, '1M': 0, '10M': 0 } };
+              payChips: { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 } };
       },
 
       deal() {
