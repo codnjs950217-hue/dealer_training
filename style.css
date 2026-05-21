@@ -587,89 +587,36 @@ body {
 }
 
 /* ---- ROULETTE PAYOUT PRACTICE ---- */
-.rpay-main {
-  display: flex; flex-direction: row;
-  gap: .6rem; align-items: flex-start;
-}
-.rpay-table-side {
-  flex: 1; min-width: 0;
-}
-.rpay-tray-side {
-  width: 132px; flex-shrink: 0;
-}
 .rpay-sim .rpay-table {
   position: relative;
   background: var(--felt);
   border-radius: 12px;
   padding: .8rem .8rem 2.4rem;
   overflow: visible;
-  margin-bottom: .6rem;
+  margin-bottom: .4rem;
 }
-.rpay-v-tray {
-  display: flex; flex-direction: column; gap: .18rem;
-  background: linear-gradient(175deg, #d4a843 0%, #96700e 100%);
-  border: 2px solid #b8881a;
-  border-top-color: #f0cc6a; border-bottom-color: #6b4a00;
-  border-radius: 10px; padding: .38rem .28rem;
-  box-shadow: 0 8px 28px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,235,140,.35), inset 0 -1px 0 rgba(0,0,0,.5);
-  flex: 1; box-sizing: border-box; overflow-y: auto;
+.rpay-tray-row { margin-top: .2rem; }
+
+/* Tray header */
+.rpay-btray-hdr {
+  display: flex; align-items: baseline; gap: .5rem;
+  margin-bottom: .22rem; padding-bottom: .18rem;
+  border-bottom: 1px solid rgba(255,190,50,.2);
 }
-.rpay-v-info {
-  text-align: center; padding-bottom: .22rem;
-  border-bottom: 1px solid rgba(255,190,50,.3); margin-bottom: .08rem;
-}
-.rpay-v-bet-type {
-  display: block; font-size: .62rem; font-weight: 900;
-  color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.7); letter-spacing: .3px;
-}
-.rpay-v-spot-num {
-  display: block; font-size: .5rem; color: rgba(255,255,220,.7); margin-top: .08rem;
-}
-.rpay-v-row {
-  display: flex; flex-direction: row; align-items: center; gap: .18rem;
-}
-.rpay-v-disc {
-  width: 27px; height: 27px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  border: 2px solid rgba(255,255,255,.3);
-  box-shadow: 0 2px 6px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.12);
-  flex-shrink: 0;
-}
-.rpay-v-cnt {
-  font-size: .56rem; font-weight: 700; color: #fff;
-  min-width: 16px; text-align: center; flex-shrink: 0;
-  background: rgba(0,0,0,.28); border-radius: 3px; padding: .04rem .14rem;
-}
-.rpay-v-btns {
-  display: flex; flex-direction: column; gap: .1rem; flex: 1;
-}
-.rpay-v-btn {
-  background: rgba(233,30,140,.18); border: 1px solid rgba(233,30,140,.4);
-  color: rgba(255,255,255,.88); border-radius: 3px; cursor: pointer;
-  font-size: .5rem; font-weight: 700; line-height: 1;
-  padding: .16rem .04rem; text-align: center; width: 100%;
-  transition: background .12s;
-}
-.rpay-v-btn:active { transform: scale(.95); }
-.rpay-v-total {
-  text-align: center; font-size: .52rem; font-weight: 700;
-  color: rgba(255,255,220,.9); border-top: 1px solid rgba(255,190,50,.3);
-  padding-top: .22rem; margin-top: .1rem;
-}
-.rpay-v-total strong { color: #ffd700; font-size: .65rem; }
-.rpay-v-actions { display: flex; gap: .22rem; margin-top: .12rem; }
-.rpay-v-pay-btn {
-  flex: 1; background: rgba(76,175,80,.25); border: 1px solid rgba(76,175,80,.6);
-  color: #fff; border-radius: 5px; cursor: pointer;
-  font-size: .58rem; font-weight: 800; line-height: 1; padding: .32rem .04rem;
-}
-.rpay-v-pay-btn:active { transform: scale(.95); }
-.rpay-v-reset-btn {
-  flex: 1; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2);
-  color: rgba(255,255,255,.65); border-radius: 5px; cursor: pointer;
-  font-size: .5rem; font-weight: 700; line-height: 1; padding: .32rem .04rem;
-}
-.rpay-v-reset-btn:active { transform: scale(.95); }
+.rpay-btray-type { font-size: .68rem; font-weight: 900; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+.rpay-btray-spot { font-size: .56rem; color: rgba(255,255,220,.65); }
+.rpay-btray-total { margin-left: auto; font-size: .56rem; font-weight: 700; color: rgba(255,255,220,.9); }
+.rpay-btray-total strong { color: #ffd700; font-size: .68rem; }
+
+/* Compact horizontal tray */
+.comm-tray.rpay-btray { padding: .2rem .28rem; }
+.rpay-btray .comm-slot { padding: .2rem .06rem .18rem; gap: .09rem; }
+.rpay-btray .comm-slot-chip { width: 28px; height: 28px; font-size: .5rem; }
+.rpay-btray .comm-5k-btns { gap: .05rem; }
+.rpay-btray .comm-5k-btn { font-size: .44rem; padding: .13rem .02rem; }
+.rpay-btray .comm-5k-reset { font-size: .4rem; padding: .09rem 0; }
+.rpay-btray .comm-pay-btn { font-size: .58rem; padding: .26rem .42rem; }
+.rpay-btray .comm-all-reset-btn { font-size: .52rem; }
 .rpay-sim .rpay-table.rpay-zoomed {
   overflow: hidden;
 }
@@ -1520,15 +1467,12 @@ body {
   .rpay-spot-chip { width: 13px; height: 13px; }
   .rpay-spot-count { font-size: .38rem; }
 
-  /* Roulette pay split layout on mobile */
+  /* Roulette pay mobile */
   .rpay-sim.sim-page { padding: .4rem .5rem; }
   .rpay-sim .sim-header { margin-bottom: .3rem; padding-bottom: .4rem; }
   .rpay-sim .sim-header h2 { font-size: 1rem; }
-  .rpay-tray-side { width: 118px; }
-  .rpay-v-disc { width: 24px; height: 24px; }
-  .rpay-v-btn { font-size: .46rem; padding: .14rem .03rem; }
-  .rpay-v-bet-type { font-size: .58rem; }
-  .rpay-v-pay-btn, .rpay-v-reset-btn { font-size: .52rem; padding: .28rem .04rem; }
+  .rpay-btray .comm-slot-chip { width: 24px; height: 24px; font-size: .46rem; }
+  .rpay-btray .comm-5k-btn { font-size: .42rem; padding: .13rem .02rem; }
 }
 
 /* ============================================================
