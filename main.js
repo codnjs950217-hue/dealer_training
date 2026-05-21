@@ -2508,7 +2508,8 @@ const Sims = {
       const scale = Math.min(ch * 0.88 / gridH, 4.5);
 
       const tx = tw / (2 * scale) - cx;
-      const ty = th / (2 * scale) - gridCy;
+      const padTop = parseFloat(getComputedStyle(tableWrap).paddingTop) || 0;
+      const ty = (ch / 2 - padTop) / scale - gridCy;
 
       tableWrap.classList.add('rpay-zoomed');
       tbl.style.transition = 'transform 0.35s ease';
