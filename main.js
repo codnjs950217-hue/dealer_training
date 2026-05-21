@@ -39,7 +39,6 @@ function cardHTML(c, faceDown = false) {
 
 const App = {
   navigate(game, mode) {
-    document.body.classList.remove('rpay-fullscreen');
     document.querySelectorAll('.sidebar-link, .sidebar-sub-link').forEach(el => {
       el.classList.toggle('active',
         el.dataset.game === game && el.dataset.mode === (mode || ''));
@@ -60,7 +59,6 @@ const App = {
     if (mode === 'paysim' && game === 'roulette') {
       el.innerHTML = Views.roulettePaySim();
       Sims.roulettePay && Sims.roulettePay.init();
-      document.body.classList.add('rpay-fullscreen');
     }
 
     if (game === 'poker') {
