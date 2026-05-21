@@ -39,7 +39,6 @@ function cardHTML(c, faceDown = false) {
 
 const App = {
   navigate(game, mode) {
-    document.body.classList.remove('rpay-fullscreen');
     document.querySelectorAll('.sidebar-link, .sidebar-sub-link').forEach(el => {
       el.classList.toggle('active',
         el.dataset.game === game && el.dataset.mode === (mode || ''));
@@ -60,7 +59,6 @@ const App = {
     if (mode === 'paysim' && game === 'roulette') {
       el.innerHTML = Views.roulettePaySim();
       Sims.roulettePay && Sims.roulettePay.init();
-      document.body.classList.add('rpay-fullscreen');
     }
 
     if (game === 'poker') {
@@ -277,17 +275,13 @@ const Views = {
           <span>Score: <strong id="rpay-score">0</strong></span>
         </div>
       </div>
-      <div class="rpay-main">
-        <div class="rpay-table-side">
-          <div class="rpay-table">
-            <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
-            <div class="bpay-start-overlay" id="rpay-start-overlay">
-              <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
-            </div>
-          </div>
+      <div class="rpay-table">
+        <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
+        <div class="bpay-start-overlay" id="rpay-start-overlay">
+          <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
         </div>
-        <div class="rpay-tray-side" id="rpay-comm-panel"></div>
       </div>
+      <div class="bpay-comm-panel" id="rpay-comm-panel"></div>
     </div>`,
 
   baccaratPaySim: () => `
