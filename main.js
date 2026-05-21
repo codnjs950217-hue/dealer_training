@@ -2324,7 +2324,7 @@ const Sims = {
       return { chips: { [color.key]: count }, total: color.val * count };
     }
 
-    const BET_LABEL = { Straight:'Straight', Split:'Split', Corner:'Corner', Street:'Street', SixNum:'Six Number' };
+    const BET_LABEL = { Straight:'Straight', Split:'Split', Corner:'Corner', Street:'Street', SixNum:'Square' };
 
     function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
 
@@ -2641,10 +2641,7 @@ const Sims = {
         S.spotIdx = 0;
 
         const allSpots = getValidSpots(N);
-        const picked = ['Straight', 'Corner']
-          .map(t => allSpots.find(s => s.type === t))
-          .filter(Boolean);
-        S.spots = picked.map(sp => {
+        S.spots = allSpots.map(sp => {
           const { chips, total } = genChips();
           return { ...sp, chips, total };
         });
