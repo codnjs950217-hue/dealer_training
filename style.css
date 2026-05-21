@@ -587,23 +587,15 @@ body {
 }
 
 /* ---- ROULETTE PAYOUT PRACTICE ---- */
-.rpay-sim.sim-page {
-  display: flex; flex-direction: column;
-  height: 100vh; overflow: hidden;
-  padding: .6rem .8rem; box-sizing: border-box;
-}
-.rpay-sim .sim-header { margin-bottom: .5rem; }
 .rpay-main {
   display: flex; flex-direction: row;
-  gap: .4rem; flex: 1; min-height: 0; align-items: stretch;
+  gap: .6rem; align-items: flex-start;
 }
 .rpay-table-side {
   flex: 1; min-width: 0;
-  display: flex; flex-direction: column;
 }
 .rpay-tray-side {
   width: 132px; flex-shrink: 0;
-  display: flex; flex-direction: column;
 }
 .rpay-sim .rpay-table {
   position: relative;
@@ -611,7 +603,7 @@ body {
   border-radius: 12px;
   padding: .8rem .8rem 2.4rem;
   overflow: visible;
-  flex: 1; min-height: 0;
+  margin-bottom: .6rem;
 }
 .rpay-v-tray {
   display: flex; flex-direction: column; gap: .18rem;
