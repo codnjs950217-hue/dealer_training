@@ -2471,21 +2471,29 @@ const Sims = {
       const spotEl = document.getElementById(`rpay-spot-${idx}`);
       if (!spotEl) return;
 
-      const cx    = parseFloat(spotEl.dataset.bboxCx ?? spotEl.style.left);
-      const cy    = parseFloat(spotEl.dataset.bboxCy ?? spotEl.style.top);
-      const bboxW = parseFloat(spotEl.dataset.bboxW  ?? '30');
-      const bboxH = parseFloat(spotEl.dataset.bboxH  ?? '30');
+      const cx = parseFloat(spotEl.dataset.bboxCx ?? spotEl.style.left);
 
-      const cw = tableWrap.offsetWidth;
+      // scale so the 3-row number grid fills ~88% of container height
+      const tblRect = tbl.getBoundingClientRect();
+      const topCell = tbl.querySelector('[data-bet="3"]');
+      const botCell = tbl.querySelector('[data-bet="1"]');
       const ch = tableWrap.offsetHeight;
-      // fit bbox inside container with 15% padding on each side
-      const scale = Math.min(cw * 0.7 / bboxW, ch * 0.7 / bboxH, 4.5);
-
-      // center the bbox in table-coordinate space
       const tw = tbl.offsetWidth;
       const th = tbl.offsetHeight;
+
+      let gridH  = th;
+      let gridCy = th / 2;
+      if (topCell && botCell) {
+        const tR = topCell.getBoundingClientRect();
+        const bR = botCell.getBoundingClientRect();
+        gridH  = bR.bottom - tR.top;
+        gridCy = (tR.top - tblRect.top) + gridH / 2;
+      }
+
+      const scale = Math.min(ch * 0.88 / gridH, 4.5);
+
       const tx = tw / (2 * scale) - cx;
-      const ty = th / (2 * scale) - cy;
+      const ty = th / (2 * scale) - gridCy;
 
       tableWrap.classList.add('rpay-zoomed');
       tbl.style.transition = 'transform 0.35s ease';
