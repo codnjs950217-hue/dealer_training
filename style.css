@@ -776,8 +776,18 @@ body {
 .roulette-grid { border-collapse: collapse; width: 100%; table-layout: fixed; }
 .roulette-grid td { padding: 2px; }
 
+.zero-cell {
+  position: relative;
+  padding: 0 !important;
+}
 .zero-cell div {
-  height: 100%; display: flex; align-items: center; justify-content: center;
+  position: absolute;
+  inset: 2px;
+  display: flex; align-items: center; justify-content: center;
+  clip-path: polygon(100% 0%, 0% 50%, 100% 100%);
+  border-radius: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
 }
 
 .bet-spot {
@@ -795,8 +805,8 @@ body {
 
 .col-bet { background: rgba(255,255,255,.08); color: var(--text); font-size: .7rem; }
 
-.dozens-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 3px; margin-top: 4px; }
-.evens-row  { display: grid; grid-template-columns: repeat(6,1fr); gap: 3px; margin-top: 3px; }
+.dozens-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 3px; margin-top: 4px; margin-left: calc(100% / 14); margin-right: calc(100% / 14); }
+.evens-row  { display: grid; grid-template-columns: repeat(6,1fr); gap: 3px; margin-top: 3px; margin-left: calc(100% / 14); margin-right: calc(100% / 14); }
 .outside    { background: rgba(255,255,255,.09); color: var(--text); }
 .outside:hover { background: rgba(255,255,255,.17); }
 .red-bet    { background: #8b1414 !important; }

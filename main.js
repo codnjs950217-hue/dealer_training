@@ -2975,7 +2975,7 @@ function buildBettingTable() {
       const cls = RED_NUMS.has(n) ? 'red-num' : 'black-num';
       html += `<td><div class="bet-spot ${cls}" data-bet="${n}">${n}</div></td>`;
     });
-    html += `<td><div class="bet-spot col-bet" data-bet="${colBets[ri]}">2:1</div></td>`;
+    html += `<td><div class="bet-spot col-bet" data-bet="${colBets[ri]}">2TO1</div></td>`;
     html += `</tr>`;
   });
   html += `</tbody></table>`;
