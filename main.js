@@ -2551,8 +2551,9 @@ const Sims = {
 
     function fmtTime(sec) {
       const s = Math.floor(sec);
-      if (s < 60) return s + 's';
-      return Math.floor(s / 60) + 'm ' + (s % 60) + 's';
+      const m = Math.floor(s / 60);
+      const ss = s % 60;
+      return String(m).padStart(2,'0') + ':' + String(ss).padStart(2,'0');
     }
 
     function showTray() {
@@ -2703,7 +2704,7 @@ const Sims = {
         this._stopTimer();
         S.timerStart = performance.now();
         const el = $('rpay-timer');
-        if (el) { el.className = 'rpay-timer rpay-timer-running'; el.textContent = '0s'; }
+        if (el) { el.className = 'rpay-timer rpay-timer-running'; el.textContent = '00:00'; }
         S.timerInterval = setInterval(() => {
           const el = $('rpay-timer');
           if (el) el.textContent = fmtTime((performance.now() - S.timerStart) / 1000);
