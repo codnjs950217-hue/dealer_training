@@ -283,13 +283,8 @@ const Views = {
           </div>
         </div>
         <div class="rpay-right-col">
-          <div class="rpay-timer-bar">
-            <div class="rpay-timer" id="rpay-timer">—</div>
-            <input class="rpay-name-input" id="rpay-name-input" placeholder="이름 입력" maxlength="12"
-              oninput="localStorage.setItem('rpay_player_name',this.value)">
-          </div>
+          <div class="rpay-timer" id="rpay-timer">—</div>
           <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
-          <div class="rpay-ranking-panel" id="rpay-ranking-panel"></div>
         </div>
       </div>
       <div class="rpay-tray-row" id="rpay-comm-panel"></div>
@@ -2649,44 +2644,11 @@ const Sims = {
     let S = {};
     const $ = id => document.getElementById(id);
 
-    function loadRanking() {
-      try { return JSON.parse(localStorage.getItem('rpay_ranking') || '[]'); } catch { return []; }
-    }
-    function saveRanking(name, time) {
-      const list = loadRanking();
-      list.push({ name: name || 'Anonymous', time });
-      list.sort((a, b) => a.time - b.time);
-      localStorage.setItem('rpay_ranking', JSON.stringify(list.slice(0, 50)));
-      renderRanking();
-    }
-    function renderRanking() {
-      const panel = $('rpay-ranking-panel');
-      if (!panel) return;
-      const list = loadRanking();
-      const medals = ['🥇','🥈','🥉'];
-      panel.innerHTML = `
-        <div class="rpay-rank-title">🏆 랭킹</div>
-        ${list.length ? `<ol class="rpay-rank-list">${
-          list.slice(0, 10).map((e, i) => `
-            <li class="rpay-rank-item${i < 3 ? ` rpay-rank-top${i+1}` : ''}">
-              <span class="rpay-rank-pos">${medals[i] || i+1}</span>
-              <span class="rpay-rank-name">${e.name}</span>
-              <span class="rpay-rank-time">${e.time.toFixed(1)}s</span>
-            </li>`).join('')
-        }</ol>` : '<div class="rpay-rank-empty">기록 없음</div>'}
-        <button class="rpay-rank-clear" onclick="localStorage.removeItem('rpay_ranking');Sims.roulettePay._renderRanking()">초기화</button>`;
-    }
-
     return {
-      _renderRanking: renderRanking,
-
       init() {
         S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, roundColor: null,
               payChips: { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
               timerStart: null, timerInterval: null };
-        const nameEl = $('rpay-name-input');
-        if (nameEl) nameEl.value = localStorage.getItem('rpay_player_name') || '';
-        renderRanking();
       },
 
       _startTimer() {
@@ -2781,10 +2743,6 @@ const Sims = {
           if (timerEl && elapsed !== null) {
             timerEl.textContent = elapsed.toFixed(1) + 's';
             timerEl.className = 'rpay-timer rpay-timer-done';
-          }
-          if (elapsed !== null) {
-            const name = ($('rpay-name-input')?.value.trim()) || 'Anonymous';
-            saveRanking(name, elapsed);
           }
           S.score++;
           $('rpay-score').textContent = S.score;
