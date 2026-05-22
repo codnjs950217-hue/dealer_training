@@ -636,37 +636,48 @@ body {
   display: flex; flex-direction: column; align-items: center;
   flex-shrink: 0;
   position: relative;
-  margin-left: 6px;
+  filter: drop-shadow(2px 4px 6px rgba(0,0,0,.7));
 }
-.rpay-chip-stack:first-child { margin-left: 0; }
+/* Top face — ellipse with depth shading */
 .rpay-chip-stack-face {
-  width: 38px; height: 14px;
+  width: 38px; height: 13px;
   border-radius: 50%;
   background: var(--stk-bg);
-  border: 2px solid rgba(255,255,255,.38);
-  box-shadow: inset 0 2px 5px rgba(255,255,255,.25), inset 0 -2px 4px rgba(0,0,0,.4);
+  box-shadow:
+    inset 0 3px 6px rgba(255,255,255,.45),
+    inset 0 -2px 5px rgba(0,0,0,.5),
+    0 0 0 1.5px rgba(255,255,255,.5);
+  flex-shrink: 0;
+  position: relative; z-index: 2;
+}
+/* Cylinder body — repeating chip-edge stripes + side shading */
+.rpay-chip-stack-body {
+  width: 38px; height: 57px;
+  flex-shrink: 0;
+  background:
+    linear-gradient(to right,
+      rgba(255,255,255,.18) 0%,
+      rgba(255,255,255,.06) 22%,
+      transparent 42%,
+      rgba(0,0,0,.0) 62%,
+      rgba(0,0,0,.55) 100%),
+    repeating-linear-gradient(
+      to bottom,
+      var(--stk-bg) 0px, var(--stk-bg) 2px,
+      rgba(0,0,0,.6) 2px, rgba(0,0,0,.6) 3px
+    );
+  border-left: 1px solid rgba(255,255,255,.18);
+  border-right: 1px solid rgba(0,0,0,.5);
+}
+/* Bottom ellipse — closes the cylinder */
+.rpay-chip-stack-bottom {
+  width: 38px; height: 7px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.45);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.5);
+  border: 1px solid rgba(0,0,0,.6);
   flex-shrink: 0;
 }
-.rpay-chip-stack-layer {
-  width: 34px; height: 1px;
-  background: var(--stk-bg);
-  border-radius: 0 0 50% 50%;
-  border-left: 1px solid rgba(255,255,255,.2);
-  border-right: 1px solid rgba(255,255,255,.2);
-  border-bottom: 1.5px solid rgba(255,255,255,.28);
-  border-top: 1.5px solid rgba(0,0,0,.5);
-  flex-shrink: 0;
-}
-.rpay-chip-stack-label {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex; flex-direction: column; align-items: center; gap: 1px;
-  z-index: 2; pointer-events: none;
-  text-shadow: 0 1px 3px rgba(0,0,0,.7);
-}
-.rpay-stk-key { font-size: 11px; font-weight: 900; line-height: 1; color: var(--stk-fg); }
-.rpay-stk-cnt { font-size: 10px; font-weight: 900; line-height: 1; color: var(--stk-fg); }
 /* Spread row wrapping stacks + loose discs */
 .rpay-spread-row { display: flex; flex-direction: row; align-items: flex-end; flex-wrap: wrap; gap: 4px; }
 

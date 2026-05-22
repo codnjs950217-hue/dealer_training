@@ -2636,11 +2636,11 @@ const Sims = {
         const maxRow = Math.max(...layout.map(p => p[1]));
         const cw = maxCol * colStep + STK_W;
         const ch = maxRow * rowStep + STK_H;
-        let layers = '';
-        for (let i = 1; i < 20; i++) layers += '<div class="rpay-chip-stack-layer"></div>';
         const stackHtml = layout.slice(0, count).map(([col, row]) =>
           `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*colStep}px;top:${row*rowStep}px;z-index:${row+1}">` +
-          `<div class="rpay-chip-stack-face"></div>${layers}` +
+          `<div class="rpay-chip-stack-face"></div>` +
+          `<div class="rpay-chip-stack-body"></div>` +
+          `<div class="rpay-chip-stack-bottom"></div>` +
           `</div>`
         ).join('');
         const totalLabel = `<span style="font-size:11px;font-weight:900;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9)">${count * 20}</span>`;
