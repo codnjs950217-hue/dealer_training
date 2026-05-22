@@ -687,6 +687,23 @@ body {
   border: 1.5px solid rgba(255,255,255,.65);
   border-top: none;
 }
+.rpay-timer {
+  position: absolute;
+  top: 8px; left: 8px;
+  z-index: 20;
+  background: rgba(0,0,0,.55);
+  color: #ffd700;
+  font-size: 1.1rem; font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 6px;
+  letter-spacing: .03em;
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+.rpay-timer-done {
+  color: #6ec864;
+}
+
 .rpay-spot {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -1435,10 +1452,17 @@ body {
 /* NEXT HAND overlay */
 .next-hand-overlay {
   position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
   pointer-events: none; z-index: 50; border-radius: 18px;
   background: rgba(0,0,0,.55);
   animation: nhFadeIn .25s ease-out forwards;
+}
+.next-hand-time {
+  font-size: clamp(1.1rem, 3vw, 1.8rem);
+  font-weight: 700; color: #ffd700;
+  margin-top: .4rem; letter-spacing: 2px;
+  text-shadow: 0 0 20px #ffd700;
+  animation: nhPop 1.6s ease-out forwards;
 }
 @keyframes nhFadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes nhPop {

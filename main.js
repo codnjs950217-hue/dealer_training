@@ -281,6 +281,7 @@ const Views = {
           <div class="bpay-start-overlay" id="rpay-start-overlay">
             <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
           </div>
+          <div class="rpay-timer" id="rpay-timer" style="display:none">0.0s</div>
         </div>
         <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
       </div>
@@ -2465,6 +2466,7 @@ const Sims = {
           tbl.appendChild(dolly);
         }
 
+        Sims.roulettePay._startTimer();
         highlightSpot(0);
       });
     }
@@ -2643,12 +2645,31 @@ const Sims = {
     return {
       init() {
         S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, roundColor: null,
-              payChips: { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 } };
+              payChips: { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
+              timerStart: null, timerInterval: null };
+      },
+
+      _startTimer() {
+        this._stopTimer();
+        S.timerStart = performance.now();
+        const el = $('rpay-timer');
+        if (el) { el.style.display = ''; el.className = 'rpay-timer'; el.textContent = '0.0s'; }
+        S.timerInterval = setInterval(() => {
+          const el = $('rpay-timer');
+          if (el) el.textContent = ((performance.now() - S.timerStart) / 1000).toFixed(1) + 's';
+        }, 100);
+      },
+
+      _stopTimer() {
+        if (S.timerInterval) { clearInterval(S.timerInterval); S.timerInterval = null; }
       },
 
       deal() {
         const ov = $('rpay-start-overlay');
         if (ov) ov.style.display = 'none';
+        this._stopTimer();
+        const timerEl = $('rpay-timer');
+        if (timerEl) timerEl.style.display = 'none';
         S.rounds++;
         $('rpay-rounds').textContent = S.rounds;
         if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
@@ -2714,6 +2735,13 @@ const Sims = {
         }
         S.spotIdx++;
         if (S.spotIdx >= S.spots.length) {
+          this._stopTimer();
+          const elapsed = S.timerStart ? ((performance.now() - S.timerStart) / 1000).toFixed(1) : null;
+          const timerEl = $('rpay-timer');
+          if (timerEl && elapsed) {
+            timerEl.textContent = elapsed + 's';
+            timerEl.classList.add('rpay-timer-done');
+          }
           S.score++;
           $('rpay-score').textContent = S.score;
           highlightSpot(-1);
@@ -2721,7 +2749,7 @@ const Sims = {
           if (tbl) {
             const ov2 = document.createElement('div');
             ov2.className = 'next-hand-overlay';
-            ov2.innerHTML = '<div class="next-hand-text">NEXT HAND</div>';
+            ov2.innerHTML = `<div class="next-hand-text">NEXT HAND</div>${elapsed ? `<div class="next-hand-time">${elapsed}s</div>` : ''}`;
             tbl.appendChild(ov2);
             setTimeout(() => { ov2.remove(); Sims.roulettePay.deal(); }, 1400);
           }
