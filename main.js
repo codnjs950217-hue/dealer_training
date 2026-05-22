@@ -2510,8 +2510,8 @@ const Sims = {
       }
 
       const spotType = S.spots[idx]?.type;
-      const fillFactor = (spotType === 'Street' || spotType === 'SixNum') ? 0.45 : 0.88;
-      const maxScale  = (spotType === 'Street' || spotType === 'SixNum') ? 2.8 : 4.5;
+      const fillFactor = (spotType === 'Street' || spotType === 'SixNum') ? 0.3 : 0.88;
+      const maxScale  = (spotType === 'Street' || spotType === 'SixNum') ? 2.0 : 4.5;
       const scale = Math.min(ch * fillFactor / gridH, maxScale);
 
       const tx = tw / (2 * scale) - cx;
@@ -2547,6 +2547,12 @@ const Sims = {
       }
 
       zoomToSpot(idx);
+    }
+
+    function fmtTime(sec) {
+      const s = Math.floor(sec);
+      if (s < 60) return s + 's';
+      return Math.floor(s / 60) + 'm ' + (s % 60) + 's';
     }
 
     function showTray() {
@@ -2697,10 +2703,10 @@ const Sims = {
         this._stopTimer();
         S.timerStart = performance.now();
         const el = $('rpay-timer');
-        if (el) { el.className = 'rpay-timer rpay-timer-running'; el.textContent = '0.0s'; }
+        if (el) { el.className = 'rpay-timer rpay-timer-running'; el.textContent = '0s'; }
         S.timerInterval = setInterval(() => {
           const el = $('rpay-timer');
-          if (el) el.textContent = ((performance.now() - S.timerStart) / 1000).toFixed(1) + 's';
+          if (el) el.textContent = fmtTime((performance.now() - S.timerStart) / 1000);
         }, 100);
       },
 
@@ -2769,10 +2775,10 @@ const Sims = {
         S.spotIdx++;
         if (S.spotIdx >= S.spots.length) {
           this._stopTimer();
-          const elapsed = S.timerStart ? parseFloat(((performance.now() - S.timerStart) / 1000).toFixed(1)) : null;
+          const elapsed = S.timerStart ? (performance.now() - S.timerStart) / 1000 : null;
           const timerEl = $('rpay-timer');
           if (timerEl && elapsed !== null) {
-            timerEl.textContent = elapsed.toFixed(1) + 's';
+            timerEl.textContent = fmtTime(elapsed);
             timerEl.className = 'rpay-timer rpay-timer-done';
           }
           S.score++;
