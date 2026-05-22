@@ -2618,42 +2618,35 @@ const Sims = {
       ];
 
       // Stack 2D layout positions [col, row] per stack count (1–4)
-      // row=0 is top, col=0 is left; colStep/rowStep = 20px
       const STACK_LAYOUTS = [
         null,
-        [[0, 0]],                               // 1: single
-        [[0, 1], [1, 0]],                       // 2: diagonal upper-right
-        [[0, 1], [2, 1], [1, 0]],              // 3: triangle (base 2, apex top)
-        [[1, 0], [0, 1], [2, 1], [1, 2]],      // 4: diamond
+        [[0, 0]],                              // 1: single
+        [[0, 1], [1, 0]],                      // 2: diagonal upper-right
+        [[0, 1], [2, 1], [1, 0]],             // 3: triangle (base 2, apex top)
+        [[1, 0], [0, 1], [2, 1], [1, 2]],     // 4: landscape-rotated diamond
       ];
-      const COL_STEP = 20, ROW_STEP = 20, STK_W = 38, STK_H = 33;
+      const STK_W = 38, STK_H = 33;
 
       function makeStackGroup(c, label, count) {
         const layout = STACK_LAYOUTS[Math.min(count, 4)];
+        // 4-stack: wide/flat steps (landscape) = diamond rotated 90°
+        const colStep = count === 4 ? 40 : 20;
+        const rowStep = count === 4 ? 10 : 20;
         const maxCol = Math.max(...layout.map(p => p[0]));
         const maxRow = Math.max(...layout.map(p => p[1]));
-        const cw = maxCol * COL_STEP + STK_W;
-        const ch = maxRow * ROW_STEP + STK_H;
+        const cw = maxCol * colStep + STK_W;
+        const ch = maxRow * rowStep + STK_H;
         let layers = '';
         for (let i = 1; i < 20; i++) layers += '<div class="rpay-chip-stack-layer"></div>';
-        // z-index by row: higher row = more front (closer to viewer)
         const stackHtml = layout.slice(0, count).map(([col, row]) =>
-          `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*COL_STEP}px;top:${row*ROW_STEP}px;z-index:${row+1}">` +
+          `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*colStep}px;top:${row*rowStep}px;z-index:${row+1}">` +
           `<div class="rpay-chip-stack-face"></div>${layers}` +
           `</div>`
         ).join('');
-        // 4 stacks: rotate 90° left (CCW); outer wrapper swaps visual w/h
-        const is4 = count === 4;
-        const innerStyle = is4
-          ? `position:absolute;left:${(ch-cw)/2}px;top:${(cw-ch)/2}px;width:${cw}px;height:${ch}px;transform:rotate(-90deg);transform-origin:center`
-          : `position:relative;width:${cw}px;height:${ch}px;flex-shrink:0`;
-        const outerStyle = is4
-          ? `position:relative;width:${ch}px;height:${cw}px;flex-shrink:0`
-          : ``;
-        const innerDiv = `<div style="${innerStyle}">${stackHtml}</div>`;
-        const stackBox = is4 ? `<div style="${outerStyle}">${innerDiv}</div>` : innerDiv;
         const totalLabel = `<span style="font-size:11px;font-weight:900;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9)">${count * 20}</span>`;
-        return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">${stackBox}${totalLabel}</div>`;
+        return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">` +
+          `<div style="position:relative;width:${cw}px;height:${ch}px;flex-shrink:0">${stackHtml}</div>` +
+          `${totalLabel}</div>`;
       }
 
       const parts = [];
