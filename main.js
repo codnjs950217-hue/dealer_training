@@ -2631,13 +2631,24 @@ const Sims = {
         const ch = maxRow * ROW_STEP + STK_H;
         let layers = '';
         for (let i = 1; i < 20; i++) layers += '<div class="rpay-chip-stack-layer"></div>';
+        // z-index by row: higher row = more front (closer to viewer)
         const stackHtml = layout.slice(0, count).map(([col, row]) =>
-          `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*COL_STEP}px;top:${row*ROW_STEP}px">` +
+          `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*COL_STEP}px;top:${row*ROW_STEP}px;z-index:${row+1}">` +
           `<div class="rpay-chip-stack-face"></div>${layers}` +
-          `<div class="rpay-chip-stack-label"><span class="rpay-stk-key">${label}</span><span class="rpay-stk-cnt">×20</span></div>` +
           `</div>`
         ).join('');
-        return `<div style="position:relative;width:${cw}px;height:${ch}px;flex-shrink:0">${stackHtml}</div>`;
+        // 4 stacks: rotate 90° left (CCW); outer wrapper swaps visual w/h
+        const is4 = count === 4;
+        const innerStyle = is4
+          ? `position:absolute;left:${(ch-cw)/2}px;top:${(cw-ch)/2}px;width:${cw}px;height:${ch}px;transform:rotate(-90deg);transform-origin:center`
+          : `position:relative;width:${cw}px;height:${ch}px;flex-shrink:0`;
+        const outerStyle = is4
+          ? `position:relative;width:${ch}px;height:${cw}px;flex-shrink:0`
+          : ``;
+        const innerDiv = `<div style="${innerStyle}">${stackHtml}</div>`;
+        const stackBox = is4 ? `<div style="${outerStyle}">${innerDiv}</div>` : innerDiv;
+        const totalLabel = `<span style="font-size:11px;font-weight:900;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9)">${count * 20}</span>`;
+        return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">${stackBox}${totalLabel}</div>`;
       }
 
       const parts = [];
