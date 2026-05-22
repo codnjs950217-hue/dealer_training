@@ -695,9 +695,8 @@ body {
   pointer-events: none;
 }
 .rpay-win-cell {
-  outline: 2.5px solid #ffd700 !important;
-  outline-offset: -2px;
-  box-shadow: 0 0 14px rgba(255,215,0,.55) !important;
+  outline: none !important;
+  box-shadow: none !important;
   z-index: 2;
 }
 .rpay-bet-cell {
