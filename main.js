@@ -2645,7 +2645,7 @@ const Sims = {
         const ch = maxRow * rowStep + STK_H;
         const stackHtml = layout.slice(0, count).map(([col, row]) =>
           `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*colStep}px;top:${row*rowStep}px;z-index:${row+1}">` +
-          `<div class="rpay-chip-stack-face"></div>` +
+          `<div class="rpay-chip-stack-face${c.key === 'color' ? ' rpay-color-chip' : ''}"></div>` +
           `<div class="rpay-chip-stack-body"></div>` +
           `<div class="rpay-chip-stack-bottom"></div>` +
           `<span class="rpay-stack-label" style="color:${c.fg}">${label}</span>` +
@@ -2668,7 +2668,7 @@ const Sims = {
         if (loose > 0) {
           let discs = '';
           for (let i = 0; i < loose; i++) {
-            let cls = 'spread-disc';
+            let cls = 'spread-disc' + (c.key === 'color' ? ' rpay-color-chip' : '');
             if (i > 0 && i % 5 === 0) cls += ' spread-gap5';
             discs += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${label}</div>`;
           }
