@@ -690,7 +690,7 @@ body {
 }
 .rpay-right-col {
   display: flex; flex-direction: column; gap: .35rem;
-  width: 160px; flex-shrink: 0;
+  flex: 1; min-width: 0;
   padding: .5rem .4rem;
 }
 .rpay-timer {
