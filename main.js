@@ -2536,7 +2536,7 @@ const Sims = {
         if (spotEl && spotEl.dataset.betNums) {
           spotEl.dataset.betNums.split(',').forEach(n => {
             const cell = tbl.querySelector(`[data-bet="${n}"]`);
-            if (cell) cell.classList.add('rpay-bet-cell');
+            if (cell && !cell.classList.contains('rpay-win-cell')) cell.classList.add('rpay-bet-cell');
           });
         }
       }
