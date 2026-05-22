@@ -2637,8 +2637,8 @@ const Sims = {
       function makeStackGroup(c, label, count) {
         const layout = STACK_LAYOUTS[Math.min(count, 4)];
         // 4-stack: wide/flat steps (landscape) = diamond rotated 90°
-        const colStep = count === 4 ? 40 : 20;
-        const rowStep = count === 4 ? 10 : 20;
+        const colStep = count === 4 ? 40 : count === 3 ? 16 : 20;
+        const rowStep = count === 4 ? 10 : count === 3 ? 14 : 20;
         const maxCol = Math.max(...layout.map(p => p[0]));
         const maxRow = Math.max(...layout.map(p => p[1]));
         const cw = maxCol * colStep + STK_W;
