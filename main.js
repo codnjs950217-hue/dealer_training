@@ -2410,16 +2410,16 @@ const Sims = {
           if (sp.type === 'Straight') {
             const c = cc(N); if (!c) return;
             x = c.x; y = c.y;
-          } else if (sp.type === 'Split' || sp.type === 'Corner' || sp.type === 'SixNum') {
+          } else if (sp.type === 'Split' || sp.type === 'Corner') {
             const cs = sp.nums.map(n => cc(n)).filter(Boolean);
             if (!cs.length) return;
             x = cs.reduce((s,c) => s+c.x, 0)/cs.length;
             y = cs.reduce((s,c) => s+c.y, 0)/cs.length;
-          } else if (sp.type === 'Street') {
+          } else if (sp.type === 'SixNum' || sp.type === 'Street') {
             const cs = sp.nums.map(n => cc(n)).filter(Boolean);
             if (!cs.length) return;
             x = cs.reduce((s,c) => s+c.x, 0)/cs.length;
-            y = Math.max(...cs.map(c => c.bottom)); // outer edge of bottom cell
+            y = Math.min(...cs.map(c => c.top)); // outer edge toward outside bets
           }
           if (x === undefined) return;
 
@@ -2488,8 +2488,8 @@ const Sims = {
 
       // scale so the 3-row number grid fills ~88% of container height
       const tblRect = tbl.getBoundingClientRect();
-      const topCell = tbl.querySelector('[data-bet="3"]');
-      const botCell = tbl.querySelector('[data-bet="1"]');
+      const topCell = tbl.querySelector('[data-bet="34"]');
+      const botCell = tbl.querySelector('[data-bet="36"]');
       const ch = tableWrap.offsetHeight;
       const tw = tbl.offsetWidth;
       const th = tbl.offsetHeight;
@@ -2956,18 +2956,33 @@ const Sims = {
 
 function buildBettingTable() {
   const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
-  // Mirrored layout: 2TO1 on left, numbers right-to-left, 0 on right
-  // Row 0 (top): 36,33,...,6,3
+  // Dealer-side layout: outside bets on top, grid below
+  // 2TO1 on left, numbers right-to-left, 0 on right
+  // Row 0 (top): 34,31,...,4,1
   // Row 1 (mid): 35,32,...,5,2
-  // Row 2 (bot): 34,31,...,4,1
+  // Row 2 (bot): 36,33,...,6,3
   const rows = [
-    Array.from({length:12}, (_,i) => 36 - i*3),  // 36,33,...,3
-    Array.from({length:12}, (_,i) => 35 - i*3),  // 35,32,...,2
     Array.from({length:12}, (_,i) => 34 - i*3),  // 34,31,...,1
+    Array.from({length:12}, (_,i) => 35 - i*3),  // 35,32,...,2
+    Array.from({length:12}, (_,i) => 36 - i*3),  // 36,33,...,3
   ];
-  const colBets = ['col3','col2','col1'];
+  const colBets = ['col1','col2','col3'];
 
-  let html = `<table class="roulette-grid"><tbody>`;
+  let html = `<div class="evens-row">
+    <div class="bet-spot outside" data-bet="high">19-36</div>
+    <div class="bet-spot outside" data-bet="odd">Odd</div>
+    <div class="bet-spot outside black-bet" data-bet="black">●</div>
+    <div class="bet-spot outside red-bet" data-bet="red">●</div>
+    <div class="bet-spot outside" data-bet="even">Even</div>
+    <div class="bet-spot outside" data-bet="low">1-18</div>
+  </div>
+  <div class="dozens-row">
+    <div class="bet-spot outside" data-bet="dozen3">3rd 12</div>
+    <div class="bet-spot outside" data-bet="dozen2">2nd 12</div>
+    <div class="bet-spot outside" data-bet="dozen1">1st 12</div>
+  </div>`;
+
+  html += `<table class="roulette-grid"><tbody>`;
   rows.forEach((row, ri) => {
     html += `<tr>`;
     html += `<td><div class="bet-spot col-bet" data-bet="${colBets[ri]}">2TO1</div></td>`;
@@ -2979,20 +2994,6 @@ function buildBettingTable() {
     html += `</tr>`;
   });
   html += `</tbody></table>`;
-
-  html += `<div class="dozens-row">
-    <div class="bet-spot outside" data-bet="dozen3">3rd 12</div>
-    <div class="bet-spot outside" data-bet="dozen2">2nd 12</div>
-    <div class="bet-spot outside" data-bet="dozen1">1st 12</div>
-  </div>
-  <div class="evens-row">
-    <div class="bet-spot outside" data-bet="high">19-36</div>
-    <div class="bet-spot outside" data-bet="odd">Odd</div>
-    <div class="bet-spot outside black-bet" data-bet="black">●</div>
-    <div class="bet-spot outside red-bet" data-bet="red">●</div>
-    <div class="bet-spot outside" data-bet="even">Even</div>
-    <div class="bet-spot outside" data-bet="low">1-18</div>
-  </div>`;
 
   return html;
 }
