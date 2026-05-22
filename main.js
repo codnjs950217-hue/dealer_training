@@ -2648,6 +2648,7 @@ const Sims = {
           `<div class="rpay-chip-stack-face"></div>` +
           `<div class="rpay-chip-stack-body"></div>` +
           `<div class="rpay-chip-stack-bottom"></div>` +
+          `<span class="rpay-stack-label" style="color:${c.fg}">${label}</span>` +
           `</div>`
         ).join('');
         const totalLabel = `<span style="font-size:11px;font-weight:900;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9)">${count * 20}</span>`;
