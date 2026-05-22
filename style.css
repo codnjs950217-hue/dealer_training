@@ -642,8 +642,9 @@ body {
 .rpay-chip-stack-face {
   width: 38px; height: 14px;
   border-radius: 50%;
-  background: linear-gradient(165deg, color-mix(in srgb, var(--stk-bg) 60%, #fff) 0%, var(--stk-bg) 55%, color-mix(in srgb, var(--stk-bg) 70%, #000) 100%);
+  background: var(--stk-bg);
   border: 2px solid rgba(255,255,255,.38);
+  box-shadow: inset 0 2px 5px rgba(255,255,255,.25), inset 0 -2px 4px rgba(0,0,0,.4);
   flex-shrink: 0;
 }
 .rpay-chip-stack-layer {

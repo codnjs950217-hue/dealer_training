@@ -2612,39 +2612,56 @@ const Sims = {
         ...MONEY_CHIPS
       ];
 
-      function makeStack(c, label) {
+      // Stack 2D layout positions [col, row] per stack count (1–4)
+      // row=0 is top, col=0 is left; colStep/rowStep = 20px
+      const STACK_LAYOUTS = [
+        null,
+        [[0, 0]],                               // 1: single
+        [[0, 1], [1, 0]],                       // 2: diagonal upper-right
+        [[0, 1], [2, 1], [1, 0]],              // 3: triangle (base 2, apex top)
+        [[1, 0], [0, 1], [2, 1], [1, 2]],      // 4: diamond
+      ];
+      const COL_STEP = 20, ROW_STEP = 20, STK_W = 38, STK_H = 33;
+
+      function makeStackGroup(c, label, count) {
+        const layout = STACK_LAYOUTS[Math.min(count, 4)];
+        const maxCol = Math.max(...layout.map(p => p[0]));
+        const maxRow = Math.max(...layout.map(p => p[1]));
+        const cw = maxCol * COL_STEP + STK_W;
+        const ch = maxRow * ROW_STEP + STK_H;
         let layers = '';
         for (let i = 1; i < 20; i++) layers += '<div class="rpay-chip-stack-layer"></div>';
-        return `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">` +
+        const stackHtml = layout.slice(0, count).map(([col, row]) =>
+          `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*COL_STEP}px;top:${row*ROW_STEP}px">` +
           `<div class="rpay-chip-stack-face"></div>${layers}` +
           `<div class="rpay-chip-stack-label"><span class="rpay-stk-key">${label}</span><span class="rpay-stk-cnt">×20</span></div>` +
-          `</div>`;
+          `</div>`
+        ).join('');
+        return `<div style="position:relative;width:${cw}px;height:${ch}px;flex-shrink:0">${stackHtml}</div>`;
       }
 
-      let html = '';
-      let first = true;
+      const parts = [];
       allChipDefs.forEach(c => {
         const cnt = S.payChips[c.key] || 0;
         if (!cnt) return;
         const label = c.key === 'color' ? color.key[0].toUpperCase() : c.key;
-        const stacks = Math.floor(cnt / 20);
-        const loose  = cnt % 20;
-        for (let s = 0; s < stacks; s++) {
-          html += makeStack(c, label);
-        }
-        for (let i = 0; i < loose; i++) {
-          const isFirst = first && i === 0 && stacks === 0;
-          let cls = 'spread-disc';
-          if (!first || !isFirst) {
-            if (i === 0) cls += ' spread-gap';
-            else if (i % 5 === 0) cls += ' spread-gap5';
+        const stackCount = Math.floor(cnt / 20);
+        const loose = cnt % 20;
+        if (stackCount > 0) parts.push(makeStackGroup(c, label, stackCount));
+        if (loose > 0) {
+          let discs = '';
+          for (let i = 0; i < loose; i++) {
+            let cls = 'spread-disc';
+            if (i > 0 && i % 5 === 0) cls += ' spread-gap5';
+            discs += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${label}</div>`;
           }
-          html += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${label}</div>`;
+          parts.push(`<div class="spread-row">${discs}</div>`);
         }
-        if (cnt > 0) first = false;
       });
 
-      zone.innerHTML = html ? `<div class="spread-row" style="align-items:flex-end">${html}</div>` : '';
+      zone.innerHTML = parts.length
+        ? `<div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:center;gap:10px">${parts.join('')}</div>`
+        : '';
     }
 
     function showMistake(retry) {
