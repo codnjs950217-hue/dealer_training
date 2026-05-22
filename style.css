@@ -607,10 +607,11 @@ body {
 }
 .rpay-bet-side.rpay-zoomed { overflow: hidden; }
 .rpay-pay-zone {
-  flex: 1; min-width: 0;
-  padding: .5rem .4rem;
+  min-width: 0;
+  padding: .3rem .2rem;
   display: flex; flex-direction: column; gap: .22rem;
   overflow-y: auto;
+  flex: 1;
 }
 .rpay-pz-row { display: flex; align-items: center; gap: .3rem; }
 .rpay-pz-stack { display: flex; flex-direction: row; flex-wrap: nowrap; }
@@ -687,22 +688,64 @@ body {
   border: 1.5px solid rgba(255,255,255,.65);
   border-top: none;
 }
+.rpay-right-col {
+  display: flex; flex-direction: column; gap: .35rem;
+  width: 180px; flex-shrink: 0;
+  padding: .5rem .4rem;
+}
+.rpay-timer-bar {
+  display: flex; flex-direction: column; align-items: center; gap: .3rem;
+  background: rgba(0,0,0,.3);
+  border-radius: 8px;
+  padding: .45rem .5rem;
+}
 .rpay-timer {
-  position: absolute;
-  top: 8px; left: 8px;
-  z-index: 20;
-  background: rgba(0,0,0,.55);
-  color: #ffd700;
-  font-size: 1.1rem; font-weight: 800;
-  padding: 3px 10px;
-  border-radius: 6px;
-  letter-spacing: .03em;
-  pointer-events: none;
+  font-size: 1.5rem; font-weight: 900;
+  color: rgba(255,255,255,.35);
   font-variant-numeric: tabular-nums;
+  letter-spacing: .02em;
+  line-height: 1;
 }
-.rpay-timer-done {
-  color: #6ec864;
+.rpay-timer-running { color: #ffd700; }
+.rpay-timer-done    { color: #6ec864; }
+.rpay-name-input {
+  width: 100%; background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.15); border-radius: 5px;
+  color: var(--text); font-size: .72rem; padding: .25rem .4rem;
+  outline: none; text-align: center;
 }
+.rpay-name-input::placeholder { color: rgba(255,255,255,.3); }
+.rpay-name-input:focus { border-color: var(--gold); }
+.rpay-rank-title {
+  font-size: .72rem; font-weight: 700; color: var(--gold);
+  text-transform: uppercase; letter-spacing: .06em;
+  padding-bottom: .2rem;
+  border-bottom: 1px solid rgba(255,190,50,.2);
+  margin-bottom: .2rem;
+}
+.rpay-rank-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: .15rem;
+}
+.rpay-rank-item {
+  display: flex; align-items: center; gap: .3rem;
+  font-size: .68rem; padding: .15rem .1rem;
+  border-radius: 4px;
+}
+.rpay-rank-top1 { background: rgba(255,215,0,.12); }
+.rpay-rank-top2 { background: rgba(192,192,192,.1); }
+.rpay-rank-top3 { background: rgba(205,127,50,.1); }
+.rpay-rank-pos  { width: 1.4rem; text-align: center; font-size: .75rem; }
+.rpay-rank-name { flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rpay-rank-time { font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+.rpay-rank-empty { font-size: .68rem; color: var(--text-dim); text-align: center; padding: .4rem 0; }
+.rpay-rank-clear {
+  margin-top: .4rem; width: 100%;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 4px; color: var(--text-dim); font-size: .62rem;
+  padding: .2rem; cursor: pointer;
+}
+.rpay-rank-clear:hover { background: rgba(255,60,60,.15); color: #ff6b6b; border-color: rgba(255,60,60,.3); }
 
 .rpay-spot {
   position: absolute;
