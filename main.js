@@ -2627,17 +2627,18 @@ const Sims = {
       // Stack 2D layout positions [col, row] per stack count (1–4)
       const STACK_LAYOUTS = [
         null,
-        [[0, 0]],                              // 1: single
-        [[0, 1], [1, 0]],                      // 2: diagonal upper-right
-        [[0, 1], [2, 1], [1, 0]],             // 3: triangle (base 2, apex top)
-        [[1, 0], [0, 1], [2, 1], [1, 2]],     // 4: landscape-rotated diamond
+        [[0, 0]],                                        // 1: single
+        [[0, 1], [1, 0]],                                // 2: diagonal
+        [[0, 1], [2, 1], [1, 0]],                       // 3: triangle
+        [[0, 1], [1, 0], [1, 2], [2, 1]],               // 4: horizontal diamond (portrait→90° left)
+        [[0, 0], [2, 0], [4, 0], [1, 1], [3, 1]],      // 5: 3-top, 2-bottom
       ];
       const STK_W = 38, STK_H = 33;
 
       function makeStackGroup(c, label, count) {
-        const layout = STACK_LAYOUTS[Math.min(count, 4)];
-        const colStep = count === 4 ? 22 : 16;
-        const rowStep = count === 4 ? 8 : 14;
+        const layout = STACK_LAYOUTS[Math.min(count, 5)];
+        const colStep = count === 5 ? 10 : count === 4 ? 38 : 16;
+        const rowStep = count === 5 ? 18 : count === 4 ? 10 : 14;
         const maxCol = Math.max(...layout.map(p => p[0]));
         const maxRow = Math.max(...layout.map(p => p[1]));
         const cw = maxCol * colStep + STK_W;
