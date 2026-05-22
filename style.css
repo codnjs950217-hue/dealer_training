@@ -725,35 +725,34 @@ body {
   pointer-events: none;
   filter: drop-shadow(0 2px 5px rgba(0,0,0,.7));
 }
-/* Top dome — transparent glass orb with white outline */
+/* Top dome — transparent glass orb with subtle outline */
 .rpay-dolly::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0; height: 11px;
   border-radius: 50%;
   background: radial-gradient(ellipse at 35% 30%,
-    rgba(255,255,255,.55) 0%,
-    rgba(255,255,255,.12) 40%,
-    rgba(255,255,255,.03) 70%,
-    transparent 100%);
-  border: 1.5px solid rgba(255,255,255,.9);
+    rgba(255,255,255,.25) 0%,
+    rgba(255,255,255,.05) 40%,
+    transparent 70%);
+  border: 1.5px solid rgba(255,255,255,.2);
   box-shadow:
-    inset 0 1px 4px rgba(255,255,255,.4),
-    0 0 6px rgba(255,255,255,.25);
+    inset 0 1px 4px rgba(255,255,255,.15),
+    0 0 6px rgba(255,255,255,.1);
 }
-/* Base cylinder — transparent with white border lines */
+/* Base cylinder — transparent with subtle border lines */
 .rpay-dolly::after {
   content: '';
   position: absolute;
   top: 8px; left: 1px; right: 1px; bottom: 0;
   border-radius: 2px 2px 4px 4px;
   background: linear-gradient(to right,
-    rgba(255,255,255,.18) 0%,
-    rgba(255,255,255,.04) 40%,
-    rgba(0,0,0,.15) 100%);
-  border: 1.5px solid rgba(255,255,255,.8);
+    rgba(255,255,255,.08) 0%,
+    transparent 40%,
+    rgba(0,0,0,.08) 100%);
+  border: 1.5px solid rgba(255,255,255,.2);
   border-top: none;
-  box-shadow: inset 0 -2px 4px rgba(0,0,0,.25);
+  box-shadow: inset 0 -2px 4px rgba(0,0,0,.1);
 }
 .rpay-right-col {
   display: flex; flex-direction: column; gap: .35rem;
