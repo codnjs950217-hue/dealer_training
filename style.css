@@ -612,6 +612,8 @@ body {
   display: flex; flex-direction: column; gap: .22rem;
   overflow-y: auto;
   flex: 1;
+  align-items: center;
+  justify-content: center;
 }
 .rpay-pz-row { display: flex; align-items: center; gap: .3rem; }
 .rpay-pz-stack { display: flex; flex-direction: row; flex-wrap: nowrap; }

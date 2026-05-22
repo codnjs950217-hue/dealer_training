@@ -2556,16 +2556,12 @@ const Sims = {
 
       panel.innerHTML = `
         <div class="comm-tray rpay-btray">
-          <div class="rpay-btray-hdr">
-            <span class="rpay-btray-type">${BET_LABEL[sp.type]||sp.type} (${sp.pays}:1)</span>
-            <span class="rpay-btray-spot">${S.spotIdx+1} / ${S.spots.length}</span>
-            <span class="rpay-btray-total">₩<strong id="rpay-v-entered">0</strong></span>
-          </div>
           <div id="rpay-order-warn" class="bpay-order-warn" style="display:none"><span>저액 칩스부터 세팅하세요</span></div>
           <div class="comm-tray-slots">
             <div class="comm-slot">
               <div class="comm-slot-chip" id="rpay-disc-color" style="background:${color.bg};color:${color.fg}">${colorLabel}</div>
               <div class="comm-5k-btns">
+                <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',20)">+20개</button>
                 <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',5)">+5개</button>
                 <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',1)">+1개</button>
               </div>
@@ -2575,6 +2571,7 @@ const Sims = {
               <div class="comm-slot">
                 <div class="comm-slot-chip" id="rpay-disc-${c.key}" style="background:${c.bg};color:${c.fg}">${c.key}</div>
                 <div class="comm-5k-btns">
+                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',20)">+20개</button>
                   <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',5)">+5개</button>
                   <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">+1개</button>
                 </div>
@@ -2603,8 +2600,6 @@ const Sims = {
         if (disc) disc.textContent = cnt > 0 ? cnt : mc.key;
         total += cnt * mc.val;
       }
-      const totalEl = document.getElementById('rpay-v-entered');
-      if (totalEl) totalEl.textContent = total.toLocaleString();
       updatePayZone();
     }
 
@@ -2612,23 +2607,28 @@ const Sims = {
       const zone = document.getElementById('rpay-pay-zone');
       if (!zone || !S.roundColor) return;
       const color = S.roundColor;
-      const allChips = [
+      const allChipDefs = [
         { key: 'color', bg: color.bg, fg: color.fg },
         ...MONEY_CHIPS
-      ].filter(c => (S.payChips[c.key] || 0) > 0);
-      if (!allChips.length) { zone.innerHTML = ''; return; }
-      zone.innerHTML = allChips.map(c => {
+      ];
+      const items = [];
+      allChipDefs.forEach(c => {
         const cnt = S.payChips[c.key] || 0;
-        const show = Math.min(cnt, 20);
-        const bc = c.fg === '#fff' ? 'rgba(255,255,255,.4)' : 'rgba(0,0,0,.25)';
-        const discs = Array.from({length: show}, () =>
-          `<div class="rpay-pz-disc" style="background:${c.bg};border-color:${bc}"></div>`
-        ).join('');
-        return `<div class="rpay-pz-row">
-          <div class="rpay-pz-stack">${discs}</div>
-          <span class="rpay-pz-cnt" style="color:${c.bg}">&times;${cnt}</span>
-        </div>`;
+        for (let i = 0; i < cnt; i++) {
+          items.push({ c, isNewDenom: i === 0, isGroup5Gap: i > 0 && i % 5 === 0 });
+        }
+      });
+      if (!items.length) { zone.innerHTML = ''; return; }
+      const discs = items.map(({ c, isNewDenom, isGroup5Gap }, idx) => {
+        let cls = 'spread-disc';
+        if (idx > 0) {
+          if (isNewDenom)    cls += ' spread-gap';
+          else if (isGroup5Gap) cls += ' spread-gap5';
+        }
+        const label = c.key === 'color' ? color.key[0].toUpperCase() : c.key;
+        return `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${label}</div>`;
       }).join('');
+      zone.innerHTML = `<div class="spread-row">${discs}</div>`;
     }
 
     function showMistake(retry) {
