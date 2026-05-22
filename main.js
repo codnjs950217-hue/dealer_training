@@ -2397,7 +2397,9 @@ const Sims = {
         function cc(num) {
           const el = tbl.querySelector(`[data-bet="${num}"]`);
           if (!el) return null;
-          const r = el.getBoundingClientRect();
+          // Use td bounds for border-exact intersection positioning
+          const cell = el.closest('td') || el;
+          const r = cell.getBoundingClientRect();
           return {
             x:      r.left - tRect.left + r.width/2,
             y:      r.top  - tRect.top  + r.height/2,
@@ -2507,7 +2509,10 @@ const Sims = {
         gridCy = (tR.top - tblRect.top) + gridH / 2;
       }
 
-      const scale = Math.min(ch * 0.88 / gridH, 4.5);
+      const spotType = S.spots[idx]?.type;
+      const fillFactor = (spotType === 'Street' || spotType === 'SixNum') ? 0.45 : 0.88;
+      const maxScale  = (spotType === 'Street' || spotType === 'SixNum') ? 2.8 : 4.5;
+      const scale = Math.min(ch * fillFactor / gridH, maxScale);
 
       const tx = tw / (2 * scale) - cx;
       const padTop = parseFloat(getComputedStyle(tableWrap).paddingTop) || 0;
