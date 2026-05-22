@@ -2632,23 +2632,19 @@ const Sims = {
         [[0, 1], [2, 1], [1, 0]],             // 3: triangle (base 2, apex top)
         [[1, 0], [0, 1], [2, 1], [1, 2]],     // 4: landscape-rotated diamond
       ];
-      const STK_W = 38, STK_H = 33;
+      const STK_W = 38, STK_H = 70;
 
       function makeStackGroup(c, label, count) {
         const layout = STACK_LAYOUTS[Math.min(count, 4)];
         // 4-stack: wide/flat steps (landscape) = diamond rotated 90°
-        const colStep = count === 4 ? 40 : 20;
-        const rowStep = count === 4 ? 10 : 20;
+        const colStep = count === 4 ? 44 : 22;
+        const rowStep = count === 4 ? 18 : 26;
         const maxCol = Math.max(...layout.map(p => p[0]));
         const maxRow = Math.max(...layout.map(p => p[1]));
         const cw = maxCol * colStep + STK_W;
         const ch = maxRow * rowStep + STK_H;
         const stackHtml = layout.slice(0, count).map(([col, row]) =>
-          `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*colStep}px;top:${row*rowStep}px;z-index:${row+1}">` +
-          `<div class="rpay-chip-stack-face"></div>` +
-          `<div class="rpay-chip-stack-body"></div>` +
-          `<div class="rpay-chip-stack-bottom"></div>` +
-          `</div>`
+          `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*colStep}px;top:${row*rowStep}px;z-index:${row+1}"></div>`
         ).join('');
         const totalLabel = `<span style="font-size:11px;font-weight:900;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9)">${count * 20}</span>`;
         return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">` +
