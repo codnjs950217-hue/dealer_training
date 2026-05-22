@@ -830,35 +830,39 @@ body {
 
 /* ---- BETTING TABLE ---- */
 .betting-table {
-  background: #0b3018; border: 2px solid #1a5530;
-  border-radius: 12px; padding: 1rem; user-select: none;
+  background: #0b3018; border: 2px solid rgba(255,255,255,.28);
+  border-radius: 8px; padding: .5rem; user-select: none;
 }
 
 .roulette-grid { border-collapse: collapse; width: 100%; table-layout: fixed; }
-.roulette-grid td { padding: 2px; }
+.roulette-grid td { padding: 0; border: 1px solid rgba(255,255,255,.28); }
 
 .zero-cell {
   position: relative;
   padding: 0 !important;
+  border: none !important;
 }
 .zero-cell div {
   position: absolute;
-  inset: 2px;
+  inset: 0;
   display: flex; align-items: center; justify-content: center;
   clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%);
-  border-radius: 4px 0 0 4px !important;
+  border-radius: 0 !important;
   min-height: 0 !important;
   padding: 0 !important;
+  outline: 1px solid rgba(255,255,255,.28);
+  outline-offset: -1px;
 }
 
 .bet-spot {
   display: flex; align-items: center; justify-content: center;
-  padding: .38rem .2rem; border-radius: 4px; cursor: pointer;
-  font-size: .78rem; font-weight: 600; transition: all .14s;
-  border: 1px solid transparent; text-align: center; min-height: 30px;
+  padding: .38rem .2rem; border-radius: 0; cursor: pointer;
+  font-size: .78rem; font-weight: 600; transition: opacity .14s;
+  border: none; text-align: center; min-height: 30px;
+  width: 100%; height: 100%;
 }
-.bet-spot:hover { opacity: .8; transform: scale(1.06); }
-.bet-spot.active-bet { outline: 2px solid var(--gold); box-shadow: 0 0 10px rgba(201,168,76,.5); }
+.bet-spot:hover { opacity: .75; }
+.bet-spot.active-bet { outline: 2px solid var(--gold); outline-offset: -2px; box-shadow: 0 0 10px rgba(201,168,76,.5); }
 
 .red-num   { background: #8b1414; color: #fff; }
 .black-num { background: #171717; color: #fff; }
@@ -866,12 +870,12 @@ body {
 
 .col-bet { background: rgba(255,255,255,.08); color: var(--text); font-size: .7rem; }
 
-.dozens-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 3px; margin-bottom: 4px; margin-left: calc(100% / 14); margin-right: calc(100% / 14); }
-.evens-row  { display: grid; grid-template-columns: repeat(6,1fr); gap: 3px; margin-bottom: 3px; margin-left: calc(100% / 14); margin-right: calc(100% / 14); }
-.outside    { background: rgba(255,255,255,.09); color: var(--text); }
-.outside:hover { background: rgba(255,255,255,.17); }
+.dozens-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; margin-bottom: 1px; margin-left: calc(100% / 14); margin-right: calc(100% / 14); }
+.evens-row  { display: grid; grid-template-columns: repeat(6,1fr); gap: 0; margin-bottom: 1px; margin-left: calc(100% / 14); margin-right: calc(100% / 14); }
+.outside    { background: rgba(255,255,255,.09); color: var(--text); box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
+.outside:hover { background: rgba(255,255,255,.18); }
 .red-bet    { background: #8b1414 !important; }
-.black-bet  { background: #171717 !important; border: 1px solid #3a3a3a !important; }
+.black-bet  { background: #171717 !important; }
 
 /* ---- BACCARAT: TABLE LAYOUT ---- */
 
