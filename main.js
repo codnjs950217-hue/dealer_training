@@ -2611,24 +2611,40 @@ const Sims = {
         { key: 'color', bg: color.bg, fg: color.fg },
         ...MONEY_CHIPS
       ];
-      const items = [];
+
+      function makeStack(c, label) {
+        let layers = '';
+        for (let i = 1; i < 20; i++) layers += '<div class="rpay-chip-stack-layer"></div>';
+        return `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">` +
+          `<div class="rpay-chip-stack-face"></div>${layers}` +
+          `<div class="rpay-chip-stack-label"><span class="rpay-stk-key">${label}</span><span class="rpay-stk-cnt">×20</span></div>` +
+          `</div>`;
+      }
+
+      let html = '';
+      let first = true;
       allChipDefs.forEach(c => {
         const cnt = S.payChips[c.key] || 0;
-        for (let i = 0; i < cnt; i++) {
-          items.push({ c, isNewDenom: i === 0, isGroup5Gap: i > 0 && i % 5 === 0 });
-        }
-      });
-      if (!items.length) { zone.innerHTML = ''; return; }
-      const discs = items.map(({ c, isNewDenom, isGroup5Gap }, idx) => {
-        let cls = 'spread-disc';
-        if (idx > 0) {
-          if (isNewDenom)    cls += ' spread-gap';
-          else if (isGroup5Gap) cls += ' spread-gap5';
-        }
+        if (!cnt) return;
         const label = c.key === 'color' ? color.key[0].toUpperCase() : c.key;
-        return `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${label}</div>`;
-      }).join('');
-      zone.innerHTML = `<div class="spread-row">${discs}</div>`;
+        const stacks = Math.floor(cnt / 20);
+        const loose  = cnt % 20;
+        for (let s = 0; s < stacks; s++) {
+          html += makeStack(c, label);
+        }
+        for (let i = 0; i < loose; i++) {
+          const isFirst = first && i === 0 && stacks === 0;
+          let cls = 'spread-disc';
+          if (!first || !isFirst) {
+            if (i === 0) cls += ' spread-gap';
+            else if (i % 5 === 0) cls += ' spread-gap5';
+          }
+          html += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${label}</div>`;
+        }
+        if (cnt > 0) first = false;
+      });
+
+      zone.innerHTML = html ? `<div class="spread-row" style="align-items:flex-end">${html}</div>` : '';
     }
 
     function showMistake(retry) {

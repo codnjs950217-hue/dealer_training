@@ -630,6 +630,45 @@ body {
 }
 .rpay-tray-row { margin-top: .2rem; }
 
+/* Roulette pay zone — chip stack (20개 = 1 full stack) */
+.rpay-chip-stack {
+  width: 38px;
+  display: flex; flex-direction: column; align-items: center;
+  flex-shrink: 0;
+  position: relative;
+  margin-left: 6px;
+}
+.rpay-chip-stack:first-child { margin-left: 0; }
+.rpay-chip-stack-face {
+  width: 38px; height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(165deg, color-mix(in srgb, var(--stk-bg) 60%, #fff) 0%, var(--stk-bg) 55%, color-mix(in srgb, var(--stk-bg) 70%, #000) 100%);
+  border: 2px solid rgba(255,255,255,.38);
+  flex-shrink: 0;
+}
+.rpay-chip-stack-layer {
+  width: 34px; height: 1px;
+  background: var(--stk-bg);
+  border-radius: 0 0 50% 50%;
+  border-left: 1px solid rgba(255,255,255,.2);
+  border-right: 1px solid rgba(255,255,255,.2);
+  border-bottom: 1.5px solid rgba(255,255,255,.28);
+  border-top: 1.5px solid rgba(0,0,0,.5);
+  flex-shrink: 0;
+}
+.rpay-chip-stack-label {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  z-index: 2; pointer-events: none;
+  text-shadow: 0 1px 3px rgba(0,0,0,.7);
+}
+.rpay-stk-key { font-size: 11px; font-weight: 900; line-height: 1; color: var(--stk-fg); }
+.rpay-stk-cnt { font-size: 10px; font-weight: 900; line-height: 1; color: var(--stk-fg); }
+/* Spread row wrapping stacks + loose discs */
+.rpay-spread-row { display: flex; flex-direction: row; align-items: flex-end; flex-wrap: wrap; gap: 4px; }
+
 /* Tray header */
 .rpay-btray-hdr {
   display: flex; align-items: baseline; gap: .5rem;
