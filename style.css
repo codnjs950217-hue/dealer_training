@@ -694,7 +694,8 @@ body {
   position: relative; overflow: visible;
   pointer-events: none;
 }
-.rpay-win-cell {
+.rpay-win-cell,
+.rpay-win-cell.rpay-bet-cell {
   outline: none !important;
   box-shadow: none !important;
   z-index: 2;
