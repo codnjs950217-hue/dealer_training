@@ -2630,15 +2630,15 @@ const Sims = {
         [[0, 0]],                                        // 1: single
         [[0, 1], [1, 0]],                                // 2: diagonal
         [[0, 1], [2, 1], [1, 0]],                       // 3: triangle
-        [[0, 1], [1, 0], [1, 2], [2, 1]],               // 4: horizontal diamond (portrait→90° left)
+        [[0, 1], [1, 0], [1, 2], [2, 1]],               // 4: portrait diamond (90° CCW from landscape)
         [[0, 0], [2, 0], [4, 0], [1, 1], [3, 1]],      // 5: 3-top, 2-bottom
       ];
       const STK_W = 38, STK_H = 33;
 
       function makeStackGroup(c, label, count) {
         const layout = STACK_LAYOUTS[Math.min(count, 5)];
-        const colStep = count === 5 ? 10 : count === 4 ? 38 : 16;
-        const rowStep = count === 5 ? 18 : count === 4 ? 10 : 14;
+        const colStep = count === 5 ? 10 : count === 4 ? 10 : 16;
+        const rowStep = count === 5 ? 18 : count === 4 ? 38 : 14;
         const maxCol = Math.max(...layout.map(p => p[0]));
         const maxRow = Math.max(...layout.map(p => p[1]));
         const cw = maxCol * colStep + STK_W;
