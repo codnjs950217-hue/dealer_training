@@ -2636,8 +2636,8 @@ const Sims = {
 
       function makeStackGroup(c, label, count) {
         const layout = STACK_LAYOUTS[Math.min(count, 4)];
-        const colStep = 16;
-        const rowStep = count === 4 ? 38 : 14;
+        const colStep = count === 4 ? 22 : 16;
+        const rowStep = count === 4 ? 8 : 14;
         const maxCol = Math.max(...layout.map(p => p[0]));
         const maxRow = Math.max(...layout.map(p => p[1]));
         const cw = maxCol * colStep + STK_W;
