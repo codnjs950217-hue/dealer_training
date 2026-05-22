@@ -2328,9 +2328,7 @@ const Sims = {
     const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
     function genChips(color) {
-      const stacks = Math.floor(Math.random() * 3);      // 0-2 full stacks of 20
-      const loose  = 1 + Math.floor(Math.random() * 19); // 1-19 loose chips
-      const count  = stacks * 20 + loose;
+      const count = 1 + Math.floor(Math.random() * 5); // 1-5 chips
       return { chips: { [color.key]: count }, total: color.val * count };
     }
 
@@ -2421,7 +2419,7 @@ const Sims = {
             const cs = sp.nums.map(n => cc(n)).filter(Boolean);
             if (!cs.length) return;
             x = cs.reduce((s,c) => s+c.x, 0)/cs.length;
-            y = cs.reduce((s,c) => s+c.y, 0)/cs.length;
+            y = Math.max(...cs.map(c => c.bottom)); // outer edge of bottom cell
           }
           if (x === undefined) return;
 
