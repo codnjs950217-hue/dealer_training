@@ -2956,42 +2956,42 @@ const Sims = {
 
 function buildBettingTable() {
   const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
-  // Standard layout: 3 rows, col by col
-  // Row 0 (top): 3,6,9,...,36   (n % 3 === 0, col3)
-  // Row 1 (mid): 2,5,8,...,35   (n % 3 === 2, col2)
-  // Row 2 (bot): 1,4,7,...,34   (n % 3 === 1, col1)
+  // Mirrored layout: 2TO1 on left, numbers right-to-left, 0 on right
+  // Row 0 (top): 36,33,...,6,3
+  // Row 1 (mid): 35,32,...,5,2
+  // Row 2 (bot): 34,31,...,4,1
   const rows = [
-    Array.from({length:12}, (_,i) => 3 + i*3),  // 3,6,...,36
-    Array.from({length:12}, (_,i) => 2 + i*3),  // 2,5,...,35
-    Array.from({length:12}, (_,i) => 1 + i*3),  // 1,4,...,34
+    Array.from({length:12}, (_,i) => 36 - i*3),  // 36,33,...,3
+    Array.from({length:12}, (_,i) => 35 - i*3),  // 35,32,...,2
+    Array.from({length:12}, (_,i) => 34 - i*3),  // 34,31,...,1
   ];
   const colBets = ['col3','col2','col1'];
 
   let html = `<table class="roulette-grid"><tbody>`;
   rows.forEach((row, ri) => {
     html += `<tr>`;
-    if (ri === 0) html += `<td rowspan="3" class="zero-cell"><div class="bet-spot green-num" data-bet="0">0</div></td>`;
+    html += `<td><div class="bet-spot col-bet" data-bet="${colBets[ri]}">2TO1</div></td>`;
     row.forEach(n => {
       const cls = RED_NUMS.has(n) ? 'red-num' : 'black-num';
       html += `<td><div class="bet-spot ${cls}" data-bet="${n}">${n}</div></td>`;
     });
-    html += `<td><div class="bet-spot col-bet" data-bet="${colBets[ri]}">2TO1</div></td>`;
+    if (ri === 0) html += `<td rowspan="3" class="zero-cell"><div class="bet-spot green-num" data-bet="0">0</div></td>`;
     html += `</tr>`;
   });
   html += `</tbody></table>`;
 
   html += `<div class="dozens-row">
-    <div class="bet-spot outside" data-bet="dozen1">1st 12</div>
-    <div class="bet-spot outside" data-bet="dozen2">2nd 12</div>
     <div class="bet-spot outside" data-bet="dozen3">3rd 12</div>
+    <div class="bet-spot outside" data-bet="dozen2">2nd 12</div>
+    <div class="bet-spot outside" data-bet="dozen1">1st 12</div>
   </div>
   <div class="evens-row">
-    <div class="bet-spot outside" data-bet="low">1-18</div>
-    <div class="bet-spot outside" data-bet="even">Even</div>
-    <div class="bet-spot outside red-bet" data-bet="red">●</div>
-    <div class="bet-spot outside black-bet" data-bet="black">●</div>
-    <div class="bet-spot outside" data-bet="odd">Odd</div>
     <div class="bet-spot outside" data-bet="high">19-36</div>
+    <div class="bet-spot outside" data-bet="odd">Odd</div>
+    <div class="bet-spot outside black-bet" data-bet="black">●</div>
+    <div class="bet-spot outside red-bet" data-bet="red">●</div>
+    <div class="bet-spot outside" data-bet="even">Even</div>
+    <div class="bet-spot outside" data-bet="low">1-18</div>
   </div>`;
 
   return html;
