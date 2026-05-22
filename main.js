@@ -2695,17 +2695,6 @@ const Sims = {
       },
 
       addChip(key, n) {
-        if (key !== 'color') {
-          const chip = MONEY_CHIPS.find(c => c.key === key);
-          if (chip) {
-            const lowerUnset = MONEY_CHIPS.some(c => c.val < chip.val && (S.payChips[c.key] || 0) === 0);
-            if (lowerUnset) {
-              const warn = document.getElementById('rpay-order-warn');
-              if (warn) { warn.style.display = ''; setTimeout(() => { warn.style.display = 'none'; }, 1800); }
-              return;
-            }
-          }
-        }
         S.payChips[key] = (S.payChips[key] || 0) + n;
         updateTray();
       },
