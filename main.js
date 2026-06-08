@@ -2565,6 +2565,7 @@ const Sims = {
       const color = S.roundColor;
 
       S.payChips = { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
+      S.history = [];
 
       panel.innerHTML = `
         <div class="comm-tray rpay-btray">
@@ -2591,6 +2592,7 @@ const Sims = {
               </div>`).join('')}
             <div class="comm-pay-slot">
               <button class="comm-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
+              <button class="comm-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
               <button class="comm-all-reset-btn" onclick="Sims.roulettePay.resetPay()">ALL RESET</button>
             </div>
           </div>
@@ -2729,6 +2731,7 @@ const Sims = {
       init() {
         S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, roundColor: null,
               payChips: { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
+              history: [],
               timerStart: null, timerInterval: null };
       },
 
@@ -2776,17 +2779,26 @@ const Sims = {
       },
 
       addChip(key, n) {
+        S.history.push({ ...S.payChips });
         S.payChips[key] = (S.payChips[key] || 0) + n;
         updateTray();
       },
 
       resetChip(key) {
+        S.history.push({ ...S.payChips });
         S.payChips[key] = 0;
         updateTray();
       },
 
       resetPay() {
+        S.history.push({ ...S.payChips });
         S.payChips = { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
+        updateTray();
+      },
+
+      undo() {
+        if (!S.history || !S.history.length) return;
+        S.payChips = S.history.pop();
         updateTray();
       },
 
