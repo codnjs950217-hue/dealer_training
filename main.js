@@ -2685,7 +2685,7 @@ const Sims = {
                 `</div>`;
             }
             for (let i = 0; i < spreadCount; i++) {
-              html += `<div class="rpay-cc-disc" style="background:${c.bg};color:${c.fg}">CC</div>`;
+              html += `<div class="rpay-cc-disc" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">CC</div>`;
             }
             html += `</div>`;
             parts.push(html);
