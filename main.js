@@ -2254,7 +2254,7 @@ const Sims = {
           const label = document.createElement('div');
           label.className = 'bside-circ-mult-above';
           label.textContent = `×${mult}`;
-          circ.parentNode.insertBefore(label, circ);
+          circ.appendChild(label);
         }
         document.querySelector('.bside-layout')?.classList.add('bside-quiz-mode');
 

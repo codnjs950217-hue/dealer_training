@@ -1724,12 +1724,16 @@ body {
   line-height: 1;
 }
 .bside-circ-mult-above {
+  position: absolute;
+  bottom: 100%;
+  left: 0; right: 0;
   text-align: center;
   font-size: .8rem; font-weight: 900; letter-spacing: 1px;
   color: #fff;
   text-shadow: 0 1px 4px rgba(0,0,0,.8);
   line-height: 1;
   margin-bottom: 3px;
+  pointer-events: none;
 }
 /* Tiger/Dragon circle wrapper */
 .bpay-circ-wrap {
@@ -1773,6 +1777,7 @@ body {
   text-align: center; line-height: 1.2;
   letter-spacing: .3px;
   border: 2px solid rgba(255,255,255,.25);
+  position: relative;
 }
 .bpay-circ-pay {
   display: block; font-size: .62rem; font-weight: 700;
