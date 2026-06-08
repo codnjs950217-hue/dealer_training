@@ -93,6 +93,25 @@ const GAMES = {
 const Views = {
   home: () => `
     <div class="home-screen">
+      <div class="home-hero">
+        <div class="home-hero-cards">
+          <div class="hcard red" style="transform:rotate(-18deg) translate(-4px,6px)">
+            <div class="hcard-corner">A<br>♥</div>
+            <div class="hcard-center">♥</div>
+          </div>
+          <div class="hcard" style="transform:rotate(5deg) translate(4px,-8px)">
+            <div class="hcard-corner">K<br>♠</div>
+            <div class="hcard-center">♠</div>
+          </div>
+          <div class="hcard red" style="transform:rotate(22deg) translate(14px,4px)">
+            <div class="hcard-corner">Q<br>♦</div>
+            <div class="hcard-center">♦</div>
+          </div>
+        </div>
+        <div class="home-hero-text">
+          <h1 class="home-title">Casino Dealer<br><span class="gold">Training System</span></h1>
+        </div>
+      </div>
       <div class="home-game-cards">
         <div class="home-game-card">
           <div class="home-game-icon">🃏</div>

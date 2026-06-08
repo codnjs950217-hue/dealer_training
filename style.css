@@ -223,37 +223,76 @@ body {
 
 /* ---- HERO ---- */
 
-/* ---- Home screen game cards ---- */
+/* ---- Home screen ---- */
 .home-screen {
-  display: flex; align-items: center; justify-content: center;
-  min-height: 100vh; padding: 1rem 1.5rem 1rem 1.5rem;
+  height: calc(100vh - 42px);
+  display: flex; flex-direction: column;
+  padding: .5rem .8rem .6rem;
+  gap: .5rem;
   background:
-    radial-gradient(ellipse at 25% 55%, rgba(12,51,32,.5) 0%, transparent 65%),
-    radial-gradient(ellipse at 82% 18%, rgba(201,168,76,.06) 0%, transparent 50%);
+    radial-gradient(ellipse at 20% 40%, rgba(12,51,32,.55) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 15%, rgba(201,168,76,.07) 0%, transparent 50%);
+  box-sizing: border-box;
 }
+
+/* Hero: cards + title */
+.home-hero {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1.4rem; flex-shrink: 0; padding: .3rem 0;
+}
+.home-hero-cards {
+  position: relative; width: 72px; height: 68px; flex-shrink: 0;
+}
+.hcard {
+  position: absolute; width: 34px; height: 46px;
+  background: #fff; border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.6);
+  display: flex; flex-direction: column;
+  align-items: flex-start; justify-content: space-between;
+  padding: 2px 3px; box-sizing: border-box; left: 0; top: 0;
+}
+.hcard.red .hcard-corner,
+.hcard.red .hcard-center { color: #e53935; }
+.hcard-corner {
+  font-size: .45rem; font-weight: 900; line-height: 1.1;
+  color: #111; text-align: center;
+}
+.hcard-center {
+  font-size: .9rem; font-weight: 900;
+  color: #111; text-align: center; width: 100%;
+}
+.home-hero-text { text-align: left; }
+.home-title {
+  font-size: clamp(1.2rem, 4vw, 1.8rem);
+  font-weight: 900; line-height: 1.25; margin: 0;
+  color: #fff;
+}
+.home-title .gold { color: var(--gold); }
+
+/* Game cards */
 .home-game-cards {
-  display: flex; gap: 1.2rem; width: 100%; max-width: 900px;
-  align-items: stretch;
+  display: flex; gap: .7rem; flex: 1; min-height: 0;
 }
 .home-game-card {
   flex: 1; background: rgba(255,255,255,.04);
   border: 1px solid rgba(201,168,76,.2);
-  border-radius: 16px; padding: 1.4rem 1rem 1.2rem;
-  display: flex; flex-direction: column; align-items: center; gap: .8rem;
-  cursor: default; transition: border-color .2s, background .2s;
+  border-radius: 14px; padding: .8rem .6rem;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: .55rem;
+  transition: border-color .2s, background .2s;
 }
 .home-game-card:hover { background: rgba(255,255,255,.07); border-color: rgba(201,168,76,.45); }
-.home-game-icon { font-size: 2.4rem; line-height: 1; }
+.home-game-icon { font-size: clamp(1.6rem, 4vw, 2.2rem); line-height: 1; }
 .home-game-name {
-  font-size: 1.1rem; font-weight: 800; color: var(--gold);
+  font-size: clamp(.8rem, 2.2vw, 1rem); font-weight: 800; color: var(--gold);
   letter-spacing: .5px; text-align: center;
 }
-.home-game-btns { display: flex; flex-direction: column; gap: .5rem; width: 100%; }
+.home-game-btns { display: flex; flex-direction: column; gap: .4rem; width: 100%; }
 .home-game-btn {
-  width: 100%; padding: .6rem .5rem;
+  width: 100%; padding: .55rem .4rem;
   background: rgba(201,168,76,.12); border: 1px solid rgba(201,168,76,.28);
   border-radius: 8px; color: rgba(255,255,255,.85);
-  font-size: .78rem; font-weight: 600; cursor: pointer;
+  font-size: clamp(.65rem, 1.8vw, .8rem); font-weight: 600; cursor: pointer;
   transition: background .15s, border-color .15s; text-align: center;
 }
 .home-game-btn:hover { background: rgba(201,168,76,.25); border-color: rgba(201,168,76,.55); color: #fff; }
