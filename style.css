@@ -114,6 +114,16 @@ body {
 }
 .hamburger-btn:hover span { background: #c9a84c; }
 
+.home-btn {
+  background: none; border: none;
+  color: rgba(255,255,255,.75);
+  font-size: clamp(1rem,2.2vw,1.25rem);
+  padding: .2rem .3rem; cursor: pointer;
+  line-height: 1; flex-shrink: 0;
+  transition: color .15s;
+}
+.home-btn:hover { color: var(--gold); }
+
 /* ---- Sidebar overlay ---- */
 #sidebar-overlay {
   display: none; position: fixed; inset: 0; z-index: 150;
@@ -552,18 +562,44 @@ body {
 .sim-page {
   height: calc(100vh - var(--topbar-h));
   display: flex; flex-direction: column; overflow: hidden;
-  padding: clamp(.3rem,.5vh,.5rem) clamp(.5rem,1vw,.8rem);
+  padding: clamp(.15rem,.25vh,.3rem) clamp(.4rem,.8vw,.6rem);
   max-width: 1200px; margin: 0 auto; box-sizing: border-box;
 }
 
-.sim-header {
-  display: flex; align-items: center; gap: .8rem; flex-shrink: 0;
-  margin-bottom: clamp(.25rem,.5vh,.6rem); padding-bottom: clamp(.2rem,.4vh,.45rem);
-  border-bottom: 1px solid rgba(201,168,76,.2);
+.sim-header { display: none; }
+
+.table-refresh-btn {
+  position: absolute;
+  top: clamp(6px,1.2vh,10px); left: clamp(6px,1.2vw,10px);
+  z-index: 10;
+  background: rgba(0,0,0,.28);
+  border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.65);
+  border-radius: 8px;
+  padding: 0 clamp(.35rem,.7vw,.5rem);
+  font-size: clamp(.78rem,1.6vw,.9rem);
+  cursor: pointer;
+  min-height: clamp(28px,4vh,36px); min-width: clamp(28px,4vh,36px);
+  display: flex; align-items: center; justify-content: center;
+  transition: all .18s;
 }
-.sim-header h2 { flex: 1; font-size: clamp(1rem,2vw,1.45rem); color: var(--gold); }
-.sim-stats { display: flex; gap: clamp(.5rem,1.2vw,1rem); font-size: clamp(.72rem,1.5vw,.875rem); color: var(--text-dim); }
-.sim-stats strong { color: var(--gold); }
+.table-refresh-btn:hover {
+  background: rgba(255,255,255,.1);
+  color: #fff; border-color: rgba(255,255,255,.4);
+}
+
+.table-stats-overlay {
+  position: absolute;
+  top: clamp(6px,1.2vh,10px); right: clamp(6px,1.2vw,10px);
+  z-index: 10;
+  font-size: clamp(.6rem,1.3vw,.7rem);
+  color: rgba(255,255,255,.5);
+  display: flex; gap: clamp(.3rem,.6vw,.5rem);
+  background: rgba(0,0,0,.18);
+  padding: clamp(.12rem,.3vh,.18rem) clamp(.25rem,.5vw,.35rem);
+  border-radius: 6px; pointer-events: none;
+}
+.table-stats-overlay strong { color: rgba(255,255,255,.8); }
 
 /* ---- BLACKJACK / BACCARAT TABLE ---- */
 
@@ -1780,7 +1816,7 @@ body {
   .hero               { flex-direction: column; padding: 2rem 1.2rem; text-align: center; }
   .hero-cards         { display: none; }
   .hero-actions       { justify-content: center; }
-  .sim-page           { padding: 1rem 1rem; }
+  .sim-page           { padding: .2rem .5rem; }
   .tutorial-page      { padding: 1.4rem; }
 
   /* Baccarat mobile — clamp() handles all sizing */
@@ -1798,8 +1834,6 @@ body {
 
   /* Roulette pay mobile */
   .rpay-sim.sim-page { padding: .4rem .5rem; }
-  .rpay-sim .sim-header { margin-bottom: .3rem; padding-bottom: .4rem; }
-  .rpay-sim .sim-header h2 { font-size: 1rem; }
 }
 
 /* ============================================================
@@ -2440,6 +2474,7 @@ body {
   gap: 1.2rem;
   max-width: 720px;
   margin: 0 auto;
+  position: relative;
 }
 
 .pk-zone {
@@ -2603,8 +2638,6 @@ body {
    THP COMPARISON SIM
    ============================================================ */
 
-.thpc-sim .sim-header { margin-bottom: .75rem; }
-
 .thpc-mode-row {
   display: flex; gap: .6rem; justify-content: center; margin-bottom: .75rem;
 }
@@ -2642,6 +2675,7 @@ body {
   border: 2px solid rgba(255,255,255,.08); border-radius: 16px;
   padding: 1.4rem 1.5rem; max-width: 960px; margin: 0 auto;
   display: flex; flex-direction: column; gap: 1.1rem;
+  position: relative;
 }
 
 .thpc-community-section { text-align: center; }
@@ -2771,7 +2805,6 @@ body {
 
 /* ---- Side Bet Practice: compact mobile layout ---- */
 .bside-sim .baccarat-table   { padding: .4rem .6rem; overflow: visible; }
-.bside-sim .sim-header       { margin-bottom: .3rem; padding-bottom: .3rem; }
 .bside-sim .bpay-spread-section { min-height: 44px; padding: .3rem .3rem .2rem; }
 .bside-sim .spread-disc             { width: 34px; height: 34px; font-size: .58rem; margin-left: -9px; }
 .bside-sim .spread-disc.spread-gap  { margin-left: 8px; }
@@ -2889,8 +2922,6 @@ body {
 
 @media (max-width: 768px) {
   .bside-sim .baccarat-table  { padding: .3rem .5rem; }
-  .bside-sim .sim-header      { margin-bottom: .25rem; padding-bottom: .25rem; }
-  .bside-sim .sim-header h2   { font-size: 1.1rem; }
   .bside-layout .bpay-oval    { min-height: 32px; max-height: 38px; }
   .bside-layout .bpay-oval-lbl { font-size: .88rem; }
   .bside-pos-pairs            { width: 108px; }

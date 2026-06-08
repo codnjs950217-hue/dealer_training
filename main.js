@@ -38,6 +38,7 @@ function cardHTML(c, faceDown = false) {
 // ---- ROUTER ----
 
 const App = {
+  _game: null, _mode: null,
   closeSidebar() {
     document.querySelector('.sidebar')?.classList.remove('sidebar-open');
     document.getElementById('sidebar-overlay')?.classList.remove('active');
@@ -46,7 +47,9 @@ const App = {
     const open = document.querySelector('.sidebar')?.classList.toggle('sidebar-open');
     document.getElementById('sidebar-overlay')?.classList.toggle('active', open);
   },
+  reload() { this.navigate(this._game, this._mode); },
   navigate(game, mode) {
+    this._game = game; this._mode = mode || null;
     this.closeSidebar();
     document.querySelectorAll('.sidebar-link, .sidebar-sub-link').forEach(el => {
       el.classList.toggle('active',
@@ -152,10 +155,6 @@ const Views = {
       : `<button class="btn btn-secondary" onclick="App.navigate('${game}','simulation')">⚡ Go to Simulation</button>`;
     return `
       <div class="sim-page">
-        <div class="sim-header">
-          <button class="back-btn" onclick="App.navigate('home')">← Home</button>
-          <h2>${g.icon} ${g.name}</h2>
-        </div>
         <p style="color:var(--text-dim);margin-bottom:2rem;max-width:560px">${g.desc}</p>
         <div style="display:flex;gap:1rem;flex-wrap:wrap">
           <button class="btn btn-primary"   onclick="App.navigate('${game}','tutorial')">▶ Start Tutorial</button>
@@ -171,7 +170,6 @@ const Views = {
     return `
       <div class="tutorial-page">
         <div class="tutorial-header">
-          <button class="back-btn" onclick="App.navigate('${game}')">← Back</button>
           <h1>${g.icon} ${g.name} Tutorial</h1>
           <button class="btn btn-primary btn-sm" onclick="App.navigate('${game}','${simMode}')">Simulation →</button>
         </div>
@@ -217,12 +215,12 @@ const Views = {
 
   blackjackSim: () => `
     <div class="sim-page blackjack-sim">
-      <div class="sim-header">
-        <button class="back-btn" onclick="App.navigate('blackjack')">← Back</button>
-        <h2>♠ Card Counting Practice</h2>
-        <div class="sim-stats"><span>Rounds: <strong id="bj-rounds">0</strong></span><span>Score: <strong id="bj-score">0</strong></span></div>
-      </div>
       <div class="blackjack-table">
+        <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
+        <div class="table-stats-overlay">
+          <span>Rounds: <strong id="bj-rounds">0</strong></span>
+          <span>Score: <strong id="bj-score">0</strong></span>
+        </div>
         <div class="bj-start-bar">
           <button class="bj-start-btn" id="bj-start-btn" onclick="Sims.blackjack.newGame()">Start</button>
         </div>
@@ -247,12 +245,12 @@ const Views = {
 
   baccaratSim: () => `
     <div class="sim-page baccarat-sim">
-      <div class="sim-header">
-        <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
-        <h2>🃏 Drawing Practice</h2>
-        <div class="sim-stats"><span>Rounds: <strong id="bac-rounds">0</strong></span><span>Score: <strong id="bac-score">0</strong></span></div>
-      </div>
       <div class="baccarat-table">
+        <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
+        <div class="table-stats-overlay">
+          <span>Rounds: <strong id="bac-rounds">0</strong></span>
+          <span>Score: <strong id="bac-score">0</strong></span>
+        </div>
         <div class="bac-btn-cluster bac-btn-cluster-quiz">
           <div class="bac-shoe-spacer"></div>
           <div class="bac-bclust-side" id="bac-b-btn-top"></div>
@@ -298,15 +296,12 @@ const Views = {
 
   roulettePaySim: () => `
     <div class="sim-page rpay-sim">
-      <div class="sim-header">
-        <button class="back-btn" onclick="App.navigate('roulette')">← Back</button>
-        <h2>🎡 Payout Practice</h2>
-        <div class="sim-stats">
+      <div class="rpay-table">
+        <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
+        <div class="table-stats-overlay">
           <span>Rounds: <strong id="rpay-rounds">0</strong></span>
           <span>Score: <strong id="rpay-score">0</strong></span>
         </div>
-      </div>
-      <div class="rpay-table">
         <div class="rpay-bet-side">
           <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
           <div class="bpay-start-overlay" id="rpay-start-overlay">
@@ -327,18 +322,6 @@ const Views = {
 
   baccaratPaySim: () => `
     <div class="sim-page baccarat-sim">
-      <div class="sim-header">
-        <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
-        <h2>🃏 Payout Practice</h2>
-        <div class="sim-stats" id="bpay-stats-comm">
-          <span>Rounds: <strong id="bpay-rounds">0</strong></span>
-          <span>Score: <strong id="bpay-score">0</strong></span>
-        </div>
-        <div class="sim-stats" id="bpay-stats-side" style="display:none">
-          <span>Rounds: <strong id="bside-rounds">0</strong></span>
-          <span>Score: <strong id="bside-score">0</strong></span>
-        </div>
-      </div>
       <div class="bpay-mode-row">
         <button id="bpay-btn-commission" class="bpay-mode-btn active" onclick="Sims.baccaratPay.setMode('commission')">💰 Commission (5%)</button>
         <button id="bpay-btn-halfpay"    class="bpay-mode-btn"        onclick="Sims.baccaratPay.setMode('halfpay')">½ Half Pay</button>
@@ -346,6 +329,17 @@ const Views = {
       </div>
       <div id="bpay-content">
         <div class="baccarat-table">
+          <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
+          <div class="table-stats-overlay">
+            <div id="bpay-stats-comm" style="display:flex;gap:.4rem">
+              <span>Rounds: <strong id="bpay-rounds">0</strong></span>
+              <span>Score: <strong id="bpay-score">0</strong></span>
+            </div>
+            <div id="bpay-stats-side" style="display:none;gap:.4rem">
+              <span>Rounds: <strong id="bside-rounds">0</strong></span>
+              <span>Score: <strong id="bside-score">0</strong></span>
+            </div>
+          </div>
           <div class="bpay-positions">
             ${[1].map(i => `
               <div class="bpay-pos" id="bpay-pos-${i}">
@@ -401,15 +395,12 @@ const Views = {
 
   baccaratSideSim: () => `
     <div class="sim-page baccarat-sim bside-sim">
-      <div class="sim-header">
-        <button class="back-btn" onclick="App.navigate('baccarat')">← Back</button>
-        <h2>🃏 Side Bet Practice</h2>
-        <div class="sim-stats">
+      <div class="baccarat-table">
+        <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
+        <div class="table-stats-overlay">
           <span>Rounds: <strong id="bside-rounds">0</strong></span>
           <span>Score: <strong id="bside-score">0</strong></span>
         </div>
-      </div>
-      <div class="baccarat-table">
         <div class="bpay-positions bside-layout">
           ${[1].map(i => `
             <div class="bpay-pos bside-pos-wrap" id="bside-pos-${i}">
@@ -449,15 +440,12 @@ const Views = {
 
   ispSim: () => `
     <div class="sim-page poker-sim">
-      <div class="sim-header">
-        <button class="back-btn" onclick="App.navigate('poker')">← Back</button>
-        <h2>🂡 ISP — Inspire Stud Poker</h2>
-        <div class="sim-stats">
+      <div class="poker-table">
+        <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
+        <div class="table-stats-overlay">
           <span>Rounds: <strong id="pk-rounds">0</strong></span>
           <span>Score: <strong id="pk-score">0</strong></span>
         </div>
-      </div>
-      <div class="poker-table">
         <div class="pk-zone pk-player-zone">
           <div class="pk-zone-label pk-label-player">PLAYER</div>
           <div class="pk-hand" id="pk-player-hand"></div>
@@ -480,15 +468,12 @@ const Views = {
 
   tcpSim: () => `
     <div class="sim-page poker-sim">
-      <div class="sim-header">
-        <button class="back-btn" onclick="App.navigate('poker')">← Back</button>
-        <h2>🂡 TCP — Three Card Poker</h2>
-        <div class="sim-stats">
+      <div class="poker-table">
+        <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
+        <div class="table-stats-overlay">
           <span>Rounds: <strong id="pk-rounds">0</strong></span>
           <span>Score: <strong id="pk-score">0</strong></span>
         </div>
-      </div>
-      <div class="poker-table">
         <div class="pk-zone pk-player-zone">
           <div class="pk-zone-label pk-label-player">PLAYER</div>
           <div class="pk-hand" id="pk-player-hand"></div>
@@ -515,15 +500,6 @@ const Views = {
 
   thpSim: () => `
     <div class="sim-page thpc-sim">
-      <div class="sim-header">
-        <button class="back-btn" onclick="App.navigate('poker')">← Back</button>
-        <h2>🂡 THP — 승자 판별 훈련</h2>
-        <div class="sim-stats">
-          <span>라운드: <strong id="thpc-rounds">0</strong></span>
-          <span>정답: <strong id="thpc-score">0</strong></span>
-        </div>
-      </div>
-
       <div class="thpc-mode-row">
         <button id="thpc-btn-random"  class="thpc-mode-btn active" onclick="Sims.poker.thp.setMode('random')">🎲 랜덤</button>
         <button id="thpc-btn-curated" class="thpc-mode-btn"        onclick="Sims.poker.thp.setMode('curated')">📚 집중 연습</button>
@@ -532,6 +508,11 @@ const Views = {
       <div id="thpc-scenario-info"></div>
 
       <div class="thpc-board">
+        <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
+        <div class="table-stats-overlay">
+          <span>라운드: <strong id="thpc-rounds">0</strong></span>
+          <span>정답: <strong id="thpc-score">0</strong></span>
+        </div>
         <div class="thpc-community-section">
           <div class="thpc-section-label">COMMUNITY BOARD</div>
           <div class="thpc-comm-cards" id="thpc-comm-cards"></div>
