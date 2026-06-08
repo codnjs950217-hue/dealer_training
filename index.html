@@ -4,9 +4,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Casino Dealer Training</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0f1117" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Dealer" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+
   <link href="/style.css" rel="stylesheet">
 </head>
 <body>
+
+  <!-- Portrait blocking overlay -->
+  <div id="portrait-block" aria-hidden="true">
+    <div class="portrait-content">
+      <div class="portrait-icon">↻</div>
+      <p class="portrait-title">Landscape Mode Only</p>
+      <p class="portrait-sub">Please rotate your device.<br>Disable screen rotation lock if needed.</p>
+    </div>
+  </div>
+
   <div class="app-shell">
 
     <aside class="sidebar">
@@ -64,6 +84,25 @@
     <main id="app" class="main-content"></main>
 
   </div>
+
   <script src="/main.js"></script>
+  <script>
+    // Service Worker registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+
+    // Portrait blocking
+    const block = document.getElementById('portrait-block');
+    function checkOrientation() {
+      const portrait = window.innerHeight > window.innerWidth;
+      block.style.display = portrait ? 'flex' : 'none';
+    }
+    checkOrientation();
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 100));
+  </script>
 </body>
 </html>

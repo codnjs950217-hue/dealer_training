@@ -2,6 +2,32 @@
    Casino Dealer Training System — Stylesheet
    ============================================================ */
 
+/* ---- Portrait blocking overlay ---- */
+#portrait-block {
+  display: none;
+  position: fixed; inset: 0; z-index: 99999;
+  background: #0f1117;
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 1rem; padding: 2rem; text-align: center;
+}
+.portrait-icon {
+  font-size: 4rem; line-height: 1;
+  animation: rotate-hint 2s ease-in-out infinite;
+  color: #c9a84c;
+}
+@keyframes rotate-hint {
+  0%   { transform: rotate(0deg); }
+  40%  { transform: rotate(90deg); }
+  60%  { transform: rotate(90deg); }
+  100% { transform: rotate(0deg); }
+}
+.portrait-title {
+  font-size: 1.2rem; font-weight: 700; color: #fff; margin: 0;
+}
+.portrait-sub {
+  font-size: .85rem; color: rgba(255,255,255,.5); margin: 0; line-height: 1.6;
+}
+
 :root {
   --bg: #0a1628;
   --felt: #0c3320;
