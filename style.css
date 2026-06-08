@@ -2518,8 +2518,8 @@ body {
 }
 .bside-lose-circ { opacity: 0.28; }
 .bside-paying-circ {
-  box-shadow: 0 0 0 3px #ffd700, 0 0 18px rgba(255,215,0,.6) !important;
-  border-color: #ffd700 !important;
+  box-shadow: 0 0 0 1.5px rgba(255,255,255,.9) !important;
+  border-color: rgba(255,255,255,.9) !important;
   opacity: 1 !important;
 }
 .bside-gray-oval {
