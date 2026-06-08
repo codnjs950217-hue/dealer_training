@@ -2437,7 +2437,7 @@ const Sims = {
 
           const [[key, cnt]] = Object.entries(sp.chips);
           const c = COLOR_CHIPS.find(b => b.key === key);
-          const chipHtml = `<div class="rpay-spot-chip" style="background:${c.bg};border-color:${c.fg==='#fff'?'rgba(255,255,255,.5)':'rgba(0,0,0,.25)'}"><span class="rpay-spot-count" style="color:${c.fg}">${cnt}</span></div>`;
+          const chipHtml = `<div class="rpay-spot-chip" style="background:${c.bg};border-color:${c.fg==='#fff'?'rgba(255,255,255,.5)':'rgba(0,0,0,.25)'}"><span class="rpay-spot-count" style="color:${c.fg}">CC</span></div>`;
 
           const el = document.createElement('div');
           el.className = 'rpay-spot';
