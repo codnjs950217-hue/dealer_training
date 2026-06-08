@@ -326,6 +326,7 @@ const Views = {
       </div>
       <div id="bside-content" class="bside-sim" style="display:none">
         <div class="baccarat-table">
+          <div class="bside-mult-top" id="bside-mult-top"></div>
           <div class="bpay-positions bside-layout">
             ${[1].map(i => `
               <div class="bpay-pos bside-pos-wrap" id="bside-pos-${i}">
@@ -350,8 +351,8 @@ const Views = {
                   </div>
                 </div>
                 <div class="bside-pos-pairs">
-                  <div class="bpay-pair-circ bpay-ppair" id="bside-pp-${i}">P<br>PAIR<div class="bpay-circ-bet" id="bside-pp-amt-${i}"></div></div>
-                  <div class="bpay-pair-circ bpay-bpair" id="bside-bp-${i}">B<br>PAIR<div class="bpay-circ-bet" id="bside-bp-amt-${i}"></div></div>
+                  <div class="bpay-pair-circ bpay-ppair" id="bside-pp-${i}">P<br>PAIR<span class="bside-pair-pay">×11</span><div class="bpay-circ-bet" id="bside-pp-amt-${i}"></div></div>
+                  <div class="bpay-pair-circ bpay-bpair" id="bside-bp-${i}">B<br>PAIR<span class="bside-pair-pay">×11</span><div class="bpay-circ-bet" id="bside-bp-amt-${i}"></div></div>
                 </div>
               </div>`).join('')}
           </div>
@@ -2139,6 +2140,8 @@ const Sims = {
 
     function clearHighlights() {
       document.querySelector('.bside-layout')?.classList.remove('bside-quiz-mode');
+      const multTop = $('bside-mult-top');
+      if (multTop) multTop.textContent = '';
       for (let i = 1; i <= 1; i++) {
         SIDE_KEYS.forEach(k => {
           const c = $(`bside-${k}-${i}`);
@@ -2250,6 +2253,9 @@ const Sims = {
         const circ = $(`bside-${key}-1`);
         if (circ) circ.classList.add('bside-paying-circ');
         document.querySelector('.bside-layout')?.classList.add('bside-quiz-mode');
+
+        const multTop = $('bside-mult-top');
+        if (multTop) multTop.textContent = `×${mult}`;
 
         showPayTray();
       },

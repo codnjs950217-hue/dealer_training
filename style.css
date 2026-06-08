@@ -1714,6 +1714,22 @@ body {
   font-size: .78rem; font-weight: 800;
   text-align: center; line-height: 1.25; letter-spacing: .4px;
   border: 2px solid rgba(255,255,255,.25);
+  position: relative;
+}
+.bside-pair-pay {
+  position: absolute; bottom: 4px; right: 6px;
+  font-size: .5rem; font-weight: 900;
+  color: rgba(255,255,255,.6);
+  letter-spacing: .3px;
+  line-height: 1;
+}
+.bside-mult-top {
+  text-align: center;
+  font-size: 1.5rem; font-weight: 900; letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 0 12px rgba(255,255,255,.5), 0 1px 4px rgba(0,0,0,.8);
+  padding: .4rem 0 .1rem;
+  min-height: 2.2rem;
 }
 /* Tiger/Dragon circle wrapper */
 .bpay-circ-wrap {
