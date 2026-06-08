@@ -1170,11 +1170,11 @@ body {
 }
 
 .bac-inline-btn {
-  padding: .5rem .85rem;
-  font-size: .82rem; white-space: nowrap; text-align: center;
+  padding: clamp(.22rem,.6vh,.5rem) clamp(.4rem,1vw,.85rem);
+  font-size: clamp(.65rem,1.9vh,.82rem); white-space: nowrap; text-align: center;
 }
 .bac-act-mid .bac-inline-btn {
-  width: 100%; padding: .5rem .15rem; font-size: .75rem;
+  width: 100%; padding: clamp(.22rem,.6vh,.5rem) .15rem; font-size: clamp(.6rem,1.7vh,.75rem);
 }
 
 /* ---- BACCARAT: NEW FIELD LAYOUT ---- */
@@ -2307,7 +2307,7 @@ body {
 
 /* ---- BACCARAT: SPECIAL-OUTCOME QUIZ BUTTONS ---- */
 .bac-special-col {
-  display: flex; flex-direction: column; gap: .3rem; align-items: stretch;
+  display: flex; flex-direction: column; gap: clamp(.12rem,.35vh,.3rem); align-items: stretch;
 }
 .bac-special-col-mid {
   align-items: center;
@@ -2321,8 +2321,8 @@ body {
   flex: 1;
 }
 .btn-bac-special {
-  font-size: .75rem !important;
-  padding: .38rem .5rem !important;
+  font-size: clamp(.58rem,1.6vh,.75rem) !important;
+  padding: clamp(.18rem,.5vh,.38rem) clamp(.25rem,.7vw,.5rem) !important;
 }
 .bac-pair-btn {
   font-size: .68rem !important;
