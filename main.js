@@ -2686,7 +2686,7 @@ const Sims = {
       });
 
       zone.innerHTML = parts.length
-        ? `<div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:center;gap:10px">${parts.join('')}</div>`
+        ? `<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px">${parts.join('')}</div>`
         : '';
     }
 
