@@ -662,8 +662,8 @@ body {
       rgba(0,0,0,.55)       100%),
     repeating-linear-gradient(
       to bottom,
-      var(--stk-bg) 0px, var(--stk-bg) 3px,
-      rgba(0,0,0,.75) 3px,  rgba(0,0,0,.75) 6px
+      var(--stk-bg) 0px, var(--stk-bg) 2px,
+      rgba(0,0,0,.75) 2px,  rgba(0,0,0,.75) 4px
     );
   border-left:  1px solid rgba(255,255,255,.18);
   border-right: 1px solid rgba(0,0,0,.5);
@@ -1805,9 +1805,31 @@ body {
 .bpay-chip-spread .bpay-chip-disc.new-denom { margin-left: 8px; }
 .bpay-chip-spread .bpay-chip-stack + .bpay-stack-spread-disc { margin-left: -12px; }
 .bpay-chip-spread .bpay-stack-spread-disc + .bpay-stack-spread-disc { margin-left: -12px; }
-.bpay-chip-stack-half { height: 38px; justify-content: flex-end; }
-.bpay-chip-stack-half .bpay-chip-stack-layer { height: 6px; }
-.bpay-chip-stack-full .bpay-chip-stack-layer { border-top-width: .8px; border-bottom-width: .8px; }
+.bpay-chip-stack-body {
+  width: 38px; height: 57px;
+  flex-shrink: 0;
+  background:
+    linear-gradient(to right,
+      rgba(255,255,255,.2)  0%,
+      rgba(255,255,255,.07) 22%,
+      transparent           42%,
+      rgba(0,0,0,.0)        62%,
+      rgba(0,0,0,.55)       100%),
+    repeating-linear-gradient(
+      to bottom,
+      #2e7d32 0px, #2e7d32 2px,
+      rgba(0,0,0,.75) 2px, rgba(0,0,0,.75) 4px
+    );
+  border-left:  1px solid rgba(255,255,255,.18);
+  border-right: 1px solid rgba(0,0,0,.5);
+}
+.bpay-chip-stack-bottom {
+  width: 38px; height: 8px;
+  border-radius: 50%;
+  background: #1a5220;
+  flex-shrink: 0;
+  margin-top: -4px;
+}
 /* 10K chip stack — same width as disc, face + layer elements stacked downward */
 .bpay-chip-stack {
   width: 38px;          /* matches bpay-chip-disc width */
@@ -1826,6 +1848,8 @@ body {
   color: #fff;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
   flex-shrink: 0;
+  position: relative; z-index: 2;
+  margin-bottom: -7px;
 }
 /* Each subsequent chip edge */
 .bpay-chip-stack-layer {
