@@ -61,6 +61,8 @@
 
 * { margin:0; padding:0; box-sizing:border-box; }
 
+html, body { overflow-x: hidden; }
+
 body {
   font-family: 'Segoe UI', system-ui, sans-serif;
   background: var(--bg);
@@ -1749,8 +1751,8 @@ body {
   .tutorial-layout    { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
-  .sidebar            { width: 160px; }
-  .main-content       { margin-left: 160px; }
+  .sidebar            { width: 200px; } /* still full-width overlay, not persistent */
+  .main-content       { margin-left: 0; }
   .hero               { flex-direction: column; padding: 2rem 1.2rem; text-align: center; }
   .hero-cards         { display: none; }
   .hero-actions       { justify-content: center; }
