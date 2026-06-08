@@ -64,6 +64,15 @@
   --card-w-lg: clamp(44px, 12vh,  78px);
   --card-h-lg: clamp(62px, 17vh,  110px);
   --card-cascade: clamp(7px, 2vh, 10px);
+
+  /* Top bar — single source of truth for the 42px chrome height */
+  --topbar-h: 42px;
+
+  /* Pair / circle chip (bpay-pair-circ, bpay-circ) */
+  --ch-circ: clamp(42px, 6.5vw, 62px);
+
+  /* Pay-chip button (circle chip buttons in pay panel) */
+  --ch-pay: clamp(36px, 5.2vw, 48px);
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -221,7 +230,7 @@ body {
 
 .main-content {
   margin-left: 0; flex: 1; min-height: 100vh;
-  padding-top: 42px;
+  padding-top: var(--topbar-h);
 }
 
 /* ---- BUTTONS ---- */
@@ -252,7 +261,7 @@ body {
 
 /* ---- Home screen ---- */
 .home-screen {
-  height: calc(100vh - 42px);
+  height: calc(100vh - var(--topbar-h));
   display: flex; flex-direction: column;
   align-items: stretch; justify-content: center;
   padding: .4rem .8rem .5rem;
@@ -453,8 +462,9 @@ body {
 
 .back-btn {
   background: none; border: 1px solid rgba(255,255,255,.18);
-  color: var(--text-dim); padding: .4rem .9rem;
-  border-radius: var(--r); cursor: pointer; font-size: .85rem;
+  color: var(--text-dim); padding: clamp(.25rem,.6vh,.4rem) clamp(.55rem,1.2vw,.9rem);
+  border-radius: var(--r); cursor: pointer;
+  font-size: clamp(.72rem,1.6vw,.85rem); min-height: var(--tap-h);
   transition: all .2s;
 }
 .back-btn:hover { border-color: var(--gold); color: var(--gold); }
@@ -540,7 +550,7 @@ body {
 /* ---- SIMULATION PAGES ---- */
 
 .sim-page {
-  height: calc(100vh - 42px);
+  height: calc(100vh - var(--topbar-h));
   display: flex; flex-direction: column; overflow: hidden;
   padding: clamp(.3rem,.5vh,.5rem) clamp(.5rem,1vw,.8rem);
   max-width: 1200px; margin: 0 auto; box-sizing: border-box;
@@ -552,7 +562,7 @@ body {
   border-bottom: 1px solid rgba(201,168,76,.2);
 }
 .sim-header h2 { flex: 1; font-size: clamp(1rem,2vw,1.45rem); color: var(--gold); }
-.sim-stats { display: flex; gap: 1rem; font-size: clamp(.72rem,1.5vw,.875rem); color: var(--text-dim); }
+.sim-stats { display: flex; gap: clamp(.5rem,1.2vw,1rem); font-size: clamp(.72rem,1.5vw,.875rem); color: var(--text-dim); }
 .sim-stats strong { color: var(--gold); }
 
 /* ---- BLACKJACK / BACCARAT TABLE ---- */
@@ -751,7 +761,7 @@ body {
   font-size: clamp(.8rem,1.7vw,.975rem); color: var(--text);
   margin-bottom: clamp(.2rem,.4vh,.5rem); min-height: 20px; font-weight: 500;
 }
-.action-buttons { display: flex; gap: .7rem; flex-wrap: wrap; }
+.action-buttons { display: flex; gap: clamp(.4rem,.8vw,.7rem); flex-wrap: wrap; }
 
 .hint-panel { min-height: 40px; }
 .hint-content {
@@ -792,7 +802,7 @@ body {
 .rpay-pz-row { display: flex; align-items: center; gap: .3rem; }
 .rpay-pz-stack { display: flex; flex-direction: row; flex-wrap: nowrap; }
 .rpay-pz-disc {
-  width: 22px; height: 22px; border-radius: 50%;
+  width: clamp(16px,2.5vw,22px); height: clamp(16px,2.5vw,22px); border-radius: 50%;
   border: 1.5px solid;
   box-shadow: 2px 0 4px rgba(0,0,0,.6);
   margin-left: -7px; flex-shrink: 0;
@@ -843,7 +853,7 @@ body {
   border-right: 1px solid rgba(0,0,0,.5);
 }
 /* 5-chip mini-stack in spread context */
-.rpay-mini-stack .rpay-chip-stack-body { height: 31px; }
+.rpay-mini-stack .rpay-chip-stack-body { height: clamp(22px,3.5vw,31px); }
 .rpay-cc-spread .rpay-mini-stack { z-index: 2; width: var(--ch-sm); }
 .rpay-cc-spread .rpay-mini-stack .rpay-chip-stack-face { width: var(--ch-sm); height: calc(var(--ch-sm) * .4); margin-bottom: calc(var(--ch-sm) * -.2); }
 .rpay-cc-spread .rpay-mini-stack .rpay-chip-stack-body { width: var(--ch-sm); height: calc(var(--ch-sm) * .78); }
@@ -876,9 +886,9 @@ body {
 .rpay-stack-label {
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 14px;
+  height: clamp(10px,1.5vw,14px);
   display: flex; align-items: center; justify-content: center;
-  font-size: 8px; font-weight: 900; line-height: 1;
+  font-size: clamp(6px,.9vw,8px); font-weight: 900; line-height: 1;
   z-index: 3;
   pointer-events: none;
   text-shadow: 0 1px 2px rgba(0,0,0,.6);
@@ -963,7 +973,7 @@ body {
   padding: clamp(.3rem,.6vh,.45rem) clamp(.3rem,.5vw,.4rem);
 }
 .rpay-timer {
-  font-size: 1.6rem; font-weight: 900;
+  font-size: clamp(1.1rem,2.8vw,1.6rem); font-weight: 900;
   color: rgba(255,255,255,.3);
   font-variant-numeric: tabular-nums;
   letter-spacing: .02em;
@@ -1161,7 +1171,7 @@ body {
 
 .bac-center-col {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  width: 72px; flex-shrink: 0; gap: .5rem;
+  width: clamp(44px,7vw,72px); flex-shrink: 0; gap: clamp(.3rem,.5vh,.5rem);
 }
 
 .bac-hand-wrap {
@@ -1183,11 +1193,11 @@ body {
   display: flex; align-items: center; gap: .45rem; padding: .32rem 0;
 }
 .bac-act-side {
-  flex: 1; display: flex; justify-content: center; align-items: center; min-height: 40px;
+  flex: 1; display: flex; justify-content: center; align-items: center; min-height: clamp(28px,5vh,40px);
 }
 .bac-act-mid {
-  width: 80px; flex-shrink: 0;
-  display: flex; justify-content: center; align-items: center; min-height: 40px;
+  width: clamp(54px,8vw,80px); flex-shrink: 0;
+  display: flex; justify-content: center; align-items: center; min-height: clamp(28px,5vh,40px);
 }
 
 .bac-field {
@@ -1232,8 +1242,8 @@ body {
 .bac-newgame-btn {
   background: rgba(255,255,255,.08); color: rgba(255,255,255,.55);
   border: 1px solid rgba(255,255,255,.18);
-  border-radius: 20px; padding: .3rem 1.3rem;
-  font-size: .75rem; font-weight: 700; letter-spacing: 1.5px;
+  border-radius: 20px; padding: clamp(.2rem,.5vh,.3rem) clamp(.7rem,1.5vw,1.3rem);
+  font-size: clamp(.65rem,1.5vw,.75rem); font-weight: 700; letter-spacing: 1.5px;
   text-transform: uppercase; cursor: pointer; transition: all .2s;
 }
 .bac-newgame-btn:hover { background: rgba(255,255,255,.14); color: #fff; border-color: rgba(255,255,255,.35); }
@@ -1247,7 +1257,7 @@ body {
   gap: .3rem; flex-wrap: wrap; min-height: clamp(26px,5vh,40px);
 }
 .bac-bclust-mid {
-  width: 80px; flex-shrink: 0;
+  width: clamp(54px,8vw,80px); flex-shrink: 0;
   display: flex; justify-content: center; align-items: center;
   min-height: clamp(26px,5vh,40px); overflow: visible; position: relative;
 }
@@ -1432,7 +1442,7 @@ body {
   min-height: 20px;
 }
 .chip-stack-mini {
-  width: 24px; height: 24px; border-radius: 50%;
+  width: clamp(18px,2.8vw,24px); height: clamp(18px,2.8vw,24px); border-radius: 50%;
   background: var(--chip-color, #888);
   border: 2px solid rgba(255,255,255,.3);
   font-size: .45rem; font-weight: 700; color: #fff;
@@ -1536,13 +1546,13 @@ body {
 .pay-calc-heading { font-size: .82rem; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: .7rem; }
 
 .pay-calc-row {
-  display: grid; grid-template-columns: 48px 1fr 5rem;
-  align-items: center; gap: .6rem; margin-bottom: .5rem;
+  display: grid; grid-template-columns: var(--ch-pay) 1fr clamp(4rem,8vw,5.5rem);
+  align-items: center; gap: clamp(.4rem,.8vw,.6rem); margin-bottom: clamp(.3rem,.6vh,.5rem);
 }
 .pay-chip-btn {
-  width: 44px; height: 44px; border-radius: 50%;
+  width: var(--ch-pay); height: var(--ch-pay); border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: .58rem; font-weight: 800; color: #fff;
+  font-size: clamp(.48rem,1.1vw,.62rem); font-weight: 800; color: #fff;
   border: 2px solid rgba(255,255,255,.25);
   box-shadow: 0 2px 8px rgba(0,0,0,.4);
   flex-shrink: 0;
@@ -1550,11 +1560,11 @@ body {
 .pay-calc-mid { display: flex; flex-direction: column; gap: .15rem; }
 .pay-denom-label { font-size: .65rem; color: var(--text-dim); }
 .pay-qty-input {
-  width: 100%; padding: .45rem .5rem;
+  width: 100%; padding: clamp(.3rem,.7vh,.45rem) clamp(.3rem,.6vw,.5rem);
   background: rgba(255,255,255,.06);
   border: 1px solid rgba(201,168,76,.25);
   border-radius: 8px; color: var(--text);
-  font-size: 1rem; text-align: center;
+  font-size: clamp(.82rem,1.8vw,1rem); text-align: center;
   -moz-appearance: textfield;
 }
 .pay-qty-input::-webkit-inner-spin-button,
@@ -1579,7 +1589,7 @@ body {
 
 /* Action area at top of spot (player's side, seen upside-down by dealer) */
 .spot-inline-act {
-  min-height: 26px;
+  min-height: clamp(20px,3.5vh,26px);
   display: flex; align-items: center; justify-content: center;
   flex-wrap: wrap; gap: .2rem;
 }
@@ -1593,7 +1603,7 @@ body {
   display: flex;
   flex-wrap: nowrap;
   align-items: flex-start;
-  min-height: 136px;
+  min-height: clamp(80px,18vh,136px);
   gap: 0;
   position: relative;
 }
@@ -1773,16 +1783,12 @@ body {
   .sim-page           { padding: 1rem 1rem; }
   .tutorial-page      { padding: 1.4rem; }
 
-  /* Baccarat mobile — clamp() handles most sizing; only keep true small-screen overrides */
+  /* Baccarat mobile — clamp() handles all sizing */
   .bac-table-layout   { gap: .4rem; }
-  .bac-center-col     { width: 40px; }
   .flip-card          { perspective: 500px; }
 
-  /* Pay panel mobile */
+  /* Pay panel mobile — clamp() in base handles sizing now */
   .pay-seat-row       { grid-template-columns: 1.8rem 4.5rem 1fr 4rem; font-size: .75rem; }
-  .pay-calc-row       { grid-template-columns: 40px 1fr 4.5rem; gap: .45rem; }
-  .pay-chip-btn       { width: 38px; height: 38px; font-size: .52rem; }
-  .pay-qty-input      { font-size: .95rem; padding: .5rem .4rem; }
   .pay-calc-sub       { font-size: .68rem; }
   .pay-grand-num      { font-size: 1.05rem; }
 
@@ -1816,10 +1822,10 @@ body {
 }
 .bpay-mid {
   display: flex; align-items: center; justify-content: center;
-  width: 64px; flex-shrink: 0;
+  width: clamp(44px,7vw,64px); flex-shrink: 0;
 }
 .bpay-pts {
-  text-align: center; font-size: 2rem; font-weight: 900;
+  text-align: center; font-size: clamp(1.2rem,4vh,2rem); font-weight: 900;
   color: var(--gold); min-height: 2.4rem; margin-top: .3rem;
   text-shadow: 0 0 18px rgba(201,168,76,.5);
 }
@@ -1830,10 +1836,11 @@ body {
   margin-bottom: clamp(.25rem,.5vh,.45rem);
 }
 .bpay-mode-btn {
-  padding: .42rem 1.1rem;
+  padding: clamp(.28rem,.7vh,.42rem) clamp(.6rem,1.4vw,1.1rem);
   border: 2px solid rgba(255,255,255,.14); border-radius: 20px;
   background: transparent; color: rgba(255,255,255,.5);
-  font-size: .82rem; font-weight: 700; cursor: pointer; transition: all .15s;
+  font-size: var(--bf-sm); font-weight: 700; cursor: pointer;
+  min-height: var(--tap-h); transition: all .15s;
 }
 .bpay-mode-btn.active  { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,.1); }
 .bpay-mode-btn:not(.active):hover { border-color: rgba(255,255,255,.3); color: var(--text); }
@@ -1852,10 +1859,10 @@ body {
 .bpay-oval {
   position: relative;
   border-radius: 60px;
-  padding: .45rem .6rem;
+  padding: clamp(.3rem,.7vh,.45rem) clamp(.4rem,.8vw,.6rem);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  min-height: 62px; cursor: default;
+  min-height: clamp(44px,8vh,62px); cursor: default;
   border: 2px solid transparent;
   overflow: hidden;
   transition: box-shadow .15s;
@@ -1875,13 +1882,13 @@ body {
 .bpay-oval-lbl {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.9rem; font-weight: 900;
+  font-size: clamp(1.1rem,3vw,1.9rem); font-weight: 900;
   letter-spacing: 2px; color: rgba(255,255,255,.18);
   pointer-events: none;
 }
 .bpay-oval-amt {
   position: relative; z-index: 1;
-  font-size: .86rem; font-weight: 700;
+  font-size: clamp(.72rem,1.5vw,.86rem); font-weight: 700;
   color: rgba(255,255,255,.85); min-height: .9rem;
 }
 
@@ -1893,14 +1900,14 @@ body {
   flex: 1;
 }
 .bpay-pair-circ-wrap {
-  display: flex; flex-direction: column; align-items: center; gap: 3px; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; gap: clamp(2px,.4vw,4px); flex-shrink: 0;
 }
 .bpay-pair-circ {
-  width: 58px; height: 58px;
+  width: var(--ch-circ); height: var(--ch-circ);
   border-radius: 50%;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  font-size: .78rem; font-weight: 800;
+  font-size: clamp(.6rem,1.2vw,.78rem); font-weight: 800;
   text-align: center; line-height: 1.25; letter-spacing: .4px;
   border: 2px solid rgba(255,255,255,.25);
   position: relative;
@@ -1939,7 +1946,7 @@ body {
   display: flex; gap: 2px; flex-wrap: wrap; justify-content: center;
 }
 .bpay-circ-disc {
-  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  width: clamp(7px,1.2vw,10px); height: clamp(7px,1.2vw,10px); border-radius: 50%; flex-shrink: 0;
   border: 1px solid rgba(255,255,255,.35);
   font-size: .3rem; display: flex; align-items: center; justify-content: center;
 }
@@ -2049,7 +2056,7 @@ body {
 }
 /* Each subsequent chip edge */
 .bpay-chip-stack-layer {
-  width: 34px; height: 1px;
+  width: var(--ch-md); height: 1px;
   background: #2e7d32;
   border-radius: 0 0 50% 50%;
   border-left: 1px solid rgba(255,255,255,.2);
@@ -2067,8 +2074,8 @@ body {
   z-index: 2; pointer-events: none;
   text-shadow: 0 1px 3px rgba(0,0,0,.7);
 }
-.bpay-stack-key { font-size: 12px; font-weight: 900; line-height: 1; letter-spacing: .3px; color: #fff; }
-.bpay-stack-cnt { font-size: 12px; font-weight: 900; line-height: 1; color: #fff; }
+.bpay-stack-key { font-size: clamp(9px,1.4vw,12px); font-weight: 900; line-height: 1; letter-spacing: .3px; color: #fff; }
+.bpay-stack-cnt { font-size: clamp(9px,1.4vw,12px); font-weight: 900; line-height: 1; color: #fff; }
 
 /* Controls area: action buttons only */
 #bpay-controls { padding: .6rem 1rem; }
@@ -2081,9 +2088,10 @@ body {
 }
 .bpay-start-btn {
   background: linear-gradient(135deg, #c9a84c 0%, #9a7820 100%);
-  color: #1a1200; font-size: 1.05rem; font-weight: 900;
+  color: #1a1200; font-size: clamp(.82rem,2.5vh,1.05rem); font-weight: 900;
   letter-spacing: 3px; border: none; border-radius: 50px;
-  padding: .7rem 2.8rem; cursor: pointer;
+  padding: clamp(.42rem,1.2vh,.7rem) clamp(1.5rem,5vw,2.8rem); cursor: pointer;
+  min-height: var(--tap-h);
   box-shadow: 0 4px 18px rgba(201,168,76,.45);
   transition: transform .1s, box-shadow .1s;
 }
@@ -2153,9 +2161,9 @@ body {
   flex-shrink: 0;
 }
 .comm-slot-input {
-  width: 38px; height: 34px; text-align: center;
+  width: clamp(28px,4vw,38px); height: clamp(26px,4vh,34px); text-align: center;
   background: #0d0d18; border: 1px solid rgba(255,255,255,.14);
-  color: var(--text); font-size: .95rem; font-weight: 700;
+  color: var(--text); font-size: clamp(.72rem,1.8vw,.95rem); font-weight: 700;
   border-radius: 5px; outline: none; transition: border-color .15s;
 }
 .comm-slot-input:focus { border-color: var(--gold); }
@@ -2166,7 +2174,7 @@ body {
 /* Chip spread display panel */
 .bpay-spread-section {
   display: none; align-items: center; justify-content: center;
-  min-height: 58px; padding: .55rem .4rem .3rem;
+  min-height: clamp(44px,8vh,58px); padding: clamp(.3rem,.7vh,.55rem) clamp(.25rem,.5vw,.4rem) clamp(.2rem,.4vh,.3rem);
   border-top: 1px solid rgba(255,255,255,.1);
   margin-top: .5rem;
 }
