@@ -2569,14 +2569,12 @@ const Sims = {
 
       S.payChips = { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
 
-      const colorLabel = color.key[0].toUpperCase();
-
       panel.innerHTML = `
         <div class="comm-tray rpay-btray">
           <div id="rpay-order-warn" class="bpay-order-warn" style="display:none"><span>저액 칩스부터 세팅하세요</span></div>
           <div class="comm-tray-slots">
             <div class="comm-slot">
-              <div class="comm-slot-chip" id="rpay-disc-color" style="background:${color.bg};color:${color.fg}">${colorLabel}</div>
+              <div class="comm-slot-chip" id="rpay-disc-color" style="background:${color.bg};color:${color.fg}">CC</div>
               <div class="comm-5k-btns">
                 <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',20)">+20개</button>
                 <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',5)">+5개</button>
@@ -2609,7 +2607,7 @@ const Sims = {
       const cDisc = document.getElementById('rpay-disc-color');
       if (cDisc) {
         const n = S.payChips.color || 0;
-        cDisc.textContent = n > 0 ? n : (color ? color.key[0].toUpperCase() : '?');
+        cDisc.textContent = n > 0 ? n : 'CC';
       }
       for (const mc of MONEY_CHIPS) {
         const cnt = S.payChips[mc.key] || 0;
