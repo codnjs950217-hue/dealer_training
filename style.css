@@ -227,8 +227,9 @@ body {
 .home-screen {
   height: calc(100vh - 42px);
   display: flex; flex-direction: column;
-  padding: .5rem .8rem .6rem;
-  gap: .5rem;
+  align-items: stretch; justify-content: center;
+  padding: .4rem .8rem .5rem;
+  gap: .6rem; overflow: hidden;
   background:
     radial-gradient(ellipse at 20% 40%, rgba(12,51,32,.55) 0%, transparent 60%),
     radial-gradient(ellipse at 80% 15%, rgba(201,168,76,.07) 0%, transparent 50%);
@@ -238,7 +239,7 @@ body {
 /* Hero: cards + title */
 .home-hero {
   display: flex; align-items: center; justify-content: center;
-  gap: 1.4rem; flex-shrink: 0; padding: .3rem 0;
+  gap: 1.4rem; flex-shrink: 0; padding: .2rem 0;
 }
 .home-hero-cards {
   position: relative; width: 72px; height: 68px; flex-shrink: 0;
@@ -271,15 +272,16 @@ body {
 
 /* Game cards */
 .home-game-cards {
-  display: flex; gap: .7rem; flex: 1; min-height: 0;
+  display: flex; gap: .7rem;
+  flex: 1; min-height: 0; max-height: 60vh;
 }
 .home-game-card {
-  flex: 1; background: rgba(255,255,255,.04);
+  flex: 1; min-height: 0; background: rgba(255,255,255,.04);
   border: 1px solid rgba(201,168,76,.2);
-  border-radius: 14px; padding: .8rem .6rem;
+  border-radius: 14px; padding: .6rem .5rem;
   display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: .55rem;
-  transition: border-color .2s, background .2s;
+  justify-content: center; gap: .45rem;
+  transition: border-color .2s, background .2s; overflow: hidden;
 }
 .home-game-card:hover { background: rgba(255,255,255,.07); border-color: rgba(201,168,76,.45); }
 .home-game-icon { font-size: clamp(1.6rem, 4vw, 2.2rem); line-height: 1; }
