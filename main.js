@@ -2633,7 +2633,7 @@ const Sims = {
         [[0, 0]],                                        // 1: single
         [[0, 1], [1, 0]],                                // 2: diagonal
         [[0, 1], [2, 1], [1, 0]],                       // 3: triangle
-        [[1, 0], [0, 1], [2, 1], [1, 2]],               // 4: diamond (3-triangle + top-left stack)
+        [[0, 0], [1, 0], [0, 1], [2, 1]],               // 4: upper-left + 3-triangle
         [[0, 0], [2, 0], [4, 0], [1, 1], [3, 1]],      // 5: 3-top, 2-bottom
       ];
       const STK_W = 38, STK_H = 33;
