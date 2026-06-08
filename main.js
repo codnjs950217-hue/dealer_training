@@ -2612,7 +2612,7 @@ const Sims = {
       for (const mc of MONEY_CHIPS) {
         const cnt = S.payChips[mc.key] || 0;
         const disc = document.getElementById(`rpay-disc-${mc.key}`);
-        if (disc) disc.textContent = cnt > 0 ? cnt : mc.key;
+        if (disc) disc.textContent = mc.key;
         total += cnt * mc.val;
       }
       updatePayZone();
@@ -2663,18 +2663,39 @@ const Sims = {
       allChipDefs.forEach(c => {
         const cnt = S.payChips[c.key] || 0;
         if (!cnt) return;
-        const label = c.key === 'color' ? color.key[0].toUpperCase() : c.key;
-        const stackCount = Math.floor(cnt / 20);
-        const loose = cnt % 20;
-        if (stackCount > 0) parts.push(makeStackGroup(c, label, stackCount));
-        if (loose > 0) {
-          let discs = '';
-          for (let i = 0; i < loose; i++) {
-            let cls = 'spread-disc';
-            if (i > 0 && i % 5 === 0) cls += ' spread-gap5';
-            discs += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${label}</div>`;
+
+        if (c.key === 'color') {
+          // Color chips: groups of 5 — all but last group shown as mini-stacks, last group spread
+          const miniStacks = Math.max(0, Math.floor(cnt / 5) - 1);
+          const spreadCount = cnt - miniStacks * 5;
+          let inner = '';
+          for (let i = 0; i < miniStacks; i++) {
+            inner += `<div class="rpay-chip-stack rpay-mini-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">` +
+              `<div class="rpay-chip-stack-face"></div>` +
+              `<div class="rpay-chip-stack-body"></div>` +
+              `<span class="rpay-stack-label" style="color:${c.fg}">CC</span>` +
+              `</div>`;
           }
-          parts.push(`<div class="spread-row">${discs}</div>`);
+          let discs = '';
+          for (let i = 0; i < spreadCount; i++) {
+            discs += `<div class="spread-disc" style="background:${c.bg};color:${c.fg}">CC</div>`;
+          }
+          inner += `<div class="spread-row">${discs}</div>`;
+          parts.push(`<div style="display:flex;align-items:flex-end;gap:6px;flex-shrink:0">${inner}</div>`);
+        } else {
+          const label = c.key;
+          const stackCount = Math.floor(cnt / 20);
+          const loose = cnt % 20;
+          if (stackCount > 0) parts.push(makeStackGroup(c, label, stackCount));
+          if (loose > 0) {
+            let discs = '';
+            for (let i = 0; i < loose; i++) {
+              let cls = 'spread-disc';
+              if (i > 0 && i % 5 === 0) cls += ' spread-gap5';
+              discs += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${label}</div>`;
+            }
+            parts.push(`<div class="spread-row">${discs}</div>`);
+          }
         }
       });
 

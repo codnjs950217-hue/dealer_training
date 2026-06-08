@@ -668,6 +668,9 @@ body {
   border-left:  1px solid rgba(255,255,255,.18);
   border-right: 1px solid rgba(0,0,0,.5);
 }
+/* 5-chip mini-stack (color chips) */
+.rpay-mini-stack .rpay-chip-stack-body { height: 14px; }
+
 /* Label on top chip face of each stack */
 .rpay-stack-label {
   position: absolute;
