@@ -1860,7 +1860,6 @@ const Sims = {
             discs += `<div class="bpay-chip-stack bpay-chip-stack-half${newGroup ? ' new-denom' : ''}">` +
               `<div class="bpay-chip-stack-face"></div>` +
               `<div class="bpay-chip-stack-body"></div>` +
-              `<div class="bpay-chip-stack-bottom"></div>` +
               `<div class="bpay-chip-stack-label"><span class="bpay-stack-key">10K</span><span class="bpay-stack-cnt">×5</span></div>` +
               `</div>`;
             for (let j = 0; j < 5; j++) {
@@ -1870,7 +1869,6 @@ const Sims = {
             discs += `<div class="bpay-chip-stack bpay-chip-stack-full${newGroup ? ' new-denom' : ''}">` +
               `<div class="bpay-chip-stack-face"></div>` +
               `<div class="bpay-chip-stack-body"></div>` +
-              `<div class="bpay-chip-stack-bottom"></div>` +
               `<div class="bpay-chip-stack-label"><span class="bpay-stack-key">10K</span><span class="bpay-stack-cnt">×${cnt}</span></div>` +
               `</div>`;
           } else {
@@ -2647,7 +2645,6 @@ const Sims = {
           `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*colStep}px;top:${row*rowStep}px;z-index:${row+1}">` +
           `<div class="rpay-chip-stack-face"></div>` +
           `<div class="rpay-chip-stack-body"></div>` +
-          `<div class="rpay-chip-stack-bottom"></div>` +
           `<span class="rpay-stack-label" style="color:${c.fg}">${label}</span>` +
           `</div>`
         ).join('');
