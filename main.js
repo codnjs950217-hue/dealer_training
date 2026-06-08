@@ -284,6 +284,9 @@ const Views = {
         </div>
         <div class="rpay-right-col">
           <div class="rpay-timer" id="rpay-timer">—</div>
+          <div class="rpay-undo-row">
+            <button class="comm-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
+          </div>
           <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
         </div>
       </div>
@@ -2594,9 +2597,6 @@ const Sims = {
               <button class="comm-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
               <button class="comm-all-reset-btn" onclick="Sims.roulettePay.resetPay()">ALL RESET</button>
             </div>
-          </div>
-          <div class="rpay-tray-bottom">
-            <button class="comm-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
           </div>
         </div>`;
     }

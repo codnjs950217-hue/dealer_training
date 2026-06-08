@@ -2118,9 +2118,9 @@ body {
 .comm-all-reset-btn:hover  { background: rgba(0,0,0,.55); color: #fff; }
 .comm-all-reset-btn:active { transform: scale(.95); }
 
-.rpay-tray-bottom {
+.rpay-undo-row {
   display: flex; justify-content: flex-start;
-  padding: .15rem .35rem .25rem;
+  padding: .15rem 0 .1rem;
 }
 .comm-undo-btn {
   background: rgba(60,80,120,.45);
