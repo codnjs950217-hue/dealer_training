@@ -662,8 +662,8 @@ body {
       rgba(0,0,0,.55)       100%),
     repeating-linear-gradient(
       to bottom,
-      var(--stk-bg) 0px, var(--stk-bg) 2px,
-      rgba(0,0,0,.7) 2px,  rgba(0,0,0,.7) 4px
+      var(--stk-bg) 0px, var(--stk-bg) 3px,
+      rgba(0,0,0,.75) 3px,  rgba(0,0,0,.75) 6px
     );
   border-left:  1px solid rgba(255,255,255,.18);
   border-right: 1px solid rgba(0,0,0,.5);
