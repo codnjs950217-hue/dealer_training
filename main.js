@@ -286,6 +286,7 @@ const Views = {
           <div class="rpay-timer" id="rpay-timer">—</div>
           <div class="rpay-undo-row">
             <button class="comm-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
+            <button class="comm-all-reset-btn" onclick="Sims.roulettePay.resetPay()">ALL RESET</button>
           </div>
           <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
         </div>
@@ -2582,7 +2583,6 @@ const Sims = {
                   <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',5)">+5개</button>
                   <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">+1개</button>
                 </div>
-                <button class="comm-5k-reset" onclick="Sims.roulettePay.resetChip('${c.key}')">RESET</button>
               </div>`).join('')}
             <div class="comm-slot">
               <div class="comm-slot-chip" id="rpay-disc-color" style="background:${color.bg};color:${color.fg}">CC</div>
@@ -2591,11 +2591,9 @@ const Sims = {
                 <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',5)">+5개</button>
                 <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',1)">+1개</button>
               </div>
-              <button class="comm-5k-reset" onclick="Sims.roulettePay.resetChip('color')">RESET</button>
             </div>
             <div class="comm-pay-slot">
               <button class="comm-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
-              <button class="comm-all-reset-btn" onclick="Sims.roulettePay.resetPay()">ALL RESET</button>
             </div>
           </div>
         </div>`;

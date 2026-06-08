@@ -2106,7 +2106,7 @@ body {
 .comm-all-reset-btn:active { transform: scale(.95); }
 
 .rpay-undo-row {
-  display: flex; justify-content: flex-start;
+  display: flex; justify-content: space-between;
   padding: .15rem 0 .1rem;
 }
 .comm-undo-btn {
