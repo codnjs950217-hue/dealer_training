@@ -2667,47 +2667,29 @@ const Sims = {
         const cnt = S.payChips[c.key] || 0;
         if (!cnt) return;
 
-        if (c.key === 'color') {
-          const fullStacks = Math.floor(cnt / 20);
-          const rem = cnt % 20;
-          const miniStacks = Math.floor(rem / 5);
-          const spreadCount = rem % 5;
+        const label = c.key === 'color' ? 'CC' : c.key;
+        const fullStacks = Math.floor(cnt / 20);
+        const rem = cnt % 20;
+        const miniStacks = rem >= 5 ? Math.max(0, Math.floor(rem / 5) - 1) : 0;
+        const spreadCount = rem - miniStacks * 5;
 
-          // Full 20-chip stacks (8 at a time)
-          let fsRem = fullStacks;
-          while (fsRem > 0) { const chunk = Math.min(fsRem, 8); parts.push(makeStackGroup(c, 'CC', chunk)); fsRem -= chunk; }
+        let fsRem = fullStacks;
+        while (fsRem > 0) { const chunk = Math.min(fsRem, 8); parts.push(makeStackGroup(c, label, chunk)); fsRem -= chunk; }
 
-          // 5-chip mini-stacks + spread discs: baccarat-style horizontal spread
-          if (miniStacks > 0 || spreadCount > 0) {
-            let html = `<div class="rpay-cc-spread">`;
-            for (let i = 0; i < miniStacks; i++) {
-              html += `<div class="rpay-chip-stack rpay-mini-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">` +
-                `<div class="rpay-chip-stack-face"></div>` +
-                `<div class="rpay-chip-stack-body"></div>` +
-                `<span class="rpay-stack-label" style="color:${c.fg}">CC</span>` +
-                `</div>`;
-            }
-            for (let i = 0; i < spreadCount; i++) {
-              html += `<div class="rpay-cc-disc" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">CC</div>`;
-            }
-            html += `</div>`;
-            parts.push(html);
+        if (miniStacks > 0 || spreadCount > 0) {
+          let html = `<div class="rpay-cc-spread">`;
+          for (let i = 0; i < miniStacks; i++) {
+            html += `<div class="rpay-chip-stack rpay-mini-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">` +
+              `<div class="rpay-chip-stack-face"></div>` +
+              `<div class="rpay-chip-stack-body"></div>` +
+              `<span class="rpay-stack-label" style="color:${c.fg}">${label}</span>` +
+              `</div>`;
           }
-        } else {
-          const label = c.key;
-          const stackCount = Math.floor(cnt / 20);
-          const loose = cnt % 20;
-          let scRem = stackCount;
-          while (scRem > 0) { const chunk = Math.min(scRem, 8); parts.push(makeStackGroup(c, label, chunk)); scRem -= chunk; }
-          if (loose > 0) {
-            let discs = '';
-            for (let i = 0; i < loose; i++) {
-              let cls = 'spread-disc';
-              if (i > 0 && i % 5 === 0) cls += ' spread-gap5';
-              discs += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${label}</div>`;
-            }
-            parts.push(`<div class="spread-row">${discs}</div>`);
+          for (let i = 0; i < spreadCount; i++) {
+            html += `<div class="rpay-cc-disc" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${label}</div>`;
           }
+          html += `</div>`;
+          parts.push(html);
         }
       });
 

@@ -2028,16 +2028,6 @@ body {
 .spread-disc.spread-gap  { margin-left: 8px; }
 .spread-disc.spread-gap5 { margin-left: 5px; }
 
-/* Roulette pay zone — compact spread disc (same size as rpay-cc-disc) */
-.rpay-pay-zone .spread-disc {
-  width: 26px; height: 26px;
-  font-size: .38rem; margin-left: -8px;
-  border-width: 1.5px;
-}
-.rpay-pay-zone .spread-disc:first-child { margin-left: 0; }
-.rpay-pay-zone .spread-disc.spread-gap  { margin-left: 6px; }
-.rpay-pay-zone .spread-disc.spread-gap5 { margin-left: 4px; }
-
 /* Chip button counter — hidden */
 .comm-5k-count { display: none; }
 
