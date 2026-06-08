@@ -2647,7 +2647,7 @@ const Sims = {
         const cw = maxCol * colStep + STK_W;
         const ch = maxRow * rowStep + STK_H;
         const stackHtml = layout.slice(0, count).map(([col, row]) =>
-          `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*colStep}px;top:${row*rowStep}px;z-index:${row+1}">` +
+          `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*colStep}px;top:${row*rowStep}px;z-index:${(row+1)*10+(maxCol-col+1)}">` +
           `<div class="rpay-chip-stack-face"></div>` +
           `<div class="rpay-chip-stack-body"></div>` +
           `<span class="rpay-stack-label" style="color:${c.fg}">${label}</span>` +
