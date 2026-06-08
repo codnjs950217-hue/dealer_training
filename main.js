@@ -2670,8 +2670,8 @@ const Sims = {
         if (c.key === 'color') {
           const fullStacks = Math.floor(cnt / 20);
           const rem = cnt % 20;
-          const miniStacks = rem >= 5 ? Math.max(0, Math.floor(rem / 5) - 1) : 0;
-          const spreadCount = rem - miniStacks * 5;
+          const miniStacks = Math.floor(rem / 5);
+          const spreadCount = rem % 5;
 
           // Full 20-chip stacks (8 at a time)
           let fsRem = fullStacks;
