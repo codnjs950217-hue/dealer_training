@@ -2401,20 +2401,24 @@ const Sims = {
 
       requestAnimationFrame(() => {
         const tRect = tbl.getBoundingClientRect();
+        const tblStyle = getComputedStyle(tbl);
+        const bL = parseFloat(tblStyle.borderLeftWidth) || 0;
+        const bT = parseFloat(tblStyle.borderTopWidth) || 0;
 
         function cc(num) {
           const el = tbl.querySelector(`[data-bet="${num}"]`);
           if (!el) return null;
-          // Use td bounds for border-exact intersection positioning
           const cell = el.closest('td') || el;
           const r = cell.getBoundingClientRect();
+          const ox = r.left - tRect.left - bL;
+          const oy = r.top  - tRect.top  - bT;
           return {
-            x:      r.left - tRect.left + r.width/2,
-            y:      r.top  - tRect.top  + r.height/2,
-            left:   r.left   - tRect.left,
-            right:  r.right  - tRect.left,
-            top:    r.top    - tRect.top,
-            bottom: r.bottom - tRect.top,
+            x:      ox + r.width/2,
+            y:      oy + r.height/2,
+            left:   ox,
+            right:  ox + r.width,
+            top:    oy,
+            bottom: oy + r.height,
           };
         }
 
@@ -2423,16 +2427,22 @@ const Sims = {
           if (sp.type === 'Straight') {
             const c = cc(N); if (!c) return;
             x = c.x; y = c.y;
-          } else if (sp.type === 'Split' || sp.type === 'Corner') {
+          } else if (sp.type === 'Split') {
             const cs = sp.nums.map(n => cc(n)).filter(Boolean);
             if (!cs.length) return;
-            x = cs.reduce((s,c) => s+c.x, 0)/cs.length;
-            y = cs.reduce((s,c) => s+c.y, 0)/cs.length;
+            // Use actual cell boundaries for exact border placement
+            x = (Math.max(...cs.map(c => c.left)) + Math.min(...cs.map(c => c.right))) / 2;
+            y = (Math.max(...cs.map(c => c.top))  + Math.min(...cs.map(c => c.bottom))) / 2;
+          } else if (sp.type === 'Corner') {
+            const cs = sp.nums.map(n => cc(n)).filter(Boolean);
+            if (!cs.length) return;
+            x = (Math.max(...cs.map(c => c.left)) + Math.min(...cs.map(c => c.right))) / 2;
+            y = (Math.max(...cs.map(c => c.top))  + Math.min(...cs.map(c => c.bottom))) / 2;
           } else if (sp.type === 'SixNum' || sp.type === 'Street') {
             const cs = sp.nums.map(n => cc(n)).filter(Boolean);
             if (!cs.length) return;
             x = cs.reduce((s,c) => s+c.x, 0)/cs.length;
-            y = Math.min(...cs.map(c => c.top)); // outer edge toward outside bets
+            y = Math.min(...cs.map(c => c.top));
           }
           if (x === undefined) return;
 
