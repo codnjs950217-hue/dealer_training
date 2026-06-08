@@ -2607,7 +2607,7 @@ const Sims = {
       const cDisc = document.getElementById('rpay-disc-color');
       if (cDisc) {
         const n = S.payChips.color || 0;
-        cDisc.textContent = n > 0 ? n : 'CC';
+        cDisc.textContent = 'CC';
       }
       for (const mc of MONEY_CHIPS) {
         const cnt = S.payChips[mc.key] || 0;
