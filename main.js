@@ -2087,21 +2087,23 @@ const Sims = {
     ];
     const SIDE_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[4]];
     const SIDE_KEYS  = ['st','tt','bt','sd','s7','bd','pp','bp'];
-
+    const SIDE_BET_MIN = 10_000;
+    const SIDE_BET_MAX = { bt: 1_000_000, bd: 1_000_000, s7: 500_000 };
 
     let S = {};
     const $ = id => document.getElementById(id);
 
-    function generateSideChips() {
-      const randCnt = () => 1 + Math.floor(Math.random() * 8);
-      if (Math.random() < 1 / 3) {
-        return {
-          [SIDE_CHIPS[0].key]: randCnt(),
-          [SIDE_CHIPS[1].key]: randCnt(),
-        };
-      }
-      const denom = SIDE_CHIPS[Math.floor(Math.random() * SIDE_CHIPS.length)];
-      return { [denom.key]: randCnt() };
+    function generateSideChips(key) {
+      const maxAmt  = SIDE_BET_MAX[key] ?? 1_000_000;
+      const maxUnits = maxAmt / SIDE_BET_MIN;
+      const units   = 1 + Math.floor(Math.random() * maxUnits);
+      const total   = units * SIDE_BET_MIN;
+      const cnt100  = Math.floor(total / 100_000);
+      const cnt10   = (total % 100_000) / 10_000;
+      const result  = {};
+      if (cnt100 > 0) result[SIDE_CHIPS[0].key] = cnt100;
+      if (cnt10  > 0) result[SIDE_CHIPS[1].key] = cnt10;
+      return result;
     }
 
     function chipTotal(chips) {
@@ -2240,7 +2242,7 @@ const Sims = {
         S.currentMult = mult;
 
         // Generate bet chips and show on circle
-        const chips = generateSideChips();
+        const chips = generateSideChips(key);
         const betTotal = chipTotal(chips);
         S.currentBet = betTotal;
         S.payTarget = betTotal * mult;
