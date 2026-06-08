@@ -326,7 +326,6 @@ const Views = {
       </div>
       <div id="bside-content" class="bside-sim" style="display:none">
         <div class="baccarat-table">
-          <div class="bside-mult-top" id="bside-mult-top"></div>
           <div class="bpay-positions bside-layout">
             ${[1].map(i => `
               <div class="bpay-pos bside-pos-wrap" id="bside-pos-${i}">
@@ -2140,8 +2139,7 @@ const Sims = {
 
     function clearHighlights() {
       document.querySelector('.bside-layout')?.classList.remove('bside-quiz-mode');
-      const multTop = $('bside-mult-top');
-      if (multTop) multTop.textContent = '';
+      document.querySelectorAll('.bside-circ-mult-above').forEach(el => el.remove());
       for (let i = 1; i <= 1; i++) {
         SIDE_KEYS.forEach(k => {
           const c = $(`bside-${k}-${i}`);
@@ -2251,11 +2249,14 @@ const Sims = {
         if (amtEl) amtEl.innerHTML = renderChipDiscs(chips);
 
         const circ = $(`bside-${key}-1`);
-        if (circ) circ.classList.add('bside-paying-circ');
+        if (circ) {
+          circ.classList.add('bside-paying-circ');
+          const label = document.createElement('div');
+          label.className = 'bside-circ-mult-above';
+          label.textContent = `×${mult}`;
+          circ.parentNode.insertBefore(label, circ);
+        }
         document.querySelector('.bside-layout')?.classList.add('bside-quiz-mode');
-
-        const multTop = $('bside-mult-top');
-        if (multTop) multTop.textContent = `×${mult}`;
 
         showPayTray();
       },
