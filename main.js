@@ -2653,10 +2653,9 @@ const Sims = {
           `<span class="rpay-stack-label" style="color:${c.fg}">${label}</span>` +
           `</div>`
         ).join('');
-        const totalLabel = `<span style="font-size:11px;font-weight:900;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9)">${count * 20}</span>`;
-        return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">` +
+        return `<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">` +
           `<div style="position:relative;width:${cw}px;height:${ch}px;flex-shrink:0">${stackHtml}</div>` +
-          `${totalLabel}</div>`;
+          `</div>`;
       }
 
       const parts = [];
