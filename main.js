@@ -38,7 +38,16 @@ function cardHTML(c, faceDown = false) {
 // ---- ROUTER ----
 
 const App = {
+  closeSidebar() {
+    document.querySelector('.sidebar')?.classList.remove('sidebar-open');
+    document.getElementById('sidebar-overlay')?.classList.remove('active');
+  },
+  toggleSidebar() {
+    const open = document.querySelector('.sidebar')?.classList.toggle('sidebar-open');
+    document.getElementById('sidebar-overlay')?.classList.toggle('active', open);
+  },
   navigate(game, mode) {
+    this.closeSidebar();
     document.querySelectorAll('.sidebar-link, .sidebar-sub-link').forEach(el => {
       el.classList.toggle('active',
         el.dataset.game === game && el.dataset.mode === (mode || ''));
@@ -60,7 +69,6 @@ const App = {
       el.innerHTML = Views.roulettePaySim();
       Sims.roulettePay && Sims.roulettePay.init();
     }
-
     if (game === 'poker') {
       if (mode === 'isp') { el.innerHTML = Views.ispSim(); Sims.poker.isp.init(); }
       if (mode === 'tcp') { el.innerHTML = Views.tcpSim(); Sims.poker.tcp.init(); }
@@ -84,28 +92,32 @@ const GAMES = {
 
 const Views = {
   home: () => `
-    <section class="hero">
-      <div class="hero-content">
-        <h1 class="hero-title">Casino Dealer<br><span class="gold">Training System</span></h1>
+    <div class="home-screen">
+      <div class="home-game-cards">
+        <div class="home-game-card">
+          <div class="home-game-icon">🃏</div>
+          <div class="home-game-name">Baccarat</div>
+          <div class="home-game-btns">
+            <button class="home-game-btn" onclick="App.navigate('baccarat','simulation')">Drawing Practice</button>
+            <button class="home-game-btn" onclick="App.navigate('baccarat','paysim')">Payout Practice</button>
+          </div>
+        </div>
+        <div class="home-game-card">
+          <div class="home-game-icon">♠</div>
+          <div class="home-game-name">Blackjack</div>
+          <div class="home-game-btns">
+            <button class="home-game-btn" onclick="App.navigate('blackjack','simulation')">Card Counting</button>
+          </div>
+        </div>
+        <div class="home-game-card">
+          <div class="home-game-icon">🎡</div>
+          <div class="home-game-name">Roulette</div>
+          <div class="home-game-btns">
+            <button class="home-game-btn" onclick="App.navigate('roulette','paysim')">Payout Practice</button>
+          </div>
+        </div>
       </div>
-      <div class="hero-cards">
-        <div class="floating-card card red" style="transform:rotate(-14deg) translate(-30px,8px)">
-          <div class="card-corner top"><span class="rank">A</span><span class="suit">♥</span></div>
-          <div class="card-suit-center">♥</div>
-          <div class="card-corner bottom"><span class="rank">A</span><span class="suit">♥</span></div>
-        </div>
-        <div class="floating-card card" style="transform:rotate(4deg) translate(10px,-18px)">
-          <div class="card-corner top"><span class="rank">K</span><span class="suit">♠</span></div>
-          <div class="card-suit-center">♠</div>
-          <div class="card-corner bottom"><span class="rank">K</span><span class="suit">♠</span></div>
-        </div>
-        <div class="floating-card card red" style="transform:rotate(20deg) translate(50px,4px)">
-          <div class="card-corner top"><span class="rank">Q</span><span class="suit">♦</span></div>
-          <div class="card-suit-center">♦</div>
-          <div class="card-corner bottom"><span class="rank">Q</span><span class="suit">♦</span></div>
-        </div>
-      </div>
-    </section>`,
+    </div>`,
 
   gameLanding: (game) => {
     const g = GAMES[game];

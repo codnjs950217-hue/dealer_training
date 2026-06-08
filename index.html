@@ -27,6 +27,14 @@
     </div>
   </div>
 
+  <!-- Hamburger button (always visible) -->
+  <button class="hamburger-btn" onclick="App.toggleSidebar()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- Sidebar overlay -->
+  <div id="sidebar-overlay" onclick="App.closeSidebar()"></div>
+
   <div class="app-shell">
 
     <aside class="sidebar">
