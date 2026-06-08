@@ -2675,7 +2675,8 @@ const Sims = {
           const spreadCount = rem - miniStacks * 5;
 
           const inner = [];
-          if (fullStacks > 0) inner.push(makeStackGroup(c, 'CC', fullStacks));
+          let fsRem = fullStacks;
+          while (fsRem > 0) { const chunk = Math.min(fsRem, 8); inner.push(makeStackGroup(c, 'CC', chunk)); fsRem -= chunk; }
           for (let i = 0; i < miniStacks; i++) {
             inner.push(
               `<div class="rpay-chip-stack rpay-mini-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">` +
@@ -2697,7 +2698,8 @@ const Sims = {
           const label = c.key;
           const stackCount = Math.floor(cnt / 20);
           const loose = cnt % 20;
-          if (stackCount > 0) parts.push(makeStackGroup(c, label, stackCount));
+          let scRem = stackCount;
+          while (scRem > 0) { const chunk = Math.min(scRem, 8); parts.push(makeStackGroup(c, label, chunk)); scRem -= chunk; }
           if (loose > 0) {
             let discs = '';
             for (let i = 0; i < loose; i++) {
