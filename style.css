@@ -57,6 +57,13 @@
 
   /* Min tap-target height */
   --tap-h: clamp(34px, 4.5vh, 44px);
+
+  /* Card sizes — vh-based so they shrink in short landscape viewports */
+  --card-w-sm: clamp(30px, 9.1vh, 52px);
+  --card-h-sm: clamp(43px, 13vh,  74px);
+  --card-w-lg: clamp(44px, 12vh,  78px);
+  --card-h-lg: clamp(62px, 17vh,  110px);
+  --card-cascade: clamp(7px, 2vh, 10px);
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -359,7 +366,7 @@ body {
 /* ---- CARD COMPONENT ---- */
 
 .card {
-  width: 78px; height: 110px; background: #fff;
+  width: var(--card-w-lg); height: var(--card-h-lg); background: #fff;
   border-radius: 7px; position: relative;
   box-shadow: 2px 3px 14px rgba(0,0,0,.45);
   display: flex; align-items: center; justify-content: center;
@@ -371,9 +378,9 @@ body {
 .card-corner { position: absolute; display: flex; flex-direction: column; align-items: center; line-height: 1; }
 .card-corner.top    { top: 5px; left: 6px; }
 .card-corner.bottom { bottom: 5px; right: 6px; transform: rotate(180deg); }
-.card-corner .rank  { font-size: 1.05rem; font-weight: 700; color: #111; }
-.card-corner .suit  { font-size: .82rem; }
-.card-suit-center   { font-size: 1.9rem; color: #111; }
+.card-corner .rank  { font-size: clamp(.7rem, 2vh, 1.05rem); font-weight: 700; color: #111; }
+.card-corner .suit  { font-size: clamp(.55rem, 1.6vh, .82rem); }
+.card-suit-center   { font-size: clamp(1.2rem, 3.6vh, 1.9rem); color: #111; }
 
 .card.back {
   background: repeating-linear-gradient(
@@ -381,7 +388,7 @@ body {
   );
 }
 .card-pattern {
-  width: 66px; height: 98px;
+  width: clamp(36px, 10vh, 66px); height: clamp(52px, 14.5vh, 98px);
   border: 2px solid rgba(201,168,76,.45); border-radius: 4px;
   background: repeating-linear-gradient(
     45deg, transparent, transparent 4px,
@@ -624,13 +631,13 @@ body {
 }
 /* Match dealer cards to player-spot card size */
 .dealer-area-bj .card {
-  width: 52px;
-  height: 74px;
+  width: var(--card-w-sm);
+  height: var(--card-h-sm);
 }
-.dealer-area-bj .card-corner .rank { font-size: .88rem; }
-.dealer-area-bj .card-corner .suit { font-size: .72rem; }
-.dealer-area-bj .card-suit-center  { font-size: 1.4rem; }
-.dealer-area-bj .card-pattern      { width: 44px; height: 66px; }
+.dealer-area-bj .card-corner .rank { font-size: clamp(.55rem, 1.8vh, .88rem); }
+.dealer-area-bj .card-corner .suit { font-size: clamp(.45rem, 1.5vh, .72rem); }
+.dealer-area-bj .card-suit-center  { font-size: clamp(.9rem, 2.5vh, 1.4rem); }
+.dealer-area-bj .card-pattern      { width: clamp(24px, 7vh, 44px); height: clamp(35px, 9.7vh, 66px); }
 .dealer-ctrl-area {
   margin-top: .4rem;
   display: flex;
@@ -670,7 +677,7 @@ body {
   border-radius: 10px;
   padding: clamp(.3rem,.6vh,.5rem) clamp(.25rem,.4vw,.4rem);
   transition: all .25s;
-  min-height: 0; flex: 1; overflow: hidden;
+  min-height: 0; flex: 1; overflow: visible;
 }
 .player-spot.active {
   border-color: var(--gold);
@@ -680,13 +687,13 @@ body {
 .player-spot.faded { opacity: .45; }
 
 .player-spot .card {
-  width: 52px;
-  height: 74px;
+  width: var(--card-w-sm);
+  height: var(--card-h-sm);
 }
-.player-spot .card-corner .rank { font-size: .88rem; }
-.player-spot .card-corner .suit { font-size: .72rem; }
-.player-spot .card-suit-center   { font-size: 1.4rem; }
-.player-spot .card-pattern       { width: 44px; height: 66px; }
+.player-spot .card-corner .rank { font-size: clamp(.55rem, 1.8vh, .88rem); }
+.player-spot .card-corner .suit { font-size: clamp(.45rem, 1.5vh, .72rem); }
+.player-spot .card-suit-center   { font-size: clamp(.9rem, 2.5vh, 1.4rem); }
+.player-spot .card-pattern       { width: clamp(24px, 7vh, 44px); height: clamp(35px, 9.7vh, 66px); }
 
 .player-spot .hand-value {
   font-size: .75rem;
@@ -1102,7 +1109,7 @@ body {
 
 /* ---- BACCARAT: TABLE LAYOUT ---- */
 
-.baccarat-table { position: relative; overflow: hidden; }
+.baccarat-table { position: relative; }
 
 .bac-table-layout {
   display: flex;
@@ -1353,7 +1360,7 @@ body {
 
 .bac-card-sideways {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 110px; height: 78px;
+  width: var(--card-h-lg); height: var(--card-w-lg);
   animation: dealSlideInSideways .35s ease-out forwards;
 }
 .bac-card-sideways .flip-card {
@@ -1363,11 +1370,11 @@ body {
 
 .bac-third-slot {
   display: flex; align-items: flex-end; justify-content: center; flex-shrink: 0;
-  width: 110px; height: 110px; align-self: center;
+  width: var(--card-h-lg); height: var(--card-h-lg); align-self: center;
 }
 
 .bac-pts-display {
-  text-align: center; font-size: 2rem; font-weight: 900;
+  text-align: center; font-size: clamp(1.1rem, 4.5vh, 2rem); font-weight: 900;
   color: var(--gold); min-height: 2.4rem; margin-top: .3rem;
   text-shadow: 0 0 20px rgba(201,168,76,.5);
 }
@@ -1386,7 +1393,7 @@ body {
 }
 .flip-inner {
   position: relative;
-  width: 78px; height: 110px;
+  width: var(--card-w-lg); height: var(--card-h-lg);
   transform-style: preserve-3d;
   transition: transform .65s ease;
 }
@@ -1591,18 +1598,18 @@ body {
   position: relative;
 }
 
-/* BJ flip-card wrapper — sized to match player spot cards (52×74) */
+/* BJ flip-card wrapper — sized to match player spot cards */
 .bj-flip-card {
   display: inline-block;
   perspective: 500px;
-  width: 52px;
-  height: 74px;
+  width: var(--card-w-sm);
+  height: var(--card-h-sm);
   flex-shrink: 0;
   position: relative;
 }
 .bj-flip-inner {
-  width: 52px;
-  height: 74px;
+  width: var(--card-w-sm);
+  height: var(--card-h-sm);
   position: relative;
   transform-style: preserve-3d;
   transition: transform .28s ease;
@@ -1616,13 +1623,13 @@ body {
 .bj-flip-front { transform: rotateY(180deg); }
 
 /* Diagonal cascade: horizontal overlap + cumulative vertical drop */
-.player-spot .hand-display .bj-flip-card:nth-child(n+2) { margin-left: -26px; }
-.player-spot .hand-display .bj-flip-card:nth-child(2) { margin-top: 10px; z-index: 2; }
-.player-spot .hand-display .bj-flip-card:nth-child(3) { margin-top: 20px; z-index: 3; }
-.player-spot .hand-display .bj-flip-card:nth-child(4) { margin-top: 30px; z-index: 4; }
-.player-spot .hand-display .bj-flip-card:nth-child(5) { margin-top: 40px; z-index: 5; }
-.player-spot .hand-display .bj-flip-card:nth-child(6) { margin-top: 50px; z-index: 6; }
-.player-spot .hand-display .bj-flip-card:nth-child(7) { margin-top: 60px; z-index: 7; }
+.player-spot .hand-display .bj-flip-card:nth-child(n+2) { margin-left: calc(var(--card-w-sm) * -.5); }
+.player-spot .hand-display .bj-flip-card:nth-child(2) { margin-top: var(--card-cascade); z-index: 2; }
+.player-spot .hand-display .bj-flip-card:nth-child(3) { margin-top: calc(var(--card-cascade) * 2); z-index: 3; }
+.player-spot .hand-display .bj-flip-card:nth-child(4) { margin-top: calc(var(--card-cascade) * 3); z-index: 4; }
+.player-spot .hand-display .bj-flip-card:nth-child(5) { margin-top: calc(var(--card-cascade) * 4); z-index: 5; }
+.player-spot .hand-display .bj-flip-card:nth-child(6) { margin-top: calc(var(--card-cascade) * 5); z-index: 6; }
+.player-spot .hand-display .bj-flip-card:nth-child(7) { margin-top: calc(var(--card-cascade) * 6); z-index: 7; }
 
 /* ---- BLACKJACK: HAND ANIMATION (dealer perspective — upside down at top) ---- */
 
@@ -1772,7 +1779,6 @@ body {
   .shoe-visual        { width: 46px; height: 82px; }
   .btn-draw-shoe      { width: 50px; font-size: .68rem; }
   .bac-center-col     { width: 40px; }
-  .flip-inner         { width: 62px; height: 88px; }
   .flip-card          { perspective: 500px; }
   .bac-pts-display    { font-size: 1.5rem; }
   .result-badge       { font-size: .8rem; min-width: 54px; padding: .4rem .5rem; }
