@@ -2592,9 +2592,11 @@ const Sims = {
               </div>`).join('')}
             <div class="comm-pay-slot">
               <button class="comm-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
-              <button class="comm-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
               <button class="comm-all-reset-btn" onclick="Sims.roulettePay.resetPay()">ALL RESET</button>
             </div>
+          </div>
+          <div class="rpay-tray-bottom">
+            <button class="comm-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
           </div>
         </div>`;
     }

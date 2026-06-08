@@ -2118,6 +2118,10 @@ body {
 .comm-all-reset-btn:hover  { background: rgba(0,0,0,.55); color: #fff; }
 .comm-all-reset-btn:active { transform: scale(.95); }
 
+.rpay-tray-bottom {
+  display: flex; justify-content: flex-start;
+  padding: .15rem .35rem .25rem;
+}
 .comm-undo-btn {
   background: rgba(60,80,120,.45);
   border: 1px solid rgba(120,160,255,.35);
