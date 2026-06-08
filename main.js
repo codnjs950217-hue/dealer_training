@@ -2670,13 +2670,22 @@ const Sims = {
         const label = c.key === 'color' ? 'CC' : c.key;
         const fullStacks = Math.floor(cnt / 20);
         const rem = cnt % 20;
+        const miniStacks = rem >= 5 ? Math.max(0, Math.floor(rem / 5) - 1) : 0;
+        const spreadCount = rem - miniStacks * 5;
 
         let fsRem = fullStacks;
         while (fsRem > 0) { const chunk = Math.min(fsRem, 8); parts.push(makeStackGroup(c, label, chunk)); fsRem -= chunk; }
 
-        if (rem > 0) {
+        if (miniStacks > 0 || spreadCount > 0) {
           let html = `<div class="rpay-cc-spread">`;
-          for (let i = 0; i < rem; i++) {
+          for (let i = 0; i < miniStacks; i++) {
+            html += `<div class="rpay-chip-stack rpay-mini-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">` +
+              `<div class="rpay-chip-stack-face"></div>` +
+              `<div class="rpay-chip-stack-body"></div>` +
+              `<span class="rpay-stack-label" style="color:${c.fg}">${label}</span>` +
+              `</div>`;
+          }
+          for (let i = 0; i < spreadCount; i++) {
             const gap = i > 0 && i % 5 === 0 ? ' rpay-disc-gap5' : '';
             html += `<div class="rpay-cc-disc${gap}" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${label}</div>`;
           }
