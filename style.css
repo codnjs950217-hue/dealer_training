@@ -924,7 +924,7 @@ body {
 .black-num { background: #171717; color: #fff; }
 .green-num { background: #145c14; color: #fff; }
 
-.col-bet { background: rgba(255,255,255,.08); color: var(--text); font-size: .7rem; }
+.col-bet { background: rgba(255,255,255,.08); color: var(--text); font-size: .48rem; }
 
 .dozens-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; margin-bottom: 1px; margin-left: calc(100% / 14); margin-right: calc(100% / 14); }
 .evens-row  { display: grid; grid-template-columns: repeat(6,1fr); gap: 0; margin-bottom: 1px; margin-left: calc(100% / 14); margin-right: calc(100% / 14); }
