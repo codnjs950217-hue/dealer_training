@@ -2637,11 +2637,12 @@ const Sims = {
         [[0, 0], [2, 0], [4, 0], [1, 1], [3, 1]],                  // 5: upper-left + 4-stack
         [[2, 0], [1, 1], [3, 1], [0, 2], [2, 2], [4, 2]],          // 6: pyramid triangle (1-2-3)
         [[1, 0], [3, 0], [0, 1], [2, 1], [4, 1], [1, 2], [3, 2]], // 7: hexagon (2-3-2)
+        [[2, 0], [1, 1], [3, 1], [0, 2], [2, 2], [4, 2], [1, 3], [3, 3]], // 8: diamond (1-2-3-2)
       ];
       const STK_W = 38, STK_H = 33;
 
       function makeStackGroup(c, label, count) {
-        const layout = STACK_LAYOUTS[Math.min(count, 7)];
+        const layout = STACK_LAYOUTS[Math.min(count, 8)];
         const colStep = 16;
         const rowStep = 14;
         const maxCol = Math.max(...layout.map(p => p[0]));
