@@ -532,15 +532,20 @@ body {
 
 /* ---- SIMULATION PAGES ---- */
 
-.sim-page { padding: 1.5rem 2.5rem; max-width: 1200px; margin: 0 auto; }
+.sim-page {
+  height: calc(100vh - 42px);
+  display: flex; flex-direction: column; overflow: hidden;
+  padding: clamp(.3rem,.5vh,.5rem) clamp(.5rem,1vw,.8rem);
+  max-width: 1200px; margin: 0 auto; box-sizing: border-box;
+}
 
 .sim-header {
-  display: flex; align-items: center; gap: 1.4rem;
-  margin-bottom: 1.4rem; padding-bottom: 1rem;
+  display: flex; align-items: center; gap: .8rem; flex-shrink: 0;
+  margin-bottom: clamp(.25rem,.5vh,.6rem); padding-bottom: clamp(.2rem,.4vh,.45rem);
   border-bottom: 1px solid rgba(201,168,76,.2);
 }
-.sim-header h2 { flex: 1; font-size: 1.45rem; color: var(--gold); }
-.sim-stats { display: flex; gap: 1.5rem; font-size: .875rem; color: var(--text-dim); }
+.sim-header h2 { flex: 1; font-size: clamp(1rem,2vw,1.45rem); color: var(--gold); }
+.sim-stats { display: flex; gap: 1rem; font-size: clamp(.72rem,1.5vw,.875rem); color: var(--text-dim); }
 .sim-stats strong { color: var(--gold); }
 
 /* ---- BLACKJACK / BACCARAT TABLE ---- */
@@ -548,28 +553,29 @@ body {
 .blackjack-table, .baccarat-table {
   background: var(--felt);
   border: 3px solid #1b5e35;
-  border-radius: 18px; padding: 1.8rem 2rem;
-  margin-bottom: 1.4rem;
+  border-radius: 18px;
+  padding: clamp(.5rem,1vh,.9rem) clamp(.6rem,1.2vw,1.2rem);
+  margin-bottom: 0; flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
   box-shadow: inset 0 2px 12px rgba(0,0,0,.35), var(--shadow);
 }
 
 .area-label {
   font-size: .7rem; letter-spacing: 2px; text-transform: uppercase;
-  color: rgba(255,255,255,.35); margin-bottom: .7rem;
+  color: rgba(255,255,255,.35); margin-bottom: clamp(.2rem,.4vh,.4rem);
 }
 .hand-display {
-  display: flex; gap: .5rem; flex-wrap: wrap;
-  min-height: 110px; align-items: center;
+  display: flex; gap: .4rem; flex-wrap: wrap;
+  min-height: clamp(55px,9vh,80px); align-items: center;
 }
-.hand-value { margin-top: .45rem; font-size: .875rem; color: var(--gold); font-weight: 600; }
-.divider-line { border-top: 1px dashed rgba(255,255,255,.14); margin: .8rem 0; }
+.hand-value { margin-top: .3rem; font-size: .875rem; color: var(--gold); font-weight: 600; }
+.divider-line { border-top: 1px dashed rgba(255,255,255,.14); margin: clamp(.3rem,.5vh,.5rem) 0; }
 
 /* ---- 5-PLAYER ROW (flat) ---- */
 
 .bj-start-bar {
-  display: flex;
-  justify-content: center;
-  padding: .5rem 0 .9rem;
+  display: flex; justify-content: center; flex-shrink: 0;
+  padding: clamp(.25rem,.5vh,.4rem) 0;
 }
 .bj-start-btn {
   background: var(--gold);
@@ -588,15 +594,15 @@ body {
 .bj-start-btn:disabled { cursor: default; }
 
 .bj-play-area {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
+  display: flex; flex-direction: column;
+  flex: 1; min-height: 0;
+  gap: clamp(.3rem,.7vh,.6rem);
 }
 
 .players-row {
   display: flex;
-  gap: .6rem;
-  align-items: flex-start;
+  gap: clamp(.2rem,.4vw,.4rem);
+  align-items: stretch; flex: 1; min-height: 0;
 }
 
 /* Dealer below players, centered */
@@ -609,7 +615,7 @@ body {
 }
 .dealer-area-bj .hand-display {
   flex-wrap: nowrap;
-  min-height: 80px;
+  min-height: clamp(40px,7vh,60px);
   gap: .3rem;
   justify-content: center;
 }
@@ -662,10 +668,9 @@ body {
   background: rgba(0,0,0,.18);
   border: 2px solid transparent;
   border-radius: 10px;
-  padding: .6rem .5rem;
+  padding: clamp(.3rem,.6vh,.5rem) clamp(.25rem,.4vw,.4rem);
   transition: all .25s;
-  min-height: 210px;
-  flex: 1;
+  min-height: 0; flex: 1; overflow: hidden;
 }
 .player-spot.active {
   border-color: var(--gold);
@@ -731,11 +736,13 @@ body {
 
 .sim-controls {
   background: #0c1e30; border: 1px solid rgba(255,255,255,.07);
-  border-radius: 12px; padding: 1.2rem 1.5rem; margin-bottom: 1rem;
+  border-radius: 12px; flex-shrink: 0;
+  padding: clamp(.4rem,.8vh,.7rem) clamp(.6rem,1.2vw,.9rem);
+  margin-bottom: clamp(.2rem,.4vh,.4rem);
 }
 .message-board {
-  font-size: .975rem; color: var(--text);
-  margin-bottom: .9rem; min-height: 22px; font-weight: 500;
+  font-size: clamp(.8rem,1.7vw,.975rem); color: var(--text);
+  margin-bottom: clamp(.2rem,.4vh,.5rem); min-height: 20px; font-weight: 500;
 }
 .action-buttons { display: flex; gap: .7rem; flex-wrap: wrap; }
 
@@ -752,12 +759,12 @@ body {
   background: var(--felt);
   border-radius: 12px;
   overflow: hidden;
-  margin-bottom: .4rem;
+  margin-bottom: 0; flex: 1; min-height: 0;
   display: flex; flex-direction: row;
 }
 .rpay-bet-side {
   flex: 1; min-width: 0; position: relative;
-  padding: .8rem .8rem 2.4rem;
+  padding: clamp(.4rem,.7vh,.6rem) clamp(.4rem,.7vw,.6rem) clamp(.8rem,1.5vh,1.5rem);
   overflow: visible;
 }
 .rpay-bet-side::after {
@@ -788,7 +795,7 @@ body {
   font-size: .62rem; font-weight: 800;
   text-shadow: 0 1px 3px rgba(0,0,0,.7); white-space: nowrap;
 }
-.rpay-tray-row { margin-top: .2rem; }
+.rpay-tray-row { margin-top: .15rem; flex-shrink: 0; }
 
 /* Roulette pay zone — chip stack (20개 = 1 full stack) */
 .rpay-chip-stack {
@@ -944,9 +951,9 @@ body {
   box-shadow: inset 0 -2px 3px rgba(0,0,0,.1);
 }
 .rpay-right-col {
-  display: flex; flex-direction: column; gap: .35rem;
-  flex: 1; min-width: 0;
-  padding: .5rem .4rem;
+  display: flex; flex-direction: column; gap: .3rem;
+  flex: 1; min-width: 0; min-height: 0;
+  padding: clamp(.3rem,.6vh,.45rem) clamp(.3rem,.5vw,.4rem);
 }
 .rpay-timer {
   font-size: 1.6rem; font-weight: 900;
@@ -1152,7 +1159,7 @@ body {
 
 .bac-hand-wrap {
   display: flex; gap: .3rem; flex-wrap: wrap;
-  min-height: 110px; align-items: center;
+  min-height: clamp(55px,10vh,90px); align-items: center;
 }
 
 .bac-inline-btn {
@@ -1178,7 +1185,7 @@ body {
 
 .bac-field {
   display: flex; align-items: center;
-  min-height: 155px; padding: .4rem 0; overflow: visible;
+  flex: 1; min-height: 0; padding: clamp(.15rem,.3vh,.3rem) 0; overflow: visible;
 }
 .bac-banker-zone {
   flex: 1; display: flex; justify-content: flex-end; align-items: center;
@@ -1225,8 +1232,8 @@ body {
 .bac-newgame-btn:hover { background: rgba(255,255,255,.14); color: #fff; border-color: rgba(255,255,255,.35); }
 
 .bac-btn-cluster {
-  display: flex; align-items: center;
-  padding: .24rem 0;
+  display: flex; align-items: center; flex-shrink: 0;
+  padding: clamp(.1rem,.3vh,.2rem) 0;
 }
 .bac-bclust-side {
   flex: 1; display: flex; justify-content: center; align-items: center;
@@ -1803,8 +1810,8 @@ body {
 
 /* Card area — Banker and Player equal width */
 .bpay-card-area {
-  display: flex; align-items: stretch; gap: .7rem;
-  margin-bottom: 1.4rem;
+  display: flex; align-items: stretch; gap: .7rem; flex-shrink: 0;
+  margin-bottom: clamp(.3rem,.6vh,.6rem);
 }
 .bpay-side {
   flex: 1; min-width: 0;
@@ -1825,7 +1832,8 @@ body {
 
 /* 3 Player betting positions */
 .bpay-mode-row {
-  display: flex; gap: .6rem; justify-content: center; margin-bottom: .75rem;
+  display: flex; gap: .6rem; justify-content: center; flex-shrink: 0;
+  margin-bottom: clamp(.25rem,.5vh,.45rem);
 }
 .bpay-mode-btn {
   padding: .42rem 1.1rem;
@@ -1837,7 +1845,8 @@ body {
 .bpay-mode-btn:not(.active):hover { border-color: rgba(255,255,255,.3); color: var(--text); }
 
 .bpay-positions {
-  display: flex; gap: 1.6rem;
+  display: flex; gap: clamp(.6rem,1.2vw,1.6rem);
+  flex: 1; min-height: 0; overflow: hidden;
 }
 .bpay-pos {
   flex: 1; display: flex; flex-direction: column;
@@ -2104,7 +2113,7 @@ body {
 }
 
 /* Commission panel — dealer rack style */
-.bpay-comm-panel { margin-top: .2rem; width: 100%; box-sizing: border-box; }
+.bpay-comm-panel { margin-top: 0; width: 100%; box-sizing: border-box; flex-shrink: 0; }
 
 .comm-tray {
   position: relative;
@@ -2280,11 +2289,11 @@ body {
 
 /* ---- BACCARAT: START BAR (top center) ---- */
 .bac-start-bar {
-  display: flex; justify-content: center;
-  padding: 1.2rem 0 .4rem;
+  display: flex; justify-content: center; flex-shrink: 0;
+  padding: clamp(.3rem,.6vh,.5rem) 0 clamp(.15rem,.3vh,.25rem);
   padding-left: 64px;
   border-top: 1px solid rgba(255,255,255,.15);
-  margin-top: .6rem;
+  margin-top: clamp(.2rem,.4vh,.35rem);
 }
 .bac-start-top-btn {
   background: linear-gradient(135deg, #c9a84c 0%, #9a7820 100%);
