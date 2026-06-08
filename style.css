@@ -54,13 +54,24 @@ body {
 
 /* ---- SIDEBAR LAYOUT ---- */
 
-/* ---- Hamburger button ---- */
+/* ---- Top bar ---- */
+.top-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  height: 42px;
+  display: flex; align-items: center; gap: .7rem;
+  padding: 0 .7rem;
+  background: rgba(6,13,26,.92);
+  border-bottom: 1px solid rgba(201,168,76,.15);
+  backdrop-filter: blur(6px);
+}
+.top-bar-title {
+  font-size: .88rem; font-weight: 800; color: var(--gold);
+  letter-spacing: .5px; cursor: pointer; user-select: none;
+}
 .hamburger-btn {
-  position: fixed; top: .55rem; left: .6rem; z-index: 300;
-  background: rgba(6,13,26,.85); border: 1px solid rgba(201,168,76,.25);
-  border-radius: 7px; padding: .38rem .44rem;
+  background: none; border: none; padding: .3rem .25rem;
   display: flex; flex-direction: column; gap: 4px;
-  cursor: pointer; backdrop-filter: blur(4px);
+  cursor: pointer; flex-shrink: 0;
 }
 .hamburger-btn span {
   display: block; width: 20px; height: 2px;
@@ -185,6 +196,7 @@ body {
 
 .main-content {
   margin-left: 0; flex: 1; min-height: 100vh;
+  padding-top: 42px;
 }
 
 /* ---- BUTTONS ---- */
