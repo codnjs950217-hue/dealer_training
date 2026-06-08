@@ -2178,10 +2178,7 @@ const Sims = {
       if (!panel) return;
       panel.style.display = 'block';
       if (spread) { spread.style.display = 'flex'; spread.innerHTML = ''; }
-      const multBadge = S.currentMult !== undefined
-        ? `<div class="bside-mult-badge">×${S.currentMult}</div>` : '';
       panel.innerHTML = `<div class="comm-tray">
-        ${multBadge}
         <div class="comm-tray-slots">
           ${COMM_CHIPS.filter(c => c.val >= 10000).map(c => `
             <div class="comm-slot">

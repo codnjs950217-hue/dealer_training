@@ -1941,7 +1941,7 @@ body {
 }
 
 /* Commission panel — dealer rack style */
-.bpay-comm-panel { margin-top: .55rem; width: 100%; box-sizing: border-box; }
+.bpay-comm-panel { margin-top: .2rem; width: 100%; box-sizing: border-box; }
 
 .comm-tray {
   position: relative;
@@ -2578,8 +2578,8 @@ body {
 * { touch-action: manipulation; }
 
 /* ---- Side Bet Practice: compact mobile layout ---- */
-.bside-sim .baccarat-table   { padding: .8rem .6rem; overflow: visible; }
-.bside-sim .sim-header       { margin-bottom: .6rem; padding-bottom: .5rem; }
+.bside-sim .baccarat-table   { padding: .4rem .6rem; overflow: visible; }
+.bside-sim .sim-header       { margin-bottom: .3rem; padding-bottom: .3rem; }
 .bside-sim .bpay-spread-section { min-height: 44px; padding: .3rem .3rem .2rem; }
 .bside-sim .spread-disc             { width: 34px; height: 34px; font-size: .58rem; margin-left: -9px; }
 .bside-sim .spread-disc.spread-gap  { margin-left: 8px; }
@@ -2696,8 +2696,8 @@ body {
 .bside-bet-disc.group5gap   { margin-left: 6px; }
 
 @media (max-width: 768px) {
-  .bside-sim .baccarat-table  { padding: .7rem .5rem; }
-  .bside-sim .sim-header      { margin-bottom: .5rem; padding-bottom: .45rem; }
+  .bside-sim .baccarat-table  { padding: .3rem .5rem; }
+  .bside-sim .sim-header      { margin-bottom: .25rem; padding-bottom: .25rem; }
   .bside-sim .sim-header h2   { font-size: 1.1rem; }
   .bside-layout .bpay-oval    { min-height: 32px; max-height: 38px; }
   .bside-layout .bpay-oval-lbl { font-size: .88rem; }
