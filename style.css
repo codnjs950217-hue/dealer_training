@@ -668,20 +668,13 @@ body {
   border-left:  1px solid rgba(255,255,255,.18);
   border-right: 1px solid rgba(0,0,0,.5);
 }
-/* 5-chip mini-stack (color chips) — spread context: 26px wide, compact body */
-.rpay-mini-stack .rpay-chip-stack-body { height: 31px; }
-.rpay-cc-spread .rpay-mini-stack { z-index: 2; width: 26px; }
-.rpay-cc-spread .rpay-mini-stack .rpay-chip-stack-face { width: 26px; height: 10px; margin-bottom: -5px; }
-.rpay-cc-spread .rpay-mini-stack .rpay-chip-stack-body { width: 26px; height: 20px; }
-.rpay-cc-spread .rpay-cc-disc { z-index: 1; }
-
-/* Roulette pay zone: baccarat-style color chip spread */
+/* Roulette pay zone: baccarat-style chip spread */
 .rpay-cc-spread {
   display: flex; flex-direction: row; align-items: flex-end;
 }
-.rpay-cc-spread .rpay-mini-stack + .rpay-mini-stack { margin-left: -3px; }
-.rpay-cc-spread .rpay-mini-stack + .rpay-cc-disc  { margin-left: -9px; }
-.rpay-cc-spread .rpay-cc-disc   + .rpay-cc-disc   { margin-left: -9px; }
+.rpay-cc-spread .rpay-cc-disc { margin-left: -9px; position: relative; }
+.rpay-cc-spread .rpay-cc-disc:first-child { margin-left: 0; }
+.rpay-cc-spread .rpay-cc-disc.rpay-disc-gap5 { margin-left: 4px; }
 .rpay-cc-disc {
   width: 26px; height: 26px; border-radius: 50%;
   flex-shrink: 0;
