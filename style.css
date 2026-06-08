@@ -662,19 +662,19 @@ body {
       rgba(0,0,0,.55)       100%),
     repeating-linear-gradient(
       to bottom,
-      var(--stk-bg) 0px, var(--stk-bg) 2px,
-      rgba(0,0,0,.75) 2px,  rgba(0,0,0,.75) 4px
+      var(--stk-bg) 0px, var(--stk-bg) 3px,
+      rgba(0,0,0,.7) 3px,  rgba(0,0,0,.7) 4px
     );
   border-left:  1px solid rgba(255,255,255,.18);
   border-right: 1px solid rgba(0,0,0,.5);
 }
 /* Bottom ellipse — closes the cylinder, overlaps body bottom edge */
 .rpay-chip-stack-bottom {
-  width: 38px; height: 8px;
+  width: 38px; height: 10px;
   border-radius: 50%;
   background: transparent;
   flex-shrink: 0;
-  margin-top: -4px;
+  margin-top: -7px;
 }
 /* Label on top chip face of each stack */
 .rpay-stack-label {
@@ -1817,18 +1817,19 @@ body {
       rgba(0,0,0,.55)       100%),
     repeating-linear-gradient(
       to bottom,
-      #2e7d32 0px, #2e7d32 2px,
-      rgba(0,0,0,.75) 2px, rgba(0,0,0,.75) 4px
+      #2e7d32 0px, #2e7d32 3px,
+      rgba(0,0,0,.7) 3px, rgba(0,0,0,.7) 4px
     );
   border-left:  1px solid rgba(255,255,255,.18);
   border-right: 1px solid rgba(0,0,0,.5);
 }
+.bpay-chip-stack-half .bpay-chip-stack-body { height: 24px; }
 .bpay-chip-stack-bottom {
-  width: 38px; height: 8px;
+  width: 38px; height: 10px;
   border-radius: 50%;
   background: #1a5220;
   flex-shrink: 0;
-  margin-top: -4px;
+  margin-top: -7px;
 }
 /* 10K chip stack — same width as disc, face + layer elements stacked downward */
 .bpay-chip-stack {
