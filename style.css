@@ -1254,8 +1254,8 @@ body {
   overflow: visible; position: relative; gap: .35rem;
   padding-left: 24px;
 }
-.bac-bh-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; min-width: calc(var(--card-w-lg) * 2 + 1rem); }
-.bac-ph-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; min-width: calc(var(--card-w-lg) * 2 + 1rem); }
+.bac-bh-wrap { flex-direction: row-reverse; justify-content: flex-end; flex-wrap: nowrap; gap: .35rem; min-width: calc(var(--card-w-lg) * 2 + .35rem); }
+.bac-ph-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; min-width: calc(var(--card-w-lg) * 2 + .35rem); }
 
 .bac-field-divider {
   width: clamp(56px,9vw,80px); flex-shrink: 0; align-self: stretch;
@@ -2461,6 +2461,7 @@ body {
   border: 1px solid rgba(180,150,255,.5);
   padding: .38rem .75rem; border-radius: var(--r);
   font-weight: 700; cursor: pointer; font-size: .75rem;
+  min-height: var(--tap-h);
   transition: all .18s; white-space: nowrap;
 }
 
