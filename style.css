@@ -117,10 +117,14 @@ body {
 .home-btn {
   background: none; border: none;
   color: rgba(255,255,255,.75);
-  font-size: clamp(1.8rem,4vw,2.4rem);
   padding: .2rem .3rem; cursor: pointer;
   line-height: 1; flex-shrink: 0;
   transition: color .15s;
+  display: flex; align-items: center;
+}
+.home-btn svg {
+  width: clamp(1.6rem,3.5vw,2.1rem);
+  height: clamp(1.6rem,3.5vw,2.1rem);
 }
 .home-btn:hover { color: var(--gold); }
 
