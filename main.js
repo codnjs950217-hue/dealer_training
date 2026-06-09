@@ -1371,7 +1371,7 @@ const Sims = {
       setTimeout(() => {
         ids.forEach(id => revealFlip(id));
         setTimeout(onDone, 650);
-      }, cards.length * 420 + 480);
+      }, (cards.length - 1) * 420 + 430);
     }
 
     function addCard(hand, elId, onDone, extraClass = '', sideways = false) {
