@@ -1971,8 +1971,8 @@ const Sims = {
               <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
               <input type="hidden" id="bpay-ci-${c.key}" value="0">
               <div class="comm-5k-btns">
-                <button class="comm-5k-btn" onclick="Sims.baccaratPay.addChip('${c.key}',5)">+5개</button>
-                <button class="comm-5k-btn" onclick="Sims.baccaratPay.addChip('${c.key}',1)">+1개</button>
+                <button class="comm-5k-btn" onclick="Sims.baccaratPay.addChip('${c.key}',5)">+5</button>
+                <button class="comm-5k-btn" onclick="Sims.baccaratPay.addChip('${c.key}',1)">+1</button>
               </div>
               <button class="comm-5k-reset" onclick="Sims.baccaratPay.resetChip('${c.key}')">RESET</button>
             </div>`).join('')}
@@ -2259,8 +2259,8 @@ const Sims = {
               <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
               <input type="hidden" id="bside-ci-${c.key}" value="0">
               <div class="comm-5k-btns">
-                <button class="comm-5k-btn" onclick="Sims.baccaratSide.addChip('${c.key}',5)">+5개</button>
-                <button class="comm-5k-btn" onclick="Sims.baccaratSide.addChip('${c.key}',1)">+1개</button>
+                <button class="comm-5k-btn" onclick="Sims.baccaratSide.addChip('${c.key}',5)">+5</button>
+                <button class="comm-5k-btn" onclick="Sims.baccaratSide.addChip('${c.key}',1)">+1</button>
               </div>
               <button class="comm-5k-reset" onclick="Sims.baccaratSide.resetChip('${c.key}')">RESET</button>
             </div>`).join('')}
@@ -2391,10 +2391,10 @@ const Sims = {
   // ---- ROULETTE PAYOUT PRACTICE (Option A: single-bet drill) ----
   roulettePay: (() => {
     const COLOR_CHIPS = [
-      { key: 'red',    val:   5_000, bg: '#e53935', fg: '#fff'    },
-      { key: 'blue',   val:  10_000, bg: '#1565c0', fg: '#fff'    },
-      { key: 'green',  val:  25_000, bg: '#2e7d32', fg: '#fff'    },
-      { key: 'yellow', val:  50_000, bg: '#f9a825', fg: '#1a1a1a' },
+      { key: 'white',  val:   5_000, bg: '#f0ece4', fg: '#2a2a2a' },
+      { key: 'teal',   val:  10_000, bg: '#00838f', fg: '#fff'    },
+      { key: 'lime',   val:  25_000, bg: '#9ccc65', fg: '#1a1a1a' },
+      { key: 'brown',  val:  50_000, bg: '#6d4c41', fg: '#fff'    },
       { key: 'purple', val: 100_000, bg: '#7b1fa2', fg: '#fff'    },
       { key: 'orange', val: 200_000, bg: '#e65100', fg: '#fff'    },
     ];
@@ -2659,17 +2659,17 @@ const Sims = {
               <div class="comm-slot">
                 <div class="comm-slot-chip" id="rpay-disc-${c.key}" style="background:${c.bg};color:${c.fg}">${c.key}</div>
                 <div class="comm-5k-btns">
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',20)">+20개</button>
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',5)">+5개</button>
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">+1개</button>
+                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',20)">+20</button>
+                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',5)">+5</button>
+                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">+1</button>
                 </div>
               </div>`).join('')}
             <div class="comm-slot">
               <div class="comm-slot-chip" id="rpay-disc-color" style="background:${color.bg};color:${color.fg}">CC</div>
               <div class="comm-5k-btns">
-                <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',20)">+20개</button>
-                <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',5)">+5개</button>
-                <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',1)">+1개</button>
+                <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',20)">+20</button>
+                <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',5)">+5</button>
+                <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',1)">+1</button>
               </div>
             </div>
             <div class="comm-pay-slot">
