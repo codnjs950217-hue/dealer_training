@@ -581,9 +581,9 @@ body {
   color: rgba(255,255,255,.65);
   border-radius: 8px;
   padding: 0 clamp(.35rem,.7vw,.5rem);
-  font-size: clamp(.78rem,1.6vw,.9rem);
+  font-size: clamp(.95rem,2vw,1.15rem);
   cursor: pointer;
-  min-height: clamp(28px,4vh,36px); min-width: clamp(28px,4vh,36px);
+  min-height: clamp(38px,5.5vh,48px); min-width: clamp(38px,5.5vh,48px);
   display: flex; align-items: center; justify-content: center;
   transition: all .18s;
 }
