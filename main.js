@@ -318,7 +318,7 @@ const Views = {
   baccaratPaySim: () => `
     <div class="sim-page baccarat-sim">
       <div class="bpay-mode-row">
-        <button class="table-refresh-btn bpay-hdr-btn" onclick="App.reload()" title="Restart">↺</button>
+        <button class="table-refresh-btn bpay-hdr-btn" onclick="Sims.baccaratPay.restart()" title="Restart">↺</button>
         <div class="bpay-mode-btns">
           <button id="bpay-btn-commission" class="bpay-mode-btn active" onclick="Sims.baccaratPay.setMode('commission')">💰 Commission (5%)</button>
           <button id="bpay-btn-halfpay"    class="bpay-mode-btn"        onclick="Sims.baccaratPay.setMode('halfpay')">½ Half Pay</button>
@@ -1907,19 +1907,19 @@ const Sims = {
           const chip = COMM_CHIPS.find(c => c.key === key);
           const newGroup = groupIdx > 0;
           if (key === '10K' && cnt === 10) {
-            discs += `<div class="bpay-chip-stack bpay-chip-stack-half${newGroup ? ' new-denom' : ''}">` +
+            discs += `<div class="bpay-chip-stack bpay-chip-stack-half${newGroup ? ' new-denom' : ''}" style="--stk-bg:${chip.bg};--stk-fg:${chip.fg}">` +
               `<div class="bpay-chip-stack-face"></div>` +
               `<div class="bpay-chip-stack-body"></div>` +
-              `<div class="bpay-chip-stack-label"><span class="bpay-stack-key">10K</span><span class="bpay-stack-cnt">×5</span></div>` +
+              `<div class="bpay-chip-stack-label"><span class="bpay-stack-key">${key}</span><span class="bpay-stack-cnt">×5</span></div>` +
               `</div>`;
             for (let j = 0; j < 5; j++) {
               discs += `<div class="bpay-chip-disc bpay-stack-spread-disc" style="background:${chip.bg};color:${chip.fg}">${chip.key}</div>`;
             }
           } else if (key === '10K' && cnt > 10) {
-            discs += `<div class="bpay-chip-stack bpay-chip-stack-full${newGroup ? ' new-denom' : ''}">` +
+            discs += `<div class="bpay-chip-stack bpay-chip-stack-full${newGroup ? ' new-denom' : ''}" style="--stk-bg:${chip.bg};--stk-fg:${chip.fg}">` +
               `<div class="bpay-chip-stack-face"></div>` +
               `<div class="bpay-chip-stack-body"></div>` +
-              `<div class="bpay-chip-stack-label"><span class="bpay-stack-key">10K</span><span class="bpay-stack-cnt">×${cnt}</span></div>` +
+              `<div class="bpay-chip-stack-label"><span class="bpay-stack-key">${key}</span><span class="bpay-stack-cnt">×${cnt}</span></div>` +
               `</div>`;
           } else {
             for (let j = 0; j < cnt; j++) {
@@ -2024,6 +2024,12 @@ const Sims = {
       init() {
         S = { bets: [], commIdx: 0, rounds: 0, score: 0, commTarget: 0, mode: 'commission', lastTotal: 0 };
         this.deal();
+      },
+
+      restart() {
+        const cur = S.mode || 'commission';
+        S = { bets: [], commIdx: 0, rounds: 0, score: 0, commTarget: 0, mode: cur, lastTotal: 0 };
+        this.setMode(cur);
       },
 
       setMode(mode) {

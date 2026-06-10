@@ -2185,7 +2185,7 @@ body {
       rgba(0,0,0,.55)       100%),
     repeating-linear-gradient(
       to bottom,
-      #2e7d32 0px, #2e7d32 3px,
+      var(--stk-bg) 0px, var(--stk-bg) 3px,
       rgba(0,0,0,.7) 3px, rgba(0,0,0,.7) 4px
     );
   border-left:  1px solid rgba(255,255,255,.18);
@@ -2201,28 +2201,17 @@ body {
 }
 .bpay-chip-spread .bpay-chip-stack { margin-left: 8px; }
 .bpay-chip-spread .bpay-chip-stack.new-denom { margin-left: 8px; }
-/* Top chip face */
+/* Top chip face — uses --stk-bg CSS var set inline per chip color */
 .bpay-chip-stack-face {
   width: var(--ch-md); height: clamp(12px, 1.8vw, 16px);
   border-radius: 50%;
-  background: linear-gradient(165deg, #66bb6a 0%, #2e7d32 55%, #1a5220 100%);
-  border: 2px solid rgba(255,255,255,.38);
-  color: #fff;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  background: var(--stk-bg);
+  box-shadow:
+    inset 0 3px 7px rgba(255,255,255,.5),
+    inset 0 -2px 4px rgba(0,0,0,.4);
   flex-shrink: 0;
   position: relative; z-index: 2;
   margin-bottom: -7px;
-}
-/* Each subsequent chip edge */
-.bpay-chip-stack-layer {
-  width: var(--ch-md); height: 1px;
-  background: #2e7d32;
-  border-radius: 0 0 50% 50%;
-  border-left: 1px solid rgba(255,255,255,.2);
-  border-right: 1px solid rgba(255,255,255,.2);
-  border-bottom: 1.5px solid rgba(255,255,255,.28);
-  border-top: 1.5px solid rgba(0,0,0,.5);
-  flex-shrink: 0;
 }
 /* Label floats at vertical center of the full stack */
 .bpay-chip-stack-label {
