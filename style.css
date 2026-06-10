@@ -1305,8 +1305,7 @@ body {
 }
 /* Result badge row pushed to bottom of table */
 .bac-field + .bac-btn-cluster {
-  margin-top: auto;
-  padding-top: clamp(.4rem,1vh,.7rem);
+  margin-top: clamp(1.2rem,3.5vh,3rem);
 }
 .bac-btn-cluster-quiz {
   height: clamp(100px,24vh,155px); overflow: visible;
