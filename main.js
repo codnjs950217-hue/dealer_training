@@ -2124,16 +2124,29 @@ const Sims = {
     const $ = id => document.getElementById(id);
 
     function generateSideChips(key) {
-      const maxAmt  = SIDE_BET_MAX[key] ?? 1_000_000;
-      const maxUnits = maxAmt / SIDE_BET_MIN;
-      const units   = 1 + Math.floor(Math.random() * maxUnits);
-      const total   = units * SIDE_BET_MIN;
-      const cnt100  = Math.floor(total / 100_000);
-      const cnt10   = (total % 100_000) / 10_000;
-      const result  = {};
-      if (cnt100 > 0) result[SIDE_CHIPS[0].key] = cnt100;
-      if (cnt10  > 0) result[SIDE_CHIPS[1].key] = cnt10;
-      return result;
+      const maxAmt = SIDE_BET_MAX[key] ?? 1_000_000;
+      const roll = Math.random();
+      // 40% one-color, 50% two-color, 10% three-color (1M only when max allows)
+      const target = roll < 0.4 ? 1 : roll < 0.9 ? 2 : 3;
+      const numColors = (target === 3 && maxAmt >= 1_100_000) ? 3 : Math.min(target, 2);
+
+      if (numColors === 1) {
+        return Math.random() < 0.5
+          ? { '100K': 1 + Math.floor(Math.random() * Math.min(Math.floor(maxAmt / 100_000), 9)) }
+          : { '10K':  1 + Math.floor(Math.random() * 9) };
+      }
+      if (numColors === 2) {
+        return {
+          '100K': 1 + Math.floor(Math.random() * Math.min(Math.floor(maxAmt / 100_000) - 1, 9)),
+          '10K':  1 + Math.floor(Math.random() * 9),
+        };
+      }
+      // 3-color: 1M + 100K + 10K
+      return {
+        '1M':   1 + Math.floor(Math.random() * 5),
+        '100K': 1 + Math.floor(Math.random() * 9),
+        '10K':  1 + Math.floor(Math.random() * 9),
+      };
     }
 
     function chipTotal(chips) {
