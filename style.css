@@ -2362,7 +2362,7 @@ body {
 /* ---- BACCARAT: START BAR (top center) ---- */
 .bac-start-bar {
   position: absolute;
-  top: 38%; left: 50%;
+  top: 22%; left: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
   display: flex; justify-content: center;
