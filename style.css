@@ -1698,6 +1698,21 @@ body {
 
 /* ---- BLACKJACK: CARD DIAGONAL CASCADE ---- */
 
+/* Larger cards scoped to blackjack sim */
+.blackjack-sim {
+  --card-w-sm: clamp(42px, 12vh, 66px);
+  --card-h-sm: clamp(60px, 17vh, 94px);
+  --card-cascade: clamp(9px, 2.6vh, 14px);
+}
+.blackjack-sim .player-spot .card-corner .rank { font-size: clamp(.65rem, 2.1vh, 1.02rem); }
+.blackjack-sim .player-spot .card-corner .suit { font-size: clamp(.52rem, 1.7vh, .84rem); }
+.blackjack-sim .player-spot .card-suit-center  { font-size: clamp(1.05rem, 3vh, 1.6rem); }
+.blackjack-sim .player-spot .card-pattern      { width: clamp(28px, 8vh, 50px); height: clamp(40px, 11vh, 74px); }
+.blackjack-sim .dealer-area-bj .card-corner .rank { font-size: clamp(.65rem, 2.1vh, 1.02rem); }
+.blackjack-sim .dealer-area-bj .card-corner .suit { font-size: clamp(.52rem, 1.7vh, .84rem); }
+.blackjack-sim .dealer-area-bj .card-suit-center  { font-size: clamp(1.05rem, 3vh, 1.6rem); }
+.blackjack-sim .dealer-area-bj .card-pattern      { width: clamp(28px, 8vh, 50px); height: clamp(40px, 11vh, 74px); }
+
 .player-spot .hand-display {
   display: flex;
   flex-wrap: nowrap;
@@ -1705,6 +1720,9 @@ body {
   min-height: clamp(80px,18vh,136px);
   gap: 0;
   position: relative;
+}
+.blackjack-sim .player-spot .hand-display {
+  min-height: clamp(100px, 24vh, 165px);
 }
 
 /* BJ flip-card wrapper — sized to match player spot cards */

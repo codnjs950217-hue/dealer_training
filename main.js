@@ -916,6 +916,17 @@ const Sims = {
       return S.deck.pop();
     }
 
+    function pullRank(rank) {
+      const idx = S.deck.findIndex(c => c.rank === rank);
+      if (idx >= 0) { const [c] = S.deck.splice(idx, 1); return c; }
+      return S.deck.pop();
+    }
+    function pullFrom(ranks) {
+      const idx = S.deck.findIndex(c => ranks.includes(c.rank));
+      if (idx >= 0) { const [c] = S.deck.splice(idx, 1); return c; }
+      return S.deck.pop();
+    }
+
     function safeHit(hand) {
       const indices = Array.from({length: S.deck.length}, (_, i) => i);
       for (let i = indices.length - 1; i > 0; i--) {
@@ -1111,13 +1122,26 @@ const Sims = {
         clearDealerCtrl();
         disableStart();
 
-        // Deal round 1: all players get first card, then dealer upcard
-        for (let i = 0; i < N; i++) S.players[i].hand.push(S.deck.pop());
-        S.dh.push(S.deck.pop()); // dealer upcard (only card at start)
+        // 3 of 5 spots get ace-led low hands (A + 2-5 = soft 13-16 → guaranteed hit)
+        const hitSpots = new Set(
+          [...Array(N)].map((_, i) => i).sort(() => Math.random() - .5).slice(0, 3)
+        );
 
-        // Deal round 2: players only, no second dealer card
+        // Round 1: first card per player
         for (let i = 0; i < N; i++) {
-          S.players[i].hand.push(nonBJCard(S.players[i].hand[0]));
+          S.players[i].hand.push(hitSpots.has(i) ? pullRank('A') : S.deck.pop());
+        }
+        // Dealer upcard: 30% chance of ace
+        S.dh.push(Math.random() < .3 ? pullRank('A') : S.deck.pop());
+
+        // Round 2: second card per player
+        for (let i = 0; i < N; i++) {
+          if (hitSpots.has(i)) {
+            // A + 2/3/4/5 → soft 13-16, always triggers a hit
+            S.players[i].hand.push(pullFrom(['2','3','4','5']));
+          } else {
+            S.players[i].hand.push(nonBJCard(S.players[i].hand[0]));
+          }
         }
 
         // Clear hand displays
