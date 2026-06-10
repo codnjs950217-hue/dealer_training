@@ -1474,17 +1474,7 @@ body {
 
 /* ---- BACCARAT: DEALER HAND ANIMATION ---- */
 
-@keyframes dealHandFlick {
-  0%   { opacity: 0;  transform: translate(-50%,-50%) scale(.6)  rotate(28deg); }
-  18%  { opacity: 1;  transform: translate(-50%,-50%) scale(1)   rotate(0deg);  }
-  72%  { opacity: .7; transform: translate(calc(-50% + var(--dx)*.78), calc(-50% + var(--dy)*.78)) rotate(-8deg); }
-  100% { opacity: 0;  transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(-18deg) scale(.8); }
-}
-.deal-hand-icon {
-  position: absolute; z-index: 25; pointer-events: none;
-  font-size: clamp(1.6rem, 4.5vh, 2.4rem); line-height: 1;
-  animation: dealHandFlick .38s cubic-bezier(.4,0,.6,1) forwards;
-}
+
 .flip-inner {
   position: relative;
   width: var(--card-w-lg); height: var(--card-h-lg);
