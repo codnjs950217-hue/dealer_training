@@ -1166,9 +1166,9 @@ body {
   --card-w-lg: clamp(58px, 15.5vh, 100px);
   --card-h-lg: clamp(80px, 21.5vh, 140px);
 }
-.baccarat-sim .card-corner .rank { font-size: clamp(.88rem, 2.6vh, 1.3rem); }
-.baccarat-sim .card-corner .suit { font-size: clamp(.7rem,  2.1vh, 1.05rem); }
-.baccarat-sim .card-suit-center  { font-size: clamp(1.5rem, 4.5vh, 2.4rem); }
+.baccarat-sim .card-corner .rank { font-size: clamp(1rem,   3vh,   1.55rem); }
+.baccarat-sim .card-corner .suit { font-size: clamp(.78rem, 2.3vh, 1.2rem); }
+.baccarat-sim .card-suit-center  { font-size: clamp(1.65rem,5vh,  2.7rem); }
 
 .bac-table-layout {
   display: flex;
@@ -1313,7 +1313,7 @@ body {
   gap: .3rem; flex-wrap: wrap; min-height: clamp(26px,5vh,40px);
 }
 .bac-bclust-mid {
-  width: clamp(130px,20vw,175px); flex-shrink: 0;
+  width: clamp(210px,42vw,300px); flex-shrink: 0;
   display: flex; justify-content: center; align-items: center;
   min-height: clamp(26px,5vh,40px); overflow: visible; position: relative;
 }
@@ -1321,8 +1321,14 @@ body {
   min-height: clamp(72px,20vh,140px); align-items: flex-start;
   padding-top: clamp(.4rem,1.2vh,.8rem);
 }
-#bac-b-btn-top { padding-left: clamp(1rem, 3vw, 1.8rem); }
-#bac-p-btn-top { padding-right: clamp(1rem, 3vw, 1.8rem); }
+#bac-b-btn-top { padding-left: clamp(.2rem, .5vw, .4rem); }
+#bac-p-btn-top { padding-right: clamp(.2rem, .5vw, .4rem); }
+
+/* BANKER WIN / PLAYER WIN wrap to 2 lines so they fit in narrowed side columns */
+.bac-btn-cluster-quiz .bac-bclust-side .bac-inline-btn:not(.btn-bac-special) {
+  white-space: normal; text-align: center; line-height: 1.25;
+  padding-left: .2rem; padding-right: .2rem;
+}
 .bac-btn-cluster-quiz .bac-bclust-mid {
   min-height: clamp(44px,12vh,82px);
   align-items: flex-start;
@@ -2356,7 +2362,7 @@ body {
 /* ---- BACCARAT: START BAR (top center) ---- */
 .bac-start-bar {
   position: absolute;
-  top: 50%; left: 50%;
+  top: 38%; left: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
   display: flex; justify-content: center;
@@ -2379,16 +2385,16 @@ body {
 .bac-start-top-btn:disabled { opacity: .4; cursor: default; }
 
 @keyframes nextHandPulse {
-  0%, 100% { box-shadow: 0 4px 22px rgba(30,90,200,.55), 0 0 0 0 rgba(60,130,240,.45); }
-  50%       { box-shadow: 0 4px 22px rgba(30,90,200,.55), 0 0 0 7px rgba(60,130,240,0); }
+  0%, 100% { box-shadow: 0 4px 22px rgba(200,160,20,.6), 0 0 0 0 rgba(230,200,30,.45); }
+  50%       { box-shadow: 0 4px 22px rgba(200,160,20,.6), 0 0 0 8px rgba(230,200,30,0); }
 }
 .bac-next-hand-btn {
   position: absolute;
   bottom: clamp(8px,1.8vh,14px); right: clamp(8px,1.5vw,14px);
   z-index: 10;
-  background: linear-gradient(135deg, #3378e0 0%, #1850b4 100%);
-  border: 2px solid rgba(140,200,255,.7);
-  color: #fff;
+  background: linear-gradient(135deg, #e8c93a 0%, #c49a10 100%);
+  border: 2px solid rgba(255,230,80,.75);
+  color: #1a1000;
   border-radius: 12px;
   padding: clamp(.75rem,1.9vh,1.1rem) clamp(1.7rem,4.2vw,3.2rem);
   font-size: clamp(1.05rem,2.6vh,1.28rem);
@@ -2400,9 +2406,9 @@ body {
   transition: all .18s;
 }
 .bac-next-hand-btn:hover {
-  background: linear-gradient(135deg, #4a8ef0 0%, #2868cc 100%);
-  border-color: rgba(180,225,255,.9);
-  box-shadow: 0 8px 32px rgba(50,120,240,.75);
+  background: linear-gradient(135deg, #f5d84a 0%, #d4aa20 100%);
+  border-color: rgba(255,240,100,.95);
+  box-shadow: 0 8px 32px rgba(210,170,20,.75);
   transform: translateY(-2px);
   animation: none;
 }
