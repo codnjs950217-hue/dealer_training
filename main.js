@@ -1366,14 +1366,35 @@ const Sims = {
       setTimeout(() => { ov.remove(); retryFn(); }, 1600);
     }
 
+    function spawnDealHand(targetId) {
+      const shoe   = document.querySelector('.shoe-visual');
+      const tbl    = document.querySelector('.baccarat-table');
+      const target = $(targetId);
+      if (!shoe || !tbl || !target) return;
+      const tR = tbl.getBoundingClientRect();
+      const sR = shoe.getBoundingClientRect();
+      const dR = target.getBoundingClientRect();
+      const sx = sR.left + sR.width  / 2 - tR.left;
+      const sy = sR.top  + sR.height / 2 - tR.top;
+      const h  = document.createElement('div');
+      h.className   = 'deal-hand-icon';
+      h.textContent = '🤚';
+      h.style.left  = sx + 'px';
+      h.style.top   = sy + 'px';
+      h.style.setProperty('--dx', (dR.left + dR.width  / 2 - tR.left - sx) + 'px');
+      h.style.setProperty('--dy', (dR.top  + dR.height / 2 - tR.top  - sy) + 'px');
+      tbl.appendChild(h);
+      setTimeout(() => h.remove(), 420);
+    }
+
     function dealSequence(cards, targets, onDone) {
       const ids = [];
       cards.forEach((card, i) => {
         const id = ++flipId; ids.push(id);
-        const dirClass = targets[i] === 'bac-bh' ? 'deal-to-banker' : '';
         setTimeout(() => {
+          spawnDealHand(targets[i]);
           const el = $(targets[i]);
-          if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id, dirClass));
+          if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id));
         }, i * 420);
       });
       setTimeout(() => {
