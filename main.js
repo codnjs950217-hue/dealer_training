@@ -256,17 +256,17 @@ const Views = {
           <div class="bac-bclust-mid" id="bac-tie-btn"></div>
           <div class="bac-bclust-side" id="bac-p-btn-top"></div>
         </div>
-        <div class="bac-field-labels">
-          <div class="bac-fll bac-fll-banker"><span>BANKER</span></div>
-          <div style="width:clamp(56px,9vw,80px);flex-shrink:0"></div>
-          <div class="bac-fll bac-fll-player"><span>PLAYER</span></div>
-        </div>
         <div class="bac-field">
           <div class="bac-shoe-col">
             <div class="shoe-visual">
               <div class="shoe-label-text">SHOE</div>
               <div class="shoe-card-slot"></div>
             </div>
+          </div>
+          <div class="bac-field-labels">
+            <div class="bac-fll bac-fll-banker"><span>BANKER</span></div>
+            <div style="width:clamp(56px,9vw,80px);flex-shrink:0"></div>
+            <div class="bac-fll bac-fll-player"><span>PLAYER</span></div>
           </div>
           <div class="bac-banker-zone">
             <div class="bac-third-slot" id="bac-bh3"></div>

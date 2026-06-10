@@ -1311,6 +1311,8 @@ body {
   min-height: clamp(72px,20vh,140px); align-items: flex-start;
   padding-top: clamp(.4rem,1.2vh,.8rem);
 }
+#bac-b-btn-top { justify-content: flex-end; }
+#bac-p-btn-top { justify-content: flex-start; }
 .bac-btn-cluster-quiz .bac-bclust-mid {
   min-height: clamp(44px,12vh,82px); align-items: center;
 }
@@ -1322,8 +1324,11 @@ body {
 /* ---- BACCARAT: FIELD SIDE LABELS ---- */
 
 .bac-field-labels {
+  position: absolute;
+  top: calc(50% - var(--card-h-lg)/2 - 1.6rem);
+  left: 0; right: 0;
   display: flex; align-items: center;
-  padding: .15rem 0 .05rem;
+  pointer-events: none; z-index: 5;
 }
 .bac-fll {
   flex: 1; display: flex; align-items: center;
