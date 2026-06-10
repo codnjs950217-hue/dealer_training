@@ -1296,6 +1296,7 @@ body {
 }
 .bac-btn-cluster-quiz {
   height: clamp(100px,24vh,155px); overflow: visible;
+  align-items: stretch;
 }
 .bac-bclust-side {
   flex: 1; display: flex; justify-content: center; align-items: center;
