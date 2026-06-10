@@ -1303,8 +1303,13 @@ body {
   display: flex; align-items: center; flex-shrink: 0;
   padding: clamp(.1rem,.3vh,.2rem) 0;
 }
+/* Result badge row pushed to bottom of table */
+.bac-field + .bac-btn-cluster {
+  margin-top: auto;
+  padding-top: clamp(.4rem,1vh,.7rem);
+}
 .bac-btn-cluster-quiz {
-  height: clamp(100px,24vh,155px); overflow: visible;
+  flex-wrap: wrap; height: auto; overflow: visible;
   align-items: stretch;
   padding: 0 clamp(.6rem,2vw,2rem);
 }
@@ -1318,19 +1323,28 @@ body {
   min-height: clamp(26px,5vh,40px); overflow: visible; position: relative;
 }
 .bac-btn-cluster-quiz .bac-bclust-side {
-  min-height: clamp(72px,20vh,140px); align-items: flex-start;
+  min-height: clamp(64px,17vh,120px); align-items: flex-start;
   padding-top: clamp(.4rem,1.2vh,.8rem);
 }
 #bac-b-btn-top { padding-left: clamp(1rem, 3vw, 1.8rem); }
 #bac-p-btn-top { padding-right: clamp(1rem, 3vw, 1.8rem); }
-.bac-btn-cluster-quiz .bac-bclust-mid {
+
+/* TIE: own full-width row below BANKER WIN / PLAYER WIN */
+.bac-btn-cluster-quiz #bac-tie-btn {
+  order: 3;
+  flex: 0 0 100%; width: 100%;
+  justify-content: center; align-items: center;
+  min-height: clamp(40px,8vh,56px);
+  padding: clamp(.25rem,.6vh,.45rem) 0;
+}
+.bac-btn-cluster-quiz .bac-bclust-mid:not(#bac-tie-btn) {
   min-height: clamp(44px,12vh,82px);
   align-items: flex-start;
   padding-top: clamp(.4rem,1.2vh,.8rem);
 }
-/* TIE button stretches to fill its widened mid column */
+/* TIE button stretches to fill its column (full-width row in quiz cluster) */
 .bac-bclust-mid .btn-bac-tie {
-  width: 100%;
+  width: 100%; max-width: 100%;
 }
 
 
