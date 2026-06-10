@@ -263,17 +263,14 @@ const Views = {
               <div class="shoe-card-slot"></div>
             </div>
           </div>
-          <div class="bac-field-labels">
-            <div class="bac-fll bac-fll-banker"><span>BANKER</span></div>
-            <div style="width:clamp(56px,9vw,80px);flex-shrink:0"></div>
-            <div class="bac-fll bac-fll-player"><span>PLAYER</span></div>
-          </div>
           <div class="bac-banker-zone">
+            <div class="bac-zone-lbl bac-lbl-banker">BANKER</div>
             <div class="bac-third-slot" id="bac-bh3"></div>
             <div class="bac-hand-wrap bac-bh-wrap" id="bac-bh"></div>
           </div>
           <div class="bac-field-divider"></div>
           <div class="bac-player-zone">
+            <div class="bac-zone-lbl bac-lbl-player">PLAYER</div>
             <div class="bac-hand-wrap bac-ph-wrap" id="bac-ph"></div>
             <div class="bac-third-slot" id="bac-ph3"></div>
           </div>

@@ -1323,26 +1323,17 @@ body {
 
 /* ---- BACCARAT: FIELD SIDE LABELS ---- */
 
-.bac-field-labels {
+.bac-zone-lbl {
   position: absolute;
-  top: calc(50% - var(--card-h-lg)/2 - 1.6rem);
-  left: 0; right: 0;
-  display: flex; align-items: center;
-  pointer-events: none; z-index: 5;
-}
-.bac-fll {
-  flex: 1; display: flex; align-items: center;
-  font-size: .68rem; font-weight: 700; letter-spacing: 2.5px;
-  text-transform: uppercase; color: rgba(255,255,255,.85);
-  user-select: none;
-}
-.bac-fll span {
-  display: inline-block;
+  top: calc(50% - var(--card-h-lg)/2 - 1.4rem);
   width: calc(var(--card-w-lg) * 2 + .35rem);
   text-align: center;
+  font-size: .68rem; font-weight: 700; letter-spacing: 2.5px;
+  text-transform: uppercase; color: rgba(255,255,255,.85);
+  user-select: none; pointer-events: none; z-index: 5;
 }
-.bac-fll-banker { justify-content: flex-end; }
-.bac-fll-player { justify-content: flex-start; }
+.bac-lbl-banker { right: 0; }
+.bac-lbl-player { left: 0; }
 
 /* ---- BACCARAT: WIN HEADER + ANNOUNCE ---- */
 
