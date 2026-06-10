@@ -1316,12 +1316,8 @@ body {
 #bac-p-btn-top { padding-right: clamp(1rem, 3vw, 1.8rem); }
 .bac-btn-cluster-quiz .bac-bclust-mid {
   min-height: clamp(44px,12vh,82px);
-  align-items: stretch; flex-direction: column;
+  align-items: flex-start;
   padding-top: clamp(.4rem,1.2vh,.8rem);
-  padding-bottom: clamp(.4rem,1.2vh,.8rem);
-}
-.bac-btn-cluster-quiz .bac-bclust-mid .btn-bac-tie {
-  flex: 1;
 }
 .bac-shoe-spacer {
   width: clamp(42px,8vw,64px); flex-shrink: 0;
@@ -1346,7 +1342,7 @@ body {
 
 .bac-win-announce {
   display: block; text-align: center;
-  font-size: clamp(1.4rem,4.5vh,2.5rem); font-weight: 900; letter-spacing: 3px;
+  font-size: clamp(1.7rem,5.5vh,3rem); font-weight: 900; letter-spacing: 3px;
   white-space: nowrap; line-height: 1.2;
   text-shadow: 0 0 28px currentColor;
   background: none; border: none; padding: 0;
@@ -1359,7 +1355,7 @@ body {
 .bac-win-announce.player-win { color: #dd1818; }
 .bac-win-announce.tie-win    { color: #6ec864; }
 .bac-win-sub {
-  font-size: clamp(1.4rem,4.5vh,2.5rem); font-weight: 900; letter-spacing: 3px;
+  font-size: clamp(1.7rem,5.5vh,3rem); font-weight: 900; letter-spacing: 3px;
   text-shadow: 0 0 28px currentColor;
   background: none; border: none;
 }
