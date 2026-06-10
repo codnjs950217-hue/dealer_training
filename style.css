@@ -1175,7 +1175,7 @@ body {
 }
 
 .shoe-visual {
-  width: clamp(36px,7vw,54px); height: clamp(60px,16vh,100px);
+  width: clamp(36px,7vw,54px); height: clamp(85px,22vh,136px);
   background: linear-gradient(160deg, #2a1a08 0%, #150d04 100%);
   border: 2px solid #7a5a18;
   border-radius: 6px 6px 14px 14px;
@@ -1297,6 +1297,7 @@ body {
 .bac-btn-cluster-quiz {
   height: clamp(100px,24vh,155px); overflow: visible;
   align-items: stretch;
+  padding: 0 clamp(.6rem,2vw,2rem);
 }
 .bac-bclust-side {
   flex: 1; display: flex; justify-content: center; align-items: center;
@@ -1314,7 +1315,13 @@ body {
 #bac-b-btn-top { padding-left: clamp(1rem, 3vw, 1.8rem); }
 #bac-p-btn-top { padding-right: clamp(1rem, 3vw, 1.8rem); }
 .bac-btn-cluster-quiz .bac-bclust-mid {
-  min-height: clamp(44px,12vh,82px); align-items: center;
+  min-height: clamp(44px,12vh,82px);
+  align-items: stretch; flex-direction: column;
+  padding-top: clamp(.4rem,1.2vh,.8rem);
+  padding-bottom: clamp(.4rem,1.2vh,.8rem);
+}
+.bac-btn-cluster-quiz .bac-bclust-mid .btn-bac-tie {
+  flex: 1;
 }
 .bac-shoe-spacer {
   width: clamp(42px,8vw,64px); flex-shrink: 0;
@@ -1332,14 +1339,14 @@ body {
   text-transform: uppercase; color: rgba(255,255,255,.85);
   user-select: none; pointer-events: none; z-index: 5;
 }
-.bac-lbl-banker { right: 0; }
-.bac-lbl-player { left: 0; }
+.bac-lbl-banker { right: 24px; }
+.bac-lbl-player { left: 24px; }
 
 /* ---- BACCARAT: WIN HEADER + ANNOUNCE ---- */
 
 .bac-win-announce {
   display: block; text-align: center;
-  font-size: clamp(1.1rem,3.5vh,2rem); font-weight: 900; letter-spacing: 3px;
+  font-size: clamp(1.4rem,4.5vh,2.5rem); font-weight: 900; letter-spacing: 3px;
   white-space: nowrap; line-height: 1.2;
   text-shadow: 0 0 28px currentColor;
   background: none; border: none; padding: 0;
@@ -1352,7 +1359,7 @@ body {
 .bac-win-announce.player-win { color: #dd1818; }
 .bac-win-announce.tie-win    { color: #6ec864; }
 .bac-win-sub {
-  font-size: clamp(1.1rem,3.5vh,2rem); font-weight: 900; letter-spacing: 3px;
+  font-size: clamp(1.4rem,4.5vh,2.5rem); font-weight: 900; letter-spacing: 3px;
   text-shadow: 0 0 28px currentColor;
   background: none; border: none;
 }
