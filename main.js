@@ -258,7 +258,7 @@ const Views = {
         </div>
         <div class="bac-field-labels">
           <div class="bac-fll bac-fll-banker">BANKER</div>
-          <div style="width:clamp(56px,9vw,80px);flex-shrink:0"></div>
+          <div style="width:clamp(36px,6vw,56px);flex-shrink:0"></div>
           <div class="bac-fll bac-fll-player">PLAYER</div>
         </div>
         <div class="bac-field">

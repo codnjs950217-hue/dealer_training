@@ -61,8 +61,8 @@
   /* Card sizes — vh-based so they shrink in short landscape viewports */
   --card-w-sm: clamp(30px, 9.1vh, 52px);
   --card-h-sm: clamp(43px, 13vh,  74px);
-  --card-w-lg: clamp(44px, 12vh,  78px);
-  --card-h-lg: clamp(62px, 17vh,  110px);
+  --card-w-lg: clamp(50px, max(12vh, 18vw), 165px);
+  --card-h-lg: clamp(70px, max(17vh, 25vw), 231px);
   --card-cascade: clamp(7px, 2vh, 10px);
 
   /* Top bar — single source of truth for the 42px chrome height */
@@ -1249,18 +1249,16 @@ body {
 .bac-banker-zone {
   flex: 1; display: flex; justify-content: flex-end; align-items: center;
   overflow: visible; position: relative; gap: .35rem;
-  padding-right: 24px;
 }
 .bac-player-zone {
   flex: 1; display: flex; justify-content: flex-start; align-items: center;
   overflow: visible; position: relative; gap: .35rem;
-  padding-left: 24px;
 }
 .bac-bh-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; }
 .bac-ph-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; min-width: calc(var(--card-w-lg) * 2 + .35rem); }
 
 .bac-field-divider {
-  width: clamp(56px,9vw,80px); flex-shrink: 0; align-self: stretch;
+  width: clamp(36px,6vw,56px); flex-shrink: 0; align-self: stretch;
   position: relative; display: flex; align-items: center; justify-content: center;
   overflow: visible;
 }
@@ -1336,7 +1334,7 @@ body {
 
 .bac-win-announce {
   display: block; text-align: center;
-  font-size: clamp(1.1rem,3.5vh,2rem); font-weight: 900; letter-spacing: 3px;
+  font-size: clamp(1.4rem,4.5vh,2.6rem); font-weight: 900; letter-spacing: 3px;
   white-space: nowrap; line-height: 1.2;
   text-shadow: 0 0 28px currentColor;
   background: none; border: none; padding: 0;
@@ -1349,7 +1347,7 @@ body {
 .bac-win-announce.player-win { color: #c94444; }
 .bac-win-announce.tie-win    { color: #6ec864; }
 .bac-win-sub {
-  font-size: clamp(1.1rem,3.5vh,2rem); font-weight: 900; letter-spacing: 3px;
+  font-size: clamp(1.4rem,4.5vh,2.6rem); font-weight: 900; letter-spacing: 3px;
   text-shadow: 0 0 28px currentColor;
   background: none; border: none;
 }
@@ -1389,7 +1387,7 @@ body {
   will-change: opacity, transform;
 }
 .bac-winner-flash-text {
-  font-size: clamp(2.2rem, 7vw, 4.5rem);
+  font-size: clamp(3rem, 12vw, 7rem);
   font-weight: 900; letter-spacing: 4px;
   text-shadow: 0 0 60px currentColor, 0 2px 12px rgba(0,0,0,.8);
   text-align: center; line-height: 1.2;
@@ -1426,6 +1424,7 @@ body {
   display: flex; align-items: flex-end; justify-content: center; flex-shrink: 0;
   width: var(--card-h-lg); height: var(--card-h-lg); align-self: center;
 }
+.bac-third-slot:empty { width: 0; min-width: 0; overflow: hidden; }
 
 .bac-pts-display {
   text-align: center; font-size: clamp(1.1rem, 4.5vh, 2rem); font-weight: 900;
