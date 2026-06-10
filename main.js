@@ -322,19 +322,21 @@ const Views = {
         <button id="bpay-btn-halfpay"    class="bpay-mode-btn"        onclick="Sims.baccaratPay.setMode('halfpay')">½ Half Pay</button>
         <button id="bpay-btn-side"       class="bpay-mode-btn"        onclick="Sims.baccaratPay.setMode('side')">🎯 Option Bet</button>
       </div>
+      <div class="bpay-outer-header">
+        <button class="table-refresh-btn bpay-hdr-btn" onclick="App.reload()" title="Restart">↺</button>
+        <div class="bpay-hdr-stats">
+          <div id="bpay-stats-comm" style="display:flex;gap:.4rem">
+            <span>Rounds: <strong id="bpay-rounds">0</strong></span>
+            <span>Score: <strong id="bpay-score">0</strong></span>
+          </div>
+          <div id="bpay-stats-side" style="display:none;gap:.4rem">
+            <span>Rounds: <strong id="bside-rounds">0</strong></span>
+            <span>Score: <strong id="bside-score">0</strong></span>
+          </div>
+        </div>
+      </div>
       <div id="bpay-content">
         <div class="baccarat-table">
-          <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
-          <div class="table-stats-overlay">
-            <div id="bpay-stats-comm" style="display:flex;gap:.4rem">
-              <span>Rounds: <strong id="bpay-rounds">0</strong></span>
-              <span>Score: <strong id="bpay-score">0</strong></span>
-            </div>
-            <div id="bpay-stats-side" style="display:none;gap:.4rem">
-              <span>Rounds: <strong id="bside-rounds">0</strong></span>
-              <span>Score: <strong id="bside-score">0</strong></span>
-            </div>
-          </div>
           <div class="bpay-positions">
             ${[1].map(i => `
               <div class="bpay-pos" id="bpay-pos-${i}">
@@ -1908,25 +1910,30 @@ const Sims = {
     function updateSpread() {
       const section = $('bpay-spread-section');
       if (!section) return;
-      const items = [];
+      let html = '';
+      let anyPrev = false;
       COMM_CHIPS.forEach(c => {
         const cnt = parseInt($(`bpay-ci-${c.key}`)?.value) || 0;
-        for (let i = 0; i < cnt; i++) {
-          const isNewDenom  = i === 0;
-          const isGroup5Gap = !isNewDenom && i % 5 === 0;
-          items.push({ c, isNewDenom, isGroup5Gap });
+        if (!cnt) return;
+        const miniStacks  = cnt >= 5 ? Math.max(0, Math.floor(cnt / 5) - 1) : 0;
+        const spreadCount = cnt - miniStacks * 5;
+        for (let i = 0; i < miniStacks; i++) {
+          const gap = i === 0 && anyPrev ? ' spread-gap' : '';
+          html += `<div class="spread-mini-stack${gap}" style="--ms-bg:${c.bg}">` +
+            `<div class="spread-mini-stack-face"></div>` +
+            `<div class="spread-mini-stack-body"></div>` +
+            `</div>`;
+          anyPrev = true;
+        }
+        for (let j = 0; j < spreadCount; j++) {
+          let cls = 'spread-disc';
+          if (j === 0 && anyPrev) cls += miniStacks > 0 ? ' spread-after-stack' : ' spread-gap';
+          html += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`;
+          anyPrev = true;
         }
       });
-      if (items.length === 0) { section.innerHTML = ''; return; }
-      const discs = items.map(({ c, isNewDenom, isGroup5Gap }, idx) => {
-        let cls = 'spread-disc';
-        if (idx > 0) {
-          if (isNewDenom)  cls += ' spread-gap';
-          else if (isGroup5Gap) cls += ' spread-gap5';
-        }
-        return `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`;
-      }).join('');
-      section.innerHTML = `<div class="spread-row">${discs}</div>`;
+      if (!html) { section.innerHTML = ''; return; }
+      section.innerHTML = `<div class="spread-row">${html}</div>`;
     }
 
     function showCommTray() {
@@ -2176,23 +2183,30 @@ const Sims = {
     function updateSpread() {
       const section = $('bside-spread-section');
       if (!section) return;
-      const items = [];
+      let html = '';
+      let anyPrev = false;
       COMM_CHIPS.forEach(c => {
         const cnt = parseInt($(`bside-ci-${c.key}`)?.value) || 0;
-        for (let i = 0; i < cnt; i++) {
-          items.push({ c, isNewDenom: i === 0, isGroup5Gap: i > 0 && i % 5 === 0 });
+        if (!cnt) return;
+        const miniStacks  = cnt >= 5 ? Math.max(0, Math.floor(cnt / 5) - 1) : 0;
+        const spreadCount = cnt - miniStacks * 5;
+        for (let i = 0; i < miniStacks; i++) {
+          const gap = i === 0 && anyPrev ? ' spread-gap' : '';
+          html += `<div class="spread-mini-stack${gap}" style="--ms-bg:${c.bg}">` +
+            `<div class="spread-mini-stack-face"></div>` +
+            `<div class="spread-mini-stack-body"></div>` +
+            `</div>`;
+          anyPrev = true;
+        }
+        for (let j = 0; j < spreadCount; j++) {
+          let cls = 'spread-disc';
+          if (j === 0 && anyPrev) cls += miniStacks > 0 ? ' spread-after-stack' : ' spread-gap';
+          html += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`;
+          anyPrev = true;
         }
       });
-      if (items.length === 0) { section.innerHTML = ''; return; }
-      const discs = items.map(({ c, isNewDenom, isGroup5Gap }, idx) => {
-        let cls = 'spread-disc';
-        if (idx > 0) {
-          if (isNewDenom) cls += ' spread-gap';
-          else if (isGroup5Gap) cls += ' spread-gap5';
-        }
-        return `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`;
-      }).join('');
-      section.innerHTML = `<div class="spread-row">${discs}</div>`;
+      if (!html) { section.innerHTML = ''; return; }
+      section.innerHTML = `<div class="spread-row">${html}</div>`;
     }
 
     function showPayTray() {

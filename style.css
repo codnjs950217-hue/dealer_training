@@ -1942,6 +1942,21 @@ body {
 .bpay-mode-btn.active  { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,.1); }
 .bpay-mode-btn:not(.active):hover { border-color: rgba(255,255,255,.3); color: var(--text); }
 
+/* Outer header row: refresh + stats above the green table */
+.bpay-outer-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .15rem .1rem .3rem;
+}
+.bpay-outer-header .bpay-hdr-btn {
+  position: static; top: auto; left: auto;
+}
+.bpay-hdr-stats {
+  font-size: clamp(.6rem,1.3vw,.7rem);
+  color: rgba(255,255,255,.5);
+  display: flex; gap: clamp(.3rem,.6vw,.5rem);
+}
+.bpay-hdr-stats strong { color: rgba(255,255,255,.8); }
+
 .bpay-positions {
   display: flex; gap: clamp(.6rem,1.2vw,1.6rem);
   flex: 1; min-height: 0; overflow: hidden;
@@ -2289,6 +2304,40 @@ body {
 .spread-disc:first-child { margin-left: 0; }
 .spread-disc.spread-gap  { margin-left: 8px; }
 .spread-disc.spread-gap5 { margin-left: 5px; }
+.spread-disc.spread-after-stack { margin-left: -5px; }
+
+/* 5-chip mini-stack for baccarat spread */
+.spread-mini-stack {
+  width: var(--ch-md);
+  display: flex; flex-direction: column; align-items: center;
+  flex-shrink: 0; position: relative;
+  margin-left: 6px;
+}
+.spread-mini-stack:first-child { margin-left: 0; }
+.spread-mini-stack.spread-gap  { margin-left: 8px; }
+.spread-mini-stack-face {
+  width: var(--ch-md); height: calc(var(--ch-md) * .38);
+  border-radius: 50%;
+  background: var(--ms-bg);
+  box-shadow: inset 0 3px 7px rgba(255,255,255,.45), inset 0 -2px 4px rgba(0,0,0,.4);
+  flex-shrink: 0; position: relative; z-index: 2;
+  margin-bottom: calc(var(--ch-md) * -.19);
+}
+.spread-mini-stack-body {
+  width: var(--ch-md); height: calc(var(--ch-md) * .85);
+  flex-shrink: 0;
+  background:
+    linear-gradient(to right,
+      rgba(255,255,255,.2) 0%, rgba(255,255,255,.07) 22%,
+      transparent 42%, rgba(0,0,0,0) 62%, rgba(0,0,0,.55) 100%),
+    repeating-linear-gradient(
+      to bottom,
+      var(--ms-bg) 0px, var(--ms-bg) 3px,
+      rgba(0,0,0,.7) 3px, rgba(0,0,0,.7) 4px
+    );
+  border-left: 1px solid rgba(255,255,255,.18);
+  border-right: 1px solid rgba(0,0,0,.5);
+}
 
 /* Chip button counter — hidden */
 .comm-5k-count { display: none; }
@@ -2922,9 +2971,13 @@ body {
 /* ---- Side Bet Practice: compact mobile layout ---- */
 .bside-sim .baccarat-table   { padding: .4rem .6rem; overflow: visible; }
 .bside-sim .bpay-spread-section { min-height: 44px; padding: .3rem .3rem .2rem; }
-.bside-sim .spread-disc             { width: 34px; height: 34px; font-size: .58rem; margin-left: -9px; }
-.bside-sim .spread-disc.spread-gap  { margin-left: 8px; }
-.bside-sim .spread-disc.spread-gap5 { margin-left: 5px; }
+.bside-sim .spread-disc                   { width: 34px; height: 34px; font-size: .58rem; margin-left: -9px; }
+.bside-sim .spread-disc.spread-gap        { margin-left: 8px; }
+.bside-sim .spread-disc.spread-gap5       { margin-left: 5px; }
+.bside-sim .spread-disc.spread-after-stack { margin-left: -5px; }
+.bside-sim .spread-mini-stack             { width: 34px; margin-left: 5px; }
+.bside-sim .spread-mini-stack-face        { width: 34px; height: calc(34px * .38); margin-bottom: calc(34px * -.19); }
+.bside-sim .spread-mini-stack-body        { width: 34px; height: calc(34px * .85); }
 
 /* Two-column layout: main area (ovals + circles) | narrow pair column */
 .bside-pos-wrap   { display: flex; flex-direction: row; gap: .2rem; align-items: flex-start; }
