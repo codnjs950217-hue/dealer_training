@@ -2085,15 +2085,21 @@ const Sims = {
         const inp = $(`bpay-ci-${key}`);
         if (!inp) return;
         inp.value = (parseInt(inp.value) || 0) + n;
-        // 10 × 10K → 1 × 100K auto-consolidation
-        if (key === '10K') {
-          const v = parseInt($('bpay-ci-10K').value) || 0;
-          if (v >= 10) {
-            $('bpay-ci-10K').value = v % 10;
-            const i100k = $('bpay-ci-100K');
-            if (i100k) i100k.value = (parseInt(i100k.value) || 0) + Math.floor(v / 10);
-          }
+        // 10 of any denom → 1 of next higher (where 10x relationship exists), cascades up
+        for (let i = COMM_CHIPS.length - 1; i > 0; i--) {
+          const lower = COMM_CHIPS[i], upper = COMM_CHIPS[i - 1];
+          if (upper.val !== lower.val * 10) continue;
+          const li = $(`bpay-ci-${lower.key}`);
+          if (!li) continue;
+          const v = parseInt(li.value) || 0;
+          if (v < 10) continue;
+          li.value = v % 10;
+          const ui = $(`bpay-ci-${upper.key}`);
+          if (ui) ui.value = (parseInt(ui.value) || 0) + Math.floor(v / 10);
         }
+        // 100M has no higher denom — cap at 9
+        const top = $('bpay-ci-100M');
+        if (top && (parseInt(top.value) || 0) > 9) top.value = 9;
         updateSpread();
       },
 
@@ -2332,15 +2338,21 @@ const Sims = {
         const inp = $(`bside-ci-${key}`);
         if (!inp) return;
         inp.value = (parseInt(inp.value) || 0) + n;
-        // 10 × 10K → 1 × 100K auto-consolidation
-        if (key === '10K') {
-          const v = parseInt($('bside-ci-10K').value) || 0;
-          if (v >= 10) {
-            $('bside-ci-10K').value = v % 10;
-            const i100k = $('bside-ci-100K');
-            if (i100k) i100k.value = (parseInt(i100k.value) || 0) + Math.floor(v / 10);
-          }
+        // 10 of any denom → 1 of next higher (where 10x relationship exists), cascades up
+        for (let i = COMM_CHIPS.length - 1; i > 0; i--) {
+          const lower = COMM_CHIPS[i], upper = COMM_CHIPS[i - 1];
+          if (upper.val !== lower.val * 10) continue;
+          const li = $(`bside-ci-${lower.key}`);
+          if (!li) continue;
+          const v = parseInt(li.value) || 0;
+          if (v < 10) continue;
+          li.value = v % 10;
+          const ui = $(`bside-ci-${upper.key}`);
+          if (ui) ui.value = (parseInt(ui.value) || 0) + Math.floor(v / 10);
         }
+        // 100M has no higher denom — cap at 9
+        const top = $('bside-ci-100M');
+        if (top && (parseInt(top.value) || 0) > 9) top.value = 9;
         updateSpread();
       },
 
