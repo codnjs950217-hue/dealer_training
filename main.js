@@ -252,15 +252,13 @@ const Views = {
           <span>Score: <strong id="bac-score">0</strong></span>
         </div>
         <div class="bac-btn-cluster bac-btn-cluster-quiz">
-          <div class="bac-shoe-spacer"></div>
           <div class="bac-bclust-side" id="bac-b-btn-top"></div>
           <div class="bac-bclust-mid" id="bac-tie-btn"></div>
           <div class="bac-bclust-side" id="bac-p-btn-top"></div>
         </div>
         <div class="bac-field-labels">
-          <div class="bac-shoe-spacer"></div>
           <div class="bac-fll bac-fll-banker">BANKER</div>
-          <div style="width:80px;flex-shrink:0"></div>
+          <div style="width:clamp(56px,9vw,80px);flex-shrink:0"></div>
           <div class="bac-fll bac-fll-player">PLAYER</div>
         </div>
         <div class="bac-field">
@@ -281,7 +279,6 @@ const Views = {
           </div>
         </div>
         <div class="bac-btn-cluster">
-          <div class="bac-shoe-spacer"></div>
           <div class="bac-bclust-side" id="bac-b-btn-bot"></div>
           <div class="bac-bclust-mid"><div class="result-badge" id="bac-result"></div></div>
           <div class="bac-bclust-side" id="bac-p-btn-bot"></div>
