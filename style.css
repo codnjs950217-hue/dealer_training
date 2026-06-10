@@ -1313,7 +1313,7 @@ body {
   gap: .3rem; flex-wrap: wrap; min-height: clamp(26px,5vh,40px);
 }
 .bac-bclust-mid {
-  width: clamp(210px,42vw,300px); flex-shrink: 0;
+  width: clamp(145px,24vw,200px); flex-shrink: 0;
   display: flex; justify-content: center; align-items: center;
   min-height: clamp(26px,5vh,40px); overflow: visible; position: relative;
 }
@@ -1321,14 +1321,8 @@ body {
   min-height: clamp(72px,20vh,140px); align-items: flex-start;
   padding-top: clamp(.4rem,1.2vh,.8rem);
 }
-#bac-b-btn-top { padding-left: clamp(.2rem, .5vw, .4rem); }
-#bac-p-btn-top { padding-right: clamp(.2rem, .5vw, .4rem); }
-
-/* BANKER WIN / PLAYER WIN wrap to 2 lines so they fit in narrowed side columns */
-.bac-btn-cluster-quiz .bac-bclust-side .bac-inline-btn:not(.btn-bac-special) {
-  white-space: normal; text-align: center; line-height: 1.25;
-  padding-left: .2rem; padding-right: .2rem;
-}
+#bac-b-btn-top { padding-left: clamp(1rem, 3vw, 1.8rem); }
+#bac-p-btn-top { padding-right: clamp(1rem, 3vw, 1.8rem); }
 .bac-btn-cluster-quiz .bac-bclust-mid {
   min-height: clamp(44px,12vh,82px);
   align-items: flex-start;
