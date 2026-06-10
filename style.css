@@ -1540,7 +1540,8 @@ body {
 }
 .btn-bac-draw:hover { background: rgba(220,120,0,.32); }
 .bac-draw-slot-btn {
-  width: 100%; padding: .6rem .1rem;
+  width: 100%; height: var(--card-w-lg);
+  padding: 0 .1rem;
   font-size: .78rem; line-height: 1.35; text-align: center;
   white-space: normal;
 }
@@ -2361,6 +2362,9 @@ body {
 .bac-special-col {
   display: flex; flex-direction: column; gap: clamp(.12rem,.35vh,.3rem); align-items: stretch;
 }
+.bac-btn-cluster-quiz .bac-bclust-side .bac-special-col {
+  width: 100%;
+}
 .bac-special-col-mid {
   align-items: center;
 }
@@ -2373,7 +2377,7 @@ body {
   flex: 1;
 }
 .btn-bac-special {
-  font-size: clamp(.58rem,1.6vh,.75rem) !important;
+  font-size: clamp(.74rem,2vh,.92rem) !important;
   padding: clamp(.18rem,.5vh,.38rem) clamp(.25rem,.7vw,.5rem) !important;
 }
 .bac-pair-btn {
