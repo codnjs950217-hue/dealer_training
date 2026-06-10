@@ -774,7 +774,7 @@ body {
   padding: clamp(.25rem,.6vh,.5rem) clamp(.5rem,1vw,.9rem); border-radius: 8px;
   font-weight: 700; font-size: clamp(.72rem,2vh,1rem); text-align: center; min-width: clamp(52px,10vw,72px);
 }
-.player-win { background: rgba(200,60,60,.16); color: #c94444; border: 1px solid rgba(200,60,60,.7); }
+.player-win { background: rgba(221,24,24,.16); color: #dd1818; border: 1px solid rgba(221,24,24,.7); }
 .banker-win  { background: rgba(255,215,0,.15); color: #FFD700; border: 1px solid #FFD700; }
 .tie-win     { background: rgba(110,200,100,.18); color: #6ec864; border: 1px solid #6ec864; }
 
@@ -1307,7 +1307,8 @@ body {
   min-height: clamp(26px,5vh,40px); overflow: visible; position: relative;
 }
 .bac-btn-cluster-quiz .bac-bclust-side {
-  min-height: clamp(72px,20vh,140px); align-items: center;
+  min-height: clamp(72px,20vh,140px); align-items: flex-start;
+  padding-top: clamp(.4rem,1.2vh,.8rem);
 }
 .bac-btn-cluster-quiz .bac-bclust-mid {
   min-height: clamp(44px,12vh,82px); align-items: center;
@@ -1346,7 +1347,7 @@ body {
   white-space: nowrap;
 }
 .bac-win-announce.banker-win { color: #c9a84c; }
-.bac-win-announce.player-win { color: #c94444; }
+.bac-win-announce.player-win { color: #dd1818; }
 .bac-win-announce.tie-win    { color: #6ec864; }
 .bac-win-sub {
   font-size: clamp(1.1rem,3.5vh,2rem); font-weight: 900; letter-spacing: 3px;
@@ -1354,7 +1355,7 @@ body {
   background: none; border: none;
 }
 .bac-win-sub.banker-win { color: #c9a84c; }
-.bac-win-sub.player-win { color: #c94444; }
+.bac-win-sub.player-win { color: #dd1818; }
 .bac-win-sub.tie-win    { color: #6ec864; }
 .bac-win-sep { color: rgba(255,255,255,.35); font-size: 1.2rem; }
 
@@ -1562,7 +1563,7 @@ body {
   padding: .28rem .75rem; border-radius: 6px;
   font-size: .8rem; font-weight: 800; letter-spacing: .5px;
 }
-.pay-winner-badge.player-win { background: rgba(200,60,60,.14); color: #c94444; border: 1px solid rgba(200,60,60,.35); }
+.pay-winner-badge.player-win { background: rgba(221,24,24,.14); color: #dd1818; border: 1px solid rgba(221,24,24,.35); }
 .pay-winner-badge.banker-win { background: rgba(255,215,0,.12); color: #FFD700; border: 1px solid rgba(255,215,0,.35); }
 .pay-winner-badge.tie-win    { background: rgba(110,200,100,.12); color: #6ec864; border: 1px solid rgba(110,200,100,.3); }
 

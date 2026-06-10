@@ -1533,7 +1533,7 @@ const Sims = {
     }
 
     function getSpecialLabel(side) {
-      const colors = { player: '#e03030', banker: '#c9a84c', tie: '#6ec864' };
+      const colors = { player: '#e01818', banker: '#c9a84c', tie: '#6ec864' };
       const color  = colors[side];
       if (side === 'tie') return { lines: ['TIE'], color };
       const pp = pts(S.ph), bp = pts(S.bh);
