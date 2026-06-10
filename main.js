@@ -1940,19 +1940,10 @@ const Sims = {
       COMM_CHIPS.forEach(c => {
         const cnt = parseInt($(`bpay-ci-${c.key}`)?.value) || 0;
         if (!cnt) return;
-        const miniStacks  = cnt >= 5 ? Math.max(0, Math.floor(cnt / 5) - 1) : 0;
-        const spreadCount = cnt - miniStacks * 5;
-        for (let i = 0; i < miniStacks; i++) {
-          const gap = i === 0 && anyPrev ? ' spread-gap' : '';
-          html += `<div class="spread-mini-stack${gap}" style="--ms-bg:${c.bg}">` +
-            `<div class="spread-mini-stack-face"></div>` +
-            `<div class="spread-mini-stack-body"></div>` +
-            `</div>`;
-          anyPrev = true;
-        }
-        for (let j = 0; j < spreadCount; j++) {
+        for (let j = 0; j < cnt; j++) {
           let cls = 'spread-disc';
-          if (j === 0 && anyPrev) cls += miniStacks > 0 ? ' spread-after-stack' : ' spread-gap';
+          if (j === 0 && anyPrev)        cls += ' spread-gap';
+          else if (j > 0 && j % 5 === 0) cls += ' spread-gap5';
           html += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`;
           anyPrev = true;
         }
@@ -2094,6 +2085,15 @@ const Sims = {
         const inp = $(`bpay-ci-${key}`);
         if (!inp) return;
         inp.value = (parseInt(inp.value) || 0) + n;
+        // 10 × 10K → 1 × 100K auto-consolidation
+        if (key === '10K') {
+          const v = parseInt($('bpay-ci-10K').value) || 0;
+          if (v >= 10) {
+            $('bpay-ci-10K').value = v % 10;
+            const i100k = $('bpay-ci-100K');
+            if (i100k) i100k.value = (parseInt(i100k.value) || 0) + Math.floor(v / 10);
+          }
+        }
         updateSpread();
       },
 
@@ -2226,19 +2226,10 @@ const Sims = {
       COMM_CHIPS.forEach(c => {
         const cnt = parseInt($(`bside-ci-${c.key}`)?.value) || 0;
         if (!cnt) return;
-        const miniStacks  = cnt >= 5 ? Math.max(0, Math.floor(cnt / 5) - 1) : 0;
-        const spreadCount = cnt - miniStacks * 5;
-        for (let i = 0; i < miniStacks; i++) {
-          const gap = i === 0 && anyPrev ? ' spread-gap' : '';
-          html += `<div class="spread-mini-stack${gap}" style="--ms-bg:${c.bg}">` +
-            `<div class="spread-mini-stack-face"></div>` +
-            `<div class="spread-mini-stack-body"></div>` +
-            `</div>`;
-          anyPrev = true;
-        }
-        for (let j = 0; j < spreadCount; j++) {
+        for (let j = 0; j < cnt; j++) {
           let cls = 'spread-disc';
-          if (j === 0 && anyPrev) cls += miniStacks > 0 ? ' spread-after-stack' : ' spread-gap';
+          if (j === 0 && anyPrev)        cls += ' spread-gap';
+          else if (j > 0 && j % 5 === 0) cls += ' spread-gap5';
           html += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`;
           anyPrev = true;
         }
@@ -2341,6 +2332,15 @@ const Sims = {
         const inp = $(`bside-ci-${key}`);
         if (!inp) return;
         inp.value = (parseInt(inp.value) || 0) + n;
+        // 10 × 10K → 1 × 100K auto-consolidation
+        if (key === '10K') {
+          const v = parseInt($('bside-ci-10K').value) || 0;
+          if (v >= 10) {
+            $('bside-ci-10K').value = v % 10;
+            const i100k = $('bside-ci-100K');
+            if (i100k) i100k.value = (parseInt(i100k.value) || 0) + Math.floor(v / 10);
+          }
+        }
         updateSpread();
       },
 
