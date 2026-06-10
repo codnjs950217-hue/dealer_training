@@ -1310,7 +1310,7 @@ body {
   gap: .3rem; flex-wrap: wrap; min-height: clamp(26px,5vh,40px);
 }
 .bac-bclust-mid {
-  width: clamp(88px,13vw,118px); flex-shrink: 0;
+  width: clamp(110px,17vw,150px); flex-shrink: 0;
   display: flex; justify-content: center; align-items: center;
   min-height: clamp(26px,5vh,40px); overflow: visible; position: relative;
 }
@@ -1330,10 +1330,11 @@ body {
   width: 100%;
 }
 
-/* Narrower horizontal padding on BANKER WIN / PLAYER WIN quiz buttons */
+/* BANKER WIN / PLAYER WIN: shrink to content width (break stretch), tighter horizontal padding */
 .bac-btn-cluster-quiz .bac-bclust-side .bac-inline-btn:not(.btn-bac-special) {
-  padding-left: clamp(.28rem,.6vw,.5rem);
-  padding-right: clamp(.28rem,.6vw,.5rem);
+  align-self: center;
+  padding-left: clamp(.35rem,.7vw,.6rem);
+  padding-right: clamp(.35rem,.7vw,.6rem);
 }
 
 .bac-shoe-spacer {
@@ -2378,29 +2379,33 @@ body {
 }
 .bac-start-top-btn:disabled { opacity: .4; cursor: default; }
 
+@keyframes nextHandPulse {
+  0%, 100% { box-shadow: 0 4px 22px rgba(30,90,200,.55), 0 0 0 0 rgba(60,130,240,.45); }
+  50%       { box-shadow: 0 4px 22px rgba(30,90,200,.55), 0 0 0 7px rgba(60,130,240,0); }
+}
 .bac-next-hand-btn {
   position: absolute;
   bottom: clamp(8px,1.8vh,14px); right: clamp(8px,1.5vw,14px);
   z-index: 10;
-  background: linear-gradient(135deg, #2a6fcc 0%, #1a4fa0 100%);
-  border: 1.5px solid rgba(120,190,255,.55);
+  background: linear-gradient(135deg, #3378e0 0%, #1850b4 100%);
+  border: 2px solid rgba(140,200,255,.7);
   color: #fff;
-  border-radius: 10px;
-  padding: clamp(.6rem,1.5vh,.9rem) clamp(1.3rem,3.2vw,2.4rem);
-  font-size: clamp(.95rem,2.3vh,1.15rem);
-  font-weight: 800; letter-spacing: 1.5px;
+  border-radius: 12px;
+  padding: clamp(.75rem,1.9vh,1.1rem) clamp(1.7rem,4.2vw,3.2rem);
+  font-size: clamp(1.05rem,2.6vh,1.28rem);
+  font-weight: 900; letter-spacing: 2px;
   cursor: pointer;
-  min-height: clamp(44px,7vh,58px);
+  min-height: clamp(50px,8vh,66px);
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 3px 18px rgba(30,90,200,.5);
+  animation: nextHandPulse 1.8s ease-in-out infinite;
   transition: all .18s;
 }
 .bac-next-hand-btn:hover {
-  background: linear-gradient(135deg, #3a82e0 0%, #2460b8 100%);
-  border-color: rgba(160,215,255,.75);
-  box-shadow: 0 6px 26px rgba(50,120,230,.62);
+  background: linear-gradient(135deg, #4a8ef0 0%, #2868cc 100%);
+  border-color: rgba(180,225,255,.9);
+  box-shadow: 0 8px 32px rgba(50,120,240,.75);
   transform: translateY(-2px);
-  color: #fff;
+  animation: none;
 }
 
 /* ---- BACCARAT: SPECIAL-OUTCOME QUIZ BUTTONS ---- */
