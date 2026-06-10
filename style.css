@@ -1983,8 +1983,12 @@ body {
 
 /* 3 Player betting positions */
 .bpay-mode-row {
-  display: flex; gap: .6rem; justify-content: center; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0; gap: .4rem;
   margin-bottom: clamp(.25rem,.5vh,.45rem);
+}
+.bpay-mode-btns {
+  display: flex; gap: .6rem; justify-content: center; flex: 1;
 }
 .bpay-mode-btn {
   padding: clamp(.28rem,.7vh,.42rem) clamp(.6rem,1.4vw,1.1rem);
@@ -1996,11 +2000,6 @@ body {
 .bpay-mode-btn.active  { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,.1); }
 .bpay-mode-btn:not(.active):hover { border-color: rgba(255,255,255,.3); color: var(--text); }
 
-/* Outer header row: refresh + stats above the green table */
-.bpay-outer-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: .15rem .1rem .3rem;
-}
 .bpay-outer-header .bpay-hdr-btn {
   position: static; top: auto; left: auto;
 }
