@@ -1994,7 +1994,7 @@ body {
 .bpay-mode-btn.active  { border-color: var(--gold); color: var(--gold); background: rgba(201,168,76,.1); }
 .bpay-mode-btn:not(.active):hover { border-color: rgba(255,255,255,.3); color: var(--text); }
 
-.bpay-outer-header .bpay-hdr-btn {
+.bpay-mode-row .bpay-hdr-btn {
   position: static; top: auto; left: auto;
 }
 .bpay-hdr-stats {
