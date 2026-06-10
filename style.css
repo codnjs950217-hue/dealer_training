@@ -1161,6 +1161,12 @@ body {
 
 .baccarat-table { position: relative; }
 
+/* Baccarat-only card size override (does not affect other pages) */
+.baccarat-sim {
+  --card-w-lg: clamp(50px, 13.5vh, 88px);
+  --card-h-lg: clamp(70px, 19vh,   124px);
+}
+
 .bac-table-layout {
   display: flex;
   align-items: stretch;
@@ -2360,6 +2366,27 @@ body {
   box-shadow: 0 7px 30px rgba(201,168,76,.72);
 }
 .bac-start-top-btn:disabled { opacity: .4; cursor: default; }
+
+.bac-next-hand-btn {
+  position: absolute;
+  bottom: clamp(8px,1.8vh,14px); right: clamp(8px,1.5vw,14px);
+  z-index: 10;
+  background: rgba(0,0,0,.28);
+  border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.65);
+  border-radius: 8px;
+  padding: 0 clamp(.4rem,.8vw,.65rem);
+  font-size: clamp(.78rem,1.6vw,.9rem);
+  font-weight: 700; letter-spacing: .5px;
+  cursor: pointer;
+  min-height: clamp(28px,4vh,36px);
+  display: flex; align-items: center; justify-content: center;
+  transition: all .18s;
+}
+.bac-next-hand-btn:hover {
+  background: rgba(255,255,255,.1);
+  color: #fff; border-color: rgba(255,255,255,.4);
+}
 
 /* ---- BACCARAT: SPECIAL-OUTCOME QUIZ BUTTONS ---- */
 .bac-special-col {

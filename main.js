@@ -281,7 +281,8 @@ const Views = {
           <div class="bac-bclust-side" id="bac-p-btn-bot"></div>
         </div>
         <div class="bac-winner-flash" id="bac-winner-flash"></div>
-        <div class="bac-start-bar">
+        <button class="bac-next-hand-btn" id="bac-next-btn" style="display:none" onclick="Sims.baccarat.deal()">Next Hand ›</button>
+        <div class="bac-start-bar" id="bac-start-bar">
           <button class="bac-start-top-btn" id="bac-draw-btn" onclick="Sims.baccarat.deal()">START</button>
         </div>
       </div>
@@ -1303,8 +1304,20 @@ const Sims = {
     const $ = id => document.getElementById(id);
     const msg     = t => { const e = $('bac-msg'); if (e) { e.textContent = t; e.style.color = ''; } };
     const actions = h => { const e = $('bac-actions'); if (e) e.innerHTML = h; };
-    const enableDraw  = () => { const e = $('bac-draw-btn'); if (e) { e.disabled = false; e.style.opacity = ''; } };
-    const disableDraw = () => { const e = $('bac-draw-btn'); if (e) { e.disabled = true;  e.style.opacity = '0.4'; } };
+    const showStartBar = () => {
+      const bar = $('bac-start-bar'); if (bar) bar.style.display = '';
+      const nxt = $('bac-next-btn');  if (nxt) nxt.style.display = 'none';
+    };
+    const showNextBtn = () => {
+      const bar = $('bac-start-bar'); if (bar) bar.style.display = 'none';
+      const nxt = $('bac-next-btn');  if (nxt) nxt.style.display = '';
+    };
+    const hideAllCtrl = () => {
+      const bar = $('bac-start-bar'); if (bar) bar.style.display = 'none';
+      const nxt = $('bac-next-btn');  if (nxt) nxt.style.display = 'none';
+    };
+    const enableDraw  = () => { S.rounds === 0 ? showStartBar() : showNextBtn(); };
+    const disableDraw = () => { hideAllCtrl(); };
 
     function bval(c) {
       if (['10','J','Q','K'].includes(c.rank)) return 0;
