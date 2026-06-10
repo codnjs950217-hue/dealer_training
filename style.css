@@ -774,7 +774,7 @@ body {
   padding: clamp(.25rem,.6vh,.5rem) clamp(.5rem,1vw,.9rem); border-radius: 8px;
   font-weight: 700; font-size: clamp(.72rem,2vh,1rem); text-align: center; min-width: clamp(52px,10vw,72px);
 }
-.player-win { background: rgba(255,20,20,.18); color: #FF2020; border: 1px solid #FF2020; }
+.player-win { background: rgba(200,60,60,.16); color: #c94444; border: 1px solid rgba(200,60,60,.7); }
 .banker-win  { background: rgba(255,215,0,.15); color: #FFD700; border: 1px solid #FFD700; }
 .tie-win     { background: rgba(110,200,100,.18); color: #6ec864; border: 1px solid #6ec864; }
 
@@ -1329,8 +1329,8 @@ body {
   text-transform: uppercase; color: rgba(255,255,255,.85);
   user-select: none;
 }
-.bac-fll-banker { text-align: right; padding-right: 10px; }
-.bac-fll-player { text-align: left;  padding-left:  10px; }
+.bac-fll-banker { text-align: right; padding-right: 32px; }
+.bac-fll-player { text-align: left;  padding-left:  32px; }
 
 /* ---- BACCARAT: WIN HEADER + ANNOUNCE ---- */
 
@@ -1346,7 +1346,7 @@ body {
   white-space: nowrap;
 }
 .bac-win-announce.banker-win { color: #c9a84c; }
-.bac-win-announce.player-win { color: #e03030; }
+.bac-win-announce.player-win { color: #c94444; }
 .bac-win-announce.tie-win    { color: #6ec864; }
 .bac-win-sub {
   font-size: clamp(1.1rem,3.5vh,2rem); font-weight: 900; letter-spacing: 3px;
@@ -1354,7 +1354,7 @@ body {
   background: none; border: none;
 }
 .bac-win-sub.banker-win { color: #c9a84c; }
-.bac-win-sub.player-win { color: #e03030; }
+.bac-win-sub.player-win { color: #c94444; }
 .bac-win-sub.tie-win    { color: #6ec864; }
 .bac-win-sep { color: rgba(255,255,255,.35); font-size: 1.2rem; }
 
@@ -1505,13 +1505,13 @@ body {
 /* ---- BACCARAT: WIN / DRAW QUIZ BUTTONS ---- */
 
 .btn-bac-player {
-  background: #0d4a40; color: #4ecdc4;
-  border: 1px solid rgba(78,205,196,.45);
+  background: #3d0a12; color: #d95555;
+  border: 1px solid rgba(210,70,70,.45);
   padding: clamp(.45rem,1vh,.62rem) clamp(.75rem,1.5vw,1.1rem); border-radius: var(--r);
   font-weight: 700; cursor: pointer; font-size: var(--bf-md); min-height: var(--tap-h);
   transition: all .18s; white-space: nowrap;
 }
-.btn-bac-player:hover { background: #115a4e; }
+.btn-bac-player:hover { background: #4e1018; }
 .btn-bac-banker {
   background: #3a2005; color: #c9a84c;
   border: 1px solid rgba(201,168,76,.45);
@@ -1562,7 +1562,7 @@ body {
   padding: .28rem .75rem; border-radius: 6px;
   font-size: .8rem; font-weight: 800; letter-spacing: .5px;
 }
-.pay-winner-badge.player-win { background: rgba(255,20,20,.15); color: #FF2020; border: 1px solid rgba(255,20,20,.35); }
+.pay-winner-badge.player-win { background: rgba(200,60,60,.14); color: #c94444; border: 1px solid rgba(200,60,60,.35); }
 .pay-winner-badge.banker-win { background: rgba(255,215,0,.12); color: #FFD700; border: 1px solid rgba(255,215,0,.35); }
 .pay-winner-badge.tie-win    { background: rgba(110,200,100,.12); color: #6ec864; border: 1px solid rgba(110,200,100,.3); }
 
