@@ -1309,7 +1309,7 @@ body {
   padding-top: clamp(.4rem,1vh,.7rem);
 }
 .bac-btn-cluster-quiz {
-  flex-wrap: wrap; height: auto; overflow: visible;
+  height: clamp(100px,24vh,155px); overflow: visible;
   align-items: stretch;
   padding: 0 clamp(.6rem,2vw,2rem);
 }
@@ -1318,7 +1318,7 @@ body {
   gap: .3rem; flex-wrap: wrap; min-height: clamp(26px,5vh,40px);
 }
 .bac-bclust-mid {
-  width: clamp(145px,24vw,200px); flex-shrink: 0;
+  width: clamp(170px,28vw,235px); flex-shrink: 0;
   display: flex; justify-content: center; align-items: center;
   min-height: clamp(26px,5vh,40px); overflow: visible; position: relative;
 }
@@ -1329,22 +1329,14 @@ body {
 #bac-b-btn-top { padding-left: clamp(1rem, 3vw, 1.8rem); }
 #bac-p-btn-top { padding-right: clamp(1rem, 3vw, 1.8rem); }
 
-/* TIE: own full-width row below BANKER WIN / PLAYER WIN */
-.bac-btn-cluster-quiz #bac-tie-btn {
-  order: 3;
-  flex: 0 0 100%; width: 100%;
-  justify-content: center; align-items: center;
-  min-height: clamp(40px,8vh,56px);
-  padding: clamp(.25rem,.6vh,.45rem) 0;
-}
-.bac-btn-cluster-quiz .bac-bclust-mid:not(#bac-tie-btn) {
+.bac-btn-cluster-quiz .bac-bclust-mid {
   min-height: clamp(44px,12vh,82px);
   align-items: flex-start;
   padding-top: clamp(.4rem,1.2vh,.8rem);
 }
-/* TIE button stretches to fill its column (full-width row in quiz cluster) */
+/* TIE button fills its column */
 .bac-bclust-mid .btn-bac-tie {
-  width: 100%; max-width: 100%;
+  width: 100%;
 }
 
 
@@ -2442,6 +2434,14 @@ body {
 .btn-bac-special {
   font-size: clamp(.74rem,2vh,.92rem) !important;
   padding: clamp(.18rem,.5vh,.38rem) clamp(.25rem,.7vw,.5rem) !important;
+}
+/* BIG 7 / SMALL 7 / SUPER BIG 7 / SUPER SMALL 7 — unified size */
+.bac-sub-btn-row .btn-bac-player.btn-bac-special,
+.bac-sub-btn-row .btn-bac-super7.btn-bac-special {
+  font-size: clamp(.72rem,1.95vh,.9rem) !important;
+  padding: clamp(.22rem,.58vh,.4rem) clamp(.12rem,.3vw,.22rem) !important;
+  min-height: clamp(30px,5.5vh,42px) !important;
+  line-height: 1.15;
 }
 .bac-pair-btn {
   font-size: .68rem !important;
