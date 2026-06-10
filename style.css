@@ -1310,7 +1310,7 @@ body {
   gap: .3rem; flex-wrap: wrap; min-height: clamp(26px,5vh,40px);
 }
 .bac-bclust-mid {
-  width: clamp(54px,8vw,80px); flex-shrink: 0;
+  width: clamp(88px,13vw,118px); flex-shrink: 0;
   display: flex; justify-content: center; align-items: center;
   min-height: clamp(26px,5vh,40px); overflow: visible; position: relative;
 }
@@ -1325,6 +1325,17 @@ body {
   align-items: flex-start;
   padding-top: clamp(.4rem,1.2vh,.8rem);
 }
+/* TIE button stretches to fill its widened mid column */
+.bac-bclust-mid .btn-bac-tie {
+  width: 100%;
+}
+
+/* Narrower horizontal padding on BANKER WIN / PLAYER WIN quiz buttons */
+.bac-btn-cluster-quiz .bac-bclust-side .bac-inline-btn:not(.btn-bac-special) {
+  padding-left: clamp(.28rem,.6vw,.5rem);
+  padding-right: clamp(.28rem,.6vw,.5rem);
+}
+
 .bac-shoe-spacer {
   width: clamp(42px,8vw,64px); flex-shrink: 0;
 }
@@ -2371,21 +2382,25 @@ body {
   position: absolute;
   bottom: clamp(8px,1.8vh,14px); right: clamp(8px,1.5vw,14px);
   z-index: 10;
-  background: rgba(0,0,0,.28);
-  border: 1px solid rgba(255,255,255,.2);
-  color: rgba(255,255,255,.65);
-  border-radius: 8px;
-  padding: 0 clamp(.4rem,.8vw,.65rem);
-  font-size: clamp(.78rem,1.6vw,.9rem);
-  font-weight: 700; letter-spacing: .5px;
+  background: linear-gradient(135deg, #2a6fcc 0%, #1a4fa0 100%);
+  border: 1.5px solid rgba(120,190,255,.55);
+  color: #fff;
+  border-radius: 10px;
+  padding: clamp(.6rem,1.5vh,.9rem) clamp(1.3rem,3.2vw,2.4rem);
+  font-size: clamp(.95rem,2.3vh,1.15rem);
+  font-weight: 800; letter-spacing: 1.5px;
   cursor: pointer;
-  min-height: clamp(28px,4vh,36px);
+  min-height: clamp(44px,7vh,58px);
   display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 3px 18px rgba(30,90,200,.5);
   transition: all .18s;
 }
 .bac-next-hand-btn:hover {
-  background: rgba(255,255,255,.1);
-  color: #fff; border-color: rgba(255,255,255,.4);
+  background: linear-gradient(135deg, #3a82e0 0%, #2460b8 100%);
+  border-color: rgba(160,215,255,.75);
+  box-shadow: 0 6px 26px rgba(50,120,230,.62);
+  transform: translateY(-2px);
+  color: #fff;
 }
 
 /* ---- BACCARAT: SPECIAL-OUTCOME QUIZ BUTTONS ---- */
