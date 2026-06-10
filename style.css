@@ -1311,8 +1311,8 @@ body {
   min-height: clamp(72px,20vh,140px); align-items: flex-start;
   padding-top: clamp(.4rem,1.2vh,.8rem);
 }
-#bac-b-btn-top { justify-content: flex-end; }
-#bac-p-btn-top { justify-content: flex-start; }
+#bac-b-btn-top { padding-left: clamp(1rem, 3vw, 1.8rem); }
+#bac-p-btn-top { padding-right: clamp(1rem, 3vw, 1.8rem); }
 .bac-btn-cluster-quiz .bac-bclust-mid {
   min-height: clamp(44px,12vh,82px); align-items: center;
 }
@@ -1337,8 +1337,9 @@ body {
   user-select: none;
 }
 .bac-fll span {
+  display: inline-block;
   width: calc(var(--card-w-lg) * 2 + .35rem);
-  text-align: center; display: block;
+  text-align: center;
 }
 .bac-fll-banker { justify-content: flex-end; }
 .bac-fll-player { justify-content: flex-start; }
