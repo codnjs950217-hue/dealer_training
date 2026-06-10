@@ -2191,7 +2191,7 @@ body {
   border-left:  1px solid rgba(255,255,255,.18);
   border-right: 1px solid rgba(0,0,0,.5);
 }
-.bpay-chip-stack-half .bpay-chip-stack-body { height: clamp(26px, 3.2vw, 32px); }
+.bpay-chip-stack-half .bpay-chip-stack-body { height: clamp(20px, 2.4vw, 24px); }
 /* 10K chip stack — same width as disc, face + layer elements stacked downward */
 .bpay-chip-stack {
   width: var(--ch-md);  /* matches bpay-chip-disc width */
