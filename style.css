@@ -2004,6 +2004,11 @@ body {
 }
 .bpay-hdr-stats strong { color: rgba(255,255,255,.8); }
 
+#bpay-content, #bside-content {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+}
+
 .bpay-positions {
   display: flex; gap: clamp(.6rem,1.2vw,1.6rem);
   flex: 1; min-height: 0; overflow: hidden;
