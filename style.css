@@ -2423,6 +2423,11 @@ body {
 .bac-special-col-mid {
   align-items: center;
 }
+/* TIE container fills the mid column so the button actually stretches */
+.bac-bclust-mid .bac-special-col-mid {
+  width: 100%;
+  align-items: stretch;
+}
 .bac-sub-btn-row {
   display: flex; gap: .3rem;
 }
