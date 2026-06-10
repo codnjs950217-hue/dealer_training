@@ -317,11 +317,6 @@ const Views = {
 
   baccaratPaySim: () => `
     <div class="sim-page baccarat-sim">
-      <div class="bpay-mode-row">
-        <button id="bpay-btn-commission" class="bpay-mode-btn active" onclick="Sims.baccaratPay.setMode('commission')">💰 Commission (5%)</button>
-        <button id="bpay-btn-halfpay"    class="bpay-mode-btn"        onclick="Sims.baccaratPay.setMode('halfpay')">½ Half Pay</button>
-        <button id="bpay-btn-side"       class="bpay-mode-btn"        onclick="Sims.baccaratPay.setMode('side')">🎯 Option Bet</button>
-      </div>
       <div class="bpay-outer-header">
         <button class="table-refresh-btn bpay-hdr-btn" onclick="App.reload()" title="Restart">↺</button>
         <div class="bpay-hdr-stats">
@@ -334,6 +329,11 @@ const Views = {
             <span>Score: <strong id="bside-score">0</strong></span>
           </div>
         </div>
+      </div>
+      <div class="bpay-mode-row">
+        <button id="bpay-btn-commission" class="bpay-mode-btn active" onclick="Sims.baccaratPay.setMode('commission')">💰 Commission (5%)</button>
+        <button id="bpay-btn-halfpay"    class="bpay-mode-btn"        onclick="Sims.baccaratPay.setMode('halfpay')">½ Half Pay</button>
+        <button id="bpay-btn-side"       class="bpay-mode-btn"        onclick="Sims.baccaratPay.setMode('side')">🎯 Option Bet</button>
       </div>
       <div id="bpay-content">
         <div class="baccarat-table">
