@@ -1370,9 +1370,10 @@ const Sims = {
       const ids = [];
       cards.forEach((card, i) => {
         const id = ++flipId; ids.push(id);
+        const dirClass = targets[i] === 'bac-bh' ? 'deal-to-banker' : '';
         setTimeout(() => {
           const el = $(targets[i]);
-          if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id));
+          if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id, dirClass));
         }, i * 420);
       });
       setTimeout(() => {
