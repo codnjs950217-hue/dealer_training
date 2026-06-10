@@ -1166,8 +1166,8 @@ body {
   --card-w-lg: clamp(58px, 15.5vh, 100px);
   --card-h-lg: clamp(80px, 21.5vh, 140px);
 }
-.baccarat-sim .card-corner .rank { font-size: clamp(1rem,   3vh,   1.55rem); }
-.baccarat-sim .card-corner .suit { font-size: clamp(.78rem, 2.3vh, 1.2rem); }
+.baccarat-sim .card-corner .rank { font-size: clamp(1.15rem, 3.5vh, 1.85rem); }
+.baccarat-sim .card-corner .suit { font-size: clamp(.88rem,  2.6vh, 1.4rem); }
 .baccarat-sim .card-suit-center  { font-size: clamp(1.65rem,5vh,  2.7rem); }
 
 .bac-table-layout {
@@ -2371,9 +2371,9 @@ body {
 .bac-start-top-btn {
   background: linear-gradient(135deg, #c9a84c 0%, #9a7820 100%);
   color: #1a1200;
-  font-size: clamp(.85rem,2.5vh,1.3rem); font-weight: 900;
-  letter-spacing: 4px; border: 2px solid rgba(255,255,255,.65); border-radius: 50px;
-  padding: clamp(.4rem,1.2vh,.8rem) clamp(2rem,6vw,4.5rem); cursor: pointer; text-align: center;
+  font-size: clamp(1.05rem,3.2vh,1.7rem); font-weight: 900;
+  letter-spacing: 5px; border: 2px solid rgba(255,255,255,.65); border-radius: 50px;
+  padding: clamp(.6rem,1.8vh,1.2rem) clamp(2.8rem,8vw,6rem); cursor: pointer; text-align: center;
   box-shadow: 0 4px 22px rgba(201,168,76,.55);
   transition: all .2s;
 }
