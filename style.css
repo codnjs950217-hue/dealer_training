@@ -1254,7 +1254,7 @@ body {
   overflow: visible; position: relative; gap: .35rem;
   padding-left: 24px;
 }
-.bac-bh-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; min-width: calc(var(--card-w-lg) * 2 + .35rem); }
+.bac-bh-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; }
 .bac-ph-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; min-width: calc(var(--card-w-lg) * 2 + .35rem); }
 
 .bac-field-divider {
