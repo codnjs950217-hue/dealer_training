@@ -1591,8 +1591,9 @@ const Sims = {
     function showWinnerFlash(side) {
       const el = $('bac-winner-flash');
       if (!el) return;
-      const { lines, color } = getSpecialLabel(side);
-      el.innerHTML = `<div class="bac-winner-flash-text" style="color:${color}">${lines.join('<br>')}</div>`;
+      const { lines } = getSpecialLabel(side);
+      const cls = side === 'banker' ? 'banker-win' : side === 'player' ? 'player-win' : 'tie-win';
+      el.innerHTML = `<div class="bac-winner-flash-text ${cls}">${lines.join('<br>')}</div>`;
       el.className = 'bac-winner-flash bac-wf-in';
       const dur = lines.length > 1 ? 3200 : 2000;
       setTimeout(() => {
