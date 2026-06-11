@@ -2807,7 +2807,7 @@ const Sims = {
 
       zone.innerHTML = parts.length
         ? `<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px">${parts.join('')}</div>`
-        : '';
+        : '<div class="rpay-hint-text">베팅 구역 확인하고 칩스를 세팅하세요.</div>';
     }
 
     function showMistake(retry) {

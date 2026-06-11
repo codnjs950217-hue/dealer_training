@@ -831,6 +831,15 @@ body {
   width: 1px; background: rgba(255,255,255,.18);
 }
 .rpay-bet-side.rpay-zoomed { overflow: hidden; }
+.rpay-hint-text {
+  color: rgba(255,255,255,.45);
+  font-size: clamp(.72rem,1.4vw,.88rem);
+  text-align: center;
+  padding: 1rem .5rem;
+  pointer-events: none;
+  letter-spacing: .3px;
+  line-height: 1.5;
+}
 .rpay-pay-zone {
   min-width: 0;
   padding: .5rem .2rem .3rem;
