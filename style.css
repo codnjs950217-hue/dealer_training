@@ -821,8 +821,8 @@ body {
   display: flex; flex-direction: row;
 }
 .rpay-bet-side {
-  flex: 1; min-width: 0; position: relative;
-  padding: clamp(.3rem,.5vh,.5rem) clamp(.4rem,.7vw,.6rem) clamp(.8rem,1.5vh,1.5rem);
+  flex: 2; min-width: 0; position: relative;
+  padding: clamp(.4rem,.7vh,.6rem) clamp(.4rem,.7vw,.6rem) clamp(.8rem,1.5vh,1.5rem);
   overflow: visible;
   display: flex; flex-direction: column;
 }
