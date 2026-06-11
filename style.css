@@ -2323,6 +2323,7 @@ body {
 .rpay-table-wrap {
   position: relative;
   flex: 1; min-height: 0;
+  overflow: hidden;
 }
 .bpay-start-overlay {
   display: flex; align-items: center; justify-content: center;

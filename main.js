@@ -2642,9 +2642,37 @@ const Sims = {
     }
 
     function zoomToSpot(idx) {
-      // No zoom — table stays at natural scale so layout is stable
       const tbl = document.getElementById('rpay-full-table');
-      if (tbl) { tbl.style.transition = ''; tbl.style.transform = ''; tbl.style.transformOrigin = ''; }
+      const wrap = tbl ? tbl.closest('.rpay-table-wrap') : null;
+      if (!tbl || !wrap) return;
+
+      const spotEl = document.getElementById(`rpay-spot-${idx}`);
+      if (!spotEl || !spotEl.dataset.bboxCx) {
+        tbl.style.transition = 'transform .35s ease';
+        tbl.style.transform = '';
+        tbl.style.transformOrigin = '';
+        return;
+      }
+
+      const wrapW = wrap.offsetWidth;
+      const wrapH = wrap.offsetHeight;
+      const cx = parseFloat(spotEl.dataset.bboxCx);
+      const cy = parseFloat(spotEl.dataset.bboxCy);
+      const bboxW = parseFloat(spotEl.dataset.bboxW);
+      const bboxH = parseFloat(spotEl.dataset.bboxH);
+
+      // Scale so bbox fills ~55% of visible area (cap at 3×)
+      const effW = Math.max(bboxW, 45);
+      const effH = Math.max(bboxH, 45);
+      const scale = Math.min(Math.min(wrapW * 0.55 / effW, wrapH * 0.55 / effH), 3.0);
+
+      // Translate so bbox center appears at wrap center
+      const dx = wrapW / 2 - cx * scale;
+      const dy = wrapH / 2 - cy * scale;
+
+      tbl.style.transition = 'transform .35s ease';
+      tbl.style.transformOrigin = '0 0';
+      tbl.style.transform = `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${scale.toFixed(3)})`;
     }
 
     function highlightSpot(idx) {
