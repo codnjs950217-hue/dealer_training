@@ -565,6 +565,7 @@ body {
 
 .sim-page {
   height: calc(100vh - var(--topbar-h));
+  height: calc(100dvh - var(--topbar-h)); /* iOS Safari: use dynamic viewport */
   display: flex; flex-direction: column; overflow: hidden;
   padding: clamp(.15rem,.25vh,.3rem) clamp(.4rem,.8vw,.6rem);
   max-width: 1200px; margin: 0 auto; box-sizing: border-box;
@@ -3013,8 +3014,8 @@ body {
 * { touch-action: manipulation; }
 
 /* ---- Side Bet Practice: compact mobile layout ---- */
-.bside-sim .baccarat-table   { padding: .4rem .6rem; overflow: visible; }
-.bside-sim .bpay-spread-section { min-height: 44px; padding: .3rem .3rem .2rem; }
+.bside-sim .baccarat-table   { padding: .3rem .5rem; overflow: visible; }
+.bside-sim .bpay-spread-section { min-height: clamp(34px,5vh,44px); padding: .25rem .3rem .15rem; }
 .bside-sim .spread-disc                   { width: 34px; height: 34px; font-size: .58rem; margin-left: -9px; }
 .bside-sim .spread-disc.spread-gap        { margin-left: 8px; }
 .bside-sim .spread-disc.spread-gap5       { margin-left: 5px; }
@@ -3024,36 +3025,41 @@ body {
 .bside-sim .spread-mini-stack-body        { width: 34px; height: calc(34px * .85); }
 
 /* Two-column layout: main area (ovals + circles) | narrow pair column */
-.bside-pos-wrap   { display: flex; flex-direction: row; gap: .2rem; align-items: flex-start; }
-.bside-pos-main   { flex: 1; display: flex; flex-direction: column; gap: .2rem; }
-.bside-pos-pairs  { width: 120px; display: flex; flex-direction: column; gap: .2rem; }
+.bside-pos-wrap  { display: flex; flex-direction: row; gap: .2rem; align-items: stretch; }
+.bside-pos-main  { flex: 1; min-height: 0; display: flex; flex-direction: column;
+                   gap: clamp(2px,.4vh,5px); justify-content: space-between; }
+.bside-pos-pairs { width: clamp(80px,12vw,120px); display: flex; flex-direction: column;
+                   gap: clamp(4px,.7vh,8px); justify-content: space-around; }
 
-/* Oval: chip height */
-.bside-layout .bpay-oval     { min-height: 36px; max-height: 42px; padding: .12rem .3rem; }
-.bside-layout .bpay-oval-lbl { font-size: 1rem; }
+/* Oval: vh-based heights so they shrink on small screens */
+.bside-layout .bpay-oval     { min-height: clamp(22px,4vh,42px); max-height: clamp(28px,5.5vh,42px);
+                                padding: .1rem .3rem; flex-shrink: 1; }
+.bside-layout .bpay-oval-lbl { font-size: clamp(.78rem,1.4vw,1rem); }
 
-/* Pair: wider pill column */
+/* Pair: wider pill column — vh-based */
 .bside-pos-pairs .bpay-pair-circ {
   width: 100% !important;
   height: auto !important;
-  min-height: 38px;
-  max-height: 46px;
+  min-height: clamp(22px,4vh,46px);
+  max-height: clamp(28px,5.5vh,46px);
   border-radius: 50px !important;
-  font-size: .62rem;
+  font-size: clamp(.52rem,1vw,.62rem);
   position: relative;
+  flex-shrink: 1;
 }
 
-/* Circle rows: full width of main area */
-.bside-layout .bpay-circles  { display: flex; gap: .2rem; }
+/* Circle rows: full width of main area — vh-based max-height */
+.bside-layout .bpay-circles  { display: flex; gap: .2rem; flex-shrink: 1; min-height: 0; }
 .bside-layout .bpay-circ-wrap { flex: 1; display: flex; align-items: stretch; }
-.bside-layout .bpay-circ      { flex: 1; max-height: 44px; font-size: .62rem; }
+.bside-layout .bpay-circ      { flex: 1; max-height: clamp(28px,5.5vh,44px);
+                                 min-height: 0; font-size: clamp(.52rem,1vw,.62rem); }
 
 /* Tiger/Dragon ovals: original wide pill */
 .bside-oval-bet {
   aspect-ratio: unset !important;
   border-radius: 50px !important;
-  min-height: 36px;
-  max-height: 44px;
+  min-height: clamp(22px,4vh,44px);
+  max-height: clamp(28px,5.5vh,44px);
   padding: .1rem .25rem;
   flex: 1;
   position: relative;
@@ -3134,13 +3140,8 @@ body {
 .bside-bet-disc.group5gap   { margin-left: 6px; }
 
 @media (max-width: 768px) {
-  .bside-sim .baccarat-table  { padding: .3rem .5rem; }
-  .bside-layout .bpay-oval    { min-height: 32px; max-height: 38px; }
-  .bside-layout .bpay-oval-lbl { font-size: .88rem; }
-  .bside-pos-pairs            { width: 108px; }
-  .bside-pos-pairs .bpay-pair-circ { min-height: 34px; max-height: 42px; font-size: .58rem; }
-  .bside-layout .bpay-circ    { flex: 1; max-height: 38px; font-size: .56rem; }
-  .bside-oval-bet             { min-height: 32px; max-height: 38px; }
+  /* baccarat-table padding now handled by .bside-sim .baccarat-table above */
+  /* oval/circle/pair heights now handled by vh-based clamp() above */
   .bside-oval-bet .bside-big-num { font-size: .95rem; }
   .bside-line6 .bside-oval-bet .bpay-circ-pay,
   .bside-line7 .bside-oval-bet .bpay-circ-pay { font-size: .44rem; }
