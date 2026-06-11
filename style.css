@@ -3028,28 +3028,31 @@ body {
 .bside-sim .spread-mini-stack-face        { width: 34px; height: calc(34px * .38); margin-bottom: calc(34px * -.19); }
 .bside-sim .spread-mini-stack-body        { width: 34px; height: calc(34px * .85); }
 
-/* Two-column layout: main area (ovals + circles) | narrow pair column */
+/* Layout: main column with oval+pair rows stacked */
 .bside-pos-wrap  { display: flex; flex-direction: row; gap: .2rem; align-items: stretch; }
 .bside-pos-main  { flex: 1; min-height: 0; display: flex; flex-direction: column;
                    gap: clamp(2px,.4vh,5px); justify-content: space-between; }
-.bside-pos-pairs { width: clamp(80px,12vw,120px); display: flex; flex-direction: column;
-                   gap: clamp(4px,.7vh,8px); justify-content: space-around; }
+/* Each oval row: oval (flex:1) + pair circle side by side */
+.bside-oval-pair-row { display: flex; flex-direction: row; align-items: stretch; gap: .2rem; flex-shrink: 1; }
+.bside-oval-pair-row .bpay-oval { flex: 1; }
 
 /* Oval: vh-based heights so they shrink on small screens */
 .bside-layout .bpay-oval     { min-height: clamp(22px,4vh,42px); max-height: clamp(28px,5.5vh,42px);
                                 padding: .1rem .3rem; flex-shrink: 1; }
 .bside-layout .bpay-oval-lbl { font-size: clamp(.78rem,1.4vw,1rem); }
 
-/* Pair: wider pill column — vh-based */
-.bside-pos-pairs .bpay-pair-circ {
-  width: 100% !important;
+/* Pair circle: narrow pill next to its oval */
+.bside-oval-pair-row .bpay-pair-circ {
+  width: clamp(50px,7vw,72px) !important;
   height: auto !important;
-  min-height: clamp(22px,4vh,46px);
-  max-height: clamp(28px,5.5vh,46px);
+  min-height: clamp(22px,4vh,42px);
+  max-height: none !important;
   border-radius: 50px !important;
   font-size: clamp(.52rem,1vw,.62rem);
-  position: relative;
-  flex-shrink: 1;
+  flex-shrink: 0;
+  overflow: visible;
+  justify-content: flex-start;
+  padding: .1rem .15rem;
 }
 
 /* Circle rows: full width of main area — vh-based max-height */
@@ -3091,21 +3094,30 @@ body {
   transform: translate(-50%, -50%);
   width: max-content;
 }
-/* Quiz mode: dimming removed — all bet spots stay fully visible */
+/* Quiz mode: dim non-paying spots, highlight the active one */
 .bside-oval-bet, .bpay-pair-circ, .bside-gray-oval { transition: opacity .2s; }
+.bside-quiz-mode .bside-oval-bet,
+.bside-quiz-mode .bpay-pair-circ,
+.bside-quiz-mode .bside-gray-oval { opacity: 0.28; }
+.bside-quiz-mode .bside-paying-circ { opacity: 1 !important; z-index: 10; }
 
-/* Pair circles: faint text, chips centered */
+/* Pair circles: faint text, chips stacked below label and wrap by denom */
 .bside-sim .bpay-ppair { color: rgba(255,144,144,.6) !important; }
 .bside-sim .bpay-bpair { color: rgba(255,208,96,.6)  !important; }
 .bside-sim .bpay-pair-circ {
   position: relative;
+  overflow: visible;
 }
 .bside-sim .bpay-pair-circ .bpay-circ-bet {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: max-content;
+  position: static;
+  transform: none;
+  width: 100%;
+  margin-top: 2px;
+}
+.bside-sim .bpay-pair-circ .bside-bet-spread {
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
 }
 
 /* Spread-style chip discs on side bet spots */
