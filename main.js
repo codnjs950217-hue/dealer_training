@@ -303,9 +303,11 @@ const Views = {
             <button class="rpay-diff-btn"                  id="rpay-diff-medium" onclick="Sims.roulettePay.setDiff('medium')">중급</button>
             <button class="rpay-diff-btn"                  id="rpay-diff-hard"   onclick="Sims.roulettePay.setDiff('hard')">고급</button>
           </div>
-          <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
-          <div class="bpay-start-overlay" id="rpay-start-overlay">
-            <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
+          <div class="rpay-table-wrap">
+            <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
+            <div class="bpay-start-overlay" id="rpay-start-overlay">
+              <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
+            </div>
           </div>
         </div>
         <div class="rpay-right-col">
