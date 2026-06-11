@@ -2810,9 +2810,14 @@ const Sims = {
         }
       });
 
-      zone.innerHTML = parts.length
+      const totalChipCount = Object.values(S.payChips).reduce((a, b) => a + b, 0);
+      const warnHtml = totalChipCount >= 100
+        ? `<div class="rpay-chip-warn">⚠ 머니 칩스와 함께 세팅해주세요</div>`
+        : '';
+
+      zone.innerHTML = (parts.length
         ? `<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px">${parts.join('')}</div>`
-        : '<div class="rpay-hint-text">베팅 구역 확인하고 칩스를 세팅하세요.</div>';
+        : '<div class="rpay-hint-text">베팅 구역 확인하고 칩스를 세팅하세요.</div>') + warnHtml;
     }
 
     function showMistake(retry) {

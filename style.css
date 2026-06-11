@@ -862,6 +862,25 @@ body {
   letter-spacing: .3px;
   line-height: 1.5;
 }
+.rpay-chip-warn {
+  display: flex; align-items: center; justify-content: center;
+  margin: .4rem .2rem 0;
+  padding: .38rem .7rem;
+  background: rgba(255, 140, 0, .18);
+  border: 1.5px solid rgba(255, 160, 0, .65);
+  border-radius: 8px;
+  color: #ffb020;
+  font-size: clamp(.68rem, 1.3vw, .82rem);
+  font-weight: 700;
+  letter-spacing: .3px;
+  text-align: center;
+  pointer-events: none;
+  animation: rpayWarnPop .22s ease-out forwards;
+}
+@keyframes rpayWarnPop {
+  from { opacity: 0; transform: translateY(4px) scale(.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
 .rpay-pay-zone {
   min-width: 0;
   padding: .5rem .2rem .3rem;
