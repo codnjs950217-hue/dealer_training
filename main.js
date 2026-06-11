@@ -1938,7 +1938,7 @@ const Sims = {
         });
         bAmt.innerHTML = `<div class="bpay-chip-spread">${discs}</div>`;
         const _sp = bAmt.querySelector('.bpay-chip-spread');
-        if (_sp) { const cw = bAmt.clientWidth, rw = _sp.scrollWidth; if (rw > cw && cw > 0) _sp.style.transform = `scale(${(cw / rw).toFixed(4)})`; }
+        if (_sp) { const ow = _sp.offsetWidth, cw = bAmt.clientWidth; if (ow > cw && cw > 0) _sp.style.transform = `scale(${(cw / ow).toFixed(4)})`; }
       });
     }
 
@@ -1961,7 +1961,7 @@ const Sims = {
       if (!html) { section.innerHTML = ''; return; }
       section.innerHTML = `<div class="spread-row">${html}</div>`;
       const _row = section.querySelector('.spread-row');
-      if (_row) { const cw = section.clientWidth, rw = _row.scrollWidth; if (rw > cw && cw > 0) _row.style.transform = `scale(${(cw / rw).toFixed(4)})`; }
+      if (_row) { const ow = _row.offsetWidth, cw = section.clientWidth; if (ow > cw && cw > 0) _row.style.transform = `scale(${(cw / ow).toFixed(4)})`; }
     }
 
     function showCommTray() {
@@ -2272,7 +2272,7 @@ const Sims = {
       if (!html) { section.innerHTML = ''; return; }
       section.innerHTML = `<div class="spread-row">${html}</div>`;
       const _row = section.querySelector('.spread-row');
-      if (_row) { const cw = section.clientWidth, rw = _row.scrollWidth; if (rw > cw && cw > 0) _row.style.transform = `scale(${(cw / rw).toFixed(4)})`; }
+      if (_row) { const ow = _row.offsetWidth, cw = section.clientWidth; if (ow > cw && cw > 0) _row.style.transform = `scale(${(cw / ow).toFixed(4)})`; }
     }
 
     function showPayTray() {
