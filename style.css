@@ -821,7 +821,7 @@ body {
   display: flex; flex-direction: row;
 }
 .rpay-bet-side {
-  flex: 2; min-width: 0; position: relative;
+  flex: 1; min-width: 0; position: relative;
   padding: clamp(.4rem,.7vh,.6rem) clamp(.4rem,.7vw,.6rem) clamp(.8rem,1.5vh,1.5rem);
   overflow: visible;
 }
@@ -862,7 +862,7 @@ body {
   font-size: .62rem; font-weight: 800;
   text-shadow: 0 1px 3px rgba(0,0,0,.7); white-space: nowrap;
 }
-.rpay-tray-row { margin-top: .15rem; flex-shrink: 0; }
+.rpay-tray-row { flex-shrink: 0; }
 
 /* Roulette pay zone — chip stack (20개 = 1 full stack) */
 .rpay-chip-stack {
@@ -957,12 +957,20 @@ body {
 .rpay-btray-total { margin-left: auto; font-size: .56rem; font-weight: 700; color: rgba(255,255,220,.9); }
 .rpay-btray-total strong { color: #ffd700; font-size: .68rem; }
 
-/* Roulette payout tray — enlarged for easier tapping */
-.comm-tray.rpay-btray { padding: .35rem .4rem; }
-.rpay-btray .comm-slot { padding: .3rem .1rem .25rem; gap: .14rem; }
+/* Roulette payout tray — scrollable under right panel */
+.comm-tray.rpay-btray { padding: .3rem .35rem; }
+.rpay-btray .comm-tray-slots {
+  overflow-x: auto; overflow-y: hidden;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+.rpay-btray .comm-slot {
+  flex: 0 0 clamp(88px,13vw,115px);
+  padding: .28rem .15rem .22rem; gap: .12rem;
+}
 .rpay-btray .comm-slot-chip { width: calc(var(--ch-md) * .92); height: calc(var(--ch-md) * .92); font-size: var(--bf-sm); }
 .rpay-btray .comm-5k-btns { gap: .1rem; }
-.rpay-btray .comm-5k-btn { font-size: var(--bf-sm); padding: clamp(.3rem,.75vh,.42rem) .06rem; }
+.rpay-btray .comm-5k-btn { font-size: var(--bf-sm); padding: clamp(.28rem,.7vh,.4rem) .4rem; }
 .rpay-btray .comm-5k-reset { font-size: var(--bf-xs); padding: .22rem 0; }
 .rpay-btray .comm-pay-btn { font-size: var(--bf-md); padding: .38rem .55rem; }
 .rpay-btray .comm-all-reset-btn { font-size: var(--bf-sm); }

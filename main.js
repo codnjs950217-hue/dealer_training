@@ -310,9 +310,9 @@ const Views = {
             <button class="comm-all-reset-btn" onclick="Sims.roulettePay.resetPay()">ALL RESET</button>
           </div>
           <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
+          <div class="rpay-tray-row" id="rpay-comm-panel"></div>
         </div>
       </div>
-      <div class="rpay-tray-row" id="rpay-comm-panel"></div>
     </div>`,
 
   baccaratPaySim: () => `
