@@ -1819,7 +1819,7 @@ body {
   position: relative;
 }
 .blackjack-sim .player-spot .hand-display {
-  min-height: clamp(65px, 14vh, 105px);
+  min-height: clamp(40px, 9vh, 70px);
 }
 
 /* BJ flip-card wrapper — sized to match player spot cards */
