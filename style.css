@@ -674,10 +674,12 @@ body {
   gap: .5rem;
 }
 .dealer-area-bj .hand-display {
+  flex: 1;
+  min-width: 0;
   flex-wrap: nowrap;
   min-height: clamp(40px,7vh,60px);
-  gap: .3rem;
-  justify-content: flex-start;
+  gap: 0;
+  justify-content: center;
 }
 .dealer-area-bj .hand-display .bj-flip-card:not(:first-child) {
   margin-left: 6px;
@@ -694,9 +696,11 @@ body {
 .dealer-ctrl-area {
   margin-top: 0;
   display: flex;
+  flex-direction: column;
   gap: .3rem;
   flex-wrap: nowrap;
   flex-shrink: 0;
+  align-items: stretch;
 }
 .dealer-ctrl-btn {
   padding: clamp(.3rem,.75vh,.44rem) clamp(.5rem,1.1vw,.75rem);
@@ -1815,7 +1819,7 @@ body {
   position: relative;
 }
 .blackjack-sim .player-spot .hand-display {
-  min-height: clamp(80px, 18vh, 130px);
+  min-height: clamp(65px, 14vh, 105px);
 }
 
 /* BJ flip-card wrapper — sized to match player spot cards */

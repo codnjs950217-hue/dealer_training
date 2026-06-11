@@ -962,6 +962,24 @@ const Sims = {
       if (dv === 17 && isSoftHand(hand)) return true;
       return false;
     }
+    function adjustDealerLayout() {
+      const handEl = $('bj-dealer-hand');
+      if (!handEl) return;
+      const cards = handEl.querySelectorAll('.bj-flip-card');
+      if (cards.length <= 1) { cards.forEach(c => c.style.marginLeft = ''); return; }
+      const availW = handEl.offsetWidth;
+      const cardW = cards[0].offsetWidth || 60;
+      const n = cards.length;
+      const defaultGap = 6;
+      const needed = n * cardW + (n - 1) * defaultGap;
+      let gap;
+      if (needed <= availW) {
+        gap = defaultGap;
+      } else {
+        gap = Math.max(-cardW * 0.65, (availW - n * cardW) / (n - 1));
+      }
+      Array.from(cards).forEach((c, i) => { c.style.marginLeft = i === 0 ? '' : `${gap}px`; });
+    }
     function showDealerControls() {
       const dv = total(S.dh);
       const soft = isSoftHand(S.dh);
@@ -1131,17 +1149,17 @@ const Sims = {
         clearDealerCtrl();
         disableStart();
 
-        // 2 of 5 spots get ace-led low hands (A + 2-5 = soft 13-16 → guaranteed hit)
+        // 1 of 5 spots gets an ace-led low hand (A + 2-5 = soft 13-16 → guaranteed hit)
         const hitSpots = new Set(
-          [...Array(N)].map((_, i) => i).sort(() => Math.random() - .5).slice(0, 2)
+          [...Array(N)].map((_, i) => i).sort(() => Math.random() - .5).slice(0, 1)
         );
 
         // Round 1: first card per player
         for (let i = 0; i < N; i++) {
           S.players[i].hand.push(hitSpots.has(i) ? pullRank('A') : S.deck.pop());
         }
-        // Dealer upcard: 12% chance of ace
-        S.dh.push(Math.random() < .12 ? pullRank('A') : S.deck.pop());
+        // Dealer upcard: 8% chance of ace
+        S.dh.push(Math.random() < .08 ? pullRank('A') : S.deck.pop());
 
         // Round 2: second card per player
         for (let i = 0; i < N; i++) {
@@ -1236,7 +1254,7 @@ const Sims = {
         const id = ++bjFlipId;
         if (el) el.insertAdjacentHTML('beforeend', bjFlipHTML(newCard, id, false));
         setTimeout(() => bjReveal(id), 90);
-        setTimeout(() => showDealerControls(), 400);
+        setTimeout(() => { adjustDealerLayout(); showDealerControls(); }, 400);
       },
 
       dealerStop() {
