@@ -1131,17 +1131,17 @@ const Sims = {
         clearDealerCtrl();
         disableStart();
 
-        // 3 of 5 spots get ace-led low hands (A + 2-5 = soft 13-16 → guaranteed hit)
+        // 2 of 5 spots get ace-led low hands (A + 2-5 = soft 13-16 → guaranteed hit)
         const hitSpots = new Set(
-          [...Array(N)].map((_, i) => i).sort(() => Math.random() - .5).slice(0, 3)
+          [...Array(N)].map((_, i) => i).sort(() => Math.random() - .5).slice(0, 2)
         );
 
         // Round 1: first card per player
         for (let i = 0; i < N; i++) {
           S.players[i].hand.push(hitSpots.has(i) ? pullRank('A') : S.deck.pop());
         }
-        // Dealer upcard: 30% chance of ace
-        S.dh.push(Math.random() < .3 ? pullRank('A') : S.deck.pop());
+        // Dealer upcard: 12% chance of ace
+        S.dh.push(Math.random() < .12 ? pullRank('A') : S.deck.pop());
 
         // Round 2: second card per player
         for (let i = 0; i < N; i++) {
