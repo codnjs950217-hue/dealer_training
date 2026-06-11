@@ -2495,7 +2495,7 @@ const Sims = {
       tbl.style.transition = 'none';
       tbl.style.transform = '';
       tbl.style.transformOrigin = '';
-      const tableWrap = document.querySelector('.rpay-sim .rpay-table');
+      const tableWrap = document.querySelector('.rpay-bet-side');
       if (tableWrap) tableWrap.classList.remove('rpay-zoomed');
 
       // Reset win highlight and remove old chip spots/dolly

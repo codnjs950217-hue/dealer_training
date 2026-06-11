@@ -826,7 +826,7 @@ body {
 .rpay-bet-side {
   flex: 2; min-width: 0; position: relative;
   padding: clamp(.4rem,.7vh,.6rem) clamp(.4rem,.7vw,.6rem) clamp(.8rem,1.5vh,1.5rem);
-  overflow: visible;
+  overflow: hidden;
   display: flex; flex-direction: column;
 }
 .rpay-diff-row {
@@ -855,7 +855,7 @@ body {
   position: absolute; right: 0; top: .7rem; bottom: .7rem;
   width: 1px; background: rgba(255,255,255,.18);
 }
-.rpay-bet-side.rpay-zoomed { overflow: hidden; }
+/* rpay-zoomed: kept for JS classList reference, no extra style needed */
 .rpay-hint-text {
   color: rgba(255,255,255,.45);
   font-size: clamp(.72rem,1.4vw,.88rem);
@@ -885,7 +885,7 @@ body {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 .rpay-pay-zone {
-  min-width: 0;
+  min-width: 0; min-height: 0;
   padding: .5rem .2rem .3rem;
   display: flex; flex-direction: column; gap: .22rem;
   overflow-y: auto;
