@@ -2446,8 +2446,8 @@ const Sims = {
     ];
     const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
-    function genChips(color) {
-      const count = 1 + Math.floor(Math.random() * 5); // 1-5 chips
+    function genChips(color, maxCount = 5) {
+      const count = 1 + Math.floor(Math.random() * maxCount);
       return { chips: { [color.key]: count }, total: color.val * count };
     }
 
@@ -2877,17 +2877,25 @@ const Sims = {
         S.spotIdx = 0;
 
         const allSpots = getValidSpots(N);
-        const easyTypes   = ['Straight'];
-        const mediumTypes = ['Straight', 'Split', 'Street'];
-        const filteredSpots = S.difficulty === 'easy'
-          ? allSpots.filter(sp => easyTypes.includes(sp.type))
-          : S.difficulty === 'medium'
-            ? allSpots.filter(sp => mediumTypes.includes(sp.type))
-            : allSpots;
+        let filteredSpots;
+        let maxChips;
+        if (S.difficulty === 'easy' || S.difficulty === 'medium') {
+          maxChips = S.difficulty === 'easy' ? 1 : 3;
+          // Split into point bets (Straight/Split/Corner) and line bets (Street/SixNum)
+          const LINE = new Set(['Street','SixNum']);
+          const pts  = allSpots.filter(sp => !LINE.has(sp.type)).sort(() => Math.random()-.5);
+          const lns  = allSpots.filter(sp =>  LINE.has(sp.type)).sort(() => Math.random()-.5);
+          // 3 total: up to 1 line bet + fill rest with point bets
+          const chosen = lns.length ? [lns[0], ...pts.slice(0, 2)] : pts.slice(0, 3);
+          filteredSpots = chosen.sort(() => Math.random()-.5); // shuffle order
+        } else {
+          maxChips = 5;
+          filteredSpots = allSpots;
+        }
         const roundColor = COLOR_CHIPS[Math.floor(Math.random() * COLOR_CHIPS.length)];
         S.roundColor = roundColor;
         S.spots = filteredSpots.map(sp => {
-          const { chips, total } = genChips(roundColor);
+          const { chips, total } = genChips(roundColor, maxChips);
           return { ...sp, chips, total };
         });
 
