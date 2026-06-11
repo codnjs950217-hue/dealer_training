@@ -2534,11 +2534,12 @@ const Sims = {
     function renderFullGrid(N, activeSpots) {
       const tbl = document.getElementById('rpay-full-table');
       if (!tbl) return;
+      const stageEl = tbl.querySelector('#rpay-zoom-stage') || tbl;
 
-      // Clear any previous transform state
-      tbl.style.transition = '';
-      tbl.style.transform = '';
-      tbl.style.transformOrigin = '';
+      // Clear any previous transform state on stage (not the flex item)
+      stageEl.style.transition = '';
+      stageEl.style.transform = '';
+      stageEl.style.transformOrigin = '';
 
       // Reset win highlight and remove old chip spots/dolly
       tbl.querySelectorAll('.rpay-win-cell').forEach(el => el.classList.remove('rpay-win-cell'));
@@ -2550,18 +2551,16 @@ const Sims = {
       if (winEl) winEl.classList.add('rpay-win-cell');
 
       requestAnimationFrame(() => {
-        const tRect = tbl.getBoundingClientRect();
-        const tblStyle = getComputedStyle(tbl);
-        const bL = parseFloat(tblStyle.borderLeftWidth) || 0;
-        const bT = parseFloat(tblStyle.borderTopWidth) || 0;
+        // Measure stage (not tbl) so chip coords are stage-relative
+        const sRect = stageEl.getBoundingClientRect();
 
         function cc(num) {
-          const el = tbl.querySelector(`[data-bet="${num}"]`);
+          const el = stageEl.querySelector(`[data-bet="${num}"]`);
           if (!el) return null;
           const cell = el.closest('td') || el;
           const r = cell.getBoundingClientRect();
-          const ox = r.left - tRect.left - bL;
-          const oy = r.top  - tRect.top  - bT;
+          const ox = r.left - sRect.left;
+          const oy = r.top  - sRect.top;
           return {
             x:      ox + r.width/2,
             y:      oy + r.height/2,
@@ -2624,7 +2623,7 @@ const Sims = {
             el.dataset.bboxH  = maxB - minT;
           }
 
-          tbl.appendChild(el);
+          stageEl.appendChild(el);
         });
 
         // Dolly marker on winning number
@@ -2633,7 +2632,7 @@ const Sims = {
           const dolly = document.createElement('div');
           dolly.className = 'rpay-dolly';
           dolly.style.cssText = `left:${winC.x}px;top:${winC.y}px`;
-          tbl.appendChild(dolly);
+          stageEl.appendChild(dolly);
         }
 
         Sims.roulettePay._startTimer();
@@ -2643,36 +2642,35 @@ const Sims = {
 
     function zoomToSpot(idx) {
       const tbl = document.getElementById('rpay-full-table');
-      const wrap = tbl ? tbl.closest('.rpay-table-wrap') : null;
-      if (!tbl || !wrap) return;
+      if (!tbl) return;
+      const stageEl = tbl.querySelector('#rpay-zoom-stage') || tbl;
 
       const spotEl = document.getElementById(`rpay-spot-${idx}`);
       if (!spotEl || !spotEl.dataset.bboxCx) {
-        tbl.style.transition = 'transform .35s ease';
-        tbl.style.transform = '';
-        tbl.style.transformOrigin = '';
+        stageEl.style.transition = 'transform .35s ease';
+        stageEl.style.transform = '';
+        stageEl.style.transformOrigin = '';
         return;
       }
 
-      const wrapW = wrap.offsetWidth;
-      const wrapH = wrap.offsetHeight;
+      // Viewport = tbl's layout size (unchanged by transform since we zoom the inner stage)
+      const vpW = tbl.offsetWidth;
+      const vpH = tbl.offsetHeight;
       const cx = parseFloat(spotEl.dataset.bboxCx);
       const cy = parseFloat(spotEl.dataset.bboxCy);
       const bboxW = parseFloat(spotEl.dataset.bboxW);
       const bboxH = parseFloat(spotEl.dataset.bboxH);
 
-      // Scale so bbox fills ~55% of visible area (cap at 3×)
       const effW = Math.max(bboxW, 45);
       const effH = Math.max(bboxH, 45);
-      const scale = Math.min(Math.min(wrapW * 0.55 / effW, wrapH * 0.55 / effH), 3.0);
+      const scale = Math.min(Math.min(vpW * 0.55 / effW, vpH * 0.55 / effH), 3.0);
 
-      // Translate so bbox center appears at wrap center
-      const dx = wrapW / 2 - cx * scale;
-      const dy = wrapH / 2 - cy * scale;
+      const dx = vpW / 2 - cx * scale;
+      const dy = vpH / 2 - cy * scale;
 
-      tbl.style.transition = 'transform .35s ease';
-      tbl.style.transformOrigin = '0 0';
-      tbl.style.transform = `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+      stageEl.style.transition = 'transform .35s ease';
+      stageEl.style.transformOrigin = '0 0';
+      stageEl.style.transform = `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${scale.toFixed(3)})`;
     }
 
     function highlightSpot(idx) {
@@ -3237,7 +3235,7 @@ function buildBettingTable() {
   ];
   const colBets = ['col1','col2','col3'];
 
-  let html = `<div class="evens-row">
+  let inner = `<div class="evens-row">
     <div class="bet-spot outside" data-bet="high">19-36</div>
     <div class="bet-spot outside" data-bet="odd">Odd</div>
     <div class="bet-spot outside black-bet" data-bet="black">●</div>
@@ -3251,20 +3249,20 @@ function buildBettingTable() {
     <div class="bet-spot outside" data-bet="dozen1">1st 12</div>
   </div>`;
 
-  html += `<table class="roulette-grid"><tbody>`;
+  inner += `<table class="roulette-grid"><tbody>`;
   rows.forEach((row, ri) => {
-    html += `<tr>`;
-    html += `<td><div class="bet-spot col-bet" data-bet="${colBets[ri]}">2TO1</div></td>`;
+    inner += `<tr>`;
+    inner += `<td><div class="bet-spot col-bet" data-bet="${colBets[ri]}">2TO1</div></td>`;
     row.forEach(n => {
       const cls = RED_NUMS.has(n) ? 'red-num' : 'black-num';
-      html += `<td><div class="bet-spot ${cls}" data-bet="${n}">${n}</div></td>`;
+      inner += `<td><div class="bet-spot ${cls}" data-bet="${n}">${n}</div></td>`;
     });
-    if (ri === 0) html += `<td rowspan="3" class="zero-cell"><div class="bet-spot green-num" data-bet="0">0</div></td>`;
-    html += `</tr>`;
+    if (ri === 0) inner += `<td rowspan="3" class="zero-cell"><div class="bet-spot green-num" data-bet="0">0</div></td>`;
+    inner += `</tr>`;
   });
-  html += `</tbody></table>`;
+  inner += `</tbody></table>`;
 
-  return html;
+  return `<div id="rpay-zoom-stage" class="rpay-zoom-stage">${inner}</div>`;
 }
 
 // ---- BOOT ----

@@ -1028,8 +1028,12 @@ body {
 .rpay-btray .comm-pay-btn { font-size: var(--bf-md); padding: .38rem .55rem; }
 .rpay-btray .comm-all-reset-btn { font-size: var(--bf-sm); }
 .rpay-full-table {
-  position: relative; overflow: visible;
+  position: relative; overflow: hidden;
   pointer-events: none;
+}
+.rpay-zoom-stage {
+  position: relative;
+  transform-origin: 0 0;
 }
 .rpay-win-cell,
 .rpay-win-cell.rpay-bet-cell {
