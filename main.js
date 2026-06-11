@@ -298,6 +298,11 @@ const Views = {
           <span>Score: <strong id="rpay-score">0</strong></span>
         </div>
         <div class="rpay-bet-side">
+          <div class="rpay-diff-row">
+            <button class="rpay-diff-btn rpay-diff-active" id="rpay-diff-easy"   onclick="Sims.roulettePay.setDiff('easy')">초급</button>
+            <button class="rpay-diff-btn"                  id="rpay-diff-medium" onclick="Sims.roulettePay.setDiff('medium')">중급</button>
+            <button class="rpay-diff-btn"                  id="rpay-diff-hard"   onclick="Sims.roulettePay.setDiff('hard')">고급</button>
+          </div>
           <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
           <div class="bpay-start-overlay" id="rpay-start-overlay">
             <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
@@ -2825,10 +2830,19 @@ const Sims = {
 
     return {
       init() {
+        if (S && S.timerInterval) clearInterval(S.timerInterval);
         S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, roundColor: null,
               payChips: { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
-              history: [],
+              history: [], difficulty: 'easy',
               timerStart: null, timerInterval: null };
+      },
+
+      setDiff(level) {
+        S.difficulty = level;
+        ['easy','medium','hard'].forEach(d => {
+          const btn = document.getElementById(`rpay-diff-${d}`);
+          if (btn) btn.classList.toggle('rpay-diff-active', d === level);
+        });
       },
 
       _startTimer() {
@@ -2863,9 +2877,16 @@ const Sims = {
         S.spotIdx = 0;
 
         const allSpots = getValidSpots(N);
+        const easyTypes   = ['Straight'];
+        const mediumTypes = ['Straight', 'Split', 'Street'];
+        const filteredSpots = S.difficulty === 'easy'
+          ? allSpots.filter(sp => easyTypes.includes(sp.type))
+          : S.difficulty === 'medium'
+            ? allSpots.filter(sp => mediumTypes.includes(sp.type))
+            : allSpots;
         const roundColor = COLOR_CHIPS[Math.floor(Math.random() * COLOR_CHIPS.length)];
         S.roundColor = roundColor;
-        S.spots = allSpots.map(sp => {
+        S.spots = filteredSpots.map(sp => {
           const { chips, total } = genChips(roundColor);
           return { ...sp, chips, total };
         });
