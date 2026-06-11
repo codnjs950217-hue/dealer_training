@@ -2055,6 +2055,7 @@ body {
   position: relative; z-index: 1;
   font-size: clamp(.72rem,1.5vw,.86rem); font-weight: 700;
   color: rgba(255,255,255,.85); min-height: .9rem;
+  width: 100%;
 }
 
 /* Oval + pair circle row */
@@ -2166,6 +2167,7 @@ body {
   display: flex; flex-direction: row;
   justify-content: center; align-items: flex-end;
   padding: .15rem 0;
+  width: 100%; transform-origin: center center;
 }
 .bpay-chip-disc {
   width: var(--ch-md); height: var(--ch-md); border-radius: 50%;
@@ -2334,6 +2336,7 @@ body {
 }
 .spread-row {
   display: flex; align-items: center; justify-content: center; flex-wrap: nowrap;
+  width: 100%; transform-origin: center center;
 }
 .spread-disc {
   width: var(--ch-md); height: var(--ch-md); border-radius: 50%;
