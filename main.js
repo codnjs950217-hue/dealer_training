@@ -228,7 +228,7 @@ const Views = {
           <div class="players-row">
             ${[0,1,2,3,4].map(i => `
               <div class="player-spot" id="bj-spot-${i}">
-                <div class="hand-display" id="bj-hand-${i}"></div>
+                <div class="hand-display" id="bj-hand-${i}"><div class="hand-cards"></div></div>
                 <div class="spot-status-wrap" id="bj-status-${i}"></div>
                 <div class="spot-inline-act" id="bj-spot-act-${i}"></div>
                 <div class="area-label">P${i < 3 ? i+1 : i+2}</div>
@@ -963,11 +963,15 @@ const Sims = {
       return false;
     }
     function adjustDealerLayout() {
+      const wrapEl = $('bj-dealer-wrap');
       const handEl = $('bj-dealer-hand');
-      if (!handEl) return;
+      const ctrlEl = $('bj-dealer-controls');
+      if (!wrapEl || !handEl) return;
       const cards = handEl.querySelectorAll('.bj-flip-card');
       if (cards.length <= 1) { cards.forEach(c => c.style.marginLeft = ''); return; }
-      const availW = handEl.offsetWidth;
+      const ctrlW = ctrlEl ? ctrlEl.offsetWidth : 0;
+      const gapPx = parseFloat(getComputedStyle(wrapEl).gap) || 8;
+      const availW = wrapEl.offsetWidth - ctrlW - gapPx;
       const cardW = cards[0].offsetWidth || 60;
       const n = cards.length;
       const defaultGap = 6;
@@ -979,6 +983,19 @@ const Sims = {
         gap = Math.max(-cardW * 0.65, (availW - n * cardW) / (n - 1));
       }
       Array.from(cards).forEach((c, i) => { c.style.marginLeft = i === 0 ? '' : `${gap}px`; });
+    }
+    function adjustPlayerHandScale(idx) {
+      const handEl = $(`bj-hand-${idx}`);
+      if (!handEl) return;
+      const hc = handEl.querySelector('.hand-cards');
+      if (!hc) return;
+      hc.style.transform = '';
+      const naturalH = hc.scrollHeight;
+      const boxH = handEl.offsetHeight;
+      if (!naturalH || naturalH <= boxH) { hc.style.transformOrigin = ''; return; }
+      const scale = boxH / naturalH;
+      hc.style.transform = `scale(${scale.toFixed(3)})`;
+      hc.style.transformOrigin = 'top left';
     }
     function showDealerControls() {
       const dv = total(S.dh);
@@ -1028,10 +1045,12 @@ const Sims = {
         const statEl = $(`bj-status-${i}`);
         if (!spot) return;
 
+        const hcEl = handEl.querySelector('.hand-cards');
         if (p.hideCards) {
-          handEl.innerHTML = '';
+          if (hcEl) hcEl.innerHTML = '';
         } else {
-          handEl.innerHTML = p.hand.map(c => bjFlipHTML(c, ++bjFlipId, true)).join('');
+          if (hcEl) hcEl.innerHTML = p.hand.map(c => bjFlipHTML(c, ++bjFlipId, true)).join('');
+          requestAnimationFrame(() => adjustPlayerHandScale(i));
         }
 
         const showBadge = p.hideCards || (p.status !== 'active' && p.status !== 'stand');
@@ -1172,7 +1191,10 @@ const Sims = {
         }
 
         // Clear hand displays
-        for (let i = 0; i < N; i++) $(`bj-hand-${i}`).innerHTML = '';
+        for (let i = 0; i < N; i++) {
+          const hc = document.querySelector(`#bj-hand-${i} .hand-cards`);
+          if (hc) { hc.innerHTML = ''; hc.style.transform = ''; }
+        }
         $('bj-dealer-hand').innerHTML = '';
 
         // Animated deal: P0 P1 P2 P3 P4 D  P0 P1 P2 P3 P4
@@ -1184,7 +1206,7 @@ const Sims = {
           setTimeout(() => {
             const id = ++bjFlipId;
             if (step.type === 'player') {
-              const el = $(`bj-hand-${step.idx}`);
+              const el = document.querySelector(`#bj-hand-${step.idx} .hand-cards`);
               if (!el) return;
               el.insertAdjacentHTML('beforeend', bjFlipHTML(step.card, id, false));
               setTimeout(() => bjReveal(id), 90);
@@ -1201,6 +1223,7 @@ const Sims = {
           stats();
           msg('Game started!');
           S.current = -1;
+          for (let i = 0; i < N; i++) adjustPlayerHandScale(i);
           advancePlayer();
         }, steps.length * 140 + 320);
       },
@@ -1215,11 +1238,12 @@ const Sims = {
           if (type === 'hit') {
             const newCard = safeHit(p.hand);
             p.hand.push(newCard);
-            const handEl = $(`bj-hand-${i}`);
+            const hcHit = document.querySelector(`#bj-hand-${i} .hand-cards`);
             const id = ++bjFlipId;
-            if (handEl) handEl.insertAdjacentHTML('beforeend', bjFlipHTML(newCard, id, false));
+            if (hcHit) hcHit.insertAdjacentHTML('beforeend', bjFlipHTML(newCard, id, false));
             setTimeout(() => bjReveal(id), 90);
             setTimeout(() => {
+              adjustPlayerHandScale(i);
               const pv = total(p.hand);
               if (pv > 21) {
                 p.status = 'bust';

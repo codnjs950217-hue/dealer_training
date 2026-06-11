@@ -673,13 +673,18 @@ body {
   justify-content: center;
   gap: .5rem;
 }
+.dealer-area-bj .area-label {
+  position: absolute;
+  left: .5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-bottom: 0;
+}
 .dealer-area-bj .hand-display {
-  flex: 1;
-  min-width: 0;
   flex-wrap: nowrap;
   min-height: clamp(40px,7vh,60px);
   gap: 0;
-  justify-content: center;
+  justify-content: flex-start;
 }
 .dealer-area-bj .hand-display .bj-flip-card:not(:first-child) {
   margin-left: 6px;
@@ -1819,7 +1824,17 @@ body {
   position: relative;
 }
 .blackjack-sim .player-spot .hand-display {
-  min-height: clamp(40px, 9vh, 70px);
+  display: block;
+  height: clamp(75px, 21vh, 115px);
+  min-height: 0;
+  overflow: hidden;
+}
+.player-spot .hand-cards {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 0;
+  position: relative;
 }
 
 /* BJ flip-card wrapper — sized to match player spot cards */
@@ -1847,13 +1862,13 @@ body {
 .bj-flip-front { transform: rotateY(180deg); }
 
 /* Diagonal cascade: horizontal overlap + cumulative vertical drop */
-.player-spot .hand-display .bj-flip-card:nth-child(n+2) { margin-left: calc(var(--card-w-sm) * -.5); }
-.player-spot .hand-display .bj-flip-card:nth-child(2) { margin-top: var(--card-cascade); z-index: 2; }
-.player-spot .hand-display .bj-flip-card:nth-child(3) { margin-top: calc(var(--card-cascade) * 2); z-index: 3; }
-.player-spot .hand-display .bj-flip-card:nth-child(4) { margin-top: calc(var(--card-cascade) * 3); z-index: 4; }
-.player-spot .hand-display .bj-flip-card:nth-child(5) { margin-top: calc(var(--card-cascade) * 4); z-index: 5; }
-.player-spot .hand-display .bj-flip-card:nth-child(6) { margin-top: calc(var(--card-cascade) * 5); z-index: 6; }
-.player-spot .hand-display .bj-flip-card:nth-child(7) { margin-top: calc(var(--card-cascade) * 6); z-index: 7; }
+.player-spot .hand-cards .bj-flip-card:nth-child(n+2) { margin-left: calc(var(--card-w-sm) * -.5); }
+.player-spot .hand-cards .bj-flip-card:nth-child(2) { margin-top: var(--card-cascade); z-index: 2; }
+.player-spot .hand-cards .bj-flip-card:nth-child(3) { margin-top: calc(var(--card-cascade) * 2); z-index: 3; }
+.player-spot .hand-cards .bj-flip-card:nth-child(4) { margin-top: calc(var(--card-cascade) * 3); z-index: 4; }
+.player-spot .hand-cards .bj-flip-card:nth-child(5) { margin-top: calc(var(--card-cascade) * 4); z-index: 5; }
+.player-spot .hand-cards .bj-flip-card:nth-child(6) { margin-top: calc(var(--card-cascade) * 5); z-index: 6; }
+.player-spot .hand-cards .bj-flip-card:nth-child(7) { margin-top: calc(var(--card-cascade) * 6); z-index: 7; }
 
 /* ---- BLACKJACK: HAND ANIMATION (dealer perspective — upside down at top) ---- */
 
