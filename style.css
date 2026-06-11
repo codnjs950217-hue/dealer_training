@@ -821,7 +821,7 @@ body {
   display: flex; flex-direction: row;
 }
 .rpay-bet-side {
-  flex: 1; min-width: 0; position: relative;
+  flex: 2; min-width: 0; position: relative;
   padding: clamp(.4rem,.7vh,.6rem) clamp(.4rem,.7vw,.6rem) clamp(.8rem,1.5vh,1.5rem);
   overflow: visible;
 }
@@ -948,14 +948,14 @@ body {
 .rpay-btray-total { margin-left: auto; font-size: .56rem; font-weight: 700; color: rgba(255,255,220,.9); }
 .rpay-btray-total strong { color: #ffd700; font-size: .68rem; }
 
-/* Compact horizontal tray */
-.comm-tray.rpay-btray { padding: .2rem .28rem; }
-.rpay-btray .comm-slot { padding: .2rem .06rem .18rem; gap: .09rem; }
-.rpay-btray .comm-slot-chip { width: calc(var(--ch-md) * .76); height: calc(var(--ch-md) * .76); font-size: var(--bf-xs); }
-.rpay-btray .comm-5k-btns { gap: .05rem; }
-.rpay-btray .comm-5k-btn { font-size: var(--bf-xs); padding: clamp(.13rem,.4vh,.2rem) .02rem; }
-.rpay-btray .comm-5k-reset { font-size: var(--bf-xs); padding: .09rem 0; }
-.rpay-btray .comm-pay-btn { font-size: var(--bf-sm); padding: .26rem .42rem; }
+/* Roulette payout tray — enlarged for easier tapping */
+.comm-tray.rpay-btray { padding: .35rem .4rem; }
+.rpay-btray .comm-slot { padding: .3rem .1rem .25rem; gap: .14rem; }
+.rpay-btray .comm-slot-chip { width: calc(var(--ch-md) * .92); height: calc(var(--ch-md) * .92); font-size: var(--bf-sm); }
+.rpay-btray .comm-5k-btns { gap: .1rem; }
+.rpay-btray .comm-5k-btn { font-size: var(--bf-sm); padding: clamp(.3rem,.75vh,.42rem) .06rem; }
+.rpay-btray .comm-5k-reset { font-size: var(--bf-xs); padding: .22rem 0; }
+.rpay-btray .comm-pay-btn { font-size: var(--bf-md); padding: .38rem .55rem; }
 .rpay-btray .comm-all-reset-btn { font-size: var(--bf-sm); }
 .rpay-full-table {
   position: relative; overflow: visible;
@@ -1010,7 +1010,7 @@ body {
 }
 .rpay-right-col {
   display: flex; flex-direction: column; gap: .3rem;
-  flex: 1; min-width: 0; min-height: 0;
+  flex: 3; min-width: 0; min-height: 0;
   padding: clamp(.3rem,.6vh,.45rem) clamp(.3rem,.5vw,.4rem);
 }
 .rpay-timer {
