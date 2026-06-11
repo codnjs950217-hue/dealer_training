@@ -855,7 +855,7 @@ body {
   position: absolute; right: 0; top: .7rem; bottom: .7rem;
   width: 1px; background: rgba(255,255,255,.18);
 }
-/* rpay-zoomed: kept for JS classList reference, no extra style needed */
+/* zoom removed — table stays at natural scale */
 .rpay-hint-text {
   color: rgba(255,255,255,.45);
   font-size: clamp(.72rem,1.4vw,.88rem);
@@ -1073,6 +1073,7 @@ body {
   display: flex; flex-direction: column; gap: .3rem;
   flex: 3; min-width: 0; min-height: 0;
   padding: clamp(.3rem,.6vh,.45rem) clamp(.3rem,.5vw,.4rem);
+  overflow: hidden;
 }
 .rpay-timer {
   font-size: clamp(1.1rem,2.8vw,1.6rem); font-weight: 900;
@@ -1096,9 +1097,9 @@ body {
 }
 .rpay-spot-chips { display: flex; flex-direction: column; align-items: center; }
 .rpay-spot-chip {
-  width: var(--ch-xs); height: var(--ch-xs); border-radius: 50%;
-  border: 1px solid rgba(255,255,255,.45);
-  box-shadow: 0 1px 3px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.3);
+  width: clamp(18px, 2.8vw, 26px); height: clamp(18px, 2.8vw, 26px); border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.55);
+  box-shadow: 0 1px 4px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.3);
   flex-shrink: 0;
   position: relative;
 }
@@ -1106,13 +1107,13 @@ body {
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  font-size: .35rem; font-weight: 800; line-height: 1;
-  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+  font-size: clamp(.5rem, .85vw, .65rem); font-weight: 900; line-height: 1;
+  text-shadow: 0 1px 2px rgba(0,0,0,.8);
   pointer-events: none;
   white-space: nowrap;
 }
 .rpay-spot-paying .rpay-spot-chips {
-  filter: drop-shadow(0 0 6px #ffd700) drop-shadow(0 0 2px #ffd700);
+  filter: drop-shadow(0 0 7px #ffd700) drop-shadow(0 0 3px #ffd700);
 }
 .rpay-spot-paid { opacity: .25; }
 .rpay-tray-info {

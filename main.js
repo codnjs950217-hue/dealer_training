@@ -2491,12 +2491,10 @@ const Sims = {
       const tbl = document.getElementById('rpay-full-table');
       if (!tbl) return;
 
-      // Reset zoom before re-rendering
-      tbl.style.transition = 'none';
+      // Clear any previous transform state
+      tbl.style.transition = '';
       tbl.style.transform = '';
       tbl.style.transformOrigin = '';
-      const tableWrap = document.querySelector('.rpay-bet-side');
-      if (tableWrap) tableWrap.classList.remove('rpay-zoomed');
 
       // Reset win highlight and remove old chip spots/dolly
       tbl.querySelectorAll('.rpay-win-cell').forEach(el => el.classList.remove('rpay-win-cell'));
@@ -2600,52 +2598,9 @@ const Sims = {
     }
 
     function zoomToSpot(idx) {
+      // No zoom — table stays at natural scale so layout is stable
       const tbl = document.getElementById('rpay-full-table');
-      const tableWrap = document.querySelector('.rpay-bet-side');
-      if (!tbl || !tableWrap) return;
-
-      if (idx < 0) {
-        tbl.style.transition = 'transform 0.35s ease';
-        tbl.style.transform = '';
-        tableWrap.classList.remove('rpay-zoomed');
-        return;
-      }
-
-      const spotEl = document.getElementById(`rpay-spot-${idx}`);
-      if (!spotEl) return;
-
-      const cx = parseFloat(spotEl.dataset.bboxCx ?? spotEl.style.left);
-
-      // scale so the 3-row number grid fills ~88% of container height
-      const tblRect = tbl.getBoundingClientRect();
-      const topCell = tbl.querySelector('[data-bet="34"]');
-      const botCell = tbl.querySelector('[data-bet="36"]');
-      const ch = tableWrap.offsetHeight;
-      const tw = tbl.offsetWidth;
-      const th = tbl.offsetHeight;
-
-      let gridH  = th;
-      let gridCy = th / 2;
-      if (topCell && botCell) {
-        const tR = topCell.getBoundingClientRect();
-        const bR = botCell.getBoundingClientRect();
-        gridH  = bR.bottom - tR.top;
-        gridCy = (tR.top - tblRect.top) + gridH / 2;
-      }
-
-      const spotType = S.spots[idx]?.type;
-      const fillFactor = (spotType === 'Street' || spotType === 'SixNum') ? 0.3 : 0.88;
-      const maxScale  = (spotType === 'Street' || spotType === 'SixNum') ? 2.0 : 4.5;
-      const scale = Math.min(ch * fillFactor / gridH, maxScale);
-
-      const tx = tw / (2 * scale) - cx;
-      const padTop = parseFloat(getComputedStyle(tableWrap).paddingTop) || 0;
-      const ty = (ch / 2 - padTop) / scale - gridCy;
-
-      tableWrap.classList.add('rpay-zoomed');
-      tbl.style.transition = 'transform 0.35s ease';
-      tbl.style.transformOrigin = '0 0';
-      tbl.style.transform = `scale(${scale}) translate(${tx}px, ${ty}px)`;
+      if (tbl) { tbl.style.transition = ''; tbl.style.transform = ''; tbl.style.transformOrigin = ''; }
     }
 
     function highlightSpot(idx) {
