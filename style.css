@@ -3087,11 +3087,8 @@ body {
   transform: translate(-50%, -50%);
   width: max-content;
 }
-/* Quiz mode: dim all non-active bet spots */
+/* Quiz mode: dimming removed — all bet spots stay fully visible */
 .bside-oval-bet, .bpay-pair-circ, .bside-gray-oval { transition: opacity .2s; }
-.bside-layout.bside-quiz-mode .bside-oval-bet:not(.bside-paying-circ):not(.bside-win-circ),
-.bside-layout.bside-quiz-mode .bpay-pair-circ:not(.bside-paying-circ):not(.bside-win-circ),
-.bside-layout.bside-quiz-mode .bside-gray-oval { opacity: 0.35; }
 
 /* Pair circles: faint text, chips centered */
 .bside-sim .bpay-ppair { color: rgba(255,144,144,.6) !important; }
