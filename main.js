@@ -1832,9 +1832,17 @@ const Sims = {
       do {
         let numDenoms, allow10kStack;
         if (S.mode === 'halfpay') {
-          const r = Math.random();
-          numDenoms = r < 0.4 ? 1 : r < 0.7 ? 2 : 3;
-          allow10kStack = true;
+          if (round <= 2) {
+            numDenoms = 1; allow10kStack = false;
+          } else if (round <= 4) {
+            numDenoms = Math.random() < 0.65 ? 1 : 2; allow10kStack = false;
+          } else if (round <= 7) {
+            const r = Math.random();
+            numDenoms = r < 0.35 ? 1 : r < 0.80 ? 2 : 3; allow10kStack = true;
+          } else {
+            const r = Math.random();
+            numDenoms = r < 0.20 ? 1 : r < 0.55 ? 2 : 3; allow10kStack = true;
+          }
         } else if (round <= 2) {
           numDenoms = 1;
           allow10kStack = false;
@@ -2162,9 +2170,20 @@ const Sims = {
 
     function generateSideChips(key) {
       const maxAmt = SIDE_BET_MAX[key] ?? 1_000_000;
-      const roll = Math.random();
-      // 40% one-color, 50% two-color, 10% three-color (1M only when max allows)
-      const target = roll < 0.4 ? 1 : roll < 0.9 ? 2 : 3;
+      const round = S.rounds;
+      // Progressive difficulty: 1-color only early, 3-color unlocked after round 5
+      let target;
+      if (round <= 2) {
+        target = 1;
+      } else if (round <= 4) {
+        target = Math.random() < 0.60 ? 1 : 2;
+      } else if (round <= 7) {
+        const r = Math.random();
+        target = r < 0.30 ? 1 : r < 0.85 ? 2 : 3;
+      } else {
+        const r = Math.random();
+        target = r < 0.20 ? 1 : r < 0.70 ? 2 : 3;
+      }
       const numColors = (target === 3 && maxAmt >= 1_100_000) ? 3 : Math.min(target, 2);
 
       if (numColors === 1) {
