@@ -3281,48 +3281,67 @@ body {
    THP RANKING PRACTICE
    ============================================================ */
 
-/* Smaller card size for the dense 5-player layout */
+/* Card size: tuned for iPhone 13 mini landscape (375 × 812)
+   14.4 vh at 375px ≈ 54px tall — readable on handheld */
 .thp-rank-sim {
-  --card-w-sm: clamp(28px, 8vh, 46px);
-  --card-h-sm: clamp(38px, 11vh, 62px);
+  --thpr-card-w: clamp(28px, 10.6vh, 50px);
+  --thpr-card-h: clamp(40px, 14.8vh, 70px);
 }
 
+/* Card size / flip-inner overrides */
+.thp-rank-sim .card       { width: var(--thpr-card-w); height: var(--thpr-card-h); }
+.thp-rank-sim .flip-inner { width: var(--thpr-card-w); height: var(--thpr-card-h); }
+.thp-rank-sim .flip-card  { display: inline-block; }
+
+/* Tighter corner positions for small cards */
+.thp-rank-sim .card-corner.top    { top: 2px; left: 3px; }
+.thp-rank-sim .card-corner.bottom { bottom: 2px; right: 3px; }
+
+/* Card text — sized relative to viewport height so they scale with card */
+.thp-rank-sim .card-corner .rank { font-size: clamp(.52rem, 1.6vh, .88rem); }
+.thp-rank-sim .card-corner .suit { font-size: clamp(.44rem, 1.28vh, .68rem); }
+.thp-rank-sim .card-suit-center  { font-size: clamp(.8rem,  2.4vh, 1.3rem); }
+.thp-rank-sim .card-pattern      { width: clamp(18px, 5.2vh, 32px); height: clamp(25px, 7.2vh, 46px); }
+
+/* ---- Table shell ---- */
 .thp-rank-sim .thpr-table {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column;
   background: var(--felt);
-  border: 3px solid #1b5e35;
-  border-radius: 18px;
-  padding: clamp(.3rem,.6vh,.6rem) clamp(.4rem,.8vw,.7rem);
+  border: 2px solid #1b5e35;
+  border-radius: 14px;
+  padding: clamp(.18rem, .45vh, .45rem) clamp(.3rem, .65vw, .65rem);
   position: relative;
-  box-shadow: inset 0 2px 12px rgba(0,0,0,.35), var(--shadow);
-  gap: clamp(.18rem,.32vh,.32rem);
+  box-shadow: inset 0 2px 14px rgba(0,0,0,.38), var(--shadow);
+  gap: clamp(.1rem, .2vh, .2rem);
+  overflow: hidden;
 }
 
 /* ---- Players row ---- */
 .thpr-players-row {
   display: flex;
-  gap: clamp(.2rem,.35vw,.4rem);
-  flex: 3; min-height: 0;
+  gap: clamp(.14rem, .26vw, .3rem);
+  flex: 2.8; min-height: 0;
 }
 
 .thpr-player-spot {
   flex: 1; min-width: 0;
   display: flex; flex-direction: column;
   align-items: center;
-  background: rgba(0,0,0,.18);
-  border: 2px solid transparent;
-  border-radius: 10px;
-  padding: clamp(.18rem,.38vh,.38rem) clamp(.1rem,.2vw,.22rem);
-  gap: clamp(.1rem,.22vh,.22rem);
-  transition: border-color .2s, background .2s, box-shadow .2s;
+  background: rgba(0,0,0,.22);
+  border: 2px solid rgba(255,255,255,.07);
+  border-radius: 8px;
+  padding: clamp(.1rem, .24vh, .24rem) clamp(.06rem, .12vw, .14rem);
+  gap: clamp(.06rem, .12vh, .12rem);
+  transition: border-color .22s, background .22s, box-shadow .22s;
+  overflow: hidden;
 }
 
 .thpr-spot-label {
-  font-size: clamp(.52rem, 1.05vw, .65rem);
-  font-weight: 800; letter-spacing: .8px;
+  font-size: clamp(.46rem, .92vw, .56rem);
+  font-weight: 800; letter-spacing: .5px;
   text-transform: uppercase;
-  color: rgba(255,255,255,.38);
+  color: rgba(255,255,255,.3);
   line-height: 1; flex-shrink: 0;
   white-space: nowrap;
 }
@@ -3334,78 +3353,67 @@ body {
 
 .thpr-hole-cards {
   display: flex;
-  gap: clamp(.12rem,.22vw,.25rem);
+  gap: clamp(.1rem, .16vw, .2rem);
   align-items: center;
 }
 
-/* Card size and flip-card override for smaller THP layout */
-.thp-rank-sim .card      { width: var(--card-w-sm); height: var(--card-h-sm); }
-.thp-rank-sim .flip-inner { width: var(--card-w-sm); height: var(--card-h-sm); }
-.thp-rank-sim .flip-card  { display: inline-block; }
-
-/* Card text scaling for smaller THP cards */
-.thp-rank-sim .card-corner .rank { font-size: clamp(.6rem, 1.75vh, .9rem); }
-.thp-rank-sim .card-corner .suit { font-size: clamp(.5rem, 1.42vh, .72rem); }
-.thp-rank-sim .card-suit-center  { font-size: clamp(.9rem, 2.6vh, 1.4rem); }
-.thp-rank-sim .card-pattern      { width: clamp(19px, 5.5vh, 35px); height: clamp(26px, 7.6vh, 50px); }
-
 /* ---- Community area ---- */
 .thpr-community-area {
-  flex: 2.2; min-height: 0;
+  flex: 2; min-height: 0;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: clamp(.1rem,.2vh,.2rem);
-  border-top: 1px dashed rgba(255,255,255,.1);
-  border-bottom: 1px dashed rgba(255,255,255,.1);
-  padding: clamp(.12rem,.25vh,.25rem) 0;
+  gap: clamp(.06rem, .14vh, .14rem);
+  border-top: 1px solid rgba(255,255,255,.08);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  padding: clamp(.08rem, .16vh, .16rem) 0;
 }
 
 .thpr-community-row {
   display: flex;
   align-items: center; justify-content: center;
-  gap: clamp(.32rem,.6vw,.65rem);
+  gap: clamp(.24rem, .48vw, .52rem);
 }
 
 .thpr-comm-group {
   display: flex; flex-direction: column;
-  align-items: center; gap: clamp(.08rem,.16vh,.18rem);
+  align-items: center; gap: clamp(.04rem, .08vh, .08rem);
 }
 
 .thpr-group-label {
-  font-size: clamp(.46rem, .92vw, .56rem);
-  font-weight: 800; letter-spacing: 2px;
+  font-size: clamp(.42rem, .84vw, .52rem);
+  font-weight: 800; letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: rgba(255,255,255,.28);
+  color: rgba(255,255,255,.24);
 }
 
 .thpr-group-cards {
   display: flex;
-  gap: clamp(.15rem,.28vw,.3rem);
+  gap: clamp(.12rem, .22vw, .26rem);
 }
 
 .thpr-comm-sep {
   width: 1px;
-  height: clamp(26px, 6.2vh, 42px);
-  background: rgba(255,255,255,.14);
+  height: clamp(22px, 5.2vh, 36px);
+  background: rgba(255,255,255,.1);
   flex-shrink: 0; align-self: center;
 }
 
-/* Countdown */
+/* Countdown — large and prominent in the center band */
 .thpr-countdown {
-  min-height: clamp(.85rem, 2.4vh, 1.5rem);
-  font-size: clamp(1rem, 2.8vh, 1.65rem);
+  min-height: clamp(1.2rem, 3.4vh, 2.1rem);
+  font-size: clamp(1.2rem, 3.5vh, 2.2rem);
   font-weight: 900; text-align: center;
-  color: rgba(255,255,255,.18);
+  color: transparent;
   font-variant-numeric: tabular-nums;
-  line-height: 1;
+  line-height: 1; letter-spacing: .04em;
 }
 .thpr-countdown-active {
-  color: #ffd700;
-  text-shadow: 0 0 18px rgba(255,215,0,.65);
+  color: #ffe44d;
+  text-shadow: 0 0 22px rgba(255,215,0,.75), 0 0 8px rgba(255,215,0,.45);
 }
 .thpr-countdown-done {
   color: var(--win);
-  text-shadow: 0 0 12px rgba(78,205,196,.5);
+  text-shadow: 0 0 16px rgba(78,205,196,.6);
 }
 
 /* ---- Dealer area ---- */
@@ -3413,23 +3421,23 @@ body {
   flex-shrink: 0;
   display: flex;
   align-items: center; justify-content: center;
-  gap: clamp(.5rem, 1vw, .9rem);
-  padding: clamp(.12rem,.28vh,.28rem) 0;
+  gap: clamp(.4rem, .8vw, .75rem);
+  padding: clamp(.08rem, .16vh, .16rem) 0;
   position: relative;
 }
 
 .thpr-area-label {
-  position: absolute; left: .5rem;
-  font-size: clamp(.48rem, .98vw, .6rem);
-  font-weight: 800; letter-spacing: 2.5px;
+  position: absolute; left: .4rem;
+  font-size: clamp(.44rem, .88vw, .54rem);
+  font-weight: 800; letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(255,255,255,.38);
+  color: rgba(255,255,255,.3);
   pointer-events: none; user-select: none;
 }
 
 .thpr-dealer-cards {
   display: flex;
-  gap: clamp(.2rem,.38vw,.4rem);
+  gap: clamp(.16rem, .3vw, .34rem);
 }
 
 /* ---- Controls ---- */
@@ -3437,139 +3445,147 @@ body {
   flex-shrink: 0;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: clamp(.12rem,.25vh,.25rem);
-  padding: clamp(.08rem,.18vh,.18rem) 0;
+  gap: clamp(.08rem, .18vh, .18rem);
+  padding: clamp(.06rem, .12vh, .12rem) 0;
 }
 
 .thpr-feedback {
-  min-height: clamp(.8rem, 1.9vh, 1.15rem);
-  font-size: clamp(.62rem, 1.3vw, .76rem);
-  color: var(--text-dim); text-align: center; line-height: 1.3;
+  width: 100%; text-align: center;
+  font-size: clamp(.58rem, 1.15vw, .68rem);
+  color: var(--text-dim); line-height: 1.28;
 }
 
 .thpr-action-row {
   display: flex;
-  gap: clamp(.4rem,.8vw,.7rem);
+  gap: clamp(.32rem, .65vw, .6rem);
   align-items: center; justify-content: center;
 }
 
-/* START button */
+/* START / NEW HAND button */
 .thpr-start-btn {
   background: var(--gold); color: #0a1628;
   border: none; border-radius: var(--r);
-  padding: clamp(.42rem, 1.1vh, .6rem) clamp(1.6rem, 4.5vw, 2.8rem);
-  font-size: clamp(.88rem, 2.1vw, 1.05rem);
-  font-weight: 800; cursor: pointer; letter-spacing: 1px;
-  transition: all .2s;
-  box-shadow: 0 2px 12px rgba(201,168,76,.4);
+  padding: clamp(.36rem, .95vh, .52rem) clamp(1.4rem, 3.8vw, 2.4rem);
+  font-size: clamp(.84rem, 1.95vw, .98rem);
+  font-weight: 800; cursor: pointer; letter-spacing: .8px;
+  transition: background .18s, transform .18s;
+  box-shadow: 0 2px 12px rgba(201,168,76,.38);
   min-height: var(--tap-h);
 }
 .thpr-start-btn:hover:not(:disabled) { background: var(--gold-light); transform: translateY(-1px); }
-.thpr-start-btn:disabled { opacity: .45; cursor: default; transform: none; }
+.thpr-start-btn:active:not(:disabled) { transform: scale(.97); }
+.thpr-start-btn:disabled { opacity: .4; cursor: default; transform: none; }
 
-/* PAY / TAKE / TIE buttons */
+/* PAY / TAKE / TIE answer buttons */
 .thpr-pay-btn {
-  background: #0a3020; color: #4ecdc4; border: 1px solid #1a6040;
+  background: #0a2d1c; color: #4ecdc4;
+  border: 1.5px solid #1a5530;
   border-radius: var(--r);
-  padding: clamp(.42rem, 1.1vh, .6rem) clamp(.9rem, 2.5vw, 1.4rem);
-  font-size: clamp(.85rem, 2vw, 1rem); font-weight: 800;
-  cursor: pointer; min-height: var(--tap-h); transition: all .15s;
-  letter-spacing: .5px;
+  padding: clamp(.36rem, .95vh, .52rem) clamp(.75rem, 2.1vw, 1.25rem);
+  font-size: clamp(.78rem, 1.85vw, .92rem); font-weight: 900;
+  cursor: pointer; min-height: var(--tap-h); transition: background .12s;
+  letter-spacing: .4px;
 }
-.thpr-pay-btn:hover { background: #0e3c28; }
+.thpr-pay-btn:active { background: #0d3b25; }
 
 .thpr-take-btn {
-  background: #300a0a; color: #ff7777; border: 1px solid #601818;
+  background: #2d0a0a; color: #ff7777;
+  border: 1.5px solid #581515;
   border-radius: var(--r);
-  padding: clamp(.42rem, 1.1vh, .6rem) clamp(.9rem, 2.5vw, 1.4rem);
-  font-size: clamp(.85rem, 2vw, 1rem); font-weight: 800;
-  cursor: pointer; min-height: var(--tap-h); transition: all .15s;
-  letter-spacing: .5px;
+  padding: clamp(.36rem, .95vh, .52rem) clamp(.75rem, 2.1vw, 1.25rem);
+  font-size: clamp(.78rem, 1.85vw, .92rem); font-weight: 900;
+  cursor: pointer; min-height: var(--tap-h); transition: background .12s;
+  letter-spacing: .4px;
 }
-.thpr-take-btn:hover { background: #3e1010; }
+.thpr-take-btn:active { background: #3c0f0f; }
 
 .thpr-tie-btn {
-  background: rgba(201,168,76,.12); color: var(--gold);
-  border: 1px solid rgba(201,168,76,.32);
+  background: rgba(201,168,76,.1); color: var(--gold);
+  border: 1.5px solid rgba(201,168,76,.32);
   border-radius: var(--r);
-  padding: clamp(.42rem, 1.1vh, .6rem) clamp(.9rem, 2.5vw, 1.4rem);
-  font-size: clamp(.85rem, 2vw, 1rem); font-weight: 800;
-  cursor: pointer; min-height: var(--tap-h); transition: all .15s;
-  letter-spacing: .5px;
+  padding: clamp(.36rem, .95vh, .52rem) clamp(.75rem, 2.1vw, 1.25rem);
+  font-size: clamp(.78rem, 1.85vw, .92rem); font-weight: 900;
+  cursor: pointer; min-height: var(--tap-h); transition: background .12s;
+  letter-spacing: .4px;
 }
-.thpr-tie-btn:hover { background: rgba(201,168,76,.22); }
+.thpr-tie-btn:active { background: rgba(201,168,76,.22); }
 
-/* ---- Answer feedback result ---- */
+/* ---- Answer feedback ---- */
 .thpr-result {
   display: flex; flex-direction: column;
-  gap: clamp(.06rem, .16vh, .16rem);
+  gap: clamp(.04rem, .1vh, .1rem);
   text-align: center;
-  font-size: clamp(.6rem, 1.22vw, .72rem);
-  line-height: 1.3;
-  color: rgba(255,255,255,.78);
+  font-size: clamp(.58rem, 1.12vw, .66rem);
+  line-height: 1.28;
+  color: rgba(255,255,255,.75);
 }
-.thpr-verdict-ok    { color: #4ecdc4; font-weight: 900; font-size: clamp(.7rem, 1.5vw, .86rem); }
-.thpr-verdict-wrong { color: #ff7777; font-weight: 900; font-size: clamp(.7rem, 1.5vw, .86rem); }
+.thpr-verdict-ok    { color: #4ecdc4; font-weight: 900; font-size: clamp(.66rem, 1.38vw, .8rem); }
+.thpr-verdict-wrong { color: #ff7777; font-weight: 900; font-size: clamp(.66rem, 1.38vw, .8rem); }
 .thpr-result-answer { color: var(--gold); font-weight: 700; }
-.thpr-result-explain { color: rgba(255,255,255,.45); font-style: italic; }
+.thpr-result-explain { color: rgba(255,255,255,.42); font-style: italic; }
 
 /* Next Player / Next Hand button */
 .thpr-next-btn {
-  background: rgba(255,255,255,.1); color: #fff;
-  border: 1px solid rgba(255,255,255,.28);
+  background: rgba(255,255,255,.09); color: rgba(255,255,255,.88);
+  border: 1px solid rgba(255,255,255,.22);
   border-radius: var(--r);
-  padding: clamp(.38rem, 1vh, .55rem) clamp(1.2rem, 3.2vw, 2rem);
-  font-size: clamp(.8rem, 1.9vw, .95rem); font-weight: 800;
-  cursor: pointer; letter-spacing: .5px;
-  transition: all .15s; min-height: var(--tap-h);
+  padding: clamp(.34rem, .88vh, .5rem) clamp(1rem, 2.6vw, 1.7rem);
+  font-size: clamp(.76rem, 1.75vw, .88rem); font-weight: 800;
+  cursor: pointer; letter-spacing: .4px;
+  transition: background .12s; min-height: var(--tap-h);
 }
-.thpr-next-btn:hover { background: rgba(255,255,255,.18); transform: translateY(-1px); }
+.thpr-next-btn:active { background: rgba(255,255,255,.18); }
 
 /* ---- End-of-round summary ---- */
 .thpr-summary {
   display: flex; flex-direction: column;
-  gap: clamp(.06rem, .14vh, .14rem);
-  padding: clamp(.12rem, .28vh, .28rem) 0;
+  gap: clamp(.03rem, .08vh, .08rem);
+  padding: clamp(.06rem, .13vh, .13rem) 0;
   text-align: center;
 }
 .thpr-sum-row {
   display: flex; align-items: center; justify-content: center;
-  gap: clamp(.25rem, .55vw, .5rem);
-  font-size: clamp(.58rem, 1.12vw, .68rem);
+  gap: clamp(.18rem, .4vw, .38rem);
+  font-size: clamp(.56rem, 1.06vw, .64rem);
 }
-.thpr-sum-chk        { font-weight: 900; font-size: clamp(.62rem, 1.2vw, .72rem); min-width: .85rem; text-align: center; }
-.thpr-sum-chk-ok     { color: #4ecdc4; }
-.thpr-sum-chk-wrong  { color: #ff7777; }
-.thpr-sum-label      { color: rgba(255,255,255,.45); font-weight: 700; min-width: 1.4rem; text-align: right; }
-.thpr-sum-winner     { font-weight: 900; min-width: 2.6rem; text-align: center; font-size: clamp(.6rem, 1.15vw, .7rem); }
-.thpr-sum-pay        { color: #4ecdc4; }
-.thpr-sum-take       { color: #ff7777; }
-.thpr-sum-tie        { color: var(--gold); }
-.thpr-sum-hands      { color: rgba(255,255,255,.38); text-align: left; }
+.thpr-sum-chk       { font-weight: 900; font-size: clamp(.6rem, 1.1vw, .68rem); min-width: .75rem; text-align: center; }
+.thpr-sum-chk-ok    { color: #4ecdc4; }
+.thpr-sum-chk-wrong { color: #ff7777; }
+.thpr-sum-label     { color: rgba(255,255,255,.4); font-weight: 700; min-width: 1.3rem; text-align: right; }
+.thpr-sum-winner    { font-weight: 900; min-width: 2.4rem; text-align: center; font-size: clamp(.58rem, 1.08vw, .66rem); }
+.thpr-sum-pay  { color: #4ecdc4; }
+.thpr-sum-take { color: #ff7777; }
+.thpr-sum-tie  { color: var(--gold); }
+.thpr-sum-hands { color: rgba(255,255,255,.32); text-align: left; }
 .thpr-sum-score {
   color: var(--gold); font-weight: 900;
-  font-size: clamp(.68rem, 1.38vw, .8rem);
-  margin-top: clamp(.1rem, .22vh, .22rem);
-  padding-top: clamp(.1rem, .22vh, .22rem);
-  border-top: 1px solid rgba(255,255,255,.12);
+  font-size: clamp(.64rem, 1.28vw, .76rem);
+  margin-top: clamp(.06rem, .16vh, .16rem);
+  padding-top: clamp(.06rem, .16vh, .16rem);
+  border-top: 1px solid rgba(255,255,255,.1);
 }
 
 /* ---- Player spot states ---- */
+@keyframes thpr-active-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(201,168,76,.35), 0 0 10px rgba(201,168,76,.2); }
+  50%       { box-shadow: 0 0 0 2px rgba(201,168,76,.55), 0 0 18px rgba(201,168,76,.38); }
+}
+
 .thpr-player-spot.thpr-active {
   border-color: var(--gold);
-  background: rgba(201,168,76,.09);
-  box-shadow: 0 0 12px rgba(201,168,76,.22);
+  background: rgba(201,168,76,.1);
+  animation: thpr-active-pulse 1.8s ease-in-out infinite;
 }
 .thpr-player-spot.thpr-pay {
-  border-color: var(--win);
-  background: rgba(78,205,196,.07);
+  border-color: rgba(78,205,196,.65);
+  background: rgba(78,205,196,.08);
 }
 .thpr-player-spot.thpr-take {
-  border-color: rgba(255,107,107,.5);
-  background: rgba(255,107,107,.04);
-  opacity: .6;
+  border-color: rgba(255,107,107,.45);
+  background: rgba(255,107,107,.05);
+  opacity: .72;
 }
 .thpr-player-spot.thpr-tie {
-  border-color: rgba(201,168,76,.45);
-  background: rgba(201,168,76,.05);
+  border-color: rgba(201,168,76,.5);
+  background: rgba(201,168,76,.06);
 }
