@@ -1100,6 +1100,8 @@ body {
   padding: .4rem 0;
   background: rgba(0,0,0,.25);
   border-radius: 8px;
+  flex-shrink: 0;
+  min-height: calc(clamp(1.1rem,2.8vw,1.6rem) * 1.4 + .8rem);
 }
 .rpay-timer-running { color: #ffd700; }
 .rpay-timer-done    { color: #6ec864; }
@@ -2333,6 +2335,7 @@ body {
   overflow: hidden;
   clip-path: inset(0);
   isolation: isolate;
+  display: flex; flex-direction: column; justify-content: center;
 }
 .bpay-start-overlay {
   display: flex; align-items: center; justify-content: center;
@@ -2568,6 +2571,8 @@ body {
 .rpay-undo-row {
   display: flex; justify-content: space-between;
   padding: .15rem 0 .1rem;
+  flex-shrink: 0;
+  min-height: calc(var(--tap-h) + .25rem);
 }
 .comm-undo-btn {
   background: rgba(60,80,120,.45);
