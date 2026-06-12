@@ -120,8 +120,8 @@ const Views = {
           <div class="home-game-icon">🃏</div>
           <div class="home-game-name">Baccarat</div>
           <div class="home-game-btns">
-            <button class="home-game-btn" onclick="App.navigate('baccarat','simulation')">Drawing Practice</button>
-            <button class="home-game-btn" onclick="App.navigate('baccarat','paysim')">Payout Practice</button>
+            <button class="home-game-btn" onclick="App.navigate('baccarat','simulation')">Card Drawing</button>
+            <button class="home-game-btn" onclick="App.navigate('baccarat','paysim')">Payout</button>
           </div>
         </div>
         <div class="home-game-card">
@@ -135,7 +135,14 @@ const Views = {
           <div class="home-game-icon">🎡</div>
           <div class="home-game-name">Roulette</div>
           <div class="home-game-btns">
-            <button class="home-game-btn" onclick="App.navigate('roulette','paysim')">Payout Practice</button>
+            <button class="home-game-btn" onclick="App.navigate('roulette','paysim')">Payout</button>
+          </div>
+        </div>
+        <div class="home-game-card">
+          <div class="home-game-icon">🂡</div>
+          <div class="home-game-name">Poker</div>
+          <div class="home-game-btns">
+            <button class="home-game-btn" onclick="App.navigate('poker','thp')">THP Ranking</button>
           </div>
         </div>
       </div>
