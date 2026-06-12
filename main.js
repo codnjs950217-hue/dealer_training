@@ -117,7 +117,7 @@ const Views = {
       </div>
       <div class="home-game-cards">
         <div class="home-game-card home-game-card--baccarat">
-          <div class="home-game-icon-wrap"><span class="home-game-icon">🃏</span></div>
+          <div class="home-game-icon">🃏</div>
           <div class="home-game-name">Baccarat</div>
           <div class="home-game-divider"></div>
           <div class="home-game-btns">
@@ -126,7 +126,7 @@ const Views = {
           </div>
         </div>
         <div class="home-game-card home-game-card--blackjack">
-          <div class="home-game-icon-wrap"><span class="home-game-icon">♠</span></div>
+          <div class="home-game-icon">♠</div>
           <div class="home-game-name">Blackjack</div>
           <div class="home-game-divider"></div>
           <div class="home-game-btns">
@@ -134,7 +134,7 @@ const Views = {
           </div>
         </div>
         <div class="home-game-card home-game-card--roulette">
-          <div class="home-game-icon-wrap"><span class="home-game-icon">🎡</span></div>
+          <div class="home-game-icon">🎡</div>
           <div class="home-game-name">Roulette</div>
           <div class="home-game-divider"></div>
           <div class="home-game-btns">
@@ -142,7 +142,7 @@ const Views = {
           </div>
         </div>
         <div class="home-game-card home-game-card--poker">
-          <div class="home-game-icon-wrap"><span class="home-game-icon">🂡</span></div>
+          <div class="home-game-icon">🂡</div>
           <div class="home-game-name">Poker</div>
           <div class="home-game-divider"></div>
           <div class="home-game-btns">

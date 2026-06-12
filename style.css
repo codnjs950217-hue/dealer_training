@@ -342,13 +342,6 @@ body {
   border-color: rgba(201,168,76,.45);
 }
 .home-game-card:active { transform: translateY(0); }
-.home-game-icon-wrap {
-  width: clamp(2rem, 5vw, 2.8rem); height: clamp(2rem, 5vw, 2.8rem);
-  background: linear-gradient(135deg, rgba(201,168,76,.22) 0%, rgba(201,168,76,.08) 100%);
-  border: 1px solid rgba(201,168,76,.25); border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 1px 6px rgba(0,0,0,.25);
-}
 .home-game-icon { font-size: clamp(1rem, 2.8vw, 1.5rem); line-height: 1; }
 .home-game-name {
   font-size: clamp(.7rem, 2vw, .9rem); font-weight: 800; color: #fff;
