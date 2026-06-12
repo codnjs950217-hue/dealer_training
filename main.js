@@ -535,6 +535,7 @@ const Views = {
                   ${cardHTML(null, true)}${cardHTML(null, true)}
                 </div>
               </div>
+              <div class="thpr-spot-btns" id="thpr-spot-btns-${i}"></div>
             </div>`).join('')}
         </div>
 
@@ -3341,9 +3342,9 @@ const Sims = {
       }
 
       function showAnswerBtns() {
-        const a = $('thpr-action-row');
-        if (!a) return;
-        a.innerHTML =
+        var b = $('thpr-spot-btns-' + S.activePlayer);
+        if (!b) return;
+        b.innerHTML =
           '<button class="thpr-pay-btn" onclick="Sims.poker.thpRank.answer(\'pay\')">PAY</button>' +
           '<button class="thpr-take-btn" onclick="Sims.poker.thpRank.answer(\'take\')">TAKE</button>' +
           '<button class="thpr-tie-btn" onclick="Sims.poker.thpRank.answer(\'tie\')">TIE</button>';
@@ -3398,6 +3399,8 @@ const Sims = {
         for (var _p = 1; _p <= 5; _p++) {
           var _sp = $('thpr-spot-' + _p);
           if (_sp) _sp.classList.remove('thpr-active', 'thpr-pay', 'thpr-take', 'thpr-tie');
+          var _sb = $('thpr-spot-btns-' + _p);
+          if (_sb) _sb.innerHTML = '';
         }
         var _fb = $('thpr-feedback'); if (_fb) _fb.innerHTML = '';
 
@@ -3458,6 +3461,10 @@ const Sims = {
           dealerRankName: result.dealerRankName,
           correct: correct
         });
+
+        // Clear answer buttons from this spot
+        var spotBtns = $('thpr-spot-btns-' + S.activePlayer);
+        if (spotBtns) spotBtns.innerHTML = '';
 
         // Color player spot with correct result
         var spot = $('thpr-spot-' + S.activePlayer);

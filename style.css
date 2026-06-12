@@ -3318,9 +3318,9 @@ body {
 .thp-rank-sim .card-corner.bottom { bottom: 2px; right: 3px; }
 
 /* Card text — sized relative to viewport height so they scale with card */
-.thp-rank-sim .card-corner .rank { font-size: clamp(.52rem, 1.6vh, .88rem); }
-.thp-rank-sim .card-corner .suit { font-size: clamp(.44rem, 1.28vh, .68rem); }
-.thp-rank-sim .card-suit-center  { font-size: clamp(.8rem,  2.4vh, 1.3rem); }
+.thp-rank-sim .card-corner .rank { font-size: clamp(.66rem, 2vh, 1rem); }
+.thp-rank-sim .card-corner .suit { font-size: clamp(.56rem, 1.6vh, .82rem); }
+.thp-rank-sim .card-suit-center  { font-size: clamp(1rem,   3vh,  1.6rem); }
 .thp-rank-sim .card-pattern      { width: clamp(18px, 5.2vh, 32px); height: clamp(25px, 7.2vh, 46px); }
 
 /* ---- Table shell ---- */
@@ -3341,7 +3341,7 @@ body {
 .thpr-players-row {
   display: flex;
   gap: clamp(.14rem, .26vw, .3rem);
-  flex: 2.8; min-height: 0;
+  flex: 3.5; min-height: 0;
 }
 
 .thpr-player-spot {
@@ -3375,6 +3375,23 @@ body {
   display: flex;
   gap: clamp(.1rem, .16vw, .2rem);
   align-items: center;
+}
+
+.thpr-spot-btns {
+  display: flex; gap: 2px;
+  width: 100%; flex-shrink: 0;
+  min-height: clamp(20px, 4.2vh, 30px);
+}
+.thpr-spot-btns .thpr-pay-btn,
+.thpr-spot-btns .thpr-take-btn,
+.thpr-spot-btns .thpr-tie-btn {
+  flex: 1; min-width: 0;
+  padding: clamp(.14rem, .42vh, .26rem) .05rem;
+  font-size: clamp(.5rem, 1.3vw, .64rem);
+  min-height: unset;
+  border-radius: 5px;
+  border-width: 1px;
+  letter-spacing: 0;
 }
 
 /* ---- Community area ---- */
