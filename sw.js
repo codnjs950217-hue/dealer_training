@@ -1,4 +1,4 @@
-const CACHE = 'dealer-v2';
+const CACHE = 'dealer-v3';
 const ASSETS = ['/', '/index.html', '/main.js', '/style.css', '/icon-192.png', '/icon-512.png', '/manifest.json'];
 
 self.addEventListener('install', e => {
