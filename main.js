@@ -780,6 +780,159 @@ function bestPokerHandCards(cards) {
   return { ev: bestEv, bestCards };
 }
 
+// ============================================================
+//  THP EVALUATOR API
+// ============================================================
+
+const HAND_NAMES = [
+  'High Card', 'One Pair', 'Two Pair', 'Three of a Kind',
+  'Straight', 'Flush', 'Full House', 'Four of a Kind',
+  'Straight Flush', 'Royal Straight Flush'
+];
+
+function valToRank(v) {
+  return v === 14 ? 'A' : v === 13 ? 'K' : v === 12 ? 'Q' : v === 11 ? 'J' : String(v);
+}
+
+// Returns { rank, rankName, tiebreak, bestFive, ev } for 5–7 cards
+function evaluateBestHand(cards) {
+  const { ev, bestCards } = bestPokerHandCards(cards);
+  return { rank: ev.r, rankName: HAND_NAMES[ev.r], tiebreak: ev.tb, bestFive: bestCards, ev };
+}
+
+// Returns { cmp, dealer, player } — cmp >0 dealer wins, <0 player wins, 0 tie
+function compareHands(dealerCards, playerCards) {
+  const d = evaluateBestHand(dealerCards);
+  const p = evaluateBestHand(playerCards);
+  return { cmp: cmpPokerHands(d.ev, p.ev), dealer: d, player: p };
+}
+
+function _thpExplain(winner, d, p) {
+  if (winner === 'TIE') return 'Both have ' + p.rankName;
+  const wEv = winner === 'PAY' ? p : d;
+  const lEv = winner === 'PAY' ? d : p;
+  const who = winner === 'PAY' ? 'Player' : 'Dealer';
+  if (wEv.rank !== lEv.rank) return who + ': ' + wEv.rankName + ' > ' + lEv.rankName;
+  const wt = wEv.tiebreak, lt = lEv.tiebreak;
+  for (let i = 0; i < Math.max(wt.length, lt.length); i++) {
+    const wv = wt[i] || 0, lv = lt[i] || 0;
+    if (wv !== lv) {
+      return i === 0
+        ? who + ': higher ' + wEv.rankName
+        : who + ': kicker ' + valToRank(wv) + ' > ' + valToRank(lv);
+    }
+  }
+  return who + ' wins';
+}
+
+// Main API — returns winner + full detail object
+function getResult(dealerCards, playerCards) {
+  const { cmp, dealer, player } = compareHands(dealerCards, playerCards);
+  const winner = cmp > 0 ? 'TAKE' : cmp < 0 ? 'PAY' : 'TIE';
+  return {
+    winner,
+    dealerRankName: dealer.rankName,
+    playerRankName: player.rankName,
+    dealerBestFiveCards: dealer.bestFive,
+    playerBestFiveCards: player.bestFive,
+    shortExplanation: _thpExplain(winner, dealer, player)
+  };
+}
+
+// ---- TEST RUNNER (call runThpTests() in browser console) ----
+function runThpTests() {
+  const c = mkCard;
+  const tests = [
+    {
+      name: '1. Player pair vs dealer high card',
+      dHole: [c('A','♠'), c('K','♥')],
+      pHole: [c('2','♣'), c('2','♥')],
+      comm:  [c('3','♣'), c('7','♦'), c('J','♠'), c('Q','♣'), c('5','♥')],
+      expect: 'PAY'
+    },
+    {
+      name: '2. Dealer higher pair (K vs Q)',
+      dHole: [c('K','♥'), c('K','♠')],
+      pHole: [c('Q','♦'), c('Q','♣')],
+      comm:  [c('2','♣'), c('3','♦'), c('7','♠'), c('9','♣'), c('J','♥')],
+      expect: 'TAKE'
+    },
+    {
+      name: '3. Same pair (8s), kicker decides — dealer A > player K',
+      dHole: [c('A','♣'), c('3','♥')],
+      pHole: [c('K','♦'), c('4','♣')],
+      comm:  [c('8','♠'), c('8','♥'), c('2','♣'), c('5','♦'), c('7','♠')],
+      expect: 'TAKE'
+    },
+    {
+      name: '4. Ace-low straight (wheel A-2-3-4-5)',
+      dHole: [c('K','♥'), c('Q','♦')],
+      pHole: [c('5','♣'), c('8','♥')],
+      comm:  [c('A','♠'), c('2','♣'), c('3','♦'), c('4','♠'), c('9','♥')],
+      expect: 'PAY'
+    },
+    {
+      name: '5. Ace-high straight (10-J-Q-K-A)',
+      dHole: [c('9','♥'), c('8','♠')],
+      pHole: [c('A','♦'), c('5','♣')],
+      comm:  [c('10','♠'), c('J','♣'), c('Q','♦'), c('K','♥'), c('2','♣')],
+      expect: 'PAY'
+    },
+    {
+      name: '6. Flush — player K-flush beats dealer J-flush',
+      dHole: [c('J','♠'), c('10','♦')],
+      pHole: [c('K','♠'), c('Q','♦')],
+      comm:  [c('A','♠'), c('8','♠'), c('5','♠'), c('3','♠'), c('2','♦')],
+      expect: 'PAY'
+    },
+    {
+      name: '7. Full house — dealer K-full beats player Q-full',
+      dHole: [c('K','♠'), c('K','♣')],
+      pHole: [c('Q','♠'), c('J','♣')],
+      comm:  [c('Q','♥'), c('Q','♦'), c('K','♦'), c('3','♥'), c('3','♣')],
+      expect: 'TAKE'
+    },
+    {
+      name: '8. Board plays — both use A-K-Q-J-10 straight — TIE',
+      dHole: [c('2','♠'), c('3','♥')],
+      pHole: [c('4','♦'), c('5','♣')],
+      comm:  [c('A','♠'), c('K','♣'), c('Q','♥'), c('J','♦'), c('10','♣')],
+      expect: 'TIE'
+    },
+    {
+      name: '9. Same hand different suits — TIE',
+      dHole: [c('8','♠'), c('2','♦')],
+      pHole: [c('8','♥'), c('2','♣')],
+      comm:  [c('K','♠'), c('K','♥'), c('A','♦'), c('Q','♣'), c('J','♠')],
+      expect: 'TIE'
+    },
+    {
+      name: '10a. Royal Straight Flush vs High Card',
+      dHole: [c('9','♠'), c('8','♠')],
+      pHole: [c('10','♥'), c('5','♣')],
+      comm:  [c('A','♥'), c('K','♥'), c('Q','♥'), c('J','♥'), c('2','♣')],
+      expect: 'PAY'
+    },
+    {
+      name: '10b. Straight Flush vs Full House',
+      dHole: [c('K','♠'), c('K','♦')],
+      pHole: [c('J','♣'), c('10','♣')],
+      comm:  [c('9','♣'), c('8','♣'), c('7','♣'), c('2','♦'), c('A','♠')],
+      expect: 'PAY'
+    }
+  ];
+  let passed = 0, failed = 0;
+  const results = tests.map(function(t) {
+    const r = getResult([...t.dHole, ...t.comm], [...t.pHole, ...t.comm]);
+    const ok = r.winner === t.expect;
+    if (ok) passed++; else failed++;
+    return { test: t.name, expect: t.expect, got: r.winner, ok: ok, dealer: r.dealerRankName, player: r.playerRankName, why: r.shortExplanation };
+  });
+  console.table(results);
+  console.log('Tests: ' + passed + '/' + (passed + failed) + ' passed');
+  return { passed, failed, results };
+}
+
 function mkCard(rank, suit) {
   return { rank, suit, red: suit === '♥' || suit === '♦' };
 }
@@ -3092,25 +3245,25 @@ const Sims = {
       let S = {};
       let _cdTimer = null;
 
-      // Fixed sample hand (used until Step 3 wires in real deck logic)
+      // Fixed sample hand for reveal-flow testing
       const SAMPLE = {
         comm: [
-          {rank:'A', suit:'♠', red:false},
-          {rank:'K', suit:'♥', red:true},
-          {rank:'T', suit:'♦', red:true},
-          {rank:'8', suit:'♣', red:false},
-          {rank:'5', suit:'♠', red:false}
+          mkCard('A','♠'),
+          mkCard('K','♥'),
+          mkCard('10','♦'),
+          mkCard('8','♣'),
+          mkCard('5','♠')
         ],
         dealer: [
-          {rank:'J', suit:'♥', red:true},
-          {rank:'Q', suit:'♦', red:true}
+          mkCard('J','♥'),
+          mkCard('Q','♦')
         ],
         players: [
-          [{rank:'2', suit:'♣', red:false}, {rank:'7', suit:'♥', red:true}],
-          [{rank:'A', suit:'♥', red:true},  {rank:'2', suit:'♦', red:true}],
-          [{rank:'K', suit:'♣', red:false}, {rank:'K', suit:'♠', red:false}],
-          [{rank:'9', suit:'♠', red:false}, {rank:'9', suit:'♥', red:true}],
-          [{rank:'T', suit:'♣', red:false}, {rank:'J', suit:'♣', red:false}],
+          [mkCard('2','♣'), mkCard('7','♥')],
+          [mkCard('A','♥'), mkCard('2','♦')],
+          [mkCard('K','♣'), mkCard('K','♠')],
+          [mkCard('9','♠'), mkCard('9','♥')],
+          [mkCard('10','♣'), mkCard('J','♣')],
         ]
       };
 
@@ -3167,6 +3320,16 @@ const Sims = {
       function deal() {
         if (S.phase !== 'idle') return;
         S.phase = 'dealing';
+        S.comm    = SAMPLE.comm;
+        S.dealer  = SAMPLE.dealer;
+        S.players = SAMPLE.players;
+
+        // Clear previous round's visual state
+        for (var _p = 1; _p <= 5; _p++) {
+          var _sp = $('thpr-spot-' + _p);
+          if (_sp) _sp.classList.remove('thpr-active', 'thpr-pay', 'thpr-take', 'thpr-tie');
+        }
+        var _fb = $('thpr-feedback'); if (_fb) _fb.innerHTML = '';
 
         // Populate flip-card HTML for all positions
         $('thpr-flop').querySelector('.thpr-group-cards').innerHTML =
@@ -3209,8 +3372,62 @@ const Sims = {
       }
 
       function answer(choice) {
-        // Placeholder — evaluation implemented in Step 3
-        console.log('answer:', choice, 'player:', S.activePlayer);
+        if (S.phase !== 'quiz') return;
+        S.phase = 'answering';
+
+        var playerCards = [...S.players[S.activePlayer - 1], ...S.comm];
+        var dealerCards = [...S.dealer, ...S.comm];
+        var result = getResult(dealerCards, playerCards);
+        var correct = choice.toUpperCase() === result.winner;
+
+        // Color the player spot with the correct result
+        var spot = $('thpr-spot-' + S.activePlayer);
+        if (spot) {
+          spot.classList.remove('thpr-active');
+          spot.classList.add('thpr-' + result.winner.toLowerCase());
+        }
+
+        // Show feedback
+        var fb = $('thpr-feedback');
+        if (fb) {
+          var icon = correct ? '✓' : '✗';
+          var clr  = correct ? '#4ecdc4' : '#ff7777';
+          fb.innerHTML =
+            '<span style="color:' + clr + ';font-weight:900">' + icon + '</span>' +
+            '  P' + S.activePlayer + ': ' + result.shortExplanation +
+            (correct ? '' : '  <span style="color:#ff7777">[You chose ' + choice.toUpperCase() + ']</span>');
+        }
+
+        if (correct) S.score++;
+        var scEl = $('thpr-score'); if (scEl) scEl.textContent = S.score;
+
+        // Disable answer buttons during feedback pause
+        var a = $('thpr-action-row');
+        if (a) a.querySelectorAll('button').forEach(function(b) { b.disabled = true; });
+
+        setTimeout(advancePlayer, 1600);
+      }
+
+      function advancePlayer() {
+        S.activePlayer--;
+        if (S.activePlayer < 1) { endRound(); return; }
+        reveal('p' + S.activePlayer + 'c0');
+        reveal('p' + S.activePlayer + 'c1');
+        var spot = $('thpr-spot-' + S.activePlayer);
+        if (spot) spot.classList.add('thpr-active');
+        setLabel('PLAYER ' + S.activePlayer);
+        showAnswerBtns();
+        S.phase = 'quiz';
+      }
+
+      function endRound() {
+        S.rounds++;
+        var rEl = $('thpr-rounds'); if (rEl) rEl.textContent = S.rounds;
+        var a = $('thpr-action-row');
+        if (a) a.innerHTML = '<button class="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">NEXT HAND</button>';
+        var cd = $('thpr-countdown');
+        if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
+        S.phase = 'idle'; // allow NEXT HAND to call deal()
       }
 
       function init() {
