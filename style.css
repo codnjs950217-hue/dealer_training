@@ -292,29 +292,29 @@ body {
   gap: 1.4rem; flex-shrink: 0; padding: .2rem 0;
 }
 .home-hero-cards {
-  position: relative; width: 72px; height: 68px; flex-shrink: 0;
+  position: relative; width: 108px; height: 100px; flex-shrink: 0;
 }
 .hcard {
-  position: absolute; width: 34px; height: 46px;
-  background: #fff; border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.6);
+  position: absolute; width: 52px; height: 70px;
+  background: #fff; border-radius: 6px;
+  box-shadow: 0 3px 12px rgba(0,0,0,.6);
   display: flex; flex-direction: column;
   align-items: flex-start; justify-content: space-between;
-  padding: 2px 3px; box-sizing: border-box; left: 0; top: 0;
+  padding: 3px 4px; box-sizing: border-box; left: 0; top: 0;
 }
 .hcard.red .hcard-corner,
 .hcard.red .hcard-center { color: #e53935; }
 .hcard-corner {
-  font-size: .45rem; font-weight: 900; line-height: 1.1;
+  font-size: .62rem; font-weight: 900; line-height: 1.1;
   color: #111; text-align: center;
 }
 .hcard-center {
-  font-size: .9rem; font-weight: 900;
+  font-size: 1.35rem; font-weight: 900;
   color: #111; text-align: center; width: 100%;
 }
 .home-hero-text { text-align: left; }
 .home-title {
-  font-size: clamp(1.2rem, 4vw, 1.8rem);
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
   font-weight: 900; line-height: 1.25; margin: 0;
   color: #fff;
 }
