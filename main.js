@@ -825,6 +825,26 @@ function _thpExplain(winner, d, p) {
   return who + ' wins';
 }
 
+function _thpVerboseExplain(winner, d, p) {
+  if (winner === 'TIE') return 'It is a push — both have ' + p.rankName + '.';
+  const wEv = winner === 'PAY' ? p : d;
+  const lEv = winner === 'PAY' ? d : p;
+  const who = winner === 'PAY' ? 'Player' : 'Dealer';
+  if (wEv.rank !== lEv.rank) {
+    return who + ' wins because ' + wEv.rankName + ' is higher than ' + lEv.rankName + '.';
+  }
+  const wt = wEv.tiebreak, lt = lEv.tiebreak;
+  for (let i = 0; i < Math.max(wt.length, lt.length); i++) {
+    const wv = wt[i] || 0, lv = lt[i] || 0;
+    if (wv !== lv) {
+      return i === 0
+        ? who + ' wins with a higher ' + wEv.rankName.toLowerCase() + '.'
+        : who + ' wins with a better kicker (' + valToRank(wv) + ' > ' + valToRank(lv) + ').';
+    }
+  }
+  return who + ' wins.';
+}
+
 // Main API — returns winner + full detail object
 function getResult(dealerCards, playerCards) {
   const { cmp, dealer, player } = compareHands(dealerCards, playerCards);
@@ -835,7 +855,8 @@ function getResult(dealerCards, playerCards) {
     playerRankName: player.rankName,
     dealerBestFiveCards: dealer.bestFive,
     playerBestFiveCards: player.bestFive,
-    shortExplanation: _thpExplain(winner, dealer, player)
+    shortExplanation: _thpExplain(winner, dealer, player),
+    verboseExplanation: _thpVerboseExplain(winner, dealer, player)
   };
 }
 
@@ -3380,35 +3401,55 @@ const Sims = {
         var result = getResult(dealerCards, playerCards);
         var correct = choice.toUpperCase() === result.winner;
 
-        // Color the player spot with the correct result
+        // Color player spot with correct result
         var spot = $('thpr-spot-' + S.activePlayer);
         if (spot) {
           spot.classList.remove('thpr-active');
           spot.classList.add('thpr-' + result.winner.toLowerCase());
         }
 
-        // Show feedback
-        var fb = $('thpr-feedback');
-        if (fb) {
-          var icon = correct ? '✓' : '✗';
-          var clr  = correct ? '#4ecdc4' : '#ff7777';
-          fb.innerHTML =
-            '<span style="color:' + clr + ';font-weight:900">' + icon + '</span>' +
-            '  P' + S.activePlayer + ': ' + result.shortExplanation +
-            (correct ? '' : '  <span style="color:#ff7777">[You chose ' + choice.toUpperCase() + ']</span>');
-        }
-
         if (correct) S.score++;
         var scEl = $('thpr-score'); if (scEl) scEl.textContent = S.score;
 
-        // Disable answer buttons during feedback pause
-        var a = $('thpr-action-row');
-        if (a) a.querySelectorAll('button').forEach(function(b) { b.disabled = true; });
+        // Build winner-first hand lines
+        var line1, line2;
+        if (result.winner === 'TAKE') {
+          line1 = 'Dealer: ' + result.dealerRankName;
+          line2 = 'Player: ' + result.playerRankName;
+        } else {
+          line1 = 'Player: ' + result.playerRankName;
+          line2 = 'Dealer: ' + result.dealerRankName;
+        }
 
-        setTimeout(advancePlayer, 1600);
+        // Show structured feedback
+        var fb = $('thpr-feedback');
+        if (fb) {
+          fb.innerHTML =
+            '<div class="thpr-result">' +
+              '<span class="' + (correct ? 'thpr-verdict-ok' : 'thpr-verdict-wrong') + '">' +
+                (correct ? 'Correct!' : 'Incorrect.') +
+              '</span>' +
+              '<span class="thpr-result-answer">' +
+                (correct ? 'Answer: ' : 'Correct answer: ') + result.winner +
+              '</span>' +
+              '<span>' + line1 + '</span>' +
+              '<span>' + line2 + '</span>' +
+              '<span class="thpr-result-explain">' + result.verboseExplanation + '</span>' +
+            '</div>';
+        }
+
+        // Replace PAY/TAKE/TIE with Next Player button
+        var isLast = (S.activePlayer === 1);
+        var a = $('thpr-action-row');
+        if (a) {
+          a.innerHTML = '<button class="thpr-next-btn" onclick="Sims.poker.thpRank.next()">' +
+            (isLast ? 'Next Hand →' : 'Next Player →') + '</button>';
+        }
       }
 
-      function advancePlayer() {
+      function next() {
+        var fb = $('thpr-feedback');
+        if (fb) { fb.innerHTML = ''; }
         S.activePlayer--;
         if (S.activePlayer < 1) { endRound(); return; }
         reveal('p' + S.activePlayer + 'c0');
@@ -3427,7 +3468,7 @@ const Sims = {
         if (a) a.innerHTML = '<button class="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">NEXT HAND</button>';
         var cd = $('thpr-countdown');
         if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
-        S.phase = 'idle'; // allow NEXT HAND to call deal()
+        S.phase = 'idle';
       }
 
       function init() {
@@ -3459,7 +3500,7 @@ const Sims = {
         }
       }
 
-      return { init, deal, answer };
+      return { init, deal, answer, next };
     }
 
     return {
