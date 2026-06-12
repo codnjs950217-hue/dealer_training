@@ -73,10 +73,9 @@ const App = {
       Sims.roulettePay && Sims.roulettePay.init();
     }
     if (game === 'poker') {
-      if (mode === 'isp')     { el.innerHTML = Views.ispSim();     Sims.poker.isp.init(); }
-      if (mode === 'tcp')     { el.innerHTML = Views.tcpSim();     Sims.poker.tcp.init(); }
-      if (mode === 'thp')     { el.innerHTML = Views.thpSim();     Sims.poker.thp.init(); }
-      if (mode === 'thprank') { el.innerHTML = Views.thpRankSim(); Sims.poker.thpRank.init(); }
+      if (mode === 'isp') { el.innerHTML = Views.ispSim(); Sims.poker.isp.init(); }
+      if (mode === 'tcp') { el.innerHTML = Views.tcpSim(); Sims.poker.tcp.init(); }
+      if (mode === 'thp') { el.innerHTML = Views.thpRankSim(); Sims.poker.thpRank.init(); }
     }
     window.scrollTo(0, 0);
   },
@@ -503,38 +502,6 @@ const Views = {
         </div>
         <div class="pk-start-bar">
           <button id="pk-start-btn" class="pk-start-btn" onclick="Sims.poker.tcp.deal()">DEAL</button>
-        </div>
-      </div>
-    </div>`,
-
-  thpSim: () => `
-    <div class="sim-page thpc-sim">
-      <div class="thpc-mode-row">
-        <button id="thpc-btn-random"  class="thpc-mode-btn active" onclick="Sims.poker.thp.setMode('random')">🎲 랜덤</button>
-        <button id="thpc-btn-curated" class="thpc-mode-btn"        onclick="Sims.poker.thp.setMode('curated')">📚 집중 연습</button>
-      </div>
-
-      <div id="thpc-scenario-info"></div>
-
-      <div class="thpc-board">
-        <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
-        <div class="table-stats-overlay">
-          <span>라운드: <strong id="thpc-rounds">0</strong></span>
-          <span>정답: <strong id="thpc-score">0</strong></span>
-        </div>
-        <div class="thpc-community-section">
-          <div class="thpc-section-label">COMMUNITY BOARD</div>
-          <div class="thpc-comm-cards" id="thpc-comm-cards"></div>
-        </div>
-
-        <div class="thpc-players-row" id="thpc-players"></div>
-
-        <div id="thpc-split-btn"></div>
-        <div id="thpc-result"></div>
-        <div id="thpc-explain"></div>
-
-        <div class="pk-start-bar">
-          <button id="thpc-deal-btn" class="pk-start-btn" onclick="Sims.poker.thp.deal()">DEAL</button>
         </div>
       </div>
     </div>`,
@@ -3120,154 +3087,6 @@ const Sims = {
       return { init, deal, answer };
     }
 
-    function mkThpCompare() {
-      const $ = id => document.getElementById(id);
-      const sh = (id, h) => { const e = $(id); if (e) e.innerHTML = h; };
-      const NAMES = ['플레이어 1', '플레이어 2', '플레이어 3', '딜러'];
-
-      let S = { rounds: 0, score: 0, phase: 'idle', mode: 'random', curIdx: 0 };
-
-      function init() {
-        S = { rounds: 0, score: 0, phase: 'idle', mode: 'random', curIdx: 0 };
-        sh('thpc-rounds', '0'); sh('thpc-score', '0');
-        sh('thpc-comm-cards', ''); sh('thpc-players', '');
-        sh('thpc-split-btn', ''); sh('thpc-result', ''); sh('thpc-explain', '');
-        sh('thpc-scenario-info', '');
-        updateModeUI();
-        const btn = $('thpc-deal-btn');
-        if (btn) { btn.disabled = false; btn.textContent = 'DEAL'; }
-      }
-
-      function setMode(m) {
-        S.mode = m; S.curIdx = 0; S.phase = 'idle';
-        updateModeUI();
-        sh('thpc-scenario-info', ''); sh('thpc-comm-cards', ''); sh('thpc-players', '');
-        sh('thpc-split-btn', ''); sh('thpc-result', ''); sh('thpc-explain', '');
-        const btn = $('thpc-deal-btn');
-        if (btn) { btn.disabled = false; btn.textContent = 'DEAL'; }
-      }
-
-      function updateModeUI() {
-        const rb = $('thpc-btn-random'), cb = $('thpc-btn-curated');
-        if (rb) rb.classList.toggle('active', S.mode === 'random');
-        if (cb) cb.classList.toggle('active', S.mode === 'curated');
-      }
-
-      function deal() {
-        if (S.phase === 'quiz') return;
-        if (S.mode === 'random') dealRandom(); else dealCurated();
-      }
-
-      function dealRandom() {
-        S.rounds++; sh('thpc-rounds', S.rounds);
-        const deck = createDeck(1);
-        S.players = NAMES.map(name => ({ name, cards: [deck.pop(), deck.pop()] }));
-        S.comm = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
-        sh('thpc-scenario-info', '');
-        renderBoard();
-      }
-
-      function dealCurated() {
-        const sc = THP_CURATED[S.curIdx];
-        S.rounds++; sh('thpc-rounds', S.rounds);
-        S.players = sc.players.map(p => ({ name: p.name, cards: p.cards.map(c => ({...c})) }));
-        S.comm = sc.community.map(c => ({...c}));
-        const thisIdx = S.curIdx;
-        S.curIdx = (S.curIdx + 1) % THP_CURATED.length;
-        const diffMap = { easy: '쉬움', medium: '보통', hard: '어려움' };
-        sh('thpc-scenario-info', `
-          <div class="thpc-scenario-info-box">
-            <div class="thpc-scenario-header">
-              <span class="thpc-diff-badge thpc-diff-${sc.difficulty}">${diffMap[sc.difficulty]}</span>
-              <span class="thpc-scenario-title">${sc.title}</span>
-              <span class="thpc-scenario-count">${thisIdx + 1} / ${THP_CURATED.length}</span>
-            </div>
-            <div class="thpc-scenario-desc">${sc.desc}</div>
-          </div>`);
-        renderBoard();
-      }
-
-      function renderBoard() {
-        S.phase = 'quiz';
-        sh('thpc-result', ''); sh('thpc-explain', '');
-        sh('thpc-comm-cards', S.comm.map(c => cardHTML(c)).join(''));
-        sh('thpc-players', S.players.map((p, i) => `
-          <div class="thpc-player quiz-active" id="thpc-p${i}" onclick="Sims.poker.thp.answer(${i})">
-            <div class="thpc-player-name">${p.name}</div>
-            <div class="thpc-hole-cards">${p.cards.map(c => cardHTML(c)).join('')}</div>
-            <div id="thpc-reveal-${i}"></div>
-          </div>`).join(''));
-        sh('thpc-split-btn', `<div class="thpc-split-row">
-          <button class="btn-pk btn-pk-tie" onclick="Sims.poker.thp.answer('split')">🤝 스플릿 (동점)</button>
-        </div>`);
-        const btn = $('thpc-deal-btn');
-        if (btn) { btn.disabled = true; btn.textContent = 'DEAL'; }
-      }
-
-      function answer(choice) {
-        if (S.phase !== 'quiz') return;
-        S.phase = 'done';
-
-        const results = S.players.map((p, i) => {
-          const { ev, bestCards } = bestPokerHandCards([...p.cards, ...S.comm]);
-          return { name: p.name, idx: i, ev, bestCards };
-        });
-
-        const topEv = results.reduce((b, r) => !b || cmpPokerHands(r.ev, b) > 0 ? r.ev : b, null);
-        const winners = results.filter(r => cmpPokerHands(r.ev, topEv) === 0);
-        const isSplit = winners.length > 1;
-        const correct = isSplit ? 'split' : winners[0].idx;
-        const ok = choice === correct;
-        if (ok) S.score++;
-        sh('thpc-score', S.score);
-
-        results.forEach(r => {
-          const el = $(`thpc-p${r.idx}`);
-          if (!el) return;
-          el.onclick = null;
-          el.classList.remove('quiz-active');
-          const isWin = winners.some(w => w.idx === r.idx);
-          el.classList.add(isWin ? 'thpc-winner' : 'thpc-loser');
-          if (r.idx === choice) el.classList.add(ok ? 'thpc-pick-ok' : 'thpc-pick-wrong');
-          sh(`thpc-reveal-${r.idx}`, `
-            <div class="thpc-hand-reveal">
-              <div class="thpc-hand-name">${r.ev.l}</div>
-              <div class="thpc-best-label">최강 5장</div>
-              <div class="thpc-best-cards">${r.bestCards.map(c => cardHTML(c)).join('')}</div>
-            </div>`);
-        });
-
-        sh('thpc-split-btn', isSplit && choice !== 'split'
-          ? `<div class="thpc-split-row thpc-split-answer">🤝 스플릿이 정답이었습니다</div>`
-          : choice === 'split' ? `<div class="thpc-split-row">${ok ? '✓' : '✗'} 스플릿 선택</div>` : '');
-
-        const winnerNames = winners.map(w => w.name).join(', ');
-        sh('thpc-result', `<div class="pk-result-msg ${ok ? 'pk-ok' : 'pk-wrong'}">
-          ${ok ? '✓ 정답!' : '✗ 오답'} — ${isSplit ? `스플릿 (${winnerNames})` : `${winnerNames} 승리`}
-        </div>`);
-
-        const sorted = [...results].sort((a, b) => cmpPokerHands(b.ev, a.ev));
-        const allSame = results.every(r => r.ev.r === results[0].ev.r);
-        const kickerNote = (allSame && !isSplit)
-          ? `<div class="thpc-kicker-note">⚡ 모두 ${results[0].ev.l} — 키커(kicker)로 승자 결정</div>` : '';
-        const rankIcons = ['🥇','🥈','🥉',''];
-        const rows = sorted.map((r, rank) => {
-          const isWin = winners.some(w => w.idx === r.idx);
-          return `<div class="thpc-explain-entry ${isWin ? 'winner-entry' : 'loser-entry'}">
-            <span class="thpc-explain-icon">${rankIcons[Math.min(rank, 3)]}</span>
-            <span class="thpc-explain-name">${r.name}</span>
-            <span class="thpc-explain-hand">${r.ev.l}</span>
-          </div>`;
-        }).join('');
-        sh('thpc-explain', `<div class="thpc-explain-box">${kickerNote}${rows}</div>`);
-
-        const btn = $('thpc-deal-btn');
-        if (btn) { btn.disabled = false; btn.textContent = 'NEXT'; }
-      }
-
-      return { init, deal, answer, setMode };
-    }
-
     function mkThpRank() {
       const $ = id => document.getElementById(id);
       let S = {};
@@ -3292,7 +3111,6 @@ const Sims = {
     return {
       isp: mkSim('isp', 5, 5, 0),
       tcp: mkSim('tcp', 3, 3, 2),
-      thp: mkThpCompare(),
       thpRank: mkThpRank(),
     };
   })(),
