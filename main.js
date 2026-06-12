@@ -3338,12 +3338,49 @@ const Sims = {
           '<button class="thpr-tie-btn" onclick="Sims.poker.thpRank.answer(\'tie\')">TIE</button>';
       }
 
-      function deal() {
+      function dealRandomHand() {
+        var ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+        var suits = ['♠','♥','♦','♣'];
+        var deck = [];
+        ranks.forEach(function(r) {
+          suits.forEach(function(s) { deck.push(mkCard(r, s)); });
+        });
+        // Fisher-Yates shuffle
+        for (var i = deck.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = deck[i]; deck[i] = deck[j]; deck[j] = t;
+        }
+        var idx = 0;
+        var players = [];
+        for (var p = 0; p < 5; p++) players.push([deck[idx++], deck[idx++]]);
+        var comm   = deck.slice(idx, idx + 5); idx += 5;
+        var dealer = [deck[idx++], deck[idx++]];
+        return { comm: comm, dealer: dealer, players: players };
+      }
+
+      function debugHand() {
+        if (!S.comm) { console.log('No hand dealt yet.'); return; }
+        var all = S.comm.concat(S.dealer);
+        S.players.forEach(function(p) { all = all.concat(p); });
+        var keys = all.map(function(c) { return c.rank + c.suit; });
+        var dupes = keys.filter(function(k, i) { return keys.indexOf(k) !== i; });
+        console.log('Cards (' + all.length + '):', keys.join(' '));
+        console.log('Community:', S.comm.map(function(c) { return c.rank + c.suit; }).join(' '));
+        console.log('Dealer:', S.dealer.map(function(c) { return c.rank + c.suit; }).join(' '));
+        S.players.forEach(function(p, i) {
+          console.log('Player ' + (i + 1) + ':', p.map(function(c) { return c.rank + c.suit; }).join(' '));
+        });
+        console.log(dupes.length === 0 ? '✓ No duplicates' : '✗ DUPLICATES: ' + dupes.join(' '));
+        return { total: all.length, unique: new Set(keys).size, dupes: dupes };
+      }
+
+      function deal(mode) {
         if (S.phase !== 'idle') return;
         S.phase = 'dealing';
-        S.comm    = SAMPLE.comm;
-        S.dealer  = SAMPLE.dealer;
-        S.players = SAMPLE.players;
+        var hand  = (mode === 'test') ? SAMPLE : dealRandomHand();
+        S.comm    = hand.comm;
+        S.dealer  = hand.dealer;
+        S.players = hand.players;
         S.results = [];
 
         // Clear previous round's visual state
@@ -3353,16 +3390,16 @@ const Sims = {
         }
         var _fb = $('thpr-feedback'); if (_fb) _fb.innerHTML = '';
 
-        // Populate flip-card HTML for all positions
+        // Populate flip-card HTML using dealt cards stored in S
         $('thpr-flop').querySelector('.thpr-group-cards').innerHTML =
-          SAMPLE.comm.slice(0, 3).map(function(c, i) { return flipHTML(c, 'comm' + i); }).join('');
-        $('thpr-turn').querySelector('.thpr-group-cards').innerHTML = flipHTML(SAMPLE.comm[3], 'comm3');
-        $('thpr-river').querySelector('.thpr-group-cards').innerHTML = flipHTML(SAMPLE.comm[4], 'comm4');
+          S.comm.slice(0, 3).map(function(c, i) { return flipHTML(c, 'comm' + i); }).join('');
+        $('thpr-turn').querySelector('.thpr-group-cards').innerHTML = flipHTML(S.comm[3], 'comm3');
+        $('thpr-river').querySelector('.thpr-group-cards').innerHTML = flipHTML(S.comm[4], 'comm4');
         $('thpr-dealer-cards').innerHTML =
-          SAMPLE.dealer.map(function(c, i) { return flipHTML(c, 'd' + i); }).join('');
+          S.dealer.map(function(c, i) { return flipHTML(c, 'd' + i); }).join('');
         for (var p = 1; p <= 5; p++) {
           var hc = document.querySelector('#thpr-spot-' + p + ' .thpr-hole-cards');
-          if (hc) hc.innerHTML = SAMPLE.players[p - 1].map(function(c, i) { return flipHTML(c, 'p' + p + 'c' + i); }).join('');
+          if (hc) hc.innerHTML = S.players[p - 1].map(function(c, i) { return flipHTML(c, 'p' + p + 'c' + i); }).join('');
         }
 
         var startBtn = $('thpr-start-btn');
@@ -3544,7 +3581,7 @@ const Sims = {
         }
       }
 
-      return { init, deal, answer, next };
+      return { init, deal, answer, next, debugHand };
     }
 
     return {
