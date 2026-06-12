@@ -3368,6 +3368,7 @@ body {
 .thpr-hole-wrap {
   flex: 1; min-height: 0;
   display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
 }
 
 .thpr-hole-cards {

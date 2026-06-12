@@ -3434,9 +3434,9 @@ const Sims = {
                   var spot5 = $('thpr-spot-5');
                   if (spot5) spot5.classList.add('thpr-active');
                   setLabel('PLAYER 5');
+                  S.activePlayer = 5;
                   showAnswerBtns();
                   S.phase = 'quiz';
-                  S.activePlayer = 5;
                 }, 900);
               });
             });
