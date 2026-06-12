@@ -3525,6 +3525,35 @@ body {
 }
 .thpr-next-btn:hover { background: rgba(255,255,255,.18); transform: translateY(-1px); }
 
+/* ---- End-of-round summary ---- */
+.thpr-summary {
+  display: flex; flex-direction: column;
+  gap: clamp(.06rem, .14vh, .14rem);
+  padding: clamp(.12rem, .28vh, .28rem) 0;
+  text-align: center;
+}
+.thpr-sum-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(.25rem, .55vw, .5rem);
+  font-size: clamp(.58rem, 1.12vw, .68rem);
+}
+.thpr-sum-chk        { font-weight: 900; font-size: clamp(.62rem, 1.2vw, .72rem); min-width: .85rem; text-align: center; }
+.thpr-sum-chk-ok     { color: #4ecdc4; }
+.thpr-sum-chk-wrong  { color: #ff7777; }
+.thpr-sum-label      { color: rgba(255,255,255,.45); font-weight: 700; min-width: 1.4rem; text-align: right; }
+.thpr-sum-winner     { font-weight: 900; min-width: 2.6rem; text-align: center; font-size: clamp(.6rem, 1.15vw, .7rem); }
+.thpr-sum-pay        { color: #4ecdc4; }
+.thpr-sum-take       { color: #ff7777; }
+.thpr-sum-tie        { color: var(--gold); }
+.thpr-sum-hands      { color: rgba(255,255,255,.38); text-align: left; }
+.thpr-sum-score {
+  color: var(--gold); font-weight: 900;
+  font-size: clamp(.68rem, 1.38vw, .8rem);
+  margin-top: clamp(.1rem, .22vh, .22rem);
+  padding-top: clamp(.1rem, .22vh, .22rem);
+  border-top: 1px solid rgba(255,255,255,.12);
+}
+
 /* ---- Player spot states ---- */
 .thpr-player-spot.thpr-active {
   border-color: var(--gold);

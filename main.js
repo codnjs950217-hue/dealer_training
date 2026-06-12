@@ -3344,6 +3344,7 @@ const Sims = {
         S.comm    = SAMPLE.comm;
         S.dealer  = SAMPLE.dealer;
         S.players = SAMPLE.players;
+        S.results = [];
 
         // Clear previous round's visual state
         for (var _p = 1; _p <= 5; _p++) {
@@ -3400,6 +3401,15 @@ const Sims = {
         var dealerCards = [...S.dealer, ...S.comm];
         var result = getResult(dealerCards, playerCards);
         var correct = choice.toUpperCase() === result.winner;
+
+        // Record result for end-of-round summary
+        S.results.push({
+          player: S.activePlayer,
+          winner: result.winner,
+          playerRankName: result.playerRankName,
+          dealerRankName: result.dealerRankName,
+          correct: correct
+        });
 
         // Color player spot with correct result
         var spot = $('thpr-spot-' + S.activePlayer);
@@ -3464,16 +3474,50 @@ const Sims = {
       function endRound() {
         S.rounds++;
         var rEl = $('thpr-rounds'); if (rEl) rEl.textContent = S.rounds;
-        var a = $('thpr-action-row');
-        if (a) a.innerHTML = '<button class="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">NEXT HAND</button>';
+
         var cd = $('thpr-countdown');
         if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
+
+        // Build per-round summary (results are stored P5 first, so reverse to show P5 at top)
+        var ordered = S.results.slice().sort(function(a, b) { return b.player - a.player; });
+        var correctCount = 0;
+        var rows = ordered.map(function(r) {
+          if (r.correct) correctCount++;
+          var wClass = r.winner === 'PAY' ? 'thpr-sum-pay' : r.winner === 'TAKE' ? 'thpr-sum-take' : 'thpr-sum-tie';
+          var chk = r.correct
+            ? '<span class="thpr-sum-chk thpr-sum-chk-ok">✓</span>'
+            : '<span class="thpr-sum-chk thpr-sum-chk-wrong">✗</span>';
+          var hands = r.winner === 'TAKE'
+            ? r.dealerRankName + ' &gt; ' + r.playerRankName
+            : r.winner === 'PAY'
+              ? r.playerRankName + ' &gt; ' + r.dealerRankName
+              : r.playerRankName + ' = ' + r.dealerRankName;
+          return '<div class="thpr-sum-row">' +
+            chk +
+            '<span class="thpr-sum-label">P' + r.player + '</span>' +
+            '<span class="thpr-sum-winner ' + wClass + '">' + r.winner + '</span>' +
+            '<span class="thpr-sum-hands">' + hands + '</span>' +
+            '</div>';
+        }).join('');
+
+        var fb = $('thpr-feedback');
+        if (fb) {
+          fb.innerHTML =
+            '<div class="thpr-summary">' +
+              rows +
+              '<div class="thpr-sum-score">' + correctCount + ' / 5 correct</div>' +
+            '</div>';
+        }
+
+        var a = $('thpr-action-row');
+        if (a) a.innerHTML = '<button class="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">NEW HAND</button>';
+
         S.phase = 'idle';
       }
 
       function init() {
         clearCd();
-        S = { rounds: 0, score: 0, phase: 'idle', activePlayer: null };
+        S = { rounds: 0, score: 0, phase: 'idle', activePlayer: null, results: [] };
         var r = $('thpr-rounds');    if (r)  r.textContent  = '0';
         var sc = $('thpr-score');    if (sc) sc.textContent = '0';
         var f = $('thpr-feedback');  if (f)  f.innerHTML    = '';
