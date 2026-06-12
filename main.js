@@ -3427,6 +3427,8 @@ const Sims = {
             countdown('TURN', 5, function() {
               reveal('comm4');
               countdown('RIVER', 5, function() {
+                var cd = $('thpr-countdown');
+                if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
                 reveal('d0'); reveal('d1');
                 setLabel('DEALER');
                 setTimeout(function() {
