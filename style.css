@@ -1518,6 +1518,7 @@ body {
   font-size: clamp(2.2rem, 7vw, 4.5rem);
   font-weight: 900; letter-spacing: clamp(5px, 1.2vw, 10px);
   text-align: center; line-height: 1.2;
+  background: none; border: none;
 }
 .bac-winner-flash-text.banker-win {
   color: #e8c96a;
