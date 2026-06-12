@@ -1816,6 +1816,9 @@ body {
   --card-h-sm: clamp(60px, 17vh, 94px);
   --card-cascade: clamp(9px, 2.6vh, 14px);
 }
+.blackjack-sim .players-row {
+  max-height: clamp(160px, 30vh, 230px);
+}
 .blackjack-sim .player-spot .card-corner .rank { font-size: clamp(.9rem, 2.8vh, 1.35rem); }
 .blackjack-sim .player-spot .card-corner .suit { font-size: clamp(.72rem, 2.2vh, 1.08rem); }
 .blackjack-sim .player-spot .card-suit-center  { font-size: clamp(1.4rem, 3.9vh, 2.1rem); }
