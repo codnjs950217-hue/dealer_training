@@ -3090,22 +3090,159 @@ const Sims = {
     function mkThpRank() {
       const $ = id => document.getElementById(id);
       let S = {};
+      let _cdTimer = null;
 
-      function init() {
-        S = { rounds: 0, score: 0, phase: 'idle' };
-        const r  = $('thpr-rounds');    if (r)  r.textContent  = '0';
-        const sc = $('thpr-score');     if (sc) sc.textContent = '0';
-        const f  = $('thpr-feedback');  if (f)  f.innerHTML    = '';
-        const cd = $('thpr-countdown'); if (cd) cd.textContent = '';
-        const a  = $('thpr-action-row');
-        if (a) a.innerHTML = '<button class="thpr-start-btn" id="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">START</button>';
+      // Fixed sample hand (used until Step 3 wires in real deck logic)
+      const SAMPLE = {
+        comm: [
+          {rank:'A', suit:'♠', red:false},
+          {rank:'K', suit:'♥', red:true},
+          {rank:'T', suit:'♦', red:true},
+          {rank:'8', suit:'♣', red:false},
+          {rank:'5', suit:'♠', red:false}
+        ],
+        dealer: [
+          {rank:'J', suit:'♥', red:true},
+          {rank:'Q', suit:'♦', red:true}
+        ],
+        players: [
+          [{rank:'2', suit:'♣', red:false}, {rank:'7', suit:'♥', red:true}],
+          [{rank:'A', suit:'♥', red:true},  {rank:'2', suit:'♦', red:true}],
+          [{rank:'K', suit:'♣', red:false}, {rank:'K', suit:'♠', red:false}],
+          [{rank:'9', suit:'♠', red:false}, {rank:'9', suit:'♥', red:true}],
+          [{rank:'T', suit:'♣', red:false}, {rank:'J', suit:'♣', red:false}],
+        ]
+      };
+
+      function flipHTML(card, id) {
+        return '<div class="flip-card thpr-flip" id="thprfc_' + id + '"><div class="flip-inner">' +
+          '<div class="flip-back"><div class="card back"><div class="card-pattern"></div></div></div>' +
+          '<div class="flip-front">' + cardHTML(card) + '</div>' +
+          '</div></div>';
+      }
+
+      function reveal(id) {
+        const e = $('thprfc_' + id);
+        if (e) e.classList.add('revealed');
+      }
+
+      function clearCd() {
+        if (_cdTimer) { clearInterval(_cdTimer); _cdTimer = null; }
+      }
+
+      function countdown(label, secs, done) {
+        clearCd();
+        const cd = $('thpr-countdown');
+        if (!cd) { done(); return; }
+        let n = secs;
+        cd.className = 'thpr-countdown thpr-countdown-active';
+        cd.textContent = label + '  ' + n;
+        _cdTimer = setInterval(function() {
+          n--;
+          if (n <= 0) {
+            clearCd();
+            cd.className = 'thpr-countdown thpr-countdown-done';
+            cd.textContent = label + '  ✓';
+            done();
+          } else {
+            cd.textContent = label + '  ' + n;
+          }
+        }, 1000);
+      }
+
+      function setLabel(text) {
+        const cd = $('thpr-countdown');
+        if (cd) { cd.className = 'thpr-countdown thpr-countdown-active'; cd.textContent = text; }
+      }
+
+      function showAnswerBtns() {
+        const a = $('thpr-action-row');
+        if (!a) return;
+        a.innerHTML =
+          '<button class="thpr-pay-btn" onclick="Sims.poker.thpRank.answer(\'pay\')">PAY</button>' +
+          '<button class="thpr-take-btn" onclick="Sims.poker.thpRank.answer(\'take\')">TAKE</button>' +
+          '<button class="thpr-tie-btn" onclick="Sims.poker.thpRank.answer(\'tie\')">TIE</button>';
       }
 
       function deal() {
-        // Placeholder — game logic implemented in Step 2
+        if (S.phase !== 'idle') return;
+        S.phase = 'dealing';
+
+        // Populate flip-card HTML for all positions
+        $('thpr-flop').querySelector('.thpr-group-cards').innerHTML =
+          SAMPLE.comm.slice(0, 3).map(function(c, i) { return flipHTML(c, 'comm' + i); }).join('');
+        $('thpr-turn').querySelector('.thpr-group-cards').innerHTML = flipHTML(SAMPLE.comm[3], 'comm3');
+        $('thpr-river').querySelector('.thpr-group-cards').innerHTML = flipHTML(SAMPLE.comm[4], 'comm4');
+        $('thpr-dealer-cards').innerHTML =
+          SAMPLE.dealer.map(function(c, i) { return flipHTML(c, 'd' + i); }).join('');
+        for (var p = 1; p <= 5; p++) {
+          var hc = document.querySelector('#thpr-spot-' + p + ' .thpr-hole-cards');
+          if (hc) hc.innerHTML = SAMPLE.players[p - 1].map(function(c, i) { return flipHTML(c, 'p' + p + 'c' + i); }).join('');
+        }
+
+        var startBtn = $('thpr-start-btn');
+        if (startBtn) startBtn.disabled = true;
+
+        // Reveal sequence: FLOP → TURN → RIVER → DEALER → PLAYER 5
+        setTimeout(function() {
+          reveal('comm0'); reveal('comm1'); reveal('comm2');
+          countdown('FLOP', 5, function() {
+            reveal('comm3');
+            countdown('TURN', 5, function() {
+              reveal('comm4');
+              countdown('RIVER', 5, function() {
+                reveal('d0'); reveal('d1');
+                setLabel('DEALER');
+                setTimeout(function() {
+                  reveal('p5c0'); reveal('p5c1');
+                  var spot5 = $('thpr-spot-5');
+                  if (spot5) spot5.classList.add('thpr-active');
+                  setLabel('PLAYER 5');
+                  showAnswerBtns();
+                  S.phase = 'quiz';
+                  S.activePlayer = 5;
+                }, 900);
+              });
+            });
+          });
+        }, 400);
       }
 
-      return { init, deal };
+      function answer(choice) {
+        // Placeholder — evaluation implemented in Step 3
+        console.log('answer:', choice, 'player:', S.activePlayer);
+      }
+
+      function init() {
+        clearCd();
+        S = { rounds: 0, score: 0, phase: 'idle', activePlayer: null };
+        var r = $('thpr-rounds');    if (r)  r.textContent  = '0';
+        var sc = $('thpr-score');    if (sc) sc.textContent = '0';
+        var f = $('thpr-feedback');  if (f)  f.innerHTML    = '';
+        var cd = $('thpr-countdown');
+        if (cd) { cd.textContent = ''; cd.className = 'thpr-countdown'; }
+        var a = $('thpr-action-row');
+        if (a) a.innerHTML = '<button class="thpr-start-btn" id="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">START</button>';
+
+        // Reset all cards to face-down placeholders
+        var resetGroup = function(gid, n) {
+          var g = $(gid); if (!g) return;
+          g.querySelector('.thpr-group-cards').innerHTML = Array(n).fill(cardHTML(null, true)).join('');
+        };
+        resetGroup('thpr-flop', 3);
+        resetGroup('thpr-turn', 1);
+        resetGroup('thpr-river', 1);
+        var dc = $('thpr-dealer-cards');
+        if (dc) dc.innerHTML = Array(2).fill(cardHTML(null, true)).join('');
+        for (var p = 1; p <= 5; p++) {
+          var hc = document.querySelector('#thpr-spot-' + p + ' .thpr-hole-cards');
+          if (hc) hc.innerHTML = Array(2).fill(cardHTML(null, true)).join('');
+          var sp = $('thpr-spot-' + p);
+          if (sp) sp.classList.remove('thpr-active', 'thpr-pay', 'thpr-take', 'thpr-tie');
+        }
+      }
+
+      return { init, deal, answer };
     }
 
     return {

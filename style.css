@@ -3338,6 +3338,11 @@ body {
   align-items: center;
 }
 
+/* Card size and flip-card override for smaller THP layout */
+.thp-rank-sim .card      { width: var(--card-w-sm); height: var(--card-h-sm); }
+.thp-rank-sim .flip-inner { width: var(--card-w-sm); height: var(--card-h-sm); }
+.thp-rank-sim .flip-card  { display: inline-block; }
+
 /* Card text scaling for smaller THP cards */
 .thp-rank-sim .card-corner .rank { font-size: clamp(.6rem, 1.75vh, .9rem); }
 .thp-rank-sim .card-corner .suit { font-size: clamp(.5rem, 1.42vh, .72rem); }
