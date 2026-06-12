@@ -73,9 +73,10 @@ const App = {
       Sims.roulettePay && Sims.roulettePay.init();
     }
     if (game === 'poker') {
-      if (mode === 'isp') { el.innerHTML = Views.ispSim(); Sims.poker.isp.init(); }
-      if (mode === 'tcp') { el.innerHTML = Views.tcpSim(); Sims.poker.tcp.init(); }
-      if (mode === 'thp') { el.innerHTML = Views.thpSim(); Sims.poker.thp.init(); }
+      if (mode === 'isp')     { el.innerHTML = Views.ispSim();     Sims.poker.isp.init(); }
+      if (mode === 'tcp')     { el.innerHTML = Views.tcpSim();     Sims.poker.tcp.init(); }
+      if (mode === 'thp')     { el.innerHTML = Views.thpSim();     Sims.poker.thp.init(); }
+      if (mode === 'thprank') { el.innerHTML = Views.thpRankSim(); Sims.poker.thpRank.init(); }
     }
     window.scrollTo(0, 0);
   },
@@ -534,6 +535,65 @@ const Views = {
 
         <div class="pk-start-bar">
           <button id="thpc-deal-btn" class="pk-start-btn" onclick="Sims.poker.thp.deal()">DEAL</button>
+        </div>
+      </div>
+    </div>`,
+
+  thpRankSim: () => `
+    <div class="sim-page thp-rank-sim">
+      <div class="thpr-table">
+        <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
+        <div class="table-stats-overlay">
+          <span>Rounds: <strong id="thpr-rounds">0</strong></span>
+          <span>Score: <strong id="thpr-score">0</strong></span>
+        </div>
+
+        <div class="thpr-players-row">
+          ${[1,2,3,4,5].map(i => `
+            <div class="thpr-player-spot" id="thpr-spot-${i}">
+              <div class="thpr-spot-label">Player ${i}</div>
+              <div class="thpr-hole-wrap">
+                <div class="thpr-hole-cards">
+                  ${cardHTML(null, true)}${cardHTML(null, true)}
+                </div>
+              </div>
+            </div>`).join('')}
+        </div>
+
+        <div class="thpr-community-area">
+          <div class="thpr-community-row">
+            <div class="thpr-comm-group" id="thpr-flop">
+              <div class="thpr-group-cards">
+                ${cardHTML(null, true)}${cardHTML(null, true)}${cardHTML(null, true)}
+              </div>
+              <div class="thpr-group-label">FLOP</div>
+            </div>
+            <div class="thpr-comm-sep"></div>
+            <div class="thpr-comm-group" id="thpr-turn">
+              <div class="thpr-group-cards">${cardHTML(null, true)}</div>
+              <div class="thpr-group-label">TURN</div>
+            </div>
+            <div class="thpr-comm-sep"></div>
+            <div class="thpr-comm-group" id="thpr-river">
+              <div class="thpr-group-cards">${cardHTML(null, true)}</div>
+              <div class="thpr-group-label">RIVER</div>
+            </div>
+          </div>
+          <div class="thpr-countdown" id="thpr-countdown"></div>
+        </div>
+
+        <div class="thpr-dealer-area">
+          <div class="thpr-area-label">DEALER</div>
+          <div class="thpr-dealer-cards" id="thpr-dealer-cards">
+            ${cardHTML(null, true)}${cardHTML(null, true)}
+          </div>
+        </div>
+
+        <div class="thpr-controls">
+          <div class="thpr-feedback" id="thpr-feedback"></div>
+          <div class="thpr-action-row" id="thpr-action-row">
+            <button class="thpr-start-btn" id="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">START</button>
+          </div>
         </div>
       </div>
     </div>`,
@@ -3208,10 +3268,32 @@ const Sims = {
       return { init, deal, answer, setMode };
     }
 
+    function mkThpRank() {
+      const $ = id => document.getElementById(id);
+      let S = {};
+
+      function init() {
+        S = { rounds: 0, score: 0, phase: 'idle' };
+        const r  = $('thpr-rounds');    if (r)  r.textContent  = '0';
+        const sc = $('thpr-score');     if (sc) sc.textContent = '0';
+        const f  = $('thpr-feedback');  if (f)  f.innerHTML    = '';
+        const cd = $('thpr-countdown'); if (cd) cd.textContent = '';
+        const a  = $('thpr-action-row');
+        if (a) a.innerHTML = '<button class="thpr-start-btn" id="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">START</button>';
+      }
+
+      function deal() {
+        // Placeholder — game logic implemented in Step 2
+      }
+
+      return { init, deal };
+    }
+
     return {
       isp: mkSim('isp', 5, 5, 0),
       tcp: mkSim('tcp', 3, 3, 2),
       thp: mkThpCompare(),
+      thpRank: mkThpRank(),
     };
   })(),
 };

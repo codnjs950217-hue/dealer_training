@@ -3276,3 +3276,240 @@ body {
   .bside-sim .comm-5k-btn     { font-size: var(--bf-xs); padding: .22rem .04rem; }
   .bside-sim .comm-5k-reset   { font-size: var(--bf-xs); padding: .14rem 0; }
 }
+
+/* ============================================================
+   THP RANKING PRACTICE
+   ============================================================ */
+
+/* Smaller card size for the dense 5-player layout */
+.thp-rank-sim {
+  --card-w-sm: clamp(28px, 8vh, 46px);
+  --card-h-sm: clamp(38px, 11vh, 62px);
+}
+
+.thp-rank-sim .thpr-table {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  background: var(--felt);
+  border: 3px solid #1b5e35;
+  border-radius: 18px;
+  padding: clamp(.3rem,.6vh,.6rem) clamp(.4rem,.8vw,.7rem);
+  position: relative;
+  box-shadow: inset 0 2px 12px rgba(0,0,0,.35), var(--shadow);
+  gap: clamp(.18rem,.32vh,.32rem);
+}
+
+/* ---- Players row ---- */
+.thpr-players-row {
+  display: flex;
+  gap: clamp(.2rem,.35vw,.4rem);
+  flex: 3; min-height: 0;
+}
+
+.thpr-player-spot {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  align-items: center;
+  background: rgba(0,0,0,.18);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: clamp(.18rem,.38vh,.38rem) clamp(.1rem,.2vw,.22rem);
+  gap: clamp(.1rem,.22vh,.22rem);
+  transition: border-color .2s, background .2s, box-shadow .2s;
+}
+
+.thpr-spot-label {
+  font-size: clamp(.52rem, 1.05vw, .65rem);
+  font-weight: 800; letter-spacing: .8px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.38);
+  line-height: 1; flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.thpr-hole-wrap {
+  flex: 1; min-height: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.thpr-hole-cards {
+  display: flex;
+  gap: clamp(.12rem,.22vw,.25rem);
+  align-items: center;
+}
+
+/* Card text scaling for smaller THP cards */
+.thp-rank-sim .card-corner .rank { font-size: clamp(.6rem, 1.75vh, .9rem); }
+.thp-rank-sim .card-corner .suit { font-size: clamp(.5rem, 1.42vh, .72rem); }
+.thp-rank-sim .card-suit-center  { font-size: clamp(.9rem, 2.6vh, 1.4rem); }
+.thp-rank-sim .card-pattern      { width: clamp(19px, 5.5vh, 35px); height: clamp(26px, 7.6vh, 50px); }
+
+/* ---- Community area ---- */
+.thpr-community-area {
+  flex: 2.2; min-height: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: clamp(.1rem,.2vh,.2rem);
+  border-top: 1px dashed rgba(255,255,255,.1);
+  border-bottom: 1px dashed rgba(255,255,255,.1);
+  padding: clamp(.12rem,.25vh,.25rem) 0;
+}
+
+.thpr-community-row {
+  display: flex;
+  align-items: center; justify-content: center;
+  gap: clamp(.32rem,.6vw,.65rem);
+}
+
+.thpr-comm-group {
+  display: flex; flex-direction: column;
+  align-items: center; gap: clamp(.08rem,.16vh,.18rem);
+}
+
+.thpr-group-label {
+  font-size: clamp(.46rem, .92vw, .56rem);
+  font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.28);
+}
+
+.thpr-group-cards {
+  display: flex;
+  gap: clamp(.15rem,.28vw,.3rem);
+}
+
+.thpr-comm-sep {
+  width: 1px;
+  height: clamp(26px, 6.2vh, 42px);
+  background: rgba(255,255,255,.14);
+  flex-shrink: 0; align-self: center;
+}
+
+/* Countdown */
+.thpr-countdown {
+  min-height: clamp(.85rem, 2.4vh, 1.5rem);
+  font-size: clamp(1rem, 2.8vh, 1.65rem);
+  font-weight: 900; text-align: center;
+  color: rgba(255,255,255,.18);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.thpr-countdown-active {
+  color: #ffd700;
+  text-shadow: 0 0 18px rgba(255,215,0,.65);
+}
+.thpr-countdown-done {
+  color: var(--win);
+  text-shadow: 0 0 12px rgba(78,205,196,.5);
+}
+
+/* ---- Dealer area ---- */
+.thpr-dealer-area {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center; justify-content: center;
+  gap: clamp(.5rem, 1vw, .9rem);
+  padding: clamp(.12rem,.28vh,.28rem) 0;
+  position: relative;
+}
+
+.thpr-area-label {
+  position: absolute; left: .5rem;
+  font-size: clamp(.48rem, .98vw, .6rem);
+  font-weight: 800; letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.38);
+  pointer-events: none; user-select: none;
+}
+
+.thpr-dealer-cards {
+  display: flex;
+  gap: clamp(.2rem,.38vw,.4rem);
+}
+
+/* ---- Controls ---- */
+.thpr-controls {
+  flex-shrink: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: clamp(.12rem,.25vh,.25rem);
+  padding: clamp(.08rem,.18vh,.18rem) 0;
+}
+
+.thpr-feedback {
+  min-height: clamp(.8rem, 1.9vh, 1.15rem);
+  font-size: clamp(.62rem, 1.3vw, .76rem);
+  color: var(--text-dim); text-align: center; line-height: 1.3;
+}
+
+.thpr-action-row {
+  display: flex;
+  gap: clamp(.4rem,.8vw,.7rem);
+  align-items: center; justify-content: center;
+}
+
+/* START button */
+.thpr-start-btn {
+  background: var(--gold); color: #0a1628;
+  border: none; border-radius: var(--r);
+  padding: clamp(.42rem, 1.1vh, .6rem) clamp(1.6rem, 4.5vw, 2.8rem);
+  font-size: clamp(.88rem, 2.1vw, 1.05rem);
+  font-weight: 800; cursor: pointer; letter-spacing: 1px;
+  transition: all .2s;
+  box-shadow: 0 2px 12px rgba(201,168,76,.4);
+  min-height: var(--tap-h);
+}
+.thpr-start-btn:hover:not(:disabled) { background: var(--gold-light); transform: translateY(-1px); }
+.thpr-start-btn:disabled { opacity: .45; cursor: default; transform: none; }
+
+/* PAY / TAKE / TIE buttons */
+.thpr-pay-btn {
+  background: #0a3020; color: #4ecdc4; border: 1px solid #1a6040;
+  border-radius: var(--r);
+  padding: clamp(.42rem, 1.1vh, .6rem) clamp(.9rem, 2.5vw, 1.4rem);
+  font-size: clamp(.85rem, 2vw, 1rem); font-weight: 800;
+  cursor: pointer; min-height: var(--tap-h); transition: all .15s;
+  letter-spacing: .5px;
+}
+.thpr-pay-btn:hover { background: #0e3c28; }
+
+.thpr-take-btn {
+  background: #300a0a; color: #ff7777; border: 1px solid #601818;
+  border-radius: var(--r);
+  padding: clamp(.42rem, 1.1vh, .6rem) clamp(.9rem, 2.5vw, 1.4rem);
+  font-size: clamp(.85rem, 2vw, 1rem); font-weight: 800;
+  cursor: pointer; min-height: var(--tap-h); transition: all .15s;
+  letter-spacing: .5px;
+}
+.thpr-take-btn:hover { background: #3e1010; }
+
+.thpr-tie-btn {
+  background: rgba(201,168,76,.12); color: var(--gold);
+  border: 1px solid rgba(201,168,76,.32);
+  border-radius: var(--r);
+  padding: clamp(.42rem, 1.1vh, .6rem) clamp(.9rem, 2.5vw, 1.4rem);
+  font-size: clamp(.85rem, 2vw, 1rem); font-weight: 800;
+  cursor: pointer; min-height: var(--tap-h); transition: all .15s;
+  letter-spacing: .5px;
+}
+.thpr-tie-btn:hover { background: rgba(201,168,76,.22); }
+
+/* ---- Player spot states ---- */
+.thpr-player-spot.thpr-active {
+  border-color: var(--gold);
+  background: rgba(201,168,76,.09);
+  box-shadow: 0 0 12px rgba(201,168,76,.22);
+}
+.thpr-player-spot.thpr-pay {
+  border-color: var(--win);
+  background: rgba(78,205,196,.07);
+}
+.thpr-player-spot.thpr-take {
+  border-color: rgba(255,107,107,.5);
+  background: rgba(255,107,107,.04);
+  opacity: .6;
+}
+.thpr-player-spot.thpr-tie {
+  border-color: rgba(201,168,76,.45);
+  background: rgba(201,168,76,.05);
+}
