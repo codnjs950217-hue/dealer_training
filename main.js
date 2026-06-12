@@ -116,7 +116,7 @@ const Views = {
         </div>
       </div>
       <div class="home-game-cards">
-        <div class="home-game-card">
+        <div class="home-game-card home-game-card--baccarat">
           <div class="home-game-icon-wrap"><span class="home-game-icon">🃏</span></div>
           <div class="home-game-name">Baccarat</div>
           <div class="home-game-divider"></div>
@@ -125,7 +125,7 @@ const Views = {
             <button class="home-game-btn" onclick="App.navigate('baccarat','paysim')">Payout</button>
           </div>
         </div>
-        <div class="home-game-card">
+        <div class="home-game-card home-game-card--blackjack">
           <div class="home-game-icon-wrap"><span class="home-game-icon">♠</span></div>
           <div class="home-game-name">Blackjack</div>
           <div class="home-game-divider"></div>
@@ -133,7 +133,7 @@ const Views = {
             <button class="home-game-btn" onclick="App.navigate('blackjack','simulation')">Card Counting</button>
           </div>
         </div>
-        <div class="home-game-card">
+        <div class="home-game-card home-game-card--roulette">
           <div class="home-game-icon-wrap"><span class="home-game-icon">🎡</span></div>
           <div class="home-game-name">Roulette</div>
           <div class="home-game-divider"></div>
@@ -141,7 +141,7 @@ const Views = {
             <button class="home-game-btn" onclick="App.navigate('roulette','paysim')">Payout</button>
           </div>
         </div>
-        <div class="home-game-card">
+        <div class="home-game-card home-game-card--poker">
           <div class="home-game-icon-wrap"><span class="home-game-icon">🂡</span></div>
           <div class="home-game-name">Poker</div>
           <div class="home-game-divider"></div>
