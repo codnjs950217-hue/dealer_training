@@ -3354,7 +3354,6 @@ body {
   padding: clamp(.1rem, .24vh, .24rem) clamp(.06rem, .12vw, .14rem);
   gap: clamp(.06rem, .12vh, .12rem);
   transition: border-color .22s, background .22s, box-shadow .22s;
-  overflow: hidden;
 }
 
 .thpr-spot-label {
