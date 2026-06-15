@@ -316,9 +316,9 @@ const Views = {
           </div>
           <div class="rpay-table-wrap">
             <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
-            <div class="bpay-start-overlay" id="rpay-start-overlay">
-              <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
-            </div>
+          </div>
+          <div class="bpay-start-overlay" id="rpay-start-overlay">
+            <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
           </div>
         </div>
         <div class="rpay-right-col">

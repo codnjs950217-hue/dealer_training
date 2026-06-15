@@ -2365,13 +2365,6 @@ body {
   display: flex; align-items: center; justify-content: center;
   padding: .5rem 0 0;
 }
-/* Roulette: overlay is absolute over the table wrap so it never affects table height */
-.rpay-sim .bpay-start-overlay {
-  position: absolute;
-  inset: 0;
-  padding: 0;
-  z-index: 5;
-}
 .bpay-start-btn {
   background: linear-gradient(135deg, #c9a84c 0%, #9a7820 100%);
   color: #1a1200; font-size: clamp(.82rem,2.5vh,1.05rem); font-weight: 900;
