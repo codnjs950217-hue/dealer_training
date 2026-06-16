@@ -2899,6 +2899,8 @@ const Sims = {
           dolly.className = 'rpay-dolly';
           dolly.style.cssText = `left:${winC.x}px;top:${winC.y}px`;
           stageEl.appendChild(dolly);
+          // Vertical zoom centering always targets the winning cell's row, not the grid midpoint
+          S.winCellY = winC.y;
         }
 
         Sims.roulettePay._startTimer();
@@ -2925,16 +2927,19 @@ const Sims = {
       const cx = parseFloat(spotEl.dataset.bboxCx);
 
       // Fixed scale: always fit the full 3-row grid (one street height) into the viewport
-      const gridH  = S.zoomGridH  || vpH * 0.6;
-      const gridCy = S.zoomGridCy || vpH / 2;
-      const scale  = Math.min(vpH * 0.92 / gridH, 3.5);
+      const gridH = S.zoomGridH || vpH * 0.6;
+      const scale = Math.min(vpH * 0.92 / gridH, 3.5);
       // Stretch horizontally on top of the fitted scale so cells read wider once zoomed in
       // (vertical fit/height stays the same — only column width grows)
       const scaleX = scale * 1.3;
       const scaleY = scale;
 
-      const dx = vpW / 2 - cx     * scaleX;
-      const dy = vpH / 2 - gridCy * scaleY;
+      // Always center vertically on the winning cell's row (where the dolly sits), not the
+      // grid's overall midpoint, so it re-centers automatically as the dolly's row changes
+      const centerY = S.winCellY != null ? S.winCellY : (S.zoomGridCy || vpH / 2);
+
+      const dx = vpW / 2 - cx      * scaleX;
+      const dy = vpH / 2 - centerY * scaleY;
 
       stageEl.style.transition = 'transform .35s ease';
       stageEl.style.transformOrigin = '0 0';
