@@ -318,7 +318,8 @@ const Views = {
             <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
           </div>
           <div class="bpay-start-overlay" id="rpay-start-overlay">
-            <button class="bpay-start-btn" onclick="Sims.roulettePay.deal()">START</button>
+            <div class="rpay-wheel" id="rpay-wheel"><div class="rpay-wheel-hub"></div></div>
+            <button class="bpay-start-btn" onclick="Sims.roulettePay.startSpin()">START</button>
           </div>
         </div>
         <div class="rpay-right-col">
@@ -3146,7 +3147,9 @@ const Sims = {
         }
 
         const ov = $('rpay-start-overlay');
-        if (ov) ov.style.display = 'flex';
+        if (ov) { ov.style.display = 'flex'; ov.classList.remove('rpay-start-overlay-zoomout'); }
+        const wheelEl = $('rpay-wheel');
+        if (wheelEl) wheelEl.classList.remove('rpay-wheel-spin-fast');
       },
 
       _startTimer() {
@@ -3162,6 +3165,23 @@ const Sims = {
 
       _stopTimer() {
         if (S.timerInterval) { clearInterval(S.timerInterval); S.timerInterval = null; }
+      },
+
+      startSpin() {
+        const overlay = $('rpay-start-overlay');
+        const wheel   = $('rpay-wheel');
+        const btn     = overlay && overlay.querySelector('.bpay-start-btn');
+        if (btn) btn.disabled = true;
+        if (wheel) wheel.classList.add('rpay-wheel-spin-fast');
+        setTimeout(() => {
+          if (overlay) overlay.classList.add('rpay-start-overlay-zoomout');
+          setTimeout(() => {
+            if (wheel) wheel.classList.remove('rpay-wheel-spin-fast');
+            if (overlay) overlay.classList.remove('rpay-start-overlay-zoomout');
+            if (btn) btn.disabled = false;
+            Sims.roulettePay.deal();
+          }, 450);
+        }, 900);
       },
 
       deal() {

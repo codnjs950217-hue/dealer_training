@@ -2368,9 +2368,46 @@ body {
   padding: 0;
   z-index: 9;
   pointer-events: none;
+  flex-direction: column;
+  gap: clamp(.5rem,2vh,1rem);
+  background: rgba(5,12,8,.55);
 }
 .rpay-bet-side .bpay-start-overlay .bpay-start-btn {
   pointer-events: auto;
+}
+.rpay-start-overlay-zoomout {
+  animation: rpayStartZoomOut .45s ease-in forwards;
+}
+@keyframes rpayStartZoomOut {
+  to { transform: scale(2.4); opacity: 0; }
+}
+
+/* Roulette wheel graphic on the start screen */
+.rpay-wheel {
+  position: relative;
+  width: clamp(96px,32vw,180px);
+  height: clamp(96px,32vw,180px);
+  border-radius: 50%;
+  border: 5px solid #c9a84c;
+  background:
+    repeating-conic-gradient(#8b1414 0deg 9.7297deg, #171717 9.7297deg 19.4595deg);
+  box-shadow: 0 8px 26px rgba(0,0,0,.6), inset 0 0 22px rgba(0,0,0,.55);
+  animation: rpayWheelSpin 7s linear infinite;
+}
+.rpay-wheel-spin-fast {
+  animation: rpayWheelSpin .5s linear infinite;
+}
+.rpay-wheel-hub {
+  position: absolute;
+  inset: 32%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f0e0a0, #9a7820 75%);
+  border: 2.5px solid #fff8dc;
+  box-shadow: 0 2px 8px rgba(0,0,0,.5);
+}
+@keyframes rpayWheelSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 .bpay-start-btn {
   background: linear-gradient(135deg, #c9a84c 0%, #9a7820 100%);
