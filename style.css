@@ -1147,7 +1147,6 @@ body {
   pointer-events: none;
   white-space: nowrap;
 }
-.rpay-spot-paid { opacity: .25; }
 .rpay-tray-info {
   display: flex; align-items: baseline; gap: 1rem;
   padding: .35rem .7rem .1rem;

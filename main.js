@@ -2730,21 +2730,15 @@ const Sims = {
 
   // ---- ROULETTE PAYOUT PRACTICE (Option A: single-bet drill) ----
   roulettePay: (() => {
+    // Color chip is a fixed 5,000-won unit value (real-table colour chip), not random per round
     const COLOR_CHIPS = [
-      { key: 'white',  val:   5_000, bg: '#f0ece4', fg: '#2a2a2a' },
-      { key: 'teal',   val:  10_000, bg: '#00838f', fg: '#fff'    },
-      { key: 'lime',   val:  25_000, bg: '#9ccc65', fg: '#1a1a1a' },
-      { key: 'brown',  val:  50_000, bg: '#6d4c41', fg: '#fff'    },
-      { key: 'purple', val: 100_000, bg: '#7b1fa2', fg: '#fff'    },
-      { key: 'orange', val: 200_000, bg: '#e65100', fg: '#fff'    },
+      { key: 'white', val: 5_000, bg: '#f0ece4', fg: '#2a2a2a' },
     ];
     const MONEY_CHIPS = [
-      { key: '100M', val: 100_000_000, bg: '#c62828', fg: '#fff'    },
-      { key: '10M',  val:  10_000_000, bg: '#1565c0', fg: '#fff'    },
-      { key: '1M',   val:   1_000_000, bg: '#fdd835', fg: '#1a1a1a' },
-      { key: '100K', val:     100_000, bg: '#212121', fg: '#fff'    },
-      { key: '10K',  val:      10_000, bg: '#2e7d32', fg: '#fff'    },
-      { key: '5K',   val:       5_000, bg: '#b5176b', fg: '#fff'    },
+      { key: '1M',   val: 1_000_000, bg: '#fdd835', fg: '#1a1a1a' },
+      { key: '100K', val:   100_000, bg: '#212121', fg: '#fff'    },
+      { key: '10K',  val:    10_000, bg: '#2e7d32', fg: '#fff'    },
+      { key: '5K',   val:     5_000, bg: '#b5176b', fg: '#fff'    },
     ];
     const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
@@ -2946,13 +2940,8 @@ const Sims = {
     }
 
     function highlightSpot(idx) {
-      const tbl = document.getElementById('rpay-full-table');
-
-      document.querySelectorAll('.rpay-spot').forEach((el,i) => {
-        el.classList.toggle('rpay-spot-paying', i === idx);
-        el.classList.toggle('rpay-spot-paid', i < idx);
-      });
-
+      // All bets are paid together as one total now, so spots are no longer
+      // marked "paying"/"already paid" one at a time — this just drives the zoom view
       zoomToSpot(idx);
     }
 
@@ -2969,7 +2958,7 @@ const Sims = {
       const sp = S.spots[S.spotIdx];
       const color = S.roundColor;
 
-      S.payChips = { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
+      S.payChips = { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
       S.history = [];
 
       panel.innerHTML = `
@@ -3093,9 +3082,11 @@ const Sims = {
         }
       });
 
-      const totalChipCount = Object.values(S.payChips).reduce((a, b) => a + b, 0);
-      const warnHtml = totalChipCount >= 100
-        ? `<div class="rpay-chip-warn">⚠ 머니 칩스와 함께 세팅해주세요</div>`
+      // Under 120 color chips (6 stacks of 20) can be set with color chips alone; at/above
+      // that, just nudge toward using money chips too — never reveal the actual combination
+      const colorChipCount = S.payChips.color || 0;
+      const warnHtml = colorChipCount >= 120
+        ? `<div class="rpay-chip-warn">⚠ 머니칩스와 함께 세팅하세요</div>`
         : '';
 
       zone.innerHTML = (parts.length
@@ -3120,7 +3111,7 @@ const Sims = {
       init() {
         if (S && S.timerInterval) clearInterval(S.timerInterval);
         S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, roundColor: null,
-              payChips: { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
+              payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
               history: [], difficulty: 'easy',
               timerStart: null, timerInterval: null };
       },
@@ -3128,7 +3119,7 @@ const Sims = {
       setDiff(level) {
         this._stopTimer();
         S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, roundColor: null,
-              payChips: { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
+              payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
               history: [], difficulty: level,
               timerStart: null, timerInterval: null };
         ['easy','medium','hard'].forEach(d => {
@@ -3229,6 +3220,9 @@ const Sims = {
           const { chips, total } = genChips(roundColor, maxChips);
           return { ...sp, chips, total };
         });
+        // All bets share the same color chip, so the dealer totals every winning bet
+        // and pays it out once, instead of paying each bet area separately
+        S.totalTarget = S.spots.reduce((sum, sp) => sum + sp.total * sp.pays, 0);
 
         renderFullGrid(N, S.spots);
         showTray();
@@ -3248,7 +3242,7 @@ const Sims = {
 
       resetPay() {
         S.history.push({ ...S.payChips });
-        S.payChips = { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
+        S.payChips = { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
         updateTray();
       },
 
@@ -3259,8 +3253,9 @@ const Sims = {
       },
 
       submitPay() {
-        const sp = S.spots[S.spotIdx];
-        const target = sp.total * sp.pays;
+        // All winning bets share the same color chip, so they're paid as one combined total
+        // rather than one bet area at a time
+        const target = S.totalTarget || 0;
         const colorVal = S.roundColor ? S.roundColor.val : 0;
         let entered = (S.payChips.color || 0) * colorVal;
         for (const mc of MONEY_CHIPS) {
@@ -3268,34 +3263,28 @@ const Sims = {
         }
         if (entered !== target) {
           showMistake(() => {
-            S.payChips = { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
+            S.payChips = { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
             updateTray();
           });
           return;
         }
-        S.spotIdx++;
-        if (S.spotIdx >= S.spots.length) {
-          this._stopTimer();
-          const elapsed = S.timerStart ? (performance.now() - S.timerStart) / 1000 : null;
-          const timerEl = $('rpay-timer');
-          if (timerEl && elapsed !== null) {
-            timerEl.textContent = fmtTime(elapsed);
-            timerEl.className = 'rpay-timer rpay-timer-done';
-          }
-          S.score++;
-          $('rpay-score').textContent = S.score;
-          highlightSpot(-1);
-          const tbl = document.querySelector('.rpay-table');
-          if (tbl) {
-            const ov2 = document.createElement('div');
-            ov2.className = 'next-hand-overlay';
-            ov2.innerHTML = `<div class="next-hand-text">NEXT HAND</div>${elapsed !== null ? `<div class="next-hand-time">${elapsed.toFixed(1)}s</div>` : ''}`;
-            tbl.appendChild(ov2);
-            setTimeout(() => { ov2.remove(); Sims.roulettePay.deal(); }, 1400);
-          }
-        } else {
-          highlightSpot(S.spotIdx);
-          showTray();
+        this._stopTimer();
+        const elapsed = S.timerStart ? (performance.now() - S.timerStart) / 1000 : null;
+        const timerEl = $('rpay-timer');
+        if (timerEl && elapsed !== null) {
+          timerEl.textContent = fmtTime(elapsed);
+          timerEl.className = 'rpay-timer rpay-timer-done';
+        }
+        S.score++;
+        $('rpay-score').textContent = S.score;
+        highlightSpot(-1);
+        const tbl = document.querySelector('.rpay-table');
+        if (tbl) {
+          const ov2 = document.createElement('div');
+          ov2.className = 'next-hand-overlay';
+          ov2.innerHTML = `<div class="next-hand-text">NEXT HAND</div>${elapsed !== null ? `<div class="next-hand-time">${elapsed.toFixed(1)}s</div>` : ''}`;
+          tbl.appendChild(ov2);
+          setTimeout(() => { ov2.remove(); Sims.roulettePay.deal(); }, 1400);
         }
       },
     };
