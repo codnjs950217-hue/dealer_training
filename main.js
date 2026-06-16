@@ -2929,7 +2929,7 @@ const Sims = {
       const scale = Math.min(vpH * 0.92 / gridH, 3.5);
       // Stretch horizontally on top of the fitted scale so cells read wider once zoomed in
       // (vertical fit/height stays the same — only column width grows)
-      const scaleX = scale * 1.3;
+      const scaleX = scale * 1.5;
       const scaleY = scale;
 
       // Always center vertically on the grid's own midpoint (not the winning cell). The grid
