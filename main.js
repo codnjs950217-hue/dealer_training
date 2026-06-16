@@ -2767,6 +2767,14 @@ const Sims = {
         // Measure stage (not tbl) so chip coords are stage-relative
         const sRect = stageEl.getBoundingClientRect();
 
+        // Measure grid dimensions for fixed zoom reference (stage unscaled here)
+        const gridEl = stageEl.querySelector('.roulette-grid');
+        if (gridEl) {
+          const gRect = gridEl.getBoundingClientRect();
+          S.zoomGridH  = gRect.height;
+          S.zoomGridCy = gRect.top - sRect.top + gRect.height / 2;
+        }
+
         function cc(num) {
           const el = stageEl.querySelector(`[data-bet="${num}"]`);
           if (!el) return null;
@@ -2870,16 +2878,14 @@ const Sims = {
       const vpW = tbl.offsetWidth;
       const vpH = tbl.offsetHeight;
       const cx = parseFloat(spotEl.dataset.bboxCx);
-      const cy = parseFloat(spotEl.dataset.bboxCy);
-      const bboxW = parseFloat(spotEl.dataset.bboxW);
-      const bboxH = parseFloat(spotEl.dataset.bboxH);
 
-      const effW = Math.max(bboxW, 45);
-      const effH = Math.max(bboxH, 45);
-      const scale = Math.min(Math.min(vpW * 0.55 / effW, vpH * 0.55 / effH), 3.0);
+      // Fixed scale: always fit the full 3-row grid (one street height) into the viewport
+      const gridH  = S.zoomGridH  || vpH * 0.6;
+      const gridCy = S.zoomGridCy || vpH / 2;
+      const scale  = Math.min(vpH * 0.92 / gridH, 3.5);
 
-      const dx = vpW / 2 - cx * scale;
-      const dy = vpH / 2 - cy * scale;
+      const dx = vpW / 2 - cx     * scale;
+      const dy = vpH / 2 - gridCy * scale;
 
       stageEl.style.transition = 'transform .35s ease';
       stageEl.style.transformOrigin = '0 0';
