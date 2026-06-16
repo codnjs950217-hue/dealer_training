@@ -1060,17 +1060,11 @@ body {
   transform-origin: 0 0;
   overflow: hidden;
 }
-.rpay-win-cell,
-.rpay-win-cell.rpay-bet-cell {
-  outline: none !important;
-  box-shadow: none !important;
-  z-index: 2;
-}
-.rpay-bet-cell {
-  background: rgba(120,190,255,.22) !important;
-  outline: 2px solid rgba(100,170,255,.7) !important;
+.rpay-win-cell {
+  outline: 2.5px solid #ffd700 !important;
   outline-offset: -2px;
-  z-index: 1;
+  box-shadow: 0 0 14px rgba(255,215,0,.55) !important;
+  z-index: 2;
 }
 .rpay-dolly {
   position: absolute;
@@ -1153,7 +1147,7 @@ body {
   white-space: nowrap;
 }
 .rpay-spot-paying .rpay-spot-chips {
-  filter: drop-shadow(0 0 7px #ffd700) drop-shadow(0 0 3px #ffd700);
+  filter: drop-shadow(0 0 7px rgba(255,255,255,.8)) drop-shadow(0 0 3px rgba(255,255,255,.6));
 }
 .rpay-spot-paid { opacity: .25; }
 .rpay-tray-info {
