@@ -2056,6 +2056,9 @@ body {
 
   /* Roulette pay mobile */
   .rpay-sim.sim-page { padding: .4rem .5rem 0; }
+  /* Widen the roulette grid side so zoomed-in numbers don't overlap/clip on narrow screens */
+  .rpay-bet-side  { flex: 9; }
+  .rpay-right-col { flex: 11; }
 }
 
 /* ============================================================
