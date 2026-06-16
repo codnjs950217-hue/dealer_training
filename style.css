@@ -2674,24 +2674,29 @@ body {
   display: flex; align-items: center;
   gap: clamp(.3rem,.6vw,.45rem);
 }
-.rpay-inline-refresh-btn {
-  position: static;
-  min-height: var(--tap-h); min-width: var(--tap-h);
-  font-size: var(--bf-md);
-}
+.rpay-inline-refresh-btn,
 .comm-undo-btn {
   background: rgba(60,80,120,.45);
   border: 1px solid rgba(120,160,255,.35);
   color: rgba(180,210,255,.85);
-  font-size: var(--bf-sm); font-weight: 700; letter-spacing: .3px;
   border-radius: 4px; cursor: pointer;
+  min-height: var(--tap-h);
+  display: flex; align-items: center; justify-content: center;
+  transition: background .12s, color .12s;
+}
+.rpay-inline-refresh-btn:hover, .comm-undo-btn:hover  { background: rgba(60,80,160,.65); color: #fff; }
+.rpay-inline-refresh-btn:active, .comm-undo-btn:active { transform: scale(.95); }
+.rpay-inline-refresh-btn {
+  position: static;
+  min-width: var(--tap-h);
+  font-size: var(--bf-md);
+}
+.comm-undo-btn {
+  font-size: var(--bf-sm); font-weight: 700; letter-spacing: .3px;
   padding: clamp(.36rem,.85vh,.5rem) clamp(.5rem,1.1vw,.65rem);
   text-align: center; line-height: 1.2;
   white-space: nowrap;
-  transition: background .12s, color .12s;
 }
-.comm-undo-btn:hover  { background: rgba(60,80,160,.65); color: #fff; }
-.comm-undo-btn:active { transform: scale(.95); }
 
 /* ---- BACCARAT: START BAR (top center) ---- */
 .bac-start-bar {
