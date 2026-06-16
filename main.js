@@ -324,10 +324,7 @@ const Views = {
         <div class="rpay-right-col">
           <div class="rpay-timer" id="rpay-timer">—</div>
           <div class="rpay-undo-row">
-            <div class="rpay-undo-group">
-              <button class="table-refresh-btn rpay-inline-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
-              <button class="comm-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
-            </div>
+            <button class="comm-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
             <button class="comm-all-reset-btn" onclick="Sims.roulettePay.resetPay()">ALL RESET</button>
           </div>
           <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
