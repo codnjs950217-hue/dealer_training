@@ -1412,6 +1412,7 @@ body {
   height: clamp(100px,24vh,155px); overflow: visible;
   align-items: stretch;
   padding: 0 clamp(.6rem,2vw,2rem);
+  gap: clamp(.5rem,1.8vw,1.2rem);
 }
 .bac-bclust-side {
   flex: 1; display: flex; justify-content: center; align-items: center;
