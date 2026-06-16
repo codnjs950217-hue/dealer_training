@@ -405,8 +405,8 @@ const Views = {
           <div class="bpay-start-overlay" id="bside-start-overlay">
             <button class="bpay-start-btn" onclick="Sims.baccaratSide.deal()">START</button>
           </div>
+          <div class="bpay-comm-panel" id="bside-comm-panel" style="display:none"></div>
         </div>
-        <div class="bpay-comm-panel" id="bside-comm-panel" style="display:none"></div>
       </div>
     </div>`,
 
