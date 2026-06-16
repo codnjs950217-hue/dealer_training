@@ -3082,16 +3082,16 @@ const Sims = {
         }
       });
 
-      // Under 120 color chips (6 stacks of 20) can be set with color chips alone; at/above
-      // that, just nudge toward using money chips too — never reveal the actual combination
+      // Nudge toward money chips when 120+ color chips are set and no money chips are in use
       const colorChipCount = S.payChips.color || 0;
-      const warnHtml = colorChipCount >= 120
+      const moneyChipUsed = MONEY_CHIPS.some(mc => (S.payChips[mc.key] || 0) > 0);
+      const warnHtml = (colorChipCount >= 120 && !moneyChipUsed)
         ? `<div class="rpay-chip-warn">⚠ 머니칩스와 함께 세팅하세요</div>`
         : '';
 
-      zone.innerHTML = (parts.length
+      zone.innerHTML = warnHtml + (parts.length
         ? `<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px">${parts.join('')}</div>`
-        : '<div class="rpay-hint-text">왼쪽 베팅구역 확인하고 칩스를 세팅하세요</div>') + warnHtml;
+        : '<div class="rpay-hint-text">왼쪽 베팅구역 확인하고 칩스를 세팅하세요</div>');
     }
 
     function showMistake(retry) {

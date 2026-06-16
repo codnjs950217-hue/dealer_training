@@ -898,7 +898,7 @@ body {
 }
 .rpay-chip-warn {
   display: flex; align-items: center; justify-content: center;
-  margin: .4rem .2rem 0;
+  margin: 0 .2rem .5rem;
   padding: .38rem .7rem;
   background: rgba(255, 140, 0, .18);
   border: 1.5px solid rgba(255, 160, 0, .65);
