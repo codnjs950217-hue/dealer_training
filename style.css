@@ -1212,8 +1212,8 @@ body {
 .roulette-grid { border-collapse: collapse; width: 100%; table-layout: fixed; }
 /* Widen number columns and narrow the 2TO1/zero columns so straight/split/corner
    bet zones read clearly, especially once zoomed in */
-.rg-col-bet  { width: 4%; }
-.rg-col-num  { width: 7.667%; }
+.rg-col-bet  { width: 7.3846%; }
+.rg-col-num  { width: 7.3846%; }
 .rg-col-zero { width: 4%; }
 .roulette-grid td { padding: 0; border: 1px solid rgba(255,255,255,.28); }
 
@@ -1249,6 +1249,7 @@ body {
 .green-num { background: #145c14; color: #fff; }
 
 .col-bet { background: rgba(255,255,255,.08); color: var(--text); font-size: .44rem; }
+.col-bet span { display: inline-block; transform: rotate(-90deg); white-space: nowrap; }
 .zero-cell .bet-spot { font-size: .7rem; }
 
 .dozens-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; margin-bottom: 1px; margin-left: calc(100% / 14); margin-right: calc(100% / 14); }

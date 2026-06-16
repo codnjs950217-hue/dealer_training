@@ -3738,7 +3738,7 @@ function buildBettingTable() {
   inner += `<tbody>`;
   rows.forEach((row, ri) => {
     inner += `<tr>`;
-    inner += `<td><div class="bet-spot col-bet" data-bet="${colBets[ri]}">2TO1</div></td>`;
+    inner += `<td><div class="bet-spot col-bet" data-bet="${colBets[ri]}"><span>2TO1</span></div></td>`;
     row.forEach(n => {
       const cls = RED_NUMS.has(n) ? 'red-num' : 'black-num';
       inner += `<td><div class="bet-spot ${cls}" data-bet="${n}">${n}</div></td>`;
