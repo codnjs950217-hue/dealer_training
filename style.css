@@ -1207,6 +1207,11 @@ body {
 }
 
 .roulette-grid { border-collapse: collapse; width: 100%; table-layout: fixed; }
+/* Widen number columns and narrow the 2TO1/zero columns so straight/split/corner
+   bet zones read clearly, especially once zoomed in */
+.rg-col-bet  { width: 5%; }
+.rg-col-num  { width: 7.5%; }
+.rg-col-zero { width: 5%; }
 .roulette-grid td { padding: 0; border: 1px solid rgba(255,255,255,.28); }
 
 .zero-cell {

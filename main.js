@@ -3726,7 +3726,9 @@ function buildBettingTable() {
     <div class="bet-spot outside" data-bet="dozen1">1st 12</div>
   </div>`;
 
-  inner += `<table class="roulette-grid"><tbody>`;
+  inner += `<table class="roulette-grid">`;
+  inner += `<colgroup><col class="rg-col-bet">${'<col class="rg-col-num">'.repeat(12)}<col class="rg-col-zero"></colgroup>`;
+  inner += `<tbody>`;
   rows.forEach((row, ri) => {
     inner += `<tr>`;
     inner += `<td><div class="bet-spot col-bet" data-bet="${colBets[ri]}">2TO1</div></td>`;
