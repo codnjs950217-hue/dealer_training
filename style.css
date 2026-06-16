@@ -2398,6 +2398,11 @@ body {
 /* Commission panel — dealer rack style */
 .bpay-comm-panel { margin-top: 0; width: 100%; box-sizing: border-box; flex-shrink: 0; }
 
+/* Commission/halfpay: shrink table to banker oval, push tray right below border */
+#bpay-content .baccarat-table { flex: 0 0 auto; min-height: 0; }
+#bpay-content .bpay-positions  { flex: 0 0 auto; overflow: visible; }
+#bpay-content .bpay-spread-section { min-height: 0; }
+
 .comm-tray {
   position: relative;
   background: linear-gradient(175deg, #d4a843 0%, #96700e 100%);
@@ -2502,8 +2507,8 @@ body {
       transparent 42%, rgba(0,0,0,0) 62%, rgba(0,0,0,.55) 100%),
     repeating-linear-gradient(
       to bottom,
-      var(--ms-bg) 0px, var(--ms-bg) 3px,
-      rgba(0,0,0,.7) 3px, rgba(0,0,0,.7) 4px
+      var(--ms-bg) 0px, var(--ms-bg) 5px,
+      rgba(0,0,0,.7) 5px, rgba(0,0,0,.7) 6px
     );
   border-left: 1px solid rgba(255,255,255,.18);
   border-right: 1px solid rgba(0,0,0,.5);
@@ -2528,31 +2533,33 @@ body {
   animation: mistakePop .25s ease-out forwards;
 }
 .comm-5k-btns {
-  display: flex; flex-direction: row; gap: .1rem; width: 100%;
+  display: flex; flex-direction: row; gap: .18rem; width: 100%;
 }
 .comm-5k-btn {
   flex: 1;
-  background: rgba(233,30,140,.18);
-  border: 1px solid rgba(233,30,140,.4);
-  color: rgba(255,255,255,.88);
-  border-radius: 4px; cursor: pointer;
-  font-size: var(--bf-xs); font-weight: 700; line-height: 1;
-  padding: clamp(.28rem,.65vh,.38rem) .05rem; text-align: center;
-  transition: background .12s, border-color .12s;
+  background: rgba(233,30,140,.22);
+  border: 1px solid rgba(233,30,140,.5);
+  color: rgba(255,255,255,.95);
+  border-radius: 8px; cursor: pointer;
+  font-size: var(--bf-sm); font-weight: 700; line-height: 1;
+  padding: clamp(.32rem,.75vh,.45rem) .05rem; text-align: center;
+  transition: background .12s, border-color .12s, transform .08s;
+  box-shadow: 0 2px 6px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.12);
 }
-.comm-5k-btn:hover  { background: rgba(233,30,140,.35); border-color: rgba(233,30,140,.7); }
-.comm-5k-btn:active { transform: scale(.95); }
+.comm-5k-btn:hover  { background: rgba(233,30,140,.38); border-color: rgba(233,30,140,.75); box-shadow: 0 3px 9px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.15); }
+.comm-5k-btn:active { transform: scale(.95); box-shadow: 0 1px 3px rgba(0,0,0,.25); }
 .comm-5k-reset {
-  width: 100%; margin-top: .1rem;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.15);
-  color: rgba(255,255,255,.5);
-  border-radius: 4px; cursor: pointer;
-  font-size: .55rem; font-weight: 700; letter-spacing: .3px;
-  padding: .38rem 0; text-align: center;
+  width: 100%; margin-top: .18rem;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.6);
+  border-radius: 8px; cursor: pointer;
+  font-size: var(--bf-xs); font-weight: 700; letter-spacing: .3px;
+  padding: clamp(.3rem,.7vh,.42rem) 0; text-align: center;
   transition: background .12s, color .12s;
+  box-shadow: 0 1px 4px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.06);
 }
-.comm-5k-reset:hover  { background: rgba(255,255,255,.12); color: rgba(255,255,255,.85); }
+.comm-5k-reset:hover  { background: rgba(255,255,255,.14); color: rgba(255,255,255,.9); box-shadow: 0 2px 6px rgba(0,0,0,.32); }
 .comm-5k-reset:active { transform: scale(.95); }
 
 /* PAY button inside the rack */
@@ -2574,17 +2581,18 @@ body {
 .comm-pay-btn:hover  { background: linear-gradient(145deg, #f0c85e 0%, #b07820 100%); box-shadow: 0 4px 16px rgba(201,168,76,.6), inset 0 1px 0 rgba(255,255,255,.35); }
 .comm-pay-btn:active { transform: scale(.95); box-shadow: 0 1px 4px rgba(201,168,76,.25); }
 .comm-all-reset-btn {
-  background: rgba(0,0,0,.35);
-  border: 1px solid rgba(255,255,255,.25);
-  color: rgba(255,255,255,.7);
+  background: rgba(0,0,0,.4);
+  border: 1px solid rgba(255,255,255,.28);
+  color: rgba(255,255,255,.75);
   font-size: var(--bf-sm); font-weight: 700; letter-spacing: .3px;
-  border-radius: 4px; cursor: pointer;
+  border-radius: 8px; cursor: pointer;
   padding: clamp(.36rem,.85vh,.5rem) clamp(.5rem,1.1vw,.65rem);
   text-align: center; line-height: 1.2;
   white-space: nowrap;
   transition: background .12s, color .12s;
+  box-shadow: 0 2px 6px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
 }
-.comm-all-reset-btn:hover  { background: rgba(0,0,0,.55); color: #fff; }
+.comm-all-reset-btn:hover  { background: rgba(0,0,0,.58); color: #fff; box-shadow: 0 3px 8px rgba(0,0,0,.4); }
 .comm-all-reset-btn:active { transform: scale(.95); }
 
 .rpay-undo-row {
