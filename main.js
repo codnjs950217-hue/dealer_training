@@ -2899,8 +2899,6 @@ const Sims = {
           dolly.className = 'rpay-dolly';
           dolly.style.cssText = `left:${winC.x}px;top:${winC.y}px`;
           stageEl.appendChild(dolly);
-          // Vertical zoom centering always targets the winning cell's row, not the grid midpoint
-          S.winCellY = winC.y;
         }
 
         Sims.roulettePay._startTimer();
@@ -2934,12 +2932,13 @@ const Sims = {
       const scaleX = scale * 1.3;
       const scaleY = scale;
 
-      // Always center vertically on the winning cell's row (where the dolly sits), not the
-      // grid's overall midpoint, so it re-centers automatically as the dolly's row changes
-      const centerY = S.winCellY != null ? S.winCellY : (S.zoomGridCy || vpH / 2);
+      // Always center vertically on the grid's own midpoint (not the winning cell). The grid
+      // is sized to fit within the viewport around that midpoint — centering on any other row
+      // pushes the opposite row off-screen, which hid a full row when the winner was top/bottom.
+      const gridCy = S.zoomGridCy || vpH / 2;
 
-      const dx = vpW / 2 - cx      * scaleX;
-      const dy = vpH / 2 - centerY * scaleY;
+      const dx = vpW / 2 - cx     * scaleX;
+      const dy = vpH / 2 - gridCy * scaleY;
 
       stageEl.style.transition = 'transform .35s ease';
       stageEl.style.transformOrigin = '0 0';
