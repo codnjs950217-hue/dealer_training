@@ -2895,24 +2895,10 @@ const Sims = {
     function highlightSpot(idx) {
       const tbl = document.getElementById('rpay-full-table');
 
-      // clear previous bet cell highlights
-      if (tbl) tbl.querySelectorAll('.rpay-bet-cell').forEach(el => el.classList.remove('rpay-bet-cell'));
-
       document.querySelectorAll('.rpay-spot').forEach((el,i) => {
         el.classList.toggle('rpay-spot-paying', i === idx);
         el.classList.toggle('rpay-spot-paid', i < idx);
       });
-
-      // highlight cells of the active bet
-      if (tbl && idx >= 0) {
-        const spotEl = document.getElementById(`rpay-spot-${idx}`);
-        if (spotEl && spotEl.dataset.betNums) {
-          spotEl.dataset.betNums.split(',').forEach(n => {
-            const cell = tbl.querySelector(`[data-bet="${n}"]`);
-            if (cell && !cell.classList.contains('rpay-win-cell')) cell.classList.add('rpay-bet-cell');
-          });
-        }
-      }
 
       zoomToSpot(idx);
     }
