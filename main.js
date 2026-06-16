@@ -365,8 +365,8 @@ const Views = {
               </div>`).join('')}
           </div>
           <div class="bpay-spread-section" id="bpay-spread-section" style="display:flex"></div>
+          <div class="bpay-comm-panel" id="bpay-comm-panel"></div>
         </div>
-        <div class="bpay-comm-panel" id="bpay-comm-panel"></div>
       </div>
       <div id="bside-content" class="bside-sim" style="display:none">
         <div class="baccarat-table">
