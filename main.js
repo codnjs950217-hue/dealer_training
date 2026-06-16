@@ -2929,13 +2929,17 @@ const Sims = {
       const gridH  = S.zoomGridH  || vpH * 0.6;
       const gridCy = S.zoomGridCy || vpH / 2;
       const scale  = Math.min(vpH * 0.92 / gridH, 3.5);
+      // Stretch horizontally on top of the fitted scale so cells read wider once zoomed in
+      // (vertical fit/height stays the same — only column width grows)
+      const scaleX = scale * 1.6;
+      const scaleY = scale;
 
-      const dx = vpW / 2 - cx     * scale;
-      const dy = vpH / 2 - gridCy * scale;
+      const dx = vpW / 2 - cx     * scaleX;
+      const dy = vpH / 2 - gridCy * scaleY;
 
       stageEl.style.transition = 'transform .35s ease';
       stageEl.style.transformOrigin = '0 0';
-      stageEl.style.transform = `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+      stageEl.style.transform = `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${scaleX.toFixed(3)},${scaleY.toFixed(3)})`;
     }
 
     function highlightSpot(idx) {
