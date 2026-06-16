@@ -1144,9 +1144,6 @@ body {
   pointer-events: none;
   white-space: nowrap;
 }
-.rpay-spot-paying .rpay-spot-chips {
-  filter: drop-shadow(0 0 7px rgba(255,255,255,.8)) drop-shadow(0 0 3px rgba(255,255,255,.6));
-}
 .rpay-spot-paid { opacity: .25; }
 .rpay-tray-info {
   display: flex; align-items: baseline; gap: 1rem;
