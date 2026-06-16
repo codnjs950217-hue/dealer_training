@@ -2667,6 +2667,15 @@ body {
   flex-shrink: 0;
   min-height: calc(var(--tap-h) + .25rem);
 }
+.rpay-undo-group {
+  display: flex; align-items: center;
+  gap: clamp(.3rem,.6vw,.45rem);
+}
+.rpay-inline-refresh-btn {
+  position: static;
+  min-height: var(--tap-h); min-width: var(--tap-h);
+  font-size: var(--bf-md);
+}
 .comm-undo-btn {
   background: rgba(60,80,120,.45);
   border: 1px solid rgba(120,160,255,.35);
