@@ -1053,6 +1053,7 @@ body {
   position: relative; overflow: hidden;
   pointer-events: none;
   contain: paint;
+  flex: 1; min-height: 0;
 }
 .rpay-zoom-stage {
   position: relative;
