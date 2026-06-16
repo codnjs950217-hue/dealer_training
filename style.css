@@ -1207,14 +1207,18 @@ body {
 .betting-table {
   background: #0b3018; border: 2px solid rgba(255,255,255,.28);
   border-radius: 8px; padding: .5rem; user-select: none;
+  /* Single source of truth for the grid's edge columns, shared with the outside-bet
+     rows below so all three zones (2TO1 col, numbers, outside bets) line up edge to edge */
+  --rg-col-bet-w:  7.3846%;
+  --rg-col-zero-w: 4%;
 }
 
 .roulette-grid { border-collapse: collapse; width: 100%; table-layout: fixed; }
 /* Widen number columns and narrow the 2TO1/zero columns so straight/split/corner
    bet zones read clearly, especially once zoomed in */
-.rg-col-bet  { width: 7.3846%; }
+.rg-col-bet  { width: var(--rg-col-bet-w); }
 .rg-col-num  { width: 7.3846%; }
-.rg-col-zero { width: 4%; }
+.rg-col-zero { width: var(--rg-col-zero-w); }
 .roulette-grid td { padding: 0; border: 1px solid rgba(255,255,255,.28); }
 
 .zero-cell {
@@ -1252,8 +1256,8 @@ body {
 .col-bet span { display: inline-block; transform: rotate(-90deg); white-space: nowrap; }
 .zero-cell .bet-spot { font-size: .7rem; }
 
-.dozens-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; margin-bottom: 1px; margin-left: calc(100% / 14); margin-right: calc(100% / 14); }
-.evens-row  { display: grid; grid-template-columns: repeat(6,1fr); gap: 0; margin-bottom: 1px; margin-left: calc(100% / 14); margin-right: calc(100% / 14); }
+.dozens-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; margin-bottom: 1px; margin-left: var(--rg-col-bet-w); margin-right: var(--rg-col-zero-w); }
+.evens-row  { display: grid; grid-template-columns: repeat(6,1fr); gap: 0; margin-bottom: 1px; margin-left: var(--rg-col-bet-w); margin-right: var(--rg-col-zero-w); }
 .outside    { background: rgba(255,255,255,.09); color: var(--text); box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
 .outside:hover { background: rgba(255,255,255,.18); }
 .red-bet    { background: #8b1414 !important; }
