@@ -2968,15 +2968,6 @@ const Sims = {
         <div class="comm-tray rpay-btray">
           <div id="rpay-order-warn" class="bpay-order-warn" style="display:none"><span>저액 칩스부터 세팅하세요</span></div>
           <div class="comm-tray-slots">
-            ${MONEY_CHIPS.map(c => `
-              <div class="comm-slot">
-                <div class="comm-slot-chip" id="rpay-disc-${c.key}" style="background:${c.bg};color:${c.fg}">${c.key}</div>
-                <div class="comm-5k-btns">
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',20)">+20</button>
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',5)">+5</button>
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">+1</button>
-                </div>
-              </div>`).join('')}
             <div class="comm-slot">
               <div class="comm-slot-chip" id="rpay-disc-color" style="background:${color.bg};color:${color.fg}">CC</div>
               <div class="comm-5k-btns">
@@ -2985,6 +2976,15 @@ const Sims = {
                 <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',1)">+1</button>
               </div>
             </div>
+            ${[...MONEY_CHIPS].reverse().map(c => `
+              <div class="comm-slot">
+                <div class="comm-slot-chip" id="rpay-disc-${c.key}" style="background:${c.bg};color:${c.fg}">${c.key}</div>
+                <div class="comm-5k-btns">
+                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',20)">+20</button>
+                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',5)">+5</button>
+                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">+1</button>
+                </div>
+              </div>`).join('')}
             <div class="comm-pay-slot">
               <button class="comm-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
             </div>

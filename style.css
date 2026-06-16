@@ -1040,12 +1040,13 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 .rpay-btray .comm-slot {
-  flex: 0 0 clamp(88px,13vw,115px);
-  padding: .28rem .15rem .22rem; gap: .12rem;
+  flex: 0 0 clamp(78px,11.5vw,100px);
+  flex-direction: row; align-items: center; justify-content: center;
+  padding: .28rem .2rem; gap: .25rem;
 }
-.rpay-btray .comm-slot-chip { width: calc(var(--ch-md) * .92); height: calc(var(--ch-md) * .92); font-size: var(--bf-sm); }
-.rpay-btray .comm-5k-btns { gap: .1rem; }
-.rpay-btray .comm-5k-btn { font-size: var(--bf-sm); padding: clamp(.28rem,.7vh,.4rem) .4rem; }
+.rpay-btray .comm-slot-chip { width: calc(var(--ch-md) * .92); height: calc(var(--ch-md) * .92); font-size: var(--bf-sm); flex-shrink: 0; }
+.rpay-btray .comm-5k-btns { flex-direction: column; width: auto; gap: .12rem; }
+.rpay-btray .comm-5k-btn { flex: none; width: clamp(30px,5vw,40px); font-size: var(--bf-xs); padding: clamp(.16rem,.4vh,.24rem) .2rem; }
 .rpay-btray .comm-5k-reset { font-size: var(--bf-xs); padding: .22rem 0; }
 .rpay-btray .comm-pay-btn { font-size: var(--bf-md); padding: .38rem .55rem; }
 .rpay-btray .comm-all-reset-btn { font-size: var(--bf-sm); }
