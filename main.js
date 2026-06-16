@@ -3118,11 +3118,35 @@ const Sims = {
       },
 
       setDiff(level) {
-        S.difficulty = level;
+        this._stopTimer();
+        S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, roundColor: null,
+              payChips: { color: 0, '100M': 0, '10M': 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
+              history: [], difficulty: level,
+              timerStart: null, timerInterval: null };
         ['easy','medium','hard'].forEach(d => {
           const btn = document.getElementById(`rpay-diff-${d}`);
           if (btn) btn.classList.toggle('rpay-diff-active', d === level);
         });
+        if ($('rpay-rounds')) $('rpay-rounds').textContent = '0';
+        if ($('rpay-score'))  $('rpay-score').textContent  = '0';
+        if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
+        if ($('rpay-pay-zone'))   $('rpay-pay-zone').innerHTML   = '';
+        const timerEl = $('rpay-timer');
+        if (timerEl) { timerEl.className = 'rpay-timer'; timerEl.textContent = '—'; }
+
+        const tbl = document.getElementById('rpay-full-table');
+        if (tbl) {
+          tbl.querySelectorAll('.rpay-win-cell').forEach(el => el.classList.remove('rpay-win-cell'));
+          tbl.querySelectorAll('.rpay-spot').forEach(el => el.remove());
+          tbl.querySelectorAll('.rpay-dolly').forEach(el => el.remove());
+          const stageEl = tbl.querySelector('#rpay-zoom-stage') || tbl;
+          stageEl.style.transition = '';
+          stageEl.style.transform = '';
+          stageEl.style.transformOrigin = '';
+        }
+
+        const ov = $('rpay-start-overlay');
+        if (ov) ov.style.display = 'flex';
       },
 
       _startTimer() {
