@@ -889,7 +889,7 @@ body {
 /* zoom removed — table stays at natural scale */
 .rpay-hint-text {
   color: rgba(255,255,255,.45);
-  font-size: clamp(.72rem,1.4vw,.88rem);
+  font-size: clamp(.95rem,1.8vw,1.15rem);
   text-align: center;
   padding: 1rem .5rem;
   pointer-events: none;
