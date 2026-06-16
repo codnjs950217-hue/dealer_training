@@ -2931,7 +2931,7 @@ const Sims = {
       const scale  = Math.min(vpH * 0.92 / gridH, 3.5);
       // Stretch horizontally on top of the fitted scale so cells read wider once zoomed in
       // (vertical fit/height stays the same — only column width grows)
-      const scaleX = scale * 1.6;
+      const scaleX = scale * 1.3;
       const scaleY = scale;
 
       const dx = vpW / 2 - cx     * scaleX;

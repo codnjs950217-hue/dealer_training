@@ -1209,9 +1209,9 @@ body {
 .roulette-grid { border-collapse: collapse; width: 100%; table-layout: fixed; }
 /* Widen number columns and narrow the 2TO1/zero columns so straight/split/corner
    bet zones read clearly, especially once zoomed in */
-.rg-col-bet  { width: 3%; }
-.rg-col-num  { width: 7.833%; }
-.rg-col-zero { width: 3%; }
+.rg-col-bet  { width: 4%; }
+.rg-col-num  { width: 7.667%; }
+.rg-col-zero { width: 4%; }
 .roulette-grid td { padding: 0; border: 1px solid rgba(255,255,255,.28); }
 
 .zero-cell {
@@ -1245,8 +1245,8 @@ body {
 .black-num { background: #171717; color: #fff; }
 .green-num { background: #145c14; color: #fff; }
 
-.col-bet { background: rgba(255,255,255,.08); color: var(--text); font-size: .4rem; }
-.zero-cell .bet-spot { font-size: .62rem; }
+.col-bet { background: rgba(255,255,255,.08); color: var(--text); font-size: .44rem; }
+.zero-cell .bet-spot { font-size: .7rem; }
 
 .dozens-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; margin-bottom: 1px; margin-left: calc(100% / 14); margin-right: calc(100% / 14); }
 .evens-row  { display: grid; grid-template-columns: repeat(6,1fr); gap: 0; margin-bottom: 1px; margin-left: calc(100% / 14); margin-right: calc(100% / 14); }
@@ -2061,8 +2061,8 @@ body {
   .rpay-sim.sim-page { padding: .4rem .5rem 0; }
   /* Keep the 30:70 left/right split — fix number overlap via cell sizing instead */
   .bet-spot  { font-size: .58rem; padding: .2rem .1rem; min-height: 22px; }
-  .col-bet   { font-size: .3rem; }
-  .zero-cell .bet-spot { font-size: .46rem; }
+  .col-bet   { font-size: .33rem; }
+  .zero-cell .bet-spot { font-size: .52rem; }
 }
 
 /* ============================================================
