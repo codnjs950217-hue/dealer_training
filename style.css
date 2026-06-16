@@ -844,17 +844,18 @@ body {
 }
 
 /* ---- ROULETTE PAYOUT PRACTICE ---- */
+.rpay-sim.sim-page { padding-bottom: 0; }
 .rpay-sim .rpay-table {
   position: relative;
   background: var(--felt);
-  border-radius: 12px;
+  border-radius: 12px 12px 0 0;
   overflow: hidden;
   margin-bottom: 0; flex: 1; min-height: 0;
   display: flex; flex-direction: row;
 }
 .rpay-bet-side {
   flex: 3; min-width: 0; position: relative;
-  padding: clamp(.3rem,.5vh,.45rem) clamp(.3rem,.5vw,.45rem) clamp(.1rem,.2vh,.2rem);
+  padding: clamp(.3rem,.5vh,.45rem) clamp(.3rem,.5vw,.45rem) 0;
   overflow: hidden;
   clip-path: inset(0);
   display: flex; flex-direction: column;
@@ -2061,7 +2062,7 @@ body {
   /* btn-bac sizes handled by clamp() — no override needed */
 
   /* Roulette pay mobile */
-  .rpay-sim.sim-page { padding: .4rem .5rem; }
+  .rpay-sim.sim-page { padding: .4rem .5rem 0; }
 }
 
 /* ============================================================
