@@ -317,7 +317,7 @@ const Views = {
             <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
           </div>
           <div class="bpay-start-overlay" id="rpay-start-overlay">
-            <div class="rpay-wheel" id="rpay-wheel"><div class="rpay-wheel-hub"></div></div>
+            <div class="rpay-wheel" id="rpay-wheel"><div class="rpay-wheel-inner" id="rpay-wheel-inner">${buildWheel()}</div><div class="rpay-wheel-center"></div></div>
             <button class="bpay-start-btn" onclick="Sims.roulettePay.startSpin()">START</button>
           </div>
         </div>
@@ -3200,7 +3200,7 @@ const Sims = {
 
         const ov = $('rpay-start-overlay');
         if (ov) { ov.style.display = 'flex'; ov.classList.remove('rpay-start-overlay-zoomout'); }
-        const wheelEl = $('rpay-wheel');
+        const wheelEl = $('rpay-wheel-inner');
         if (wheelEl) wheelEl.classList.remove('rpay-wheel-spin-fast');
       },
 
@@ -3220,15 +3220,15 @@ const Sims = {
       },
 
       startSpin() {
-        const overlay = $('rpay-start-overlay');
-        const wheel   = $('rpay-wheel');
-        const btn     = overlay && overlay.querySelector('.bpay-start-btn');
+        const overlay     = $('rpay-start-overlay');
+        const wheelInner  = $('rpay-wheel-inner');
+        const btn         = overlay && overlay.querySelector('.bpay-start-btn');
         if (btn) btn.disabled = true;
-        if (wheel) wheel.classList.add('rpay-wheel-spin-fast');
+        if (wheelInner) wheelInner.classList.add('rpay-wheel-spin-fast');
         setTimeout(() => {
           if (overlay) overlay.classList.add('rpay-start-overlay-zoomout');
           setTimeout(() => {
-            if (wheel) wheel.classList.remove('rpay-wheel-spin-fast');
+            if (wheelInner) wheelInner.classList.remove('rpay-wheel-spin-fast');
             if (overlay) overlay.classList.remove('rpay-start-overlay-zoomout');
             if (btn) btn.disabled = false;
             Sims.roulettePay.deal();
@@ -3748,6 +3748,16 @@ const Sims = {
 //  ROULETTE LAYOUT BUILDERS
 // ============================================================
 
+
+function buildWheel() {
+  const WHEEL = [0,32,15,19,4,21,2,25,17,34,6,27,13,36,11,30,8,23,10,5,24,16,33,1,20,14,31,9,22,18,29,7,28,12,35,3,26];
+  const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+  return WHEEL.map((n, i) => {
+    const cls = n === 0 ? 'g' : RED_NUMS.has(n) ? 'r' : 'b';
+    const deg = (i * (360 / 37)).toFixed(2);
+    return `<div class="rpay-wheel-num rpay-wheel-num-${cls}" style="--rot:${deg}deg">${n}</div>`;
+  }).join('');
+}
 
 function buildBettingTable() {
   const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);

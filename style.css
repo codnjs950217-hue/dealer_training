@@ -2496,23 +2496,47 @@ body {
   position: relative;
   width: clamp(96px,32vw,180px);
   height: clamp(96px,32vw,180px);
+  --wheel-r: clamp(31px,10.5vw,62px);
   border-radius: 50%;
   border: 5px solid #c9a84c;
-  background:
-    repeating-conic-gradient(#8b1414 0deg 9.7297deg, #171717 9.7297deg 19.4595deg);
+  background: #111;
   box-shadow: 0 8px 26px rgba(0,0,0,.6), inset 0 0 22px rgba(0,0,0,.55);
+  overflow: hidden;
+}
+.rpay-wheel-inner {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
   animation: rpayWheelSpin 7s linear infinite;
 }
-.rpay-wheel-spin-fast {
+.rpay-wheel-inner.rpay-wheel-spin-fast {
   animation: rpayWheelSpin .5s linear infinite;
 }
-.rpay-wheel-hub {
+.rpay-wheel-num {
   position: absolute;
-  inset: 32%;
+  top: 50%; left: 50%;
+  translate: -50% -50%;
+  width: clamp(10px,3.2vw,17px);
+  height: clamp(10px,3.2vw,17px);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(5px,1.7vw,8px);
+  font-weight: 700;
+  color: #fff;
+  transform: rotate(var(--rot)) translateY(calc(-1 * var(--wheel-r)));
+  user-select: none;
+}
+.rpay-wheel-num-r { background: #c01010; }
+.rpay-wheel-num-b { background: #1c1c1c; outline: 1px solid #555; }
+.rpay-wheel-num-g { background: #187a18; }
+.rpay-wheel-center {
+  position: absolute;
+  inset: 28%;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #f0e0a0, #9a7820 75%);
-  border: 2.5px solid #fff8dc;
+  border: 2px solid #fff8dc;
   box-shadow: 0 2px 8px rgba(0,0,0,.5);
+  z-index: 2;
 }
 @keyframes rpayWheelSpin {
   from { transform: rotate(0deg); }
