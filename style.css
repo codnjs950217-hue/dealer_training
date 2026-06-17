@@ -992,10 +992,10 @@ body {
 
 /* Roulette pay zone: baccarat-style chip spread */
 .rpay-cc-spread {
-  display: flex; flex-direction: row; align-items: flex-end;
+  display: flex; flex-direction: row; align-items: center;
 }
 .rpay-cc-spread .rpay-mini-stack + .rpay-mini-stack { margin-left: -3px; }
-.rpay-cc-spread .rpay-mini-stack + .rpay-cc-disc   { margin-left: -9px; }
+.rpay-cc-spread .rpay-mini-stack + .rpay-cc-disc   { margin-left: 8px; }
 .rpay-cc-spread .rpay-cc-disc { margin-left: -9px; position: relative; }
 .rpay-cc-spread .rpay-cc-disc:first-child { margin-left: 0; }
 .rpay-cc-spread .rpay-cc-disc.rpay-disc-gap5 { margin-left: 4px; }
