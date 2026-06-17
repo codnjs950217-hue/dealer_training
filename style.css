@@ -900,7 +900,7 @@ body {
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   width: fit-content;
-  margin: -.7rem auto .3rem;
+  margin: calc(-1 * (var(--tap-h) + .8rem)) auto .3rem;
   padding: .38rem .7rem;
   background: rgba(255, 140, 0, .18);
   border: 1.5px solid rgba(255, 160, 0, .65);
