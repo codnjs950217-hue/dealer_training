@@ -3064,8 +3064,8 @@ const Sims = {
       if (!zone || !S.roundColor) return;
       const color = S.roundColor;
       const allChipDefs = [
-        ...MONEY_CHIPS,
         { key: 'color', bg: color.bg, fg: color.fg },
+        ...[...MONEY_CHIPS].reverse(),
       ];
 
       // Stack 2D layout positions [col, row] — symmetric pyramid, all rows center at col 3
