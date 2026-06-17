@@ -3143,7 +3143,7 @@ const Sims = {
       if (warnBanner) warnBanner.style.visibility = (colorChipCount >= 120 && !moneyChipUsed) ? 'visible' : 'hidden';
 
       zone.innerHTML = parts.length
-        ? `<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;padding-top:.6rem">${parts.join('')}</div>`
+        ? `<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:18px;padding-top:.6rem">${parts.join('')}</div>`
         : '<div class="rpay-hint-text">왼쪽 베팅구역 확인하고 칩스를 세팅하세요</div>';
     }
 
