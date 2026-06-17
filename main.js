@@ -2731,9 +2731,16 @@ const Sims = {
 
   // ---- ROULETTE PAYOUT PRACTICE (Option A: single-bet drill) ----
   roulettePay: (() => {
-    // Color chip is a fixed 5,000-won unit value (real-table colour chip), not random per round
+    // Color chips — one is picked at random each round (all same 5,000-won unit value)
     const COLOR_CHIPS = [
-      { key: 'white', val: 5_000, bg: '#f0ece4', fg: '#2a2a2a' },
+      { key: 'white',  val: 5_000, bg: '#f0ece4', fg: '#2a2a2a' },
+      { key: 'red',    val: 5_000, bg: '#e53935', fg: '#fff'    },
+      { key: 'blue',   val: 5_000, bg: '#1e88e5', fg: '#fff'    },
+      { key: 'green',  val: 5_000, bg: '#43a047', fg: '#fff'    },
+      { key: 'yellow', val: 5_000, bg: '#fdd835', fg: '#1a1a1a' },
+      { key: 'orange', val: 5_000, bg: '#fb8c00', fg: '#fff'    },
+      { key: 'purple', val: 5_000, bg: '#8e24aa', fg: '#fff'    },
+      { key: 'pink',   val: 5_000, bg: '#e91e8c', fg: '#fff'    },
     ];
     const MONEY_CHIPS = [
       { key: '1M',   val: 1_000_000, bg: '#fdd835', fg: '#1a1a1a' },
