@@ -3018,6 +3018,7 @@ const Sims = {
         </button>`;
 
       panel.innerHTML = `
+        <div class="rpay-min-bet-lbl">MIN BET &nbsp;5,000</div>
         <div class="comm-tray rpay-btray">
           <div class="comm-tray-slots">
             ${ccStk('rpay-tray-body-20', '+20')}

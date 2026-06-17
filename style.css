@@ -940,6 +940,14 @@ body {
   text-shadow: 0 1px 3px rgba(0,0,0,.7); white-space: nowrap;
 }
 .rpay-tray-row { flex-shrink: 0; }
+.rpay-min-bet-lbl {
+  font-size: .58rem;
+  font-weight: 600;
+  color: rgba(255,210,80,.48);
+  letter-spacing: .5px;
+  padding-left: .2rem;
+  margin-bottom: .1rem;
+}
 
 /* Roulette pay zone — chip stack (20개 = 1 full stack) */
 .rpay-chip-stack {
