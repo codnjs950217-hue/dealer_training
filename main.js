@@ -327,6 +327,7 @@ const Views = {
             <button class="comm-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
             <button class="comm-all-reset-btn" onclick="Sims.roulettePay.resetPay()">ALL RESET</button>
           </div>
+          <div id="rpay-chip-warn-banner" style="display:none" class="rpay-chip-warn">⚠ 머니칩스와 함께 세팅하세요</div>
           <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
           <div class="rpay-tray-row" id="rpay-comm-panel"></div>
         </div>
@@ -3012,8 +3013,8 @@ const Sims = {
       if (!zone || !S.roundColor) return;
       const color = S.roundColor;
       const allChipDefs = [
+        ...MONEY_CHIPS,
         { key: 'color', bg: color.bg, fg: color.fg },
-        ...MONEY_CHIPS
       ];
 
       // Stack 2D layout positions [col, row] per stack count (1–6)
@@ -3085,13 +3086,12 @@ const Sims = {
       // Nudge toward money chips when 120+ color chips are set and no money chips are in use
       const colorChipCount = S.payChips.color || 0;
       const moneyChipUsed = MONEY_CHIPS.some(mc => (S.payChips[mc.key] || 0) > 0);
-      const warnHtml = (colorChipCount >= 120 && !moneyChipUsed)
-        ? `<div class="rpay-chip-warn">⚠ 머니칩스와 함께 세팅하세요</div>`
-        : '';
+      const warnBanner = document.getElementById('rpay-chip-warn-banner');
+      if (warnBanner) warnBanner.style.display = (colorChipCount >= 120 && !moneyChipUsed) ? '' : 'none';
 
-      zone.innerHTML = warnHtml + (parts.length
-        ? `<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px">${parts.join('')}</div>`
-        : '<div class="rpay-hint-text">왼쪽 베팅구역 확인하고 칩스를 세팅하세요</div>');
+      zone.innerHTML = parts.length
+        ? `<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;padding-top:.6rem">${parts.join('')}</div>`
+        : '<div class="rpay-hint-text">왼쪽 베팅구역 확인하고 칩스를 세팅하세요</div>';
     }
 
     function showMistake(retry) {
@@ -3130,6 +3130,7 @@ const Sims = {
         if ($('rpay-score'))  $('rpay-score').textContent  = '0';
         if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
         if ($('rpay-pay-zone'))   $('rpay-pay-zone').innerHTML   = '';
+        const wb = $('rpay-chip-warn-banner'); if (wb) wb.style.display = 'none';
         const timerEl = $('rpay-timer');
         if (timerEl) { timerEl.className = 'rpay-timer'; timerEl.textContent = '—'; }
 
