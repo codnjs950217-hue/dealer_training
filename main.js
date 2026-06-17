@@ -3068,7 +3068,7 @@ const Sims = {
         { key: 'color', bg: color.bg, fg: color.fg },
       ];
 
-      // Stack 2D layout positions [col, row] per stack count (1–6)
+      // Stack 2D layout positions [col, row] per stack count (1–10)
       const STACK_LAYOUTS = [
         null,
         [[0, 0]],                                                    // 1: single
@@ -3079,11 +3079,13 @@ const Sims = {
         [[2, 0], [1, 1], [3, 1], [0, 2], [2, 2], [4, 2]],          // 6: pyramid triangle (1-2-3)
         [[1, 0], [3, 0], [0, 1], [2, 1], [4, 1], [1, 2], [3, 2]], // 7: hexagon (2-3-2)
         [[2, 0], [1, 1], [3, 1], [0, 2], [2, 2], [4, 2], [1, 3], [3, 3]], // 8: diamond (1-2-3-2)
+        [[2, 0], [1, 1], [3, 1], [0, 2], [2, 2], [4, 2], [1, 3], [3, 3], [0, 4]], // 9: diamond + lower-left
+        [[2, 0], [1, 1], [3, 1], [0, 2], [2, 2], [4, 2], [1, 3], [3, 3], [0, 4], [4, 4]], // 10: big triangle
       ];
       const STK_W = 38, STK_H = 33;
 
       function makeStackGroup(c, label, count) {
-        const layout = STACK_LAYOUTS[Math.min(count, 8)];
+        const layout = STACK_LAYOUTS[Math.min(count, 10)];
         const colStep = 16;
         const rowStep = 14;
         const maxCol = Math.max(...layout.map(p => p[0]));
@@ -3115,7 +3117,13 @@ const Sims = {
         const spreadCount = rem - miniStacks * 5;
 
         let fsRem = fullStacks;
-        while (fsRem > 0) { const chunk = Math.min(fsRem, 8); parts.push(makeStackGroup(c, label, chunk)); fsRem -= chunk; }
+        let firstGroup = true;
+        while (fsRem > 0) {
+          const chunk = firstGroup ? Math.min(fsRem, 10) : 1;
+          parts.push(makeStackGroup(c, label, chunk));
+          fsRem -= chunk;
+          firstGroup = false;
+        }
 
         if (miniStacks > 0 || spreadCount > 0) {
           let html = `<div class="rpay-cc-spread">`;
