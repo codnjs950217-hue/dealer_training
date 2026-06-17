@@ -900,7 +900,7 @@ body {
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
   width: fit-content;
-  margin: 0 auto .3rem;
+  margin: 0;
   padding: .38rem .7rem;
   background: rgba(255, 140, 0, .18);
   border: 1.5px solid rgba(255, 160, 0, .65);
@@ -1206,6 +1206,7 @@ body {
   flex: 7; min-width: 0; min-height: 0;
   padding: clamp(.3rem,.6vh,.45rem) clamp(.3rem,.5vw,.4rem);
   overflow: hidden;
+  position: relative;
 }
 .rpay-timer {
   font-size: clamp(1.1rem,2.8vw,1.6rem); font-weight: 900;
@@ -2819,14 +2820,15 @@ body {
   min-height: calc(var(--tap-h) + .25rem);
   position: relative;
 }
-.rpay-undo-row .rpay-chip-warn {
+.rpay-right-col .rpay-chip-warn {
   position: absolute;
-  left: 50%;
   top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   margin: 0;
   white-space: nowrap;
-  z-index: 2;
+  z-index: 5;
+  pointer-events: none;
 }
 .comm-undo-btn {
   background: rgba(60,80,120,.45);
