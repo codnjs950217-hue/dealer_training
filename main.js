@@ -2750,9 +2750,34 @@ const Sims = {
     ];
     const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
-    // SVG overlays for color chip visuals (replaces "CC" text)
-    const CC_FACE_SVG = `<svg viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3"><ellipse cx="50" cy="15" rx="45" ry="12" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-dasharray="5 3.5"/></svg>`;
-    const CC_DISC_SVG = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="5" stroke-dasharray="8 5"/></svg>`;
+    // SVG overlays for color chip visuals — realistic 3D casino chip style
+    const CC_FACE_SVG = `<svg viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3">
+  <ellipse cx="50" cy="15" rx="45" ry="12" fill="none"
+    stroke="rgba(255,255,255,.85)" stroke-width="5"
+    stroke-dasharray="13.1 13.1" stroke-dashoffset="6.55"
+    transform="rotate(-90,50,15)"/>
+  <ellipse cx="50" cy="15" rx="47.5" ry="14" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="0.8"/>
+  <ellipse cx="50" cy="11" rx="26" ry="5" fill="rgba(255,255,255,.4)"/>
+</svg>`;
+    const CC_DISC_SVG = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
+  <circle cx="50" cy="50" r="40.5" fill="none"
+    stroke="rgba(255,255,255,.9)" stroke-width="9"
+    stroke-dasharray="15.9 15.9" stroke-dashoffset="7.95"
+    transform="rotate(-90,50,50)"/>
+  <circle cx="50"   cy="9.5"  r="2.4" fill="var(--stk-bg)"/>
+  <circle cx="78.6" cy="21.4" r="2.4" fill="var(--stk-bg)"/>
+  <circle cx="90.5" cy="50"   r="2.4" fill="var(--stk-bg)"/>
+  <circle cx="78.6" cy="78.6" r="2.4" fill="var(--stk-bg)"/>
+  <circle cx="50"   cy="90.5" r="2.4" fill="var(--stk-bg)"/>
+  <circle cx="21.4" cy="78.6" r="2.4" fill="var(--stk-bg)"/>
+  <circle cx="9.5"  cy="50"   r="2.4" fill="var(--stk-bg)"/>
+  <circle cx="21.4" cy="21.4" r="2.4" fill="var(--stk-bg)"/>
+  <circle cx="50" cy="50" r="46"   fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.2"/>
+  <circle cx="50" cy="50" r="35.5" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="1"/>
+  <ellipse cx="57" cy="59" rx="28" ry="28" fill="rgba(0,0,0,.13)"/>
+  <ellipse cx="37" cy="31" rx="16" ry="10" fill="rgba(255,255,255,.3)" transform="rotate(-35,37,31)"/>
+  <ellipse cx="44" cy="22" rx="10" ry="4.5" fill="rgba(255,255,255,.5)"/>
+</svg>`;
 
     function genChips(color, maxCount = 5) {
       const count = 1 + Math.floor(Math.random() * maxCount);
