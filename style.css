@@ -2820,15 +2820,14 @@ body {
   min-height: calc(var(--tap-h) + .25rem);
   position: relative;
 }
-.rpay-right-col .rpay-chip-warn {
+.rpay-undo-row .rpay-chip-warn {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   margin: 0;
   white-space: nowrap;
-  z-index: 5;
-  pointer-events: none;
+  z-index: 2;
 }
 .comm-undo-btn {
   background: rgba(60,80,120,.45);
