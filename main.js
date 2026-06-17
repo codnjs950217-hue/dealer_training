@@ -2743,6 +2743,10 @@ const Sims = {
     ];
     const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
+    // SVG overlays for color chip visuals (replaces "CC" text)
+    const CC_FACE_SVG = `<svg viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3"><ellipse cx="50" cy="15" rx="45" ry="12" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-dasharray="5 3.5"/></svg>`;
+    const CC_DISC_SVG = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="5" stroke-dasharray="8 5"/></svg>`;
+
     function genChips(color, maxCount = 5) {
       const count = 1 + Math.floor(Math.random() * maxCount);
       return { chips: { [color.key]: count }, total: color.val * count };
@@ -2967,7 +2971,7 @@ const Sims = {
           <div id="rpay-order-warn" class="bpay-order-warn" style="display:none"><span>저액 칩스부터 세팅하세요</span></div>
           <div class="comm-tray-slots">
             <div class="comm-slot">
-              <div class="comm-slot-chip" id="rpay-disc-color" style="background:${color.bg};color:${color.fg}">CC</div>
+              <div class="comm-slot-chip" id="rpay-disc-color" style="background:${color.bg};color:${color.fg};position:relative">${CC_DISC_SVG}</div>
               <div class="comm-5k-btns">
                 <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',20)">+20</button>
                 <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',5)">+5</button>
@@ -3039,11 +3043,12 @@ const Sims = {
         const maxRow = Math.max(...layout.map(p => p[1]));
         const cw = maxCol * colStep + STK_W;
         const ch = maxRow * rowStep + STK_H;
+        const isCC = label === 'CC';
         const stackHtml = layout.slice(0, count).map(([col, row]) =>
           `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*colStep}px;top:${row*rowStep}px;z-index:${(row+1)*10+(maxCol-col+1)}">` +
-          `<div class="rpay-chip-stack-face"></div>` +
+          `<div class="rpay-chip-stack-face">${isCC ? CC_FACE_SVG : ''}</div>` +
           `<div class="rpay-chip-stack-body"></div>` +
-          `<span class="rpay-stack-label" style="color:${c.fg}">${label}</span>` +
+          (isCC ? '' : `<span class="rpay-stack-label" style="color:${c.fg}">${label}</span>`) +
           `</div>`
         ).join('');
         return `<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">` +
@@ -3067,16 +3072,17 @@ const Sims = {
 
         if (miniStacks > 0 || spreadCount > 0) {
           let html = `<div class="rpay-cc-spread">`;
+          const isCC2 = label === 'CC';
           for (let i = 0; i < miniStacks; i++) {
             html += `<div class="rpay-chip-stack rpay-mini-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">` +
-              `<div class="rpay-chip-stack-face"></div>` +
+              `<div class="rpay-chip-stack-face">${isCC2 ? CC_FACE_SVG : ''}</div>` +
               `<div class="rpay-chip-stack-body"></div>` +
-              `<span class="rpay-stack-label" style="color:${c.fg}">${label}</span>` +
+              (isCC2 ? '' : `<span class="rpay-stack-label" style="color:${c.fg}">${label}</span>`) +
               `</div>`;
           }
           for (let i = 0; i < spreadCount; i++) {
             const gap = i > 0 && i % 5 === 0 ? ' rpay-disc-gap5' : '';
-            html += `<div class="rpay-cc-disc${gap}" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${label}</div>`;
+            html += `<div class="rpay-cc-disc${gap}" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${isCC2 ? CC_DISC_SVG : label}</div>`;
           }
           html += `</div>`;
           parts.push(html);
