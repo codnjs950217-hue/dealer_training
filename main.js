@@ -2967,33 +2967,36 @@ const Sims = {
     function showTray() {
       const panel = document.getElementById('rpay-comm-panel');
       if (!panel) return;
-      const sp = S.spots[S.spotIdx];
       const color = S.roundColor;
 
       S.payChips = { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
       S.history = [];
 
+      const ccStk = (bodyClass, lbl) =>
+        `<button class="rpay-tray-chip-btn" onclick="Sims.roulettePay.addChip('color',${lbl.slice(1)})">
+          <div class="rpay-tray-stk" style="--stk-bg:${color.bg};--stk-fg:${color.fg}">
+            <div class="rpay-tray-stk-face">${CC_FACE_SVG}</div>
+            <div class="rpay-tray-stk-body ${bodyClass}"></div>
+          </div>
+          <span class="rpay-tray-chip-lbl">${lbl}</span>
+        </button>`;
+
       panel.innerHTML = `
         <div class="comm-tray rpay-btray">
-          <div id="rpay-order-warn" class="bpay-order-warn" style="display:none"><span>저액 칩스부터 세팅하세요</span></div>
           <div class="comm-tray-slots">
-            <div class="comm-slot">
-              <div class="comm-slot-chip" id="rpay-disc-color" style="background:${color.bg};color:${color.fg};position:relative">${CC_DISC_SVG}</div>
-              <div class="comm-5k-btns">
-                <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',20)">+20</button>
-                <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',5)">+5</button>
-                <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('color',1)">+1</button>
-              </div>
-            </div>
+            ${ccStk('rpay-tray-body-20', '+20')}
+            ${ccStk('rpay-tray-body-10', '+10')}
+            ${ccStk('rpay-tray-body-5',  '+5')}
+            <button class="rpay-tray-chip-btn" onclick="Sims.roulettePay.addChip('color',1)">
+              <div class="rpay-tray-disc-cc" style="--stk-bg:${color.bg};--stk-fg:${color.fg}">${CC_DISC_SVG}</div>
+              <span class="rpay-tray-chip-lbl">+1</span>
+            </button>
+            <div class="rpay-tray-sep"></div>
             ${[...MONEY_CHIPS].reverse().map(c => `
-              <div class="comm-slot">
-                <div class="comm-slot-chip" id="rpay-disc-${c.key}" style="background:${c.bg};color:${c.fg}">${c.key}</div>
-                <div class="comm-5k-btns">
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',20)">+20</button>
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',5)">+5</button>
-                  <button class="comm-5k-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">+1</button>
-                </div>
-              </div>`).join('')}
+            <button class="rpay-tray-chip-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">
+              <div class="rpay-tray-disc-mc" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${c.key}</div>
+              <span class="rpay-tray-chip-lbl">+1</span>
+            </button>`).join('')}
             <div class="comm-pay-slot">
               <button class="comm-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
             </div>
