@@ -323,8 +323,8 @@ const Views = {
         <div class="rpay-right-col">
           <div class="rpay-timer" id="rpay-timer">—</div>
           <div class="rpay-undo-row">
-            <button class="comm-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
-            <button class="comm-all-reset-btn" onclick="Sims.roulettePay.resetPay()">ALL RESET</button>
+            <button class="comm-undo-btn" id="rpay-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
+            <button class="comm-all-reset-btn" id="rpay-allreset-btn" onclick="Sims.roulettePay.resetPay()">ALL RESET</button>
             <div id="rpay-chip-warn-banner" style="visibility:hidden" class="rpay-chip-warn">⚠ 머니칩스와 함께 세팅하세요</div>
           </div>
           <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
@@ -3170,6 +3170,12 @@ const Sims = {
     const $ = id => document.getElementById(id);
 
     return {
+      _setControlsVisible(visible) {
+        const u = $('rpay-undo-btn'); const r = $('rpay-allreset-btn');
+        if (u) u.style.visibility = visible ? '' : 'hidden';
+        if (r) r.style.visibility = visible ? '' : 'hidden';
+      },
+
       init() {
         if (S && S.timerInterval) clearInterval(S.timerInterval);
         S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, roundColor: null,
@@ -3177,6 +3183,7 @@ const Sims = {
               history: [], difficulty: 'easy',
               timerStart: null, timerInterval: null };
         hasStarted = false;
+        this._setControlsVisible(false);
       },
 
       setDiff(level) {
@@ -3218,6 +3225,7 @@ const Sims = {
           this.deal();
         } else {
           if (ov) { ov.style.display = 'flex'; ov.classList.remove('rpay-start-overlay-zoomout'); }
+          this._setControlsVisible(false);
         }
       },
 
@@ -3257,6 +3265,7 @@ const Sims = {
         hasStarted = true;
         const ov = $('rpay-start-overlay');
         if (ov) ov.style.display = 'none';
+        this._setControlsVisible(true);
         this._stopTimer();
         const timerEl = $('rpay-timer');
         if (timerEl) { timerEl.className = 'rpay-timer'; timerEl.textContent = '—'; }
