@@ -3166,6 +3166,7 @@ const Sims = {
     }
 
     let S = {};
+    let hasStarted = false;
     const $ = id => document.getElementById(id);
 
     return {
@@ -3175,6 +3176,7 @@ const Sims = {
               payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
               history: [], difficulty: 'easy',
               timerStart: null, timerInterval: null };
+        hasStarted = false;
       },
 
       setDiff(level) {
@@ -3207,9 +3209,16 @@ const Sims = {
         }
 
         const ov = $('rpay-start-overlay');
-        if (ov) { ov.style.display = 'flex'; ov.classList.remove('rpay-start-overlay-zoomout'); }
         const wheelEl = $('rpay-wheel-inner');
         if (wheelEl) wheelEl.classList.remove('rpay-wheel-spin-fast');
+        if (hasStarted) {
+          // Game already in progress: apply the new level immediately instead of
+          // showing the START overlay again.
+          if (ov) { ov.style.display = 'none'; ov.classList.remove('rpay-start-overlay-zoomout'); }
+          this.deal();
+        } else {
+          if (ov) { ov.style.display = 'flex'; ov.classList.remove('rpay-start-overlay-zoomout'); }
+        }
       },
 
       _startTimer() {
@@ -3245,6 +3254,7 @@ const Sims = {
       },
 
       deal() {
+        hasStarted = true;
         const ov = $('rpay-start-overlay');
         if (ov) ov.style.display = 'none';
         this._stopTimer();
