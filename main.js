@@ -3094,10 +3094,10 @@ const Sims = {
         const ch = maxRow * rowStep + STK_H;
         const isCC = label === 'CC';
         const stackHtml = layout.slice(0, count).map(([col, row]) =>
-          `<div class="rpay-chip-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*colStep}px;top:${row*rowStep}px;z-index:${(row+1)*10+(maxCol-col+1)}">` +
-          `<div class="rpay-chip-stack-face">${isCC ? CC_FACE_SVG : ''}</div>` +
-          `<div class="rpay-chip-stack-body"></div>` +
-          (isCC ? '' : `<span class="rpay-stack-label" style="color:${c.fg}">${label}</span>`) +
+          `<div class="rpay-chip-stack${isCC ? '' : ' rpay-chip-stack-mc'}" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*colStep}px;top:${row*rowStep}px;z-index:${(row+1)*10+(maxCol-col+1)}">` +
+          (isCC
+            ? `<div class="rpay-chip-stack-face">${CC_FACE_SVG}</div><div class="rpay-chip-stack-body"></div>`
+            : `<div class="rpay-stack-disc-mc">${label}</div>`) +
           `</div>`
         ).join('');
         return `<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">` +
@@ -3127,10 +3127,10 @@ const Sims = {
           let html = `<div class="rpay-cc-spread">`;
           const isCC2 = label === 'CC';
           for (let i = 0; i < miniStacks; i++) {
-            html += `<div class="rpay-chip-stack rpay-mini-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">` +
-              `<div class="rpay-chip-stack-face">${isCC2 ? CC_FACE_SVG : ''}</div>` +
-              `<div class="rpay-chip-stack-body"></div>` +
-              (isCC2 ? '' : `<span class="rpay-stack-label" style="color:${c.fg}">${label}</span>`) +
+            html += `<div class="rpay-chip-stack rpay-mini-stack${isCC2 ? '' : ' rpay-chip-stack-mc'}" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">` +
+              (isCC2
+                ? `<div class="rpay-chip-stack-face">${CC_FACE_SVG}</div><div class="rpay-chip-stack-body"></div>`
+                : `<div class="rpay-stack-disc-mc">${label}</div>`) +
               `</div>`;
           }
           for (let i = 0; i < spreadCount; i++) {

@@ -998,6 +998,24 @@ body {
 .rpay-cc-spread .rpay-mini-stack .rpay-chip-stack-body { width: var(--ch-sm); height: calc(var(--ch-sm) * .78); }
 .rpay-cc-spread .rpay-cc-disc { z-index: 1; }
 
+/* Money chip stacks in the pay zone — flat plaque, same style as the chip tray's money chip disc */
+.rpay-chip-stack-mc { width: var(--ch-lg); align-items: center; justify-content: center; }
+.rpay-stack-disc-mc {
+  width: clamp(28px, 3.8vw, 34px);
+  height: clamp(28px, 3.8vw, 34px);
+  border-radius: 50%;
+  background: var(--stk-bg);
+  box-shadow: 0 2px 5px rgba(0,0,0,.5), inset 0 1px 3px rgba(255,255,255,.2);
+  border: 1.5px solid rgba(255,255,255,.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(.48rem, .75vw, .6rem); font-weight: 900;
+  color: var(--stk-fg); flex-shrink: 0;
+}
+.rpay-cc-spread .rpay-chip-stack-mc.rpay-mini-stack { width: var(--ch-sm); }
+.rpay-cc-spread .rpay-chip-stack-mc.rpay-mini-stack .rpay-stack-disc-mc {
+  width: var(--ch-sm); height: var(--ch-sm); font-size: var(--bf-xs);
+}
+
 /* Roulette pay zone: baccarat-style chip spread */
 .rpay-cc-spread {
   display: flex; flex-direction: row; align-items: center;
@@ -1022,17 +1040,6 @@ body {
   overflow: hidden;
 }
 
-/* Label on top chip face of each stack */
-.rpay-stack-label {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: clamp(10px,1.5vw,14px);
-  display: flex; align-items: center; justify-content: center;
-  font-size: clamp(6px,.9vw,8px); font-weight: 900; line-height: 1;
-  z-index: 3;
-  pointer-events: none;
-  text-shadow: 0 1px 2px rgba(0,0,0,.6);
-}
 /* Spread row wrapping stacks + loose discs */
 .rpay-spread-row { display: flex; flex-direction: row; align-items: flex-end; flex-wrap: wrap; gap: 4px; }
 
