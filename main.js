@@ -2800,10 +2800,19 @@ const Sims = {
     function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
 
     function getValidSpots(N) {
+      const byType = [];
+
+      if (N === 0) {
+        byType.push({ type:'Straight', pays:35, nums:[0] });
+        byType.push({ type:'Split', pays:17, nums: pick([[0,1],[0,2],[0,3]]) });
+        byType.push({ type:'Trio', pays:11, nums: pick([[0,1,2],[0,2,3]]) });
+        byType.push({ type:'Basket', pays:8, nums:[0,1,2,3] });
+        return byType;
+      }
+
       const row = Math.floor((N-1)/3);
       const col = (N-1) % 3;
       const s1  = row*3+1;
-      const byType = [];
 
       byType.push({ type:'Straight', pays:35, nums:[N] });
 
@@ -2890,7 +2899,7 @@ const Sims = {
             // Use actual cell boundaries for exact border placement
             x = (Math.max(...cs.map(c => c.left)) + Math.min(...cs.map(c => c.right))) / 2;
             y = (Math.max(...cs.map(c => c.top))  + Math.min(...cs.map(c => c.bottom))) / 2;
-          } else if (sp.type === 'Corner') {
+          } else if (sp.type === 'Corner' || sp.type === 'Trio' || sp.type === 'Basket') {
             const cs = sp.nums.map(n => cc(n)).filter(Boolean);
             if (!cs.length) return;
             x = (Math.max(...cs.map(c => c.left)) + Math.min(...cs.map(c => c.right))) / 2;
@@ -3274,7 +3283,7 @@ const Sims = {
         if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
 
         let N;
-        do { N = 1+Math.floor(Math.random()*36); } while (N === S.lastNum);
+        do { N = Math.floor(Math.random()*37); } while (N === S.lastNum);
         S.lastNum = N;
         S.winNum = N;
         S.spotIdx = 0;
