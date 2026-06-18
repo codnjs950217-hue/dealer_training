@@ -683,21 +683,24 @@ body {
   align-items: stretch; flex: 1; min-height: 0;
 }
 
-/* Dealer below players, centered */
+/* Dealer below players, centered — cards (+ controls) on top, DEALER label below */
 .dealer-area-bj {
   width: 100%;
+  margin-top: clamp(.5rem,2vh,1.2rem);
   position: relative;
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
   align-items: center;
   justify-content: center;
-  gap: .5rem;
+  gap: .3rem .5rem;
 }
+.dealer-area-bj .hand-display { grid-column: 1; grid-row: 1; justify-self: center; }
+.dealer-area-bj .dealer-ctrl-area { grid-column: 2; grid-row: 1; }
 .dealer-area-bj .area-label {
-  position: absolute;
-  left: .5rem;
-  top: 50%;
-  transform: translateY(-50%);
+  grid-column: 1 / -1;
+  grid-row: 2;
+  justify-self: center;
   margin-bottom: 0;
 }
 .dealer-area-bj .hand-display {
@@ -1946,6 +1949,16 @@ body {
 
 /* Label at the bottom (closest to dealer) */
 .player-spot .area-label { order: 10; }
+
+/* Per-hand pay-test timer, shown above the Pay/Push/Take buttons */
+.bj-pay-timer {
+  flex-basis: 100%;
+  text-align: center;
+  font-size: .68rem;
+  font-weight: 800;
+  color: #ffd700;
+  font-variant-numeric: tabular-nums;
+}
 
 /* ---- BLACKJACK: CARD DIAGONAL CASCADE ---- */
 

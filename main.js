@@ -1114,8 +1114,8 @@ const Sims = {
     const clearDealerCtrl = () => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = ''; };
     const setSpotAct  = (i, h) => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = h; };
     const clearSpotAct = i     => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = ''; };
-    const enableStart  = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = false; e.style.opacity = ''; e.textContent = 'Start'; } };
-    const disableStart = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = true;  e.style.opacity = '0.4'; } };
+    const enableStart  = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = false; e.style.opacity = ''; e.style.display = ''; e.textContent = 'Start'; } };
+    const disableStart = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = true;  e.style.opacity = '0.4'; e.style.display = 'none'; } };
 
     function bval(c) {
       if (c.rank === 'A') return 11;
@@ -1176,6 +1176,21 @@ const Sims = {
       if (dv < 17) return true;
       if (dv === 17 && isSoftHand(hand)) return true;
       return false;
+    }
+    function stopPayTimer() {
+      if (S.payTimerInterval) { clearInterval(S.payTimerInterval); S.payTimerInterval = null; }
+    }
+    function startPayTimer(i) {
+      stopPayTimer();
+      S.payTimerStart = performance.now();
+      const el = $(`bj-pay-timer-${i}`);
+      if (el) el.textContent = '0s';
+      S.payTimerInterval = setInterval(() => {
+        const e = $(`bj-pay-timer-${i}`);
+        if (!e) return;
+        const sec = Math.floor((performance.now() - S.payTimerStart) / 1000);
+        e.textContent = `${sec}s`;
+      }, 200);
     }
     function adjustDealerLayout() {
       const wrapEl = $('bj-dealer-wrap');
@@ -1330,17 +1345,20 @@ const Sims = {
 
       S.phase = 'pay-test';
       const i = S.payTestIdx;
-      setSpotAct(i, `<div class="spot-pay-row">
+      setSpotAct(i, `<div class="bj-pay-timer" id="bj-pay-timer-${i}">0s</div>
+      <div class="spot-pay-row">
         <button class="spot-btn spot-pay-btn"  onclick="Sims.blackjack.testAnswer('pay')">Pay</button>
         <button class="spot-btn spot-push-btn" onclick="Sims.blackjack.testAnswer('push')">Push</button>
         <button class="spot-btn spot-take-btn" onclick="Sims.blackjack.testAnswer('take')">Take</button>
       </div>`);
+      startPayTimer(i);
       renderPlayers();
       msg(`Player ${i + 1}: Pay, Push, or Take?`);
       actions('');
     }
 
     function showFinalResult() {
+      stopPayTimer();
       S.phase = 'done';
       for (let i = 0; i < N; i++) clearSpotAct(i);
       renderPlayers();
@@ -1361,11 +1379,13 @@ const Sims = {
     return {
       init() {
         S = { deck: createDeck(6), players: [], dh: [], current: 0, dealerPhase: false,
-              rounds: 0, score: 0, pendingAction: null, payTestIdx: 4, phase: 'idle' };
+              rounds: 0, score: 0, pendingAction: null, payTestIdx: 4, phase: 'idle',
+              payTimerStart: null, payTimerInterval: null };
         bjFlipId = 0;
       },
 
       newGame() {
+        stopPayTimer();
         if (S.deck.length < 30) S.deck = createDeck(6);
         S.players = Array.from({length: N}, () => ({ hand: [], status: 'active', hideCards: false }));
         S.dh = [];
