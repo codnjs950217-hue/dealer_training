@@ -2822,9 +2822,9 @@ body {
 }
 .rpay-undo-row .rpay-chip-warn {
   position: absolute;
-  top: 50%;
+  top: 100%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, .3rem);
   margin: 0;
   white-space: nowrap;
   z-index: 2;
