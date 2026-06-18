@@ -3111,9 +3111,12 @@ const Sims = {
         if (!cnt) return;
 
         const label = c.key === 'color' ? 'CC' : c.key;
+        const isCC2 = label === 'CC';
         const fullStacks = Math.floor(cnt / 20);
         const rem = cnt % 20;
-        const miniStacks = rem >= 5 ? Math.max(0, Math.floor(rem / 5) - 1) : 0;
+        // Money chips have no smaller "mini-stack" tier in the tray — every
+        // remainder chip stays at full tray-disc size, so skip that tier here.
+        const miniStacks = isCC2 && rem >= 5 ? Math.max(0, Math.floor(rem / 5) - 1) : 0;
         const spreadCount = rem - miniStacks * 5;
 
         let fsRem = fullStacks;
@@ -3125,12 +3128,11 @@ const Sims = {
 
         if (miniStacks > 0 || spreadCount > 0) {
           let html = `<div class="rpay-cc-spread">`;
-          const isCC2 = label === 'CC';
+          // miniStacks is only ever >0 for color chips (CC) — money chips have
+          // no smaller mini-stack tier in the tray, see above.
           for (let i = 0; i < miniStacks; i++) {
-            html += `<div class="rpay-chip-stack rpay-mini-stack${isCC2 ? '' : ' rpay-chip-stack-mc'}" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">` +
-              (isCC2
-                ? `<div class="rpay-chip-stack-face">${CC_FACE_SVG}</div><div class="rpay-chip-stack-body"></div>`
-                : `<div class="rpay-stack-disc-mc">${label}</div>`) +
+            html += `<div class="rpay-chip-stack rpay-mini-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">` +
+              `<div class="rpay-chip-stack-face">${CC_FACE_SVG}</div><div class="rpay-chip-stack-body"></div>` +
               `</div>`;
           }
           for (let i = 0; i < spreadCount; i++) {
