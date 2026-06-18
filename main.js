@@ -2736,7 +2736,7 @@ const Sims = {
       { key: 'red',    val: 5_000, bg: '#e53935', fg: '#fff'    },
       { key: 'blue',   val: 5_000, bg: '#1e88e5', fg: '#fff'    },
       { key: 'green',  val: 5_000, bg: '#43a047', fg: '#fff'    },
-      { key: 'yellow', val: 5_000, bg: '#fdd835', fg: '#1a1a1a' },
+      { key: 'teal',   val: 5_000, bg: '#00897b', fg: '#fff'    },
       { key: 'orange', val: 5_000, bg: '#fb8c00', fg: '#fff'    },
       { key: 'purple', val: 5_000, bg: '#8e24aa', fg: '#fff'    },
       { key: 'pink',   val: 5_000, bg: '#e91e8c', fg: '#fff'    },
