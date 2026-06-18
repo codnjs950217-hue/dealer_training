@@ -1015,9 +1015,12 @@ body {
 .rpay-cc-spread .rpay-chip-stack-mc.rpay-mini-stack .rpay-stack-disc-mc {
   width: var(--ch-sm); height: var(--ch-sm); font-size: var(--bf-xs);
 }
-/* Remainder (<5) money chip discs — flat, no gradient/text-shadow, matching the tray */
+/* Remainder (<5) money chip discs — exact match to the tray's money chip disc */
 .rpay-cc-disc-mc {
+  width: clamp(28px, 3.8vw, 34px);
+  height: clamp(28px, 3.8vw, 34px);
   background: var(--stk-bg);
+  font-size: clamp(.48rem, .75vw, .6rem);
   text-shadow: none;
 }
 
