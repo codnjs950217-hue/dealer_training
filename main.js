@@ -3117,12 +3117,10 @@ const Sims = {
         const spreadCount = rem - miniStacks * 5;
 
         let fsRem = fullStacks;
-        let firstGroup = true;
         while (fsRem > 0) {
-          const chunk = firstGroup ? Math.min(fsRem, 10) : 1;
+          const chunk = Math.min(fsRem, 10);
           parts.push(makeStackGroup(c, label, chunk));
           fsRem -= chunk;
-          firstGroup = false;
         }
 
         if (miniStacks > 0 || spreadCount > 0) {
