@@ -1950,9 +1950,9 @@ body {
 /* Label at the bottom (closest to dealer) */
 .player-spot .area-label { order: 10; }
 
-/* Per-hand pay-test timer, shown above the Pay/Push/Take buttons */
+/* Per-hand pay-test timer — sits at the top of each spot, above the cards */
 .bj-pay-timer {
-  flex-basis: 100%;
+  min-height: .9rem;
   text-align: center;
   font-size: .68rem;
   font-weight: 800;

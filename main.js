@@ -239,6 +239,7 @@ const Views = {
           <div class="players-row">
             ${[0,1,2,3,4].map(i => `
               <div class="player-spot" id="bj-spot-${i}">
+                <div class="bj-pay-timer" id="bj-pay-timer-${i}"></div>
                 <div class="hand-display" id="bj-hand-${i}"><div class="hand-cards"></div></div>
                 <div class="spot-status-wrap" id="bj-status-${i}"></div>
                 <div class="spot-inline-act" id="bj-spot-act-${i}"></div>
@@ -1335,7 +1336,10 @@ const Sims = {
     }
 
     function startPayTest() {
-      for (let i = 0; i < N; i++) clearSpotAct(i);
+      for (let i = 0; i < N; i++) {
+        clearSpotAct(i);
+        const t = $(`bj-pay-timer-${i}`); if (t) t.textContent = '';
+      }
       while (S.payTestIdx >= 0) {
         const p = S.players[S.payTestIdx];
         if (p.status === 'bust' || p.hideCards) { S.payTestIdx--; continue; }
@@ -1345,8 +1349,7 @@ const Sims = {
 
       S.phase = 'pay-test';
       const i = S.payTestIdx;
-      setSpotAct(i, `<div class="bj-pay-timer" id="bj-pay-timer-${i}">0s</div>
-      <div class="spot-pay-row">
+      setSpotAct(i, `<div class="spot-pay-row">
         <button class="spot-btn spot-pay-btn"  onclick="Sims.blackjack.testAnswer('pay')">Pay</button>
         <button class="spot-btn spot-push-btn" onclick="Sims.blackjack.testAnswer('push')">Push</button>
         <button class="spot-btn spot-take-btn" onclick="Sims.blackjack.testAnswer('take')">Take</button>
