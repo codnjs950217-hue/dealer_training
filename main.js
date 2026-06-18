@@ -3782,7 +3782,7 @@ function buildWheel() {
   return WHEEL.map((n, i) => {
     const cls = n === 0 ? 'g' : RED_NUMS.has(n) ? 'r' : 'b';
     const deg = (i * (360 / 37)).toFixed(2);
-    return `<div class="rpay-wheel-num rpay-wheel-num-${cls}" style="--rot:${deg}deg">${n}</div>`;
+    return `<div class="rpay-wheel-pocket rpay-wheel-pocket-${cls}" style="--rot:${deg}deg"><span class="rpay-wheel-pocket-num">${n}</span></div>`;
   }).join('');
 }
 

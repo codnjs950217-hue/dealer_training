@@ -2514,7 +2514,6 @@ body {
   position: relative;
   width: clamp(96px,32vw,180px);
   height: clamp(96px,32vw,180px);
-  --wheel-r: clamp(31px,10.5vw,62px);
   border-radius: 50%;
   border: 5px solid #c9a84c;
   background: #111;
@@ -2530,23 +2529,33 @@ body {
 .rpay-wheel-inner.rpay-wheel-spin-fast {
   animation: rpayWheelSpin .5s linear infinite;
 }
-.rpay-wheel-num {
+/* Wedge-shaped pocket — a pie slice from the hub to the rim, like a real wheel */
+.rpay-wheel-pocket {
   position: absolute;
-  top: 50%; left: 50%;
-  translate: -50% -50%;
-  width: clamp(10px,3.2vw,17px);
-  height: clamp(10px,3.2vw,17px);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
+  inset: 0;
+  clip-path: polygon(50% 50%, 45.74% 0%, 54.26% 0%);
+  transform: rotate(var(--rot));
+  transform-origin: 50% 50%;
+}
+.rpay-wheel-pocket::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-left: 1px solid rgba(0,0,0,.4);
+  border-right: 1px solid rgba(0,0,0,.4);
+  clip-path: inherit;
+}
+.rpay-wheel-pocket-r { background: #c01010; }
+.rpay-wheel-pocket-b { background: #1c1c1c; }
+.rpay-wheel-pocket-g { background: #187a18; }
+.rpay-wheel-pocket-num {
+  position: absolute;
+  top: 7%; left: 50%;
+  translate: -50% 0;
   font-size: clamp(5px,1.7vw,8px);
   font-weight: 700;
   color: #fff;
-  transform: rotate(var(--rot)) translateY(calc(-1 * var(--wheel-r)));
   user-select: none;
 }
-.rpay-wheel-num-r { background: #c01010; }
-.rpay-wheel-num-b { background: #1c1c1c; outline: 1px solid #555; }
-.rpay-wheel-num-g { background: #187a18; }
 .rpay-wheel-center {
   position: absolute;
   inset: 28%;
