@@ -3135,7 +3135,7 @@ const Sims = {
           }
           for (let i = 0; i < spreadCount; i++) {
             const gap = i > 0 && i % 5 === 0 ? ' rpay-disc-gap5' : '';
-            html += `<div class="rpay-cc-disc${gap}" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${isCC2 ? CC_DISC_SVG : label}</div>`;
+            html += `<div class="rpay-cc-disc${isCC2 ? '' : ' rpay-cc-disc-mc'}${gap}" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${isCC2 ? CC_DISC_SVG : label}</div>`;
           }
           html += `</div>`;
           parts.push(html);

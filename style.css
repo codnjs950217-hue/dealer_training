@@ -1015,6 +1015,11 @@ body {
 .rpay-cc-spread .rpay-chip-stack-mc.rpay-mini-stack .rpay-stack-disc-mc {
   width: var(--ch-sm); height: var(--ch-sm); font-size: var(--bf-xs);
 }
+/* Remainder (<5) money chip discs — flat, no gradient/text-shadow, matching the tray */
+.rpay-cc-disc-mc {
+  background: var(--stk-bg);
+  text-shadow: none;
+}
 
 /* Roulette pay zone: baccarat-style chip spread */
 .rpay-cc-spread {
