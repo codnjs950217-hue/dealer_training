@@ -2814,7 +2814,7 @@ body {
 .comm-all-reset-btn:active { transform: scale(.95); }
 
 .rpay-undo-row {
-  display: flex; align-items: center; justify-content: center; gap: .4rem;
+  display: flex; align-items: center; justify-content: space-between; gap: .4rem;
   padding: .15rem 0 .1rem;
   flex-shrink: 0;
   min-height: calc(var(--tap-h) + .25rem);
