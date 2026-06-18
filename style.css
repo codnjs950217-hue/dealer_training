@@ -2826,6 +2826,10 @@ body {
 .rpay-undo-row .rpay-chip-warn {
   margin: 0;
   white-space: nowrap;
+  order: 1;
+}
+.rpay-undo-row .comm-all-reset-btn {
+  order: 2;
 }
 .comm-undo-btn {
   background: rgba(60,80,120,.45);
