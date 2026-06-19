@@ -375,36 +375,38 @@ const Views = {
         <div class="baccarat-table">
           <div class="bside-mid-row">
             <div class="bside-layout-pane">
-              <div class="bpay-positions bside-layout">
-                ${[1].map(i => `
-                  <div class="bpay-pos bside-pos-wrap" id="bside-pos-${i}">
-                    <div class="bside-pos-main">
-                      <div class="bside-oval-pair-row">
-                        <div class="bpay-oval bpay-p-oval bside-gray-oval" id="bside-p-${i}">
-                          <div class="bpay-oval-lbl">PLAYER</div>
-                          <div class="bpay-oval-amt" id="bside-p-amt-${i}"></div>
+              <div class="bside-zoom-stage" id="bside-zoom-stage">
+                <div class="bpay-positions bside-layout">
+                  ${[1].map(i => `
+                    <div class="bpay-pos bside-pos-wrap" id="bside-pos-${i}">
+                      <div class="bside-pos-main">
+                        <div class="bside-oval-pair-row">
+                          <div class="bpay-oval bpay-p-oval bside-gray-oval" id="bside-p-${i}">
+                            <div class="bpay-oval-lbl">PLAYER</div>
+                            <div class="bpay-oval-amt" id="bside-p-amt-${i}"></div>
+                          </div>
+                          <div class="bpay-pair-circ bpay-ppair" id="bside-pp-${i}">P<br>PAIR<span class="bside-pair-pay">×11</span><div class="bpay-circ-bet" id="bside-pp-amt-${i}"></div></div>
                         </div>
-                        <div class="bpay-pair-circ bpay-ppair" id="bside-pp-${i}">P<br>PAIR<span class="bside-pair-pay">×11</span><div class="bpay-circ-bet" id="bside-pp-amt-${i}"></div></div>
-                      </div>
-                      <div class="bside-oval-pair-row">
-                        <div class="bpay-oval bpay-b-oval bside-gray-oval" id="bside-b-${i}">
-                          <div class="bpay-oval-lbl">BANKER</div>
-                          <div class="bpay-oval-amt" id="bside-b-amt-${i}"></div>
+                        <div class="bside-oval-pair-row">
+                          <div class="bpay-oval bpay-b-oval bside-gray-oval" id="bside-b-${i}">
+                            <div class="bpay-oval-lbl">BANKER</div>
+                            <div class="bpay-oval-amt" id="bside-b-amt-${i}"></div>
+                          </div>
+                          <div class="bpay-pair-circ bpay-bpair" id="bside-bp-${i}">B<br>PAIR<span class="bside-pair-pay">×11</span><div class="bpay-circ-bet" id="bside-bp-amt-${i}"></div></div>
                         </div>
-                        <div class="bpay-pair-circ bpay-bpair" id="bside-bp-${i}">B<br>PAIR<span class="bside-pair-pay">×11</span><div class="bpay-circ-bet" id="bside-bp-amt-${i}"></div></div>
+                        <div class="bpay-circles bside-line6">
+                          <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-bt-${i}"><span class="bside-big-num">6</span>BIG<span class="bpay-circ-pay">×50</span><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div></div>
+                          <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tie bside-oval-bet" id="bside-tt-${i}"><span class="bside-big-num">TIE</span><span class="bpay-circ-pay">×8</span><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div></div>
+                          <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-st-${i}"><span class="bside-big-num">6</span>SMALL<span class="bpay-circ-pay">×22</span><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div></div>
+                        </div>
+                        <div class="bpay-circles bside-line7">
+                          <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-bd-${i}"><span class="bside-big-num">7</span>BIG<span class="bpay-circ-pay">×30</span><div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div></div>
+                          <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-s7-${i}"><span class="bside-big-num">7</span>SUPER 7<span class="bpay-circ-pay" id="bside-s7-pay-${i}">×30/40/100</span><div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div></div>
+                          <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-sd-${i}"><span class="bside-big-num">7</span>SMALL<span class="bpay-circ-pay">×15</span><div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div></div>
+                        </div>
                       </div>
-                      <div class="bpay-circles bside-line6">
-                        <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-bt-${i}"><span class="bside-big-num">6</span>BIG<span class="bpay-circ-pay">×50</span><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div></div>
-                        <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tie bside-oval-bet" id="bside-tt-${i}"><span class="bside-big-num">TIE</span><span class="bpay-circ-pay">×8</span><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div></div>
-                        <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-st-${i}"><span class="bside-big-num">6</span>SMALL<span class="bpay-circ-pay">×22</span><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div></div>
-                      </div>
-                      <div class="bpay-circles bside-line7">
-                        <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-bd-${i}"><span class="bside-big-num">7</span>BIG<span class="bpay-circ-pay">×30</span><div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div></div>
-                        <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-s7-${i}"><span class="bside-big-num">7</span>SUPER 7<span class="bpay-circ-pay" id="bside-s7-pay-${i}">×30/40/100</span><div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div></div>
-                        <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-sd-${i}"><span class="bside-big-num">7</span>SMALL<span class="bpay-circ-pay">×15</span><div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div></div>
-                      </div>
-                    </div>
-                  </div>`).join('')}
+                    </div>`).join('')}
+                </div>
               </div>
             </div>
             <div class="bside-chipset-pane">
@@ -2633,6 +2635,33 @@ const Sims = {
       setTimeout(() => { ov.remove(); retryFn(); }, 1600);
     }
 
+    function zoomToKey(key) {
+      const pane  = document.querySelector('.bside-layout-pane');
+      const stage = $('bside-zoom-stage');
+      const target = $(`bside-${key}-1`);
+      if (!pane || !stage || !target) return;
+      // Reset to the unscaled layout before measuring raw positions
+      stage.style.transition = '';
+      stage.style.transform = '';
+      requestAnimationFrame(() => {
+        const pRect = pane.getBoundingClientRect();
+        const tRect = target.getBoundingClientRect();
+        if (!pRect.width || !pRect.height || !tRect.width || !tRect.height) return;
+        const cx = tRect.left - pRect.left + tRect.width  / 2;
+        const cy = tRect.top  - pRect.top  + tRect.height / 2;
+        // Enlarge the active bet cell to ~55% of the pane's width/height, capped at 2.6x
+        const scale = Math.max(1, Math.min(
+          (pRect.width  * 0.55) / tRect.width,
+          (pRect.height * 0.55) / tRect.height,
+          2.6
+        ));
+        const dx = pRect.width  / 2 - cx * scale;
+        const dy = pRect.height / 2 - cy * scale;
+        stage.style.transition = 'transform .35s ease';
+        stage.style.transform = `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+      });
+    }
+
     return {
       init() {
         S = { rounds: 0, score: 0, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0 };
@@ -2683,6 +2712,7 @@ const Sims = {
         document.querySelector('.bside-layout')?.classList.add('bside-quiz-mode');
 
         showPayTray();
+        zoomToKey(key);
       },
 
       addChip(key, n) {
