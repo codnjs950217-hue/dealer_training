@@ -2594,7 +2594,7 @@ const Sims = {
     }
 
     function showMistake(retryFn) {
-      const tbl = document.querySelector('.baccarat-table');
+      const tbl = document.querySelector('#bside-content .baccarat-table');
       if (!tbl) return;
       const ov = document.createElement('div');
       ov.className = 'mistake-overlay';
@@ -2604,7 +2604,7 @@ const Sims = {
     }
 
     function showNextHand() {
-      const tbl = document.querySelector('.baccarat-table');
+      const tbl = document.querySelector('#bside-content .baccarat-table');
       if (!tbl) { Sims.baccaratSide.deal(); return; }
       const ov = document.createElement('div');
       ov.className = 'next-hand-overlay';
