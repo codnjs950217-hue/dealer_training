@@ -2477,20 +2477,9 @@ const Sims = {
 
     function generateSideChips(key) {
       const maxAmt = SIDE_BET_MAX[key] ?? 1_000_000;
-      const round = S.rounds;
-      // Progressive difficulty: 1-color only early, 3-color unlocked after round 5
-      let target;
-      if (round <= 2) {
-        target = 1;
-      } else if (round <= 4) {
-        target = Math.random() < 0.60 ? 1 : 2;
-      } else if (round <= 7) {
-        const r = Math.random();
-        target = r < 0.30 ? 1 : r < 0.85 ? 2 : 3;
-      } else {
-        const r = Math.random();
-        target = r < 0.20 ? 1 : r < 0.70 ? 2 : 3;
-      }
+      // Roughly out of every 10 questions: 7 one-color, 2 two-color, 1 three-color
+      const r = Math.random();
+      const target = r < 0.70 ? 1 : r < 0.90 ? 2 : 3;
       const numColors = (target === 3 && maxAmt >= 1_100_000) ? 3 : Math.min(target, 2);
 
       if (numColors === 1) {
