@@ -1599,11 +1599,12 @@ body {
 /* ---- BACCARAT: WIN HEADER + ANNOUNCE ---- */
 
 .bac-win-announce {
-  display: block; text-align: center;
+  display: inline-block; text-align: center;
   font-size: clamp(1.7rem,5.5vh,3rem); font-weight: 900;
   letter-spacing: clamp(4px,.9vw,9px);
   white-space: nowrap; line-height: 1.18;
-  background: none; border: none; padding: 0;
+  padding: clamp(.3rem,.8vh,.6rem) clamp(.8rem,2vw,1.4rem);
+  border-radius: 12px;
 }
 .bac-win-over-divider {
   position: absolute; left: 50%; transform: translateX(-50%);
@@ -1611,34 +1612,28 @@ body {
   top: clamp(.5rem, 1.8vh, 1.1rem);
 }
 .bac-win-sub {
+  display: inline-block;
   font-size: clamp(1.7rem,5.5vh,3rem); font-weight: 900;
   letter-spacing: clamp(4px,.9vw,9px);
-  background: none; border: none;
+  padding: clamp(.3rem,.8vh,.6rem) clamp(.8rem,2vw,1.4rem);
+  border-radius: 12px;
+  margin-top: .3rem;
 }
 
-/* Premium gradient text — banker gold */
+/* Same flat badge treatment as the pinned result-badge — banker gold */
 .bac-win-announce.banker-win,
 .bac-win-sub.banker-win {
-  background: linear-gradient(170deg, #ffe988 0%, #d4a84c 48%, #8c6414 100%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 1px 4px rgba(0,0,0,.8));
+  background: rgba(255,215,0,.15); color: #FFD700; border: 1px solid #FFD700;
 }
-/* Premium gradient text — player red */
+/* Same flat badge treatment as the pinned result-badge — player red */
 .bac-win-announce.player-win,
 .bac-win-sub.player-win {
-  background: linear-gradient(170deg, #ff8888 0%, #dd1818 48%, #7a0000 100%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 1px 4px rgba(0,0,0,.8));
+  background: rgba(221,24,24,.16); color: #dd1818; border: 1px solid rgba(221,24,24,.7);
 }
-/* Premium gradient text — tie green */
+/* Same flat badge treatment as the pinned result-badge — tie green */
 .bac-win-announce.tie-win,
 .bac-win-sub.tie-win {
-  background: linear-gradient(170deg, #b8f8a0 0%, #6ec864 48%, #2c6e18 100%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 1px 4px rgba(0,0,0,.8));
+  background: rgba(110,200,100,.18); color: #6ec864; border: 1px solid #6ec864;
 }
 .bac-win-sep { color: rgba(255,255,255,.35); font-size: 1.2rem; }
 
