@@ -2655,6 +2655,16 @@ const Sims = {
           chipWrap.style.transform = `scale(${(1 / scale).toFixed(4)})`;
         }
 
+        // Push the ×mult label up clear of the chip stack once it wraps to 2+ rows
+        // and grows taller than the circle itself (it's centered, so it grows upward
+        // as much as downward).
+        const multLabel = target.querySelector('.bside-circ-mult-above');
+        if (multLabel && chipWrap) {
+          const chipRect = chipWrap.getBoundingClientRect();
+          const overflowAboveTop = tRect.top - chipRect.top;
+          multLabel.style.marginBottom = `${3 + Math.max(0, overflowAboveTop)}px`;
+        }
+
         // Show the full layout briefly before animating the zoom-in
         clearTimeout(zoomTimer);
         zoomTimer = setTimeout(() => {
