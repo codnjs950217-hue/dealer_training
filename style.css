@@ -3443,11 +3443,6 @@ body {
 }
 .bside-lose-circ { opacity: 0.28; }
 .bside-paying-circ {
-  box-shadow:
-    0 0 0 3px #fff,
-    0 0 0 5px rgba(255,255,255,.4),
-    0 0 18px 6px rgba(255,255,255,.55) !important;
-  border-color: #fff !important;
   opacity: 1 !important;
 }
 .bside-gray-oval {
