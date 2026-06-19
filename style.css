@@ -2759,7 +2759,7 @@ body {
 #bside-content .spread-row {
   flex-wrap: wrap; flex-direction: row;
   align-content: center;
-  gap: .35rem .6rem;
+  gap: .6rem 1.3rem;
   width: 100%;
 }
 .spread-disc {
