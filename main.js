@@ -2257,10 +2257,7 @@ const Sims = {
           anyPrev = true;
         }
       });
-      if (!html) {
-        section.innerHTML = '<div class="rpay-hint-text">위쪽 베팅 칩스를 확인하고 칩스를 세팅하세요</div>';
-        return;
-      }
+      if (!html) { section.innerHTML = ''; return; }
       section.innerHTML = `<div class="spread-row">${html}</div>`;
       const _row = section.querySelector('.spread-row');
       if (_row) { const ow = _row.offsetWidth, cw = section.clientWidth; if (ow > cw && cw > 0) _row.style.transform = `scale(${(cw / ow).toFixed(4)})`; }
@@ -2383,7 +2380,7 @@ const Sims = {
           const bAmt  = $(`bpay-b-amt-${j}`); if (bAmt) bAmt.innerHTML = '';
           const pAmt  = $(`bpay-p-amt-${j}`); if (pAmt) pAmt.innerHTML = '';
         }
-        const spread = $('bpay-spread-section'); if (spread) spread.innerHTML = '<div class="rpay-hint-text">위쪽 베팅 칩스를 확인하고 칩스를 세팅하세요</div>';
+        const spread = $('bpay-spread-section'); if (spread) spread.innerHTML = '';
         S.bets = Array.from({length: 1}, () => {
           const chips = generateBetChips();
           return { chips, total: chipTotal(chips) };
