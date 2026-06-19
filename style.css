@@ -2686,7 +2686,7 @@ body {
   display: flex; flex-direction: column;
   position: relative;
 }
-.bside-chipset-pane .bpay-spread-section { flex: 1; min-height: 0; }
+.bside-chipset-pane .bpay-spread-section { flex: 1; min-height: 0; border-top: none; margin-top: 0; }
 #bside-content .bpay-comm-panel   { flex: 0 0 auto; margin-top: .3rem; }
 
 .comm-tray {
