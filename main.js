@@ -2669,11 +2669,12 @@ const Sims = {
         zoomTimer = setTimeout(() => {
           stage.style.transition = 'transform .5s ease';
           stage.style.transform = `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${scale.toFixed(3)})`;
-          // Cancel this bet's specific zoom ratio so the chips land back at exactly
-          // the commission/half-pay size once the zoom-in finishes.
+          // Let the chips grow proportionally with their own (now-enlarged) circle,
+          // same as the label/text — no counter-scale, so every bet type is treated
+          // identically instead of forcing chips to a fixed absolute pixel size.
           if (chipWrap) {
             chipWrap.style.transition = 'transform .5s ease';
-            chipWrap.style.transform = `scale(${(1 / scale).toFixed(4)})`;
+            chipWrap.style.transform = 'scale(1)';
           }
         }, 700);
       });
