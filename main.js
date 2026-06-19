@@ -2466,7 +2466,11 @@ const Sims = {
     const SIDE_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[4]];
     const SIDE_KEYS  = ['st','tt','bt','sd','s7','bd','pp','bp'];
     const SIDE_BET_MIN = 10_000;
-    const SIDE_BET_MAX = { bt: 1_000_000, bd: 1_000_000, s7: 500_000 };
+    const SIDE_BET_MAX = {
+      s7: 2_000_000,
+      bt: 500_000, bd: 500_000,
+      tt: 50_000_000, pp: 50_000_000, bp: 50_000_000, st: 50_000_000, sd: 50_000_000,
+    };
 
     let S = {};
     const $ = id => document.getElementById(id);
