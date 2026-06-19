@@ -2563,7 +2563,10 @@ const Sims = {
         }
         groups.push(`<div class="spread-group">${discs}</div>`);
       });
-      if (!groups.length) { section.innerHTML = ''; return; }
+      if (!groups.length) {
+        section.innerHTML = '<div class="rpay-hint-text">왼쪽 베팅 구역을 확인하고 칩스를 세팅하세요</div>';
+        return;
+      }
       section.innerHTML = `<div class="spread-row">${groups.join('')}</div>`;
     }
 
@@ -2572,7 +2575,7 @@ const Sims = {
       const spread = $('bside-spread-section');
       if (!panel) return;
       panel.style.display = 'block';
-      if (spread) { spread.style.display = 'flex'; spread.innerHTML = ''; }
+      if (spread) { spread.style.display = 'flex'; spread.innerHTML = '<div class="rpay-hint-text">왼쪽 베팅 구역을 확인하고 칩스를 세팅하세요</div>'; }
       panel.innerHTML = `<div class="comm-tray">
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
