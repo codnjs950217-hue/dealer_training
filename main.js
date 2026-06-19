@@ -1988,13 +1988,19 @@ const Sims = {
               rounds: keepRounds, score: keepScore, winner: null, bets: [] };
         $('bac-rounds').textContent = S.rounds;
         $('bac-score').textContent = S.score;
-        enableDraw();
+        if (isRestart) {
+          // In-app restart: skip the START/Next Hand button screen and deal right away.
+          this.deal();
+        } else {
+          enableDraw();
+        }
       },
 
       deal() {
         if (S.deck.length < 20) S.deck = createBacDeck();
         S.ph = []; S.bh = []; S.pThird = null; S.winner = null;
         S.rounds++;
+        $('bac-rounds').textContent = S.rounds;
         disableDraw();
 
         $('bac-ph').innerHTML   = '';
