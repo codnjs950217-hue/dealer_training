@@ -2655,12 +2655,12 @@ body {
   gap: clamp(.3rem,.8vw,.6rem);
 }
 .bside-layout-pane {
-  flex: 3; min-width: 0;
+  flex: 1 1 50%; min-width: 0;
   display: flex; flex-direction: column;
 }
 .bside-layout-pane .bpay-positions { flex: 1; min-height: 0; overflow: visible; }
 .bside-chipset-pane {
-  flex: 2; min-width: 0;
+  flex: 1 1 50%; min-width: 0;
   display: flex; flex-direction: column;
   position: relative;
 }
