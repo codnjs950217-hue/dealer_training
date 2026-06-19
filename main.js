@@ -2617,6 +2617,7 @@ const Sims = {
     }
 
     const ZOOM_OUT_CHIP_SCALE = 0.55;
+    const ZOOM_IN_SCALE = 1.8;
     let zoomTimer = null;
     function zoomToKey(key) {
       const pane  = document.querySelector('.bside-layout-pane');
@@ -2635,12 +2636,9 @@ const Sims = {
         if (!pRect.width || !pRect.height || !tRect.width || !tRect.height) return;
         const cx = tRect.left - pRect.left + tRect.width  / 2;
         const cy = tRect.top  - pRect.top  + tRect.height / 2;
-        // Enlarge the active bet cell to ~55% of the pane's width/height, capped at 2.6x
-        const scale = Math.max(1, Math.min(
-          (pRect.width  * 0.55) / tRect.width,
-          (pRect.height * 0.55) / tRect.height,
-          2.6
-        ));
+        // Same fixed zoom ratio for every bet type — only the pan target (which
+        // cell to center on) differs, not how much it magnifies.
+        const scale = ZOOM_IN_SCALE;
         const dx = pRect.width  / 2 - cx * scale;
         const dy = pRect.height / 2 - cy * scale;
 
@@ -2669,12 +2667,11 @@ const Sims = {
         zoomTimer = setTimeout(() => {
           stage.style.transition = 'transform .5s ease';
           stage.style.transform = `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${scale.toFixed(3)})`;
-          // Let the chips grow proportionally with their own (now-enlarged) circle,
-          // same as the label/text — no counter-scale, so every bet type is treated
-          // identically instead of forcing chips to a fixed absolute pixel size.
+          // Cancel the (now-constant, same-for-every-bet) zoom ratio so chips land
+          // back at exactly the commission/half-pay size once zoomed in.
           if (chipWrap) {
             chipWrap.style.transition = 'transform .5s ease';
-            chipWrap.style.transform = 'scale(1)';
+            chipWrap.style.transform = `scale(${(1 / scale).toFixed(4)})`;
           }
         }, 700);
       });
