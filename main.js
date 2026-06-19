@@ -2616,6 +2616,7 @@ const Sims = {
       setTimeout(() => { ov.remove(); Sims.baccaratSide.deal(); }, 1600);
     }
 
+    const ZOOM_OUT_CHIP_SCALE = 0.55;
     let zoomTimer = null;
     function zoomToKey(key) {
       const pane  = document.querySelector('.bside-layout-pane');
@@ -2643,13 +2644,14 @@ const Sims = {
         const dx = pRect.width  / 2 - cx * scale;
         const dy = pRect.height / 2 - cy * scale;
 
-        // Pre-shrink the chip discs now, while the stage is still unscaled, by the
-        // exact inverse of the upcoming zoom ratio. This constant counter-scale never
-        // changes: zoomed out, chips look proportionally smaller (1/scale); once the
-        // stage scales up by `scale`, they land back at the commission/half-pay size.
+        // Pre-shrink the chip discs to the same fixed size for every bet type while
+        // zoomed out (independent of `scale`, which varies with how small the bet
+        // cell is — without this, small cells like the pair circles would pre-shrink
+        // their chips much more than wide cells, looking inconsistently tiny).
         if (chipWrap) {
           chipWrap.style.transformOrigin = 'center center';
-          chipWrap.style.transform = `scale(${(1 / scale).toFixed(4)})`;
+          chipWrap.style.transition = '';
+          chipWrap.style.transform = `scale(${ZOOM_OUT_CHIP_SCALE})`;
         }
 
         // Push the ×mult label up clear of the chip stack once it wraps to 2+ rows
@@ -2667,6 +2669,12 @@ const Sims = {
         zoomTimer = setTimeout(() => {
           stage.style.transition = 'transform .5s ease';
           stage.style.transform = `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+          // Cancel this bet's specific zoom ratio so the chips land back at exactly
+          // the commission/half-pay size once the zoom-in finishes.
+          if (chipWrap) {
+            chipWrap.style.transition = 'transform .5s ease';
+            chipWrap.style.transform = `scale(${(1 / scale).toFixed(4)})`;
+          }
         }, 700);
       });
     }
