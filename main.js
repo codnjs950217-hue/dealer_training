@@ -51,6 +51,8 @@ const App = {
   navigate(game, mode) {
     this._game = game; this._mode = mode || null;
     this.closeSidebar();
+    const titleEl = document.getElementById('top-bar-title');
+    if (titleEl) titleEl.style.display = game === 'home' ? 'none' : 'block';
     document.querySelectorAll('.sidebar-link, .sidebar-sub-link').forEach(el => {
       el.classList.toggle('active',
         el.dataset.game === game && el.dataset.mode === (mode || ''));
