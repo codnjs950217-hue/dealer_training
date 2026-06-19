@@ -2570,30 +2570,6 @@ const Sims = {
       section.innerHTML = `<div class="spread-row">${groups.join('')}</div>`;
     }
 
-    function neededKeysForTarget(target) {
-      const needed = new Set();
-      let rem = target;
-      for (const c of COMM_CHIPS) {
-        if (rem >= c.val) { needed.add(c.key); rem -= Math.floor(rem / c.val) * c.val; }
-      }
-      return needed;
-    }
-
-    let warnTimer = null;
-    function showOrderWarning() {
-      const w = $('bside-order-warn');
-      if (!w) return;
-      const span = w.querySelector('span');
-      if (span) { span.style.animation = 'none'; void span.offsetWidth; span.style.animation = ''; }
-      w.style.display = 'flex';
-      clearTimeout(warnTimer);
-      warnTimer = setTimeout(() => {
-        w.style.display = 'none';
-        COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
-        updateSpread();
-      }, 2800);
-    }
-
     function showPayTray() {
       const panel = $('bside-comm-panel');
       const spread = $('bside-spread-section');
@@ -2601,7 +2577,6 @@ const Sims = {
       panel.style.display = 'block';
       if (spread) { spread.style.display = 'flex'; spread.innerHTML = ''; }
       panel.innerHTML = `<div class="comm-tray">
-        <div id="bside-order-warn" class="bpay-order-warn"><span>저액 칩스부터 세팅하세요</span></div>
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
             <div class="comm-slot">
@@ -2714,13 +2689,6 @@ const Sims = {
       addChip(key, n) {
         const chip = COMM_CHIPS.find(c => c.key === key);
         if (!chip) return;
-        const needed = neededKeysForTarget(S.payTarget);
-        const lowerUnset = COMM_CHIPS.some(c =>
-          c.val < chip.val &&
-          needed.has(c.key) &&
-          (parseInt($(`bside-ci-${c.key}`)?.value) || 0) === 0
-        );
-        if (lowerUnset) { showOrderWarning(); return; }
         const inp = $(`bside-ci-${key}`);
         if (!inp) return;
         inp.value = (parseInt(inp.value) || 0) + n;
