@@ -2555,23 +2555,19 @@ const Sims = {
     function updateSpread() {
       const section = $('bside-spread-section');
       if (!section) return;
-      let html = '';
-      let anyPrev = false;
+      const groups = [];
       COMM_CHIPS.forEach(c => {
         const cnt = parseInt($(`bside-ci-${c.key}`)?.value) || 0;
         if (!cnt) return;
+        let discs = '';
         for (let j = 0; j < cnt; j++) {
-          let cls = 'spread-disc';
-          if (j === 0 && anyPrev)        cls += ' spread-gap';
-          else if (j > 0 && j % 5 === 0) cls += ' spread-gap5';
-          html += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`;
-          anyPrev = true;
+          const cls = (j > 0 && j % 5 === 0) ? 'spread-disc spread-gap5' : 'spread-disc';
+          discs += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`;
         }
+        groups.push(`<div class="spread-group">${discs}</div>`);
       });
-      if (!html) { section.innerHTML = ''; return; }
-      section.innerHTML = `<div class="spread-row">${html}</div>`;
-      const _row = section.querySelector('.spread-row');
-      if (_row) { const ow = _row.offsetWidth, cw = section.clientWidth; if (ow > cw && cw > 0) _row.style.transform = `scale(${(cw / ow).toFixed(4)})`; }
+      if (!groups.length) { section.innerHTML = ''; return; }
+      section.innerHTML = `<div class="spread-row">${groups.join('')}</div>`;
     }
 
     function neededKeysForTarget(target) {

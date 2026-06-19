@@ -2754,6 +2754,14 @@ body {
   display: flex; align-items: center; justify-content: center; flex-wrap: nowrap;
   transform-origin: center center;
 }
+.spread-group { display: flex; align-items: center; }
+/* Option Bet: wrap by denomination group instead of shrinking to fit one line */
+#bside-content .spread-row {
+  flex-wrap: wrap; flex-direction: row;
+  align-content: center;
+  gap: .35rem .6rem;
+  width: 100%;
+}
 .spread-disc {
   width: var(--ch-md); height: var(--ch-md); border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
