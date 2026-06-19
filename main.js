@@ -2618,10 +2618,12 @@ const Sims = {
       const pane  = document.querySelector('.bside-layout-pane');
       const stage = $('bside-zoom-stage');
       const target = $(`bside-${key}-1`);
+      const chipWrap = $(`bside-${key}-amt-1`)?.querySelector('.bside-bet-spread');
       if (!pane || !stage || !target) return;
       // Show the full layout first, unscaled, then zoom in after a brief pause
       stage.style.transition = '';
       stage.style.transform = '';
+      if (chipWrap) { chipWrap.style.transition = ''; chipWrap.style.transform = ''; }
       clearTimeout(zoomTimer);
       zoomTimer = setTimeout(() => {
         requestAnimationFrame(() => {
@@ -2640,6 +2642,13 @@ const Sims = {
           const dy = pRect.height / 2 - cy * scale;
           stage.style.transition = 'transform .5s ease';
           stage.style.transform = `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+          // Counter-scale the chip discs so they stay at the commission/half-pay
+          // chip size on screen instead of growing along with the zoom.
+          if (chipWrap) {
+            chipWrap.style.transformOrigin = 'center center';
+            chipWrap.style.transition = 'transform .5s ease';
+            chipWrap.style.transform = `scale(${(1 / scale).toFixed(4)})`;
+          }
         });
       }, 700);
     }
