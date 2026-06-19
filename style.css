@@ -3567,22 +3567,22 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   align-content: center;
-  gap: 2px 7px;
-  max-width: 120px;
+  gap: 4px 10px;
+  max-width: 190px;
 }
 .bside-bet-group { display: flex; align-items: center; }
 .bside-bet-disc {
-  width: clamp(13px,1.7vw,18px);
-  height: clamp(13px,1.7vw,18px);
+  width: var(--ch-md);
+  height: var(--ch-md);
   border-radius: 50%;
-  margin-left: -6px;
-  font-size: clamp(.32rem,.55vw,.4rem);
+  margin-left: -12px;
+  font-size: var(--bf-sm);
   font-weight: 900;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1.5px solid rgba(255,255,255,.55);
-  box-shadow: 0 1px 3px rgba(0,0,0,.4);
+  border: 2px solid rgba(255,255,255,.22);
+  box-shadow: 0 2px 6px rgba(0,0,0,.5);
   flex-shrink: 0;
 }
 .bside-big-num {
@@ -3593,7 +3593,7 @@ body {
   letter-spacing: -1px;
 }
 .bside-bet-disc:first-child { margin-left: 0; }
-.bside-bet-disc.group5gap   { margin-left: 4px; }
+.bside-bet-disc.group5gap   { margin-left: 8px; }
 
 @media (max-width: 768px) {
   /* baccarat-table padding now handled by .bside-sim .baccarat-table above */
