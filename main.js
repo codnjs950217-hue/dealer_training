@@ -47,8 +47,11 @@ const App = {
     const open = document.querySelector('.sidebar')?.classList.toggle('sidebar-open');
     document.getElementById('sidebar-overlay')?.classList.toggle('active', open);
   },
-  reload() { this.navigate(this._game, this._mode); },
-  navigate(game, mode) {
+  // In-app restart (↺ button): re-deal/re-init the current sim but keep its
+  // accumulated Rounds/Score — only a real page load or coming back from the
+  // home screen should zero those out.
+  reload() { this.navigate(this._game, this._mode, true); },
+  navigate(game, mode, isRestart) {
     this._game = game; this._mode = mode || null;
     this.closeSidebar();
     const titleEl = document.getElementById('top-bar-title');
@@ -64,20 +67,20 @@ const App = {
     if (mode === 'simulation') {
       if (game === 'blackjack') el.innerHTML = Views.blackjackSim();
       if (game === 'baccarat')  el.innerHTML = Views.baccaratSim();
-      Sims[game] && Sims[game].init();
+      Sims[game] && Sims[game].init(isRestart);
     }
     if (mode === 'paysim' && game === 'baccarat') {
       el.innerHTML = Views.baccaratPaySim();
-      Sims.baccaratPay && Sims.baccaratPay.init();
+      Sims.baccaratPay && Sims.baccaratPay.init(isRestart);
     }
     if (mode === 'paysim' && game === 'roulette') {
       el.innerHTML = Views.roulettePaySim();
-      Sims.roulettePay && Sims.roulettePay.init();
+      Sims.roulettePay && Sims.roulettePay.init(isRestart);
     }
     if (game === 'poker') {
-      if (mode === 'isp') { el.innerHTML = Views.ispSim(); Sims.poker.isp.init(); }
-      if (mode === 'tcp') { el.innerHTML = Views.tcpSim(); Sims.poker.tcp.init(); }
-      if (mode === 'thp') { el.innerHTML = Views.thpRankSim(); Sims.poker.thpRank.init(); }
+      if (mode === 'isp') { el.innerHTML = Views.ispSim(); Sims.poker.isp.init(isRestart); }
+      if (mode === 'tcp') { el.innerHTML = Views.tcpSim(); Sims.poker.tcp.init(isRestart); }
+      if (mode === 'thp') { el.innerHTML = Views.thpRankSim(); Sims.poker.thpRank.init(isRestart); }
     }
     window.scrollTo(0, 0);
   },
@@ -1390,11 +1393,14 @@ const Sims = {
     }
 
     return {
-      init() {
+      init(isRestart) {
+        const keepRounds = isRestart && S ? S.rounds : 0;
+        const keepScore  = isRestart && S ? S.score  : 0;
         S = { deck: createDeck(6), players: [], dh: [], current: 0, dealerPhase: false,
-              rounds: 0, score: 0, pendingAction: null, payTestIdx: 4, phase: 'idle',
+              rounds: keepRounds, score: keepScore, pendingAction: null, payTestIdx: 4, phase: 'idle',
               payTimerStart: null, payTimerInterval: null };
         bjFlipId = 0;
+        stats();
       },
 
       newGame() {
@@ -1975,9 +1981,13 @@ const Sims = {
     }
 
     return {
-      init() {
+      init(isRestart) {
+        const keepRounds = isRestart && S ? S.rounds : 0;
+        const keepScore  = isRestart && S ? S.score  : 0;
         S = { deck: createBacDeck(), ph: [], bh: [], pThird: null,
-              rounds: 0, score: 0, winner: null, bets: [] };
+              rounds: keepRounds, score: keepScore, winner: null, bets: [] };
+        $('bac-rounds').textContent = S.rounds;
+        $('bac-score').textContent = S.score;
         enableDraw();
       },
 
@@ -2339,11 +2349,11 @@ const Sims = {
 
       restart() {
         const cur = S.mode || 'commission';
-        S = { bets: [], commIdx: 0, rounds: 0, score: 0, commTarget: 0, mode: cur, lastTotal: 0 };
-        this.setMode(cur);
+        S = { bets: [], commIdx: 0, rounds: S.rounds, score: S.score, commTarget: 0, mode: cur, lastTotal: 0 };
+        this.setMode(cur, true);
       },
 
-      setMode(mode) {
+      setMode(mode, isRestart) {
         S.mode = mode;
         const btnComm = document.getElementById('bpay-btn-commission');
         const btnHalf = document.getElementById('bpay-btn-halfpay');
@@ -2360,7 +2370,7 @@ const Sims = {
           if (bsideContent) bsideContent.style.display = '';
           if (statsComm) statsComm.style.display = 'none';
           if (statsSide) statsSide.style.display = '';
-          if (Sims.baccaratSide) { Sims.baccaratSide.init(); Sims.baccaratSide.deal(); }
+          if (Sims.baccaratSide) { Sims.baccaratSide.init(isRestart); Sims.baccaratSide.deal(); }
         } else {
           if (bpayContent) bpayContent.style.display = '';
           if (bsideContent) bsideContent.style.display = 'none';
@@ -2671,8 +2681,11 @@ const Sims = {
     }
 
     return {
-      init() {
-        S = { rounds: 0, score: 0, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0 };
+      init(isRestart) {
+        const keepRounds = isRestart && S ? S.rounds : 0;
+        const keepScore  = isRestart && S ? S.score  : 0;
+        S = { rounds: keepRounds, score: keepScore, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0 };
+        if ($('bside-score')) $('bside-score').textContent = S.score;
       },
 
       deal() {
@@ -3440,9 +3453,11 @@ const Sims = {
       const $  = id => document.getElementById(id);
       const sh = (id, h) => { const e = $(id); if (e) e.innerHTML = h; };
 
-      function init() {
-        S = { rounds: 0, score: 0, phase: 'idle' };
-        sh('pk-rounds', '0'); sh('pk-score', '0');
+      function init(isRestart) {
+        const keepRounds = isRestart ? S.rounds : 0;
+        const keepScore  = isRestart ? S.score  : 0;
+        S = { rounds: keepRounds, score: keepScore, phase: 'idle' };
+        sh('pk-rounds', S.rounds); sh('pk-score', S.score);
         sh('pk-player-hand', ''); sh('pk-dealer-hand', ''); sh('pk-comm-hand', '');
         sh('pk-player-rank', ''); sh('pk-dealer-rank', '');
         sh('pk-quiz', ''); sh('pk-result', '');
@@ -3792,11 +3807,13 @@ const Sims = {
         S.phase = 'idle';
       }
 
-      function init() {
+      function init(isRestart) {
         clearCd();
-        S = { rounds: 0, score: 0, phase: 'idle', activePlayer: null, results: [] };
-        var r = $('thpr-rounds');    if (r)  r.textContent  = '0';
-        var sc = $('thpr-score');    if (sc) sc.textContent = '0';
+        var keepRounds = isRestart && S ? S.rounds : 0;
+        var keepScore  = isRestart && S ? S.score  : 0;
+        S = { rounds: keepRounds, score: keepScore, phase: 'idle', activePlayer: null, results: [] };
+        var r = $('thpr-rounds');    if (r)  r.textContent  = S.rounds;
+        var sc = $('thpr-score');    if (sc) sc.textContent = S.score;
         var f = $('thpr-feedback');  if (f)  f.innerHTML    = '';
         var cd = $('thpr-countdown');
         if (cd) { cd.textContent = ''; cd.className = 'thpr-countdown'; }
