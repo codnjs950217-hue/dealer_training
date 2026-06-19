@@ -2606,31 +2606,35 @@ const Sims = {
       setTimeout(() => { ov.remove(); retryFn(); }, 1600);
     }
 
+    let zoomTimer = null;
     function zoomToKey(key) {
       const pane  = document.querySelector('.bside-layout-pane');
       const stage = $('bside-zoom-stage');
       const target = $(`bside-${key}-1`);
       if (!pane || !stage || !target) return;
-      // Reset to the unscaled layout before measuring raw positions
+      // Show the full layout first, unscaled, then zoom in after a brief pause
       stage.style.transition = '';
       stage.style.transform = '';
-      requestAnimationFrame(() => {
-        const pRect = pane.getBoundingClientRect();
-        const tRect = target.getBoundingClientRect();
-        if (!pRect.width || !pRect.height || !tRect.width || !tRect.height) return;
-        const cx = tRect.left - pRect.left + tRect.width  / 2;
-        const cy = tRect.top  - pRect.top  + tRect.height / 2;
-        // Enlarge the active bet cell to ~55% of the pane's width/height, capped at 2.6x
-        const scale = Math.max(1, Math.min(
-          (pRect.width  * 0.55) / tRect.width,
-          (pRect.height * 0.55) / tRect.height,
-          2.6
-        ));
-        const dx = pRect.width  / 2 - cx * scale;
-        const dy = pRect.height / 2 - cy * scale;
-        stage.style.transition = 'transform .35s ease';
-        stage.style.transform = `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${scale.toFixed(3)})`;
-      });
+      clearTimeout(zoomTimer);
+      zoomTimer = setTimeout(() => {
+        requestAnimationFrame(() => {
+          const pRect = pane.getBoundingClientRect();
+          const tRect = target.getBoundingClientRect();
+          if (!pRect.width || !pRect.height || !tRect.width || !tRect.height) return;
+          const cx = tRect.left - pRect.left + tRect.width  / 2;
+          const cy = tRect.top  - pRect.top  + tRect.height / 2;
+          // Enlarge the active bet cell to ~55% of the pane's width/height, capped at 2.6x
+          const scale = Math.max(1, Math.min(
+            (pRect.width  * 0.55) / tRect.width,
+            (pRect.height * 0.55) / tRect.height,
+            2.6
+          ));
+          const dx = pRect.width  / 2 - cx * scale;
+          const dy = pRect.height / 2 - cy * scale;
+          stage.style.transition = 'transform .5s ease';
+          stage.style.transform = `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${scale.toFixed(3)})`;
+        });
+      }, 700);
     }
 
     return {
