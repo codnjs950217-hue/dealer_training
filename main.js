@@ -2620,37 +2620,42 @@ const Sims = {
       const target = $(`bside-${key}-1`);
       const chipWrap = $(`bside-${key}-amt-1`)?.querySelector('.bside-bet-spread');
       if (!pane || !stage || !target) return;
-      // Show the full layout first, unscaled, then zoom in after a brief pause
+      // Reset to the unscaled layout before measuring raw positions
       stage.style.transition = '';
       stage.style.transform = '';
       if (chipWrap) { chipWrap.style.transition = ''; chipWrap.style.transform = ''; }
-      clearTimeout(zoomTimer);
-      zoomTimer = setTimeout(() => {
-        requestAnimationFrame(() => {
-          const pRect = pane.getBoundingClientRect();
-          const tRect = target.getBoundingClientRect();
-          if (!pRect.width || !pRect.height || !tRect.width || !tRect.height) return;
-          const cx = tRect.left - pRect.left + tRect.width  / 2;
-          const cy = tRect.top  - pRect.top  + tRect.height / 2;
-          // Enlarge the active bet cell to ~55% of the pane's width/height, capped at 2.6x
-          const scale = Math.max(1, Math.min(
-            (pRect.width  * 0.55) / tRect.width,
-            (pRect.height * 0.55) / tRect.height,
-            2.6
-          ));
-          const dx = pRect.width  / 2 - cx * scale;
-          const dy = pRect.height / 2 - cy * scale;
+
+      requestAnimationFrame(() => {
+        const pRect = pane.getBoundingClientRect();
+        const tRect = target.getBoundingClientRect();
+        if (!pRect.width || !pRect.height || !tRect.width || !tRect.height) return;
+        const cx = tRect.left - pRect.left + tRect.width  / 2;
+        const cy = tRect.top  - pRect.top  + tRect.height / 2;
+        // Enlarge the active bet cell to ~55% of the pane's width/height, capped at 2.6x
+        const scale = Math.max(1, Math.min(
+          (pRect.width  * 0.55) / tRect.width,
+          (pRect.height * 0.55) / tRect.height,
+          2.6
+        ));
+        const dx = pRect.width  / 2 - cx * scale;
+        const dy = pRect.height / 2 - cy * scale;
+
+        // Pre-shrink the chip discs now, while the stage is still unscaled, by the
+        // exact inverse of the upcoming zoom ratio. This constant counter-scale never
+        // changes: zoomed out, chips look proportionally smaller (1/scale); once the
+        // stage scales up by `scale`, they land back at the commission/half-pay size.
+        if (chipWrap) {
+          chipWrap.style.transformOrigin = 'center center';
+          chipWrap.style.transform = `scale(${(1 / scale).toFixed(4)})`;
+        }
+
+        // Show the full layout briefly before animating the zoom-in
+        clearTimeout(zoomTimer);
+        zoomTimer = setTimeout(() => {
           stage.style.transition = 'transform .5s ease';
           stage.style.transform = `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${scale.toFixed(3)})`;
-          // Counter-scale the chip discs so they stay at the commission/half-pay
-          // chip size on screen instead of growing along with the zoom.
-          if (chipWrap) {
-            chipWrap.style.transformOrigin = 'center center';
-            chipWrap.style.transition = 'transform .5s ease';
-            chipWrap.style.transform = `scale(${(1 / scale).toFixed(4)})`;
-          }
-        });
-      }, 700);
+        }, 700);
+      });
     }
 
     return {
