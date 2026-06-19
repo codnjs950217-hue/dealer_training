@@ -2953,33 +2953,30 @@ body {
 }
 .bac-start-top-btn:disabled { opacity: .4; cursor: default; }
 
-@keyframes nextHandPulse {
-  0%, 100% { box-shadow: 0 4px 22px rgba(200,160,20,.6), 0 0 0 0 rgba(230,200,30,.45); }
-  50%       { box-shadow: 0 4px 22px rgba(200,160,20,.6), 0 0 0 8px rgba(230,200,30,0); }
-}
 .bac-next-hand-btn {
   position: absolute;
   bottom: clamp(8px,1.8vh,14px); right: clamp(8px,1.5vw,14px);
   z-index: 10;
-  background: linear-gradient(135deg, #e8c93a 0%, #c49a10 100%);
-  border: 2px solid rgba(255,230,80,.75);
-  color: #1a1000;
-  border-radius: 12px;
-  padding: clamp(.75rem,1.9vh,1.1rem) clamp(1.7rem,4.2vw,3.2rem);
-  font-size: clamp(1.05rem,2.6vh,1.28rem);
+  background: linear-gradient(135deg, #c9a84c 0%, #9a7820 100%);
+  border: none;
+  color: #1a1200;
+  border-radius: 50px;
+  padding: clamp(.55rem,1.5vh,.85rem) clamp(1.6rem,4vw,2.6rem);
+  font-size: clamp(.9rem,2.2vh,1.05rem);
   font-weight: 900; letter-spacing: 2px;
   cursor: pointer;
-  min-height: clamp(50px,8vh,66px);
+  min-height: clamp(42px,7vh,56px);
   display: flex; align-items: center; justify-content: center;
-  animation: nextHandPulse 1.8s ease-in-out infinite;
-  transition: all .18s;
+  box-shadow: 0 4px 18px rgba(201,168,76,.45);
+  transition: transform .1s, box-shadow .1s;
 }
 .bac-next-hand-btn:hover {
-  background: linear-gradient(135deg, #f5d84a 0%, #d4aa20 100%);
-  border-color: rgba(255,240,100,.95);
-  box-shadow: 0 8px 32px rgba(210,170,20,.75);
-  transform: translateY(-2px);
-  animation: none;
+  box-shadow: 0 6px 22px rgba(201,168,76,.55);
+  transform: translateY(-1px);
+}
+.bac-next-hand-btn:active {
+  transform: scale(.96);
+  box-shadow: 0 2px 8px rgba(201,168,76,.3);
 }
 
 /* ---- BACCARAT: SPECIAL-OUTCOME QUIZ BUTTONS ---- */
