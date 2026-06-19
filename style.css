@@ -100,10 +100,11 @@ body {
 }
 .top-bar-title {
   margin-left: auto;
-  font-size: clamp(.62rem,1.4vw,.8rem); font-weight: 800; color: var(--gold);
-  letter-spacing: 1px; user-select: none;
+  font-size: clamp(.62rem,1.4vw,.8rem); font-weight: 900; color: #fff;
+  text-transform: uppercase; letter-spacing: .5px; user-select: none;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.top-bar-title .gold { color: var(--gold); }
 .hamburger-btn {
   background: none; border: none; padding: .3rem .25rem;
   display: flex; flex-direction: column; gap: 4px;
