@@ -2606,6 +2606,16 @@ const Sims = {
       setTimeout(() => { ov.remove(); retryFn(); }, 1600);
     }
 
+    function showNextHand() {
+      const tbl = document.querySelector('.baccarat-table');
+      if (!tbl) { Sims.baccaratSide.deal(); return; }
+      const ov = document.createElement('div');
+      ov.className = 'next-hand-overlay';
+      ov.innerHTML = '<div class="next-hand-text">NEXT HAND</div>';
+      tbl.appendChild(ov);
+      setTimeout(() => { ov.remove(); Sims.baccaratSide.deal(); }, 1600);
+    }
+
     let zoomTimer = null;
     function zoomToKey(key) {
       const pane  = document.querySelector('.bside-layout-pane');
@@ -2737,22 +2747,17 @@ const Sims = {
           });
           return;
         }
-        // Correct — flash green then deal next
+        // Correct — flash green, then show the NEXT HAND screen like commission/half-pay
         const circ = $(`bside-${S.currentKey}-1`);
         if (circ) { circ.classList.remove('bside-paying-circ'); circ.classList.add('bside-win-circ'); }
         COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
-        // Show CORRECT in the spread (chip placement) area with animation
-        const spread = $('bside-spread-section');
-        if (spread) {
-          spread.style.display = 'flex';
-          spread.innerHTML = '<div class="bside-correct-inline">✓ CORRECT!</div>';
-        }
+        updateSpread();
         S.score++;
         $('bside-score').textContent = S.score;
         // Reset Super 7 label back to all options
         const s7lbl = $('bside-s7-pay-1');
         if (s7lbl) s7lbl.textContent = '×30/40/100';
-        setTimeout(() => { Sims.baccaratSide.deal(); }, 900);
+        showNextHand();
       },
     };
   })(),

@@ -2627,23 +2627,6 @@ body {
 }
 .bpay-start-btn:active { transform: scale(.96); box-shadow: 0 2px 8px rgba(201,168,76,.3); }
 
-/* Correct answer overlay */
-/* Correct answer inline — shown inside the spread (chip placement) area */
-.bside-correct-inline {
-  display: inline-block;
-  color: #fff;
-  font-size: 1.45rem; font-weight: 900; letter-spacing: 3px;
-  white-space: nowrap;
-  animation: bsideCorrectPop .85s ease-out forwards;
-}
-@keyframes bsideCorrectPop {
-  0%   { opacity: 0; transform: scale(.78); }
-  18%  { opacity: 1; transform: scale(1.07); }
-  32%  { transform: scale(1); }
-  70%  { opacity: 1; }
-  100% { opacity: 0; transform: scale(1); }
-}
-
 /* Commission panel — dealer rack style */
 .bpay-comm-panel { margin-top: 0; width: 100%; box-sizing: border-box; flex-shrink: 0; }
 
