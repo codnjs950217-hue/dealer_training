@@ -3545,7 +3545,7 @@ body {
 .bside-quiz-mode .bside-gray-oval { opacity: 0.28; }
 .bside-quiz-mode .bside-paying-circ { opacity: 1 !important; z-index: 10; }
 
-/* Pair circles: faint text, chips stacked below label and wrap by denom */
+/* Pair circles: faint text, chips placed inside the circle (centered) and wrap by denom */
 .bside-sim .bpay-ppair { color: rgba(255,144,144,.6) !important; }
 .bside-sim .bpay-bpair { color: rgba(255,208,96,.6)  !important; }
 .bside-sim .bpay-pair-circ {
@@ -3554,10 +3554,9 @@ body {
 }
 .bside-sim .bpay-pair-circ .bpay-circ-bet {
   position: absolute;
-  top: 100%;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  margin-top: 3px;
+  transform: translate(-50%, -50%);
   width: max-content;
 }
 /* Spread-style chip discs on side bet spots — wraps by denomination group,
