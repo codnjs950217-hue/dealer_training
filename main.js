@@ -35,25 +35,6 @@ function cardHTML(c, faceDown = false) {
     </div>`;
 }
 
-// ---- PERSISTENT STATS (rounds/score survive refresh via localStorage) ----
-
-const Stats = {
-  _key(ns) { return `dt_stats_${ns}`; },
-  load(ns) {
-    try {
-      const raw = localStorage.getItem(this._key(ns));
-      if (!raw) return { rounds: 0, score: 0 };
-      const obj = JSON.parse(raw);
-      return { rounds: Number(obj.rounds) || 0, score: Number(obj.score) || 0 };
-    } catch (e) {
-      return { rounds: 0, score: 0 };
-    }
-  },
-  save(ns, rounds, score) {
-    try { localStorage.setItem(this._key(ns), JSON.stringify({ rounds, score })); } catch (e) {}
-  },
-};
-
 // ---- ROUTER ----
 
 const App = {
@@ -1139,7 +1120,7 @@ const Sims = {
     const msg    = () => {};
     const msgCol = () => {};
     const actions = () => {};
-    const stats   = ()    => { $('bj-rounds').textContent = S.rounds; $('bj-score').textContent = S.score; Stats.save('blackjack', S.rounds, S.score); };
+    const stats   = ()    => { $('bj-rounds').textContent = S.rounds; $('bj-score').textContent = S.score; };
     const dealerCtrl      = h => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = h; };
     const clearDealerCtrl = () => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = ''; };
     const setSpotAct  = (i, h) => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = h; };
@@ -1410,12 +1391,10 @@ const Sims = {
 
     return {
       init() {
-        const saved = Stats.load('blackjack');
         S = { deck: createDeck(6), players: [], dh: [], current: 0, dealerPhase: false,
-              rounds: saved.rounds, score: saved.score, pendingAction: null, payTestIdx: 4, phase: 'idle',
+              rounds: 0, score: 0, pendingAction: null, payTestIdx: 4, phase: 'idle',
               payTimerStart: null, payTimerInterval: null };
         bjFlipId = 0;
-        stats();
       },
 
       newGame() {
@@ -1429,7 +1408,6 @@ const Sims = {
         S.payTestIdx = 4;
         S.phase = 'player';
         S.rounds++;
-        Stats.save('blackjack', S.rounds, S.score);
         for (let i = 0; i < N; i++) {
           clearSpotAct(i);
           const st = $(`bj-status-${i}`); if (st) st.innerHTML = '';
@@ -1939,7 +1917,6 @@ const Sims = {
       S.score++;
       $('bac-score').textContent = S.score;
       $('bac-rounds').textContent = S.rounds;
-      Stats.save('baccarat_draw', S.rounds, S.score);
       showWinnerFlash(side);
       enableDraw();
       msg('');
@@ -1999,11 +1976,8 @@ const Sims = {
 
     return {
       init() {
-        const saved = Stats.load('baccarat_draw');
         S = { deck: createBacDeck(), ph: [], bh: [], pThird: null,
-              rounds: saved.rounds, score: saved.score, winner: null, bets: [] };
-        $('bac-rounds').textContent = S.rounds;
-        $('bac-score').textContent = S.score;
+              rounds: 0, score: 0, winner: null, bets: [] };
         enableDraw();
       },
 
@@ -2011,7 +1985,6 @@ const Sims = {
         if (S.deck.length < 20) S.deck = createBacDeck();
         S.ph = []; S.bh = []; S.pThird = null; S.winner = null;
         S.rounds++;
-        Stats.save('baccarat_draw', S.rounds, S.score);
         disableDraw();
 
         $('bac-ph').innerHTML   = '';
@@ -2331,7 +2304,6 @@ const Sims = {
       for (let j = 1; j <= 1; j++) { const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active'); }
       S.score++;
       $('bpay-score').textContent = S.score;
-      Stats.save('baccaratPay', S.rounds, S.score);
       const tbl = document.querySelector('.baccarat-table');
       if (!tbl) { Sims.baccaratPay.deal(); return; }
       const ov = document.createElement('div');
@@ -2361,15 +2333,13 @@ const Sims = {
 
     return {
       init() {
-        const saved = Stats.load('baccaratPay');
-        S = { bets: [], commIdx: 0, rounds: saved.rounds, score: saved.score, commTarget: 0, mode: 'commission', lastTotal: 0 };
-        if ($('bpay-score')) $('bpay-score').textContent = S.score;
+        S = { bets: [], commIdx: 0, rounds: 0, score: 0, commTarget: 0, mode: 'commission', lastTotal: 0 };
         this.deal();
       },
 
       restart() {
         const cur = S.mode || 'commission';
-        S = { bets: [], commIdx: 0, rounds: S.rounds, score: S.score, commTarget: 0, mode: cur, lastTotal: 0 };
+        S = { bets: [], commIdx: 0, rounds: 0, score: 0, commTarget: 0, mode: cur, lastTotal: 0 };
         this.setMode(cur);
       },
 
@@ -2404,7 +2374,6 @@ const Sims = {
         const pos = positions(); if (pos) pos.classList.remove('paying');
         S.rounds++; S.commIdx = 0; S.commTarget = 0;
         $('bpay-rounds').textContent = S.rounds;
-        Stats.save('baccaratPay', S.rounds, S.score);
         for (let j = 1; j <= 1; j++) {
           const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active');
           const bOval = $(`bpay-b-${j}`); if (bOval) bOval.classList.remove('has-bet');
@@ -2703,9 +2672,7 @@ const Sims = {
 
     return {
       init() {
-        const saved = Stats.load('baccaratSide');
-        S = { rounds: saved.rounds, score: saved.score, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0 };
-        if ($('bside-score')) $('bside-score').textContent = S.score;
+        S = { rounds: 0, score: 0, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0 };
       },
 
       deal() {
@@ -2713,7 +2680,6 @@ const Sims = {
         if (startOverlay) startOverlay.style.display = 'none';
         S.rounds++;
         $('bside-rounds').textContent = S.rounds;
-        Stats.save('baccaratSide', S.rounds, S.score);
         clearHighlights();
         SIDE_KEYS.forEach(k => { const el = $(`bside-${k}-amt-1`); if (el) el.innerHTML = ''; });
         const panel = $('bside-comm-panel'); if (panel) panel.style.display = 'none';
@@ -2809,7 +2775,6 @@ const Sims = {
         updateSpread();
         S.score++;
         $('bside-score').textContent = S.score;
-        Stats.save('baccaratSide', S.rounds, S.score);
         showNextHand();
       },
     };
@@ -3274,20 +3239,17 @@ const Sims = {
 
       init() {
         if (S && S.timerInterval) clearInterval(S.timerInterval);
-        const saved = Stats.load('roulettePay');
-        S = { winNum: null, spots: [], spotIdx: 0, rounds: saved.rounds, score: saved.score, lastNum: null, roundColor: null,
+        S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, roundColor: null,
               payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
               history: [], difficulty: 'easy',
               timerStart: null, timerInterval: null };
         hasStarted = false;
         this._setControlsVisible(false);
-        if ($('rpay-rounds')) $('rpay-rounds').textContent = S.rounds;
-        if ($('rpay-score'))  $('rpay-score').textContent  = S.score;
       },
 
       setDiff(level) {
         this._stopTimer();
-        S = { winNum: null, spots: [], spotIdx: 0, rounds: S.rounds, score: S.score, lastNum: null, roundColor: null,
+        S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, roundColor: null,
               payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
               history: [], difficulty: level,
               timerStart: null, timerInterval: null };
@@ -3295,8 +3257,8 @@ const Sims = {
           const btn = document.getElementById(`rpay-diff-${d}`);
           if (btn) btn.classList.toggle('rpay-diff-active', d === level);
         });
-        if ($('rpay-rounds')) $('rpay-rounds').textContent = S.rounds;
-        if ($('rpay-score'))  $('rpay-score').textContent  = S.score;
+        if ($('rpay-rounds')) $('rpay-rounds').textContent = '0';
+        if ($('rpay-score'))  $('rpay-score').textContent  = '0';
         if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
         if ($('rpay-pay-zone'))   $('rpay-pay-zone').innerHTML   = '';
         const wb = $('rpay-chip-warn-banner'); if (wb) wb.style.visibility = 'hidden';
@@ -3370,7 +3332,6 @@ const Sims = {
         if (timerEl) { timerEl.className = 'rpay-timer'; timerEl.textContent = '—'; }
         S.rounds++;
         $('rpay-rounds').textContent = S.rounds;
-        Stats.save('roulettePay', S.rounds, S.score);
         if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
 
         let N;
@@ -3459,7 +3420,6 @@ const Sims = {
         }
         S.score++;
         $('rpay-score').textContent = S.score;
-        Stats.save('roulettePay', S.rounds, S.score);
         highlightSpot(-1);
         const tbl = document.querySelector('.rpay-table');
         if (tbl) {
@@ -3481,9 +3441,8 @@ const Sims = {
       const sh = (id, h) => { const e = $(id); if (e) e.innerHTML = h; };
 
       function init() {
-        const saved = Stats.load(`poker_${key}`);
-        S = { rounds: saved.rounds, score: saved.score, phase: 'idle' };
-        sh('pk-rounds', S.rounds); sh('pk-score', S.score);
+        S = { rounds: 0, score: 0, phase: 'idle' };
+        sh('pk-rounds', '0'); sh('pk-score', '0');
         sh('pk-player-hand', ''); sh('pk-dealer-hand', ''); sh('pk-comm-hand', '');
         sh('pk-player-rank', ''); sh('pk-dealer-rank', '');
         sh('pk-quiz', ''); sh('pk-result', '');
@@ -3493,7 +3452,6 @@ const Sims = {
         if (S.phase === 'quiz') return;
         S.rounds++;
         sh('pk-rounds', S.rounds);
-        Stats.save(`poker_${key}`, S.rounds, S.score);
         const deck = createDeck(1);
         S.pH = deck.splice(0, holeP);
         S.dH = deck.splice(0, holeD);
@@ -3523,7 +3481,6 @@ const Sims = {
         const ok = choice === winner;
         if (ok) S.score++;
         sh('pk-score', S.score);
-        Stats.save(`poker_${key}`, S.rounds, S.score);
         sh('pk-player-rank', `<span class="pk-rank-lbl">${pEv.l}</span>`);
         sh('pk-dealer-rank',  `<span class="pk-rank-lbl">${dEv.l}</span>`);
         const wText = winner === 'player' ? 'PLAYER WINS' : winner === 'dealer' ? 'DEALER WINS' : 'TIE';
@@ -3740,7 +3697,6 @@ const Sims = {
 
         if (correct) S.score++;
         var scEl = $('thpr-score'); if (scEl) scEl.textContent = S.score;
-        Stats.save('poker_thpRank', S.rounds, S.score);
 
         // Build winner-first hand lines
         var line1, line2;
@@ -3795,7 +3751,6 @@ const Sims = {
       function endRound() {
         S.rounds++;
         var rEl = $('thpr-rounds'); if (rEl) rEl.textContent = S.rounds;
-        Stats.save('poker_thpRank', S.rounds, S.score);
 
         var cd = $('thpr-countdown');
         if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
@@ -3839,10 +3794,9 @@ const Sims = {
 
       function init() {
         clearCd();
-        var saved = Stats.load('poker_thpRank');
-        S = { rounds: saved.rounds, score: saved.score, phase: 'idle', activePlayer: null, results: [] };
-        var r = $('thpr-rounds');    if (r)  r.textContent  = S.rounds;
-        var sc = $('thpr-score');    if (sc) sc.textContent = S.score;
+        S = { rounds: 0, score: 0, phase: 'idle', activePlayer: null, results: [] };
+        var r = $('thpr-rounds');    if (r)  r.textContent  = '0';
+        var sc = $('thpr-score');    if (sc) sc.textContent = '0';
         var f = $('thpr-feedback');  if (f)  f.innerHTML    = '';
         var cd = $('thpr-countdown');
         if (cd) { cd.textContent = ''; cd.className = 'thpr-countdown'; }
