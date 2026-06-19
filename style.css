@@ -2658,6 +2658,8 @@ body {
   flex: 1 1 50%; min-width: 0;
   display: flex; flex-direction: column;
   position: relative; overflow: hidden;
+  border-right: 1px solid rgba(255,255,255,.15);
+  padding-right: clamp(.3rem,.8vw,.6rem);
 }
 .bside-zoom-stage {
   flex: 1; min-height: 0;
