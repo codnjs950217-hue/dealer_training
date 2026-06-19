@@ -2520,20 +2520,17 @@ const Sims = {
         const vb = COMM_CHIPS.find(c => c.key === b[0])?.val ?? 0;
         return vb - va;
       });
-      let discs = '';
-      sorted.forEach(([key, cnt], groupIdx) => {
+      const groups = sorted.map(([key, cnt]) => {
         const chip = COMM_CHIPS.find(c => c.key === key);
-        if (!chip) return;
+        if (!chip) return '';
+        let discs = '';
         for (let j = 0; j < cnt; j++) {
-          const newGroup  = j === 0 && groupIdx > 0;
-          const group5gap = !newGroup && j > 0 && j % 5 === 0;
-          let cls = 'bside-bet-disc';
-          if (newGroup)       cls += ' new-denom';
-          else if (group5gap) cls += ' group5gap';
+          const cls = (j > 0 && j % 5 === 0) ? 'bside-bet-disc group5gap' : 'bside-bet-disc';
           discs += `<div class="${cls}" style="background:${chip.bg};color:${chip.fg}">${chip.key}</div>`;
         }
-      });
-      return `<div class="bside-bet-spread">${discs}</div>`;
+        return `<div class="bside-bet-group">${discs}</div>`;
+      }).join('');
+      return `<div class="bside-bet-spread">${groups}</div>`;
     }
 
 

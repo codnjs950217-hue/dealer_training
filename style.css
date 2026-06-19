@@ -3560,25 +3560,24 @@ body {
   margin-top: 3px;
   width: max-content;
 }
-.bside-sim .bpay-pair-circ .bside-bet-spread {
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2px;
-}
-
-/* Spread-style chip discs on side bet spots */
+/* Spread-style chip discs on side bet spots — wraps by denomination group,
+   like the chip-setting tray, so a heavy bet never gets clipped or overlapped */
 .bside-bet-spread {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   justify-content: center;
-  flex-wrap: nowrap;
+  align-content: center;
+  gap: 2px 7px;
+  max-width: 120px;
 }
+.bside-bet-group { display: flex; align-items: center; }
 .bside-bet-disc {
-  width: var(--ch-md);
-  height: var(--ch-md);
+  width: clamp(13px,1.7vw,18px);
+  height: clamp(13px,1.7vw,18px);
   border-radius: 50%;
-  margin-left: -8px;
-  font-size: var(--bf-xs);
+  margin-left: -6px;
+  font-size: clamp(.32rem,.55vw,.4rem);
   font-weight: 900;
   display: flex;
   align-items: center;
@@ -3595,8 +3594,7 @@ body {
   letter-spacing: -1px;
 }
 .bside-bet-disc:first-child { margin-left: 0; }
-.bside-bet-disc.new-denom   { margin-left: 10px; }
-.bside-bet-disc.group5gap   { margin-left: 6px; }
+.bside-bet-disc.group5gap   { margin-left: 4px; }
 
 @media (max-width: 768px) {
   /* baccarat-table padding now handled by .bside-sim .baccarat-table above */
@@ -3607,7 +3605,7 @@ body {
   .bside-result               { font-size: .78rem; padding: .15rem .3rem 0; }
   .bside-sim .comm-tray       { padding: .3rem; }
   .bside-sim .comm-slot       { padding: .3rem .08rem .28rem; gap: .18rem; }
-  /* comm-slot-chip, bside-bet-disc: handled by clamp() in --ch-md */
+  /* comm-slot-chip: handled by clamp() in --ch-md */
   .bside-sim .comm-5k-btn     { font-size: var(--bf-xs); padding: .22rem .04rem; }
   .bside-sim .comm-5k-reset   { font-size: var(--bf-xs); padding: .14rem 0; }
 }
