@@ -371,38 +371,45 @@ const Views = {
       </div>
       <div id="bside-content" class="bside-sim" style="display:none">
         <div class="baccarat-table">
-          <div class="bpay-positions bside-layout">
-            ${[1].map(i => `
-              <div class="bpay-pos bside-pos-wrap" id="bside-pos-${i}">
-                <div class="bside-pos-main">
-                  <div class="bside-oval-pair-row">
-                    <div class="bpay-oval bpay-p-oval bside-gray-oval" id="bside-p-${i}">
-                      <div class="bpay-oval-lbl">PLAYER</div>
-                      <div class="bpay-oval-amt" id="bside-p-amt-${i}"></div>
+          <div class="bside-mid-row">
+            <div class="bside-layout-pane">
+              <div class="bpay-positions bside-layout">
+                ${[1].map(i => `
+                  <div class="bpay-pos bside-pos-wrap" id="bside-pos-${i}">
+                    <div class="bside-pos-main">
+                      <div class="bside-oval-pair-row">
+                        <div class="bpay-oval bpay-p-oval bside-gray-oval" id="bside-p-${i}">
+                          <div class="bpay-oval-lbl">PLAYER</div>
+                          <div class="bpay-oval-amt" id="bside-p-amt-${i}"></div>
+                        </div>
+                        <div class="bpay-pair-circ bpay-ppair" id="bside-pp-${i}">P<br>PAIR<span class="bside-pair-pay">×11</span><div class="bpay-circ-bet" id="bside-pp-amt-${i}"></div></div>
+                      </div>
+                      <div class="bside-oval-pair-row">
+                        <div class="bpay-oval bpay-b-oval bside-gray-oval" id="bside-b-${i}">
+                          <div class="bpay-oval-lbl">BANKER</div>
+                          <div class="bpay-oval-amt" id="bside-b-amt-${i}"></div>
+                        </div>
+                        <div class="bpay-pair-circ bpay-bpair" id="bside-bp-${i}">B<br>PAIR<span class="bside-pair-pay">×11</span><div class="bpay-circ-bet" id="bside-bp-amt-${i}"></div></div>
+                      </div>
+                      <div class="bpay-circles bside-line6">
+                        <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-bt-${i}"><span class="bside-big-num">6</span>BIG<span class="bpay-circ-pay">×50</span><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div></div>
+                        <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tie bside-oval-bet" id="bside-tt-${i}"><span class="bside-big-num">TIE</span><span class="bpay-circ-pay">×8</span><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div></div>
+                        <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-st-${i}"><span class="bside-big-num">6</span>SMALL<span class="bpay-circ-pay">×22</span><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div></div>
+                      </div>
+                      <div class="bpay-circles bside-line7">
+                        <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-bd-${i}"><span class="bside-big-num">7</span>BIG<span class="bpay-circ-pay">×30</span><div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div></div>
+                        <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-s7-${i}"><span class="bside-big-num">7</span>SUPER 7<span class="bpay-circ-pay" id="bside-s7-pay-${i}">×30/40/100</span><div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div></div>
+                        <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-sd-${i}"><span class="bside-big-num">7</span>SMALL<span class="bpay-circ-pay">×15</span><div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div></div>
+                      </div>
                     </div>
-                    <div class="bpay-pair-circ bpay-ppair" id="bside-pp-${i}">P<br>PAIR<span class="bside-pair-pay">×11</span><div class="bpay-circ-bet" id="bside-pp-amt-${i}"></div></div>
-                  </div>
-                  <div class="bside-oval-pair-row">
-                    <div class="bpay-oval bpay-b-oval bside-gray-oval" id="bside-b-${i}">
-                      <div class="bpay-oval-lbl">BANKER</div>
-                      <div class="bpay-oval-amt" id="bside-b-amt-${i}"></div>
-                    </div>
-                    <div class="bpay-pair-circ bpay-bpair" id="bside-bp-${i}">B<br>PAIR<span class="bside-pair-pay">×11</span><div class="bpay-circ-bet" id="bside-bp-amt-${i}"></div></div>
-                  </div>
-                  <div class="bpay-circles bside-line6">
-                    <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-bt-${i}"><span class="bside-big-num">6</span>BIG<span class="bpay-circ-pay">×50</span><div class="bpay-circ-bet" id="bside-bt-amt-${i}"></div></div></div>
-                    <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tie bside-oval-bet" id="bside-tt-${i}"><span class="bside-big-num">TIE</span><span class="bpay-circ-pay">×8</span><div class="bpay-circ-bet" id="bside-tt-amt-${i}"></div></div></div>
-                    <div class="bpay-circ-wrap"><div class="bpay-circ bpay-tiger bside-oval-bet" id="bside-st-${i}"><span class="bside-big-num">6</span>SMALL<span class="bpay-circ-pay">×22</span><div class="bpay-circ-bet" id="bside-st-amt-${i}"></div></div></div>
-                  </div>
-                  <div class="bpay-circles bside-line7">
-                    <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-bd-${i}"><span class="bside-big-num">7</span>BIG<span class="bpay-circ-pay">×30</span><div class="bpay-circ-bet" id="bside-bd-amt-${i}"></div></div></div>
-                    <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-s7-${i}"><span class="bside-big-num">7</span>SUPER 7<span class="bpay-circ-pay" id="bside-s7-pay-${i}">×30/40/100</span><div class="bpay-circ-bet" id="bside-s7-amt-${i}"></div></div></div>
-                    <div class="bpay-circ-wrap"><div class="bpay-circ bpay-dragon bside-oval-bet" id="bside-sd-${i}"><span class="bside-big-num">7</span>SMALL<span class="bpay-circ-pay">×15</span><div class="bpay-circ-bet" id="bside-sd-amt-${i}"></div></div></div>
-                  </div>
-                </div>
-              </div>`).join('')}
+                  </div>`).join('')}
+              </div>
+            </div>
+            <div class="bside-chipset-pane">
+              <button class="comm-undo-btn bside-undo-btn" id="bside-undo-btn" onclick="Sims.baccaratSide.undo()">↩ UNDO</button>
+              <div class="bpay-spread-section" id="bside-spread-section" style="display:none"></div>
+            </div>
           </div>
-          <div class="bpay-spread-section" id="bside-spread-section" style="display:none"></div>
           <div class="bpay-start-overlay" id="bside-start-overlay">
             <button class="bpay-start-btn" onclick="Sims.baccaratSide.deal()">START</button>
           </div>
@@ -2584,6 +2591,7 @@ const Sims = {
       warnTimer = setTimeout(() => {
         w.style.display = 'none';
         COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
+        S.history = [];
         updateSpread();
       }, 2800);
     }
@@ -2615,6 +2623,12 @@ const Sims = {
       </div>`;
     }
 
+    function pushHistory() {
+      const snap = {};
+      COMM_CHIPS.forEach(c => { snap[c.key] = parseInt($(`bside-ci-${c.key}`)?.value) || 0; });
+      S.history.push(snap);
+    }
+
     function showMistake(retryFn) {
       const tbl = document.querySelector('.baccarat-table');
       if (!tbl) return;
@@ -2627,12 +2641,13 @@ const Sims = {
 
     return {
       init() {
-        S = { rounds: 0, score: 0, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0 };
+        S = { rounds: 0, score: 0, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0, history: [] };
       },
 
       deal() {
         const startOverlay = $('bside-start-overlay');
         if (startOverlay) startOverlay.style.display = 'none';
+        S.history = [];
         S.rounds++;
         $('bside-rounds').textContent = S.rounds;
         clearHighlights();
@@ -2689,6 +2704,7 @@ const Sims = {
         if (lowerUnset) { showOrderWarning(); return; }
         const inp = $(`bside-ci-${key}`);
         if (!inp) return;
+        pushHistory();
         inp.value = (parseInt(inp.value) || 0) + n;
         for (let i = COMM_CHIPS.length - 1; i > 0; i--) {
           const lower = COMM_CHIPS[i], upper = COMM_CHIPS[i - 1];
@@ -2707,15 +2723,27 @@ const Sims = {
       },
 
       resetChip(key) {
+        pushHistory();
         const inp = $(`bside-ci-${key}`);
         if (inp) inp.value = '0';
         updateSpread();
       },
 
       resetAll() {
+        pushHistory();
         COMM_CHIPS.forEach(c => {
           const inp = $(`bside-ci-${c.key}`);
           if (inp) inp.value = '0';
+        });
+        updateSpread();
+      },
+
+      undo() {
+        if (!S.history || !S.history.length) return;
+        const prev = S.history.pop();
+        COMM_CHIPS.forEach(c => {
+          const inp = $(`bside-ci-${c.key}`);
+          if (inp) inp.value = prev[c.key] ?? '0';
         });
         updateSpread();
       },
@@ -2727,6 +2755,7 @@ const Sims = {
         if (entered !== S.payTarget) {
           showMistake(() => {
             COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
+            S.history = [];
             updateSpread();
           });
           return;
@@ -2735,6 +2764,7 @@ const Sims = {
         const circ = $(`bside-${S.currentKey}-1`);
         if (circ) { circ.classList.remove('bside-paying-circ'); circ.classList.add('bside-win-circ'); }
         COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
+        S.history = [];
         // Show CORRECT in the spread (chip placement) area with animation
         const spread = $('bside-spread-section');
         if (spread) {

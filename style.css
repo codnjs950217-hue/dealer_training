@@ -2631,10 +2631,10 @@ body {
 /* Commission panel — dealer rack style */
 .bpay-comm-panel { margin-top: 0; width: 100%; box-sizing: border-box; flex-shrink: 0; }
 
-/* ── Shared 3-zone layout (all 3 modes):
-   TOP   = bet ovals (flex: 0 0 auto, compact)
-   MIDDLE= spread area (flex: 1, grows with screen)
-   BOTTOM= chip tray (flex: 0 0 auto, pinned to bottom)
+/* ── Shared zone layout:
+   Commission/Half Pay — 3-zone stack: TOP bet ovals, MIDDLE spread (grows), BOTTOM chip tray.
+   Option Bet — middle area split left/right: LEFT betting layout, RIGHT chip-setting zone (+ UNDO);
+   chip tray stays pinned full-width at the bottom.
    The .baccarat-table fills all remaining space and acts as the column host. ── */
 
 /* Commission / Half Pay */
@@ -2649,8 +2649,26 @@ body {
 
 /* Option Bet */
 #bside-content .baccarat-table    { flex: 1; min-height: 0; }
-#bside-content .bpay-positions    { flex: 1; min-height: 0; overflow: visible; }
-#bside-content .bpay-spread-section { flex: 0 0 auto; }
+.bside-mid-row {
+  display: flex; flex-direction: row;
+  flex: 1; min-height: 0;
+  gap: clamp(.3rem,.8vw,.6rem);
+}
+.bside-layout-pane {
+  flex: 3; min-width: 0;
+  display: flex; flex-direction: column;
+}
+.bside-layout-pane .bpay-positions { flex: 1; min-height: 0; overflow: visible; }
+.bside-chipset-pane {
+  flex: 2; min-width: 0;
+  display: flex; flex-direction: column;
+  position: relative;
+}
+.bside-chipset-pane .bside-undo-btn {
+  align-self: flex-start;
+  margin-bottom: .25rem;
+}
+.bside-chipset-pane .bpay-spread-section { flex: 1; min-height: 0; }
 #bside-content .bpay-comm-panel   { flex: 0 0 auto; margin-top: .3rem; }
 
 .comm-tray {
