@@ -110,10 +110,10 @@ body {
   flex-shrink: 0;
   width: 30px; height: 28px;
   position: relative;
-  overflow: hidden;
+  margin-left: 2px;
 }
 .top-bar-hero-cards {
-  position: absolute; top: 0; left: 0;
+  position: absolute; top: 0; left: 8px;
   width: 108px; height: 100px;
   transform: scale(.28);
   transform-origin: top left;
