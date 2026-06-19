@@ -2664,10 +2664,6 @@ body {
   display: flex; flex-direction: column;
   position: relative;
 }
-.bside-chipset-pane .bside-undo-btn {
-  align-self: flex-start;
-  margin-bottom: .25rem;
-}
 .bside-chipset-pane .bpay-spread-section { flex: 1; min-height: 0; }
 #bside-content .bpay-comm-panel   { flex: 0 0 auto; margin-top: .3rem; }
 

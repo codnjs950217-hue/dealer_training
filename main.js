@@ -406,7 +406,6 @@ const Views = {
               </div>
             </div>
             <div class="bside-chipset-pane">
-              <button class="comm-undo-btn bside-undo-btn" id="bside-undo-btn" onclick="Sims.baccaratSide.undo()">↩ UNDO</button>
               <div class="bpay-spread-section" id="bside-spread-section" style="display:none"></div>
             </div>
           </div>
@@ -2591,7 +2590,6 @@ const Sims = {
       warnTimer = setTimeout(() => {
         w.style.display = 'none';
         COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
-        S.history = [];
         updateSpread();
       }, 2800);
     }
@@ -2623,12 +2621,6 @@ const Sims = {
       </div>`;
     }
 
-    function pushHistory() {
-      const snap = {};
-      COMM_CHIPS.forEach(c => { snap[c.key] = parseInt($(`bside-ci-${c.key}`)?.value) || 0; });
-      S.history.push(snap);
-    }
-
     function showMistake(retryFn) {
       const tbl = document.querySelector('.baccarat-table');
       if (!tbl) return;
@@ -2641,13 +2633,12 @@ const Sims = {
 
     return {
       init() {
-        S = { rounds: 0, score: 0, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0, history: [] };
+        S = { rounds: 0, score: 0, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0 };
       },
 
       deal() {
         const startOverlay = $('bside-start-overlay');
         if (startOverlay) startOverlay.style.display = 'none';
-        S.history = [];
         S.rounds++;
         $('bside-rounds').textContent = S.rounds;
         clearHighlights();
@@ -2704,7 +2695,6 @@ const Sims = {
         if (lowerUnset) { showOrderWarning(); return; }
         const inp = $(`bside-ci-${key}`);
         if (!inp) return;
-        pushHistory();
         inp.value = (parseInt(inp.value) || 0) + n;
         for (let i = COMM_CHIPS.length - 1; i > 0; i--) {
           const lower = COMM_CHIPS[i], upper = COMM_CHIPS[i - 1];
@@ -2723,27 +2713,15 @@ const Sims = {
       },
 
       resetChip(key) {
-        pushHistory();
         const inp = $(`bside-ci-${key}`);
         if (inp) inp.value = '0';
         updateSpread();
       },
 
       resetAll() {
-        pushHistory();
         COMM_CHIPS.forEach(c => {
           const inp = $(`bside-ci-${c.key}`);
           if (inp) inp.value = '0';
-        });
-        updateSpread();
-      },
-
-      undo() {
-        if (!S.history || !S.history.length) return;
-        const prev = S.history.pop();
-        COMM_CHIPS.forEach(c => {
-          const inp = $(`bside-ci-${c.key}`);
-          if (inp) inp.value = prev[c.key] ?? '0';
         });
         updateSpread();
       },
@@ -2755,7 +2733,6 @@ const Sims = {
         if (entered !== S.payTarget) {
           showMistake(() => {
             COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
-            S.history = [];
             updateSpread();
           });
           return;
@@ -2764,7 +2741,6 @@ const Sims = {
         const circ = $(`bside-${S.currentKey}-1`);
         if (circ) { circ.classList.remove('bside-paying-circ'); circ.classList.add('bside-win-circ'); }
         COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
-        S.history = [];
         // Show CORRECT in the spread (chip placement) area with animation
         const spread = $('bside-spread-section');
         if (spread) {
