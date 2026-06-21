@@ -2355,11 +2355,16 @@ const Sims = {
 
       restart() {
         const cur = S.mode || 'commission';
+        if (cur === 'side' && Sims.baccaratSide && Sims.baccaratSide.getCounts) {
+          const c = Sims.baccaratSide.getCounts();
+          S.rounds = c.rounds; S.score = c.score;
+        }
         S = { bets: [], commIdx: 0, rounds: S.rounds, score: S.score, commTarget: 0, mode: cur, lastTotal: 0 };
-        this.setMode(cur, true);
+        this.setMode(cur);
       },
 
-      setMode(mode, isRestart) {
+      setMode(mode) {
+        const prevMode = S.mode;
         S.mode = mode;
         const btnComm = document.getElementById('bpay-btn-commission');
         const btnHalf = document.getElementById('bpay-btn-halfpay');
@@ -2376,12 +2381,19 @@ const Sims = {
           if (bsideContent) bsideContent.style.display = '';
           if (statsComm) statsComm.style.display = 'none';
           if (statsSide) statsSide.style.display = '';
-          if (Sims.baccaratSide) { Sims.baccaratSide.init(isRestart); Sims.baccaratSide.deal(); }
+          // Tab switch is treated like a refresh: carry the accumulated Rounds/Score
+          // over into Option Bet's own counters instead of zeroing them.
+          if (Sims.baccaratSide) { Sims.baccaratSide.init(true, S.rounds, S.score); Sims.baccaratSide.deal(); }
         } else {
           if (bpayContent) bpayContent.style.display = '';
           if (bsideContent) bsideContent.style.display = 'none';
           if (statsComm) statsComm.style.display = '';
           if (statsSide) statsSide.style.display = 'none';
+          if (prevMode === 'side' && Sims.baccaratSide && Sims.baccaratSide.getCounts) {
+            const c = Sims.baccaratSide.getCounts();
+            S.rounds = c.rounds; S.score = c.score;
+            if ($('bpay-score')) $('bpay-score').textContent = S.score;
+          }
           this.deal();
         }
       },
@@ -2687,12 +2699,14 @@ const Sims = {
     }
 
     return {
-      init(isRestart) {
-        const keepRounds = isRestart && S ? S.rounds : 0;
-        const keepScore  = isRestart && S ? S.score  : 0;
+      init(isRestart, seedRounds, seedScore) {
+        const keepRounds = isRestart ? (seedRounds !== undefined ? seedRounds : (S ? S.rounds : 0)) : 0;
+        const keepScore  = isRestart ? (seedScore  !== undefined ? seedScore  : (S ? S.score  : 0)) : 0;
         S = { rounds: keepRounds, score: keepScore, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0 };
         if ($('bside-score')) $('bside-score').textContent = S.score;
       },
+
+      getCounts() { return { rounds: S.rounds, score: S.score }; },
 
       deal() {
         const startOverlay = $('bside-start-overlay');
