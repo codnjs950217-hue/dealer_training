@@ -3275,9 +3275,9 @@ const Sims = {
 
       setDiff(level) {
         this._stopTimer();
-        // Switching difficulty mid-game generates a new question, so it should
-        // count as another Round rather than resetting the count to 0.
-        const prevRounds = (hasStarted && S) ? S.rounds : 0;
+        // Re-clicking the same difficulty mid-game is a refresh that keeps
+        // accumulating Rounds; switching to a different difficulty resets it.
+        const prevRounds = (hasStarted && S && S.difficulty === level) ? S.rounds : 0;
         S = { winNum: null, spots: [], spotIdx: 0, rounds: prevRounds, score: 0, lastNum: null, roundColor: null,
               payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
               history: [], difficulty: level,
