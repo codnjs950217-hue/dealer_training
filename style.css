@@ -1883,13 +1883,28 @@ body {
   margin-bottom: 1rem; gap: .8rem; flex-wrap: wrap;
 }
 .pay-panel-title { font-size: 1.05rem; font-weight: 700; color: var(--gold); }
+/* Same premium gradient text-clip treatment as the win-announce popup */
 .pay-winner-badge {
-  padding: .28rem .75rem; border-radius: 6px;
-  font-size: .8rem; font-weight: 800; letter-spacing: .5px;
+  font-size: 1rem; font-weight: 900; letter-spacing: .5px;
 }
-.pay-winner-badge.player-win { background: rgba(221,24,24,.14); color: #dd1818; border: 1px solid rgba(221,24,24,.35); }
-.pay-winner-badge.banker-win { background: rgba(255,215,0,.12); color: #FFD700; border: 1px solid rgba(255,215,0,.35); }
-.pay-winner-badge.tie-win    { background: rgba(110,200,100,.12); color: #6ec864; border: 1px solid rgba(110,200,100,.3); }
+.pay-winner-badge.player-win {
+  background: linear-gradient(170deg, #ff8888 0%, #dd1818 48%, #7a0000 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,.8));
+}
+.pay-winner-badge.banker-win {
+  background: linear-gradient(170deg, #ffe988 0%, #d4a84c 48%, #8c6414 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,.8));
+}
+.pay-winner-badge.tie-win {
+  background: linear-gradient(170deg, #b8f8a0 0%, #6ec864 48%, #2c6e18 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,.8));
+}
 
 .pay-seats-section { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .9rem; }
 .pay-seat-row {
