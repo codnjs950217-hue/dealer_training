@@ -3492,8 +3492,11 @@ body {
   padding: .06rem .1rem;
 }
 
-/* Circle rows: full width of main area — vh-based max-height */
-.bside-layout .bpay-circles  { display: flex; gap: .2rem; flex-shrink: 1; min-height: 0; }
+/* Circle rows: same width as the PLAYER/BANKER oval (i.e. full row width minus
+   the pair-circ pill + gap), so they line up under it and leave the rest of
+   the row — under the pair-circ pill — empty. */
+.bside-layout .bpay-circles  { display: flex; gap: .2rem; flex-shrink: 1; min-height: 0;
+                                width: calc(100% - clamp(42px,6vw,56px) - .2rem); align-self: flex-start; }
 .bside-layout .bpay-circ-wrap { flex: 1; display: flex; align-items: stretch; }
 .bside-layout .bpay-circ      { flex: 1; max-height: clamp(28px,5.5vh,44px);
                                  min-height: 0; font-size: clamp(.52rem,1vw,.62rem); }
