@@ -2953,20 +2953,21 @@ body {
   padding: 0; margin: 0; border: none;
 }
 .bac-start-top-btn {
-  background: linear-gradient(135deg, #c9a84c 0%, #9a7820 100%);
-  color: #1a1200;
-  font-size: clamp(1.05rem,3.2vh,1.7rem); font-weight: 900;
-  letter-spacing: 5px; border: 2px solid rgba(255,255,255,.65); border-radius: 50px;
-  padding: clamp(.6rem,1.8vh,1.2rem) clamp(2.8rem,8vw,6rem); cursor: pointer; text-align: center;
-  box-shadow: 0 4px 22px rgba(201,168,76,.55);
+  background: var(--gold);
+  color: #0a1628;
+  border: none;
+  border-radius: var(--r);
+  padding: .48rem 2.4rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: .5px;
+  text-align: center;
   transition: all .2s;
+  box-shadow: 0 2px 10px rgba(201,168,76,.35);
 }
-.bac-start-top-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #e8c96d 0%, #b89030 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 7px 30px rgba(201,168,76,.72);
-}
-.bac-start-top-btn:disabled { opacity: .4; cursor: default; }
+.bac-start-top-btn:hover:not(:disabled) { background: var(--gold-light); transform: translateY(-1px); }
+.bac-start-top-btn:disabled { cursor: default; }
 
 .bac-next-hand-btn {
   position: absolute;
