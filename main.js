@@ -3275,7 +3275,10 @@ const Sims = {
 
       setDiff(level) {
         this._stopTimer();
-        S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, roundColor: null,
+        // Switching difficulty mid-game generates a new question, so it should
+        // count as another Round rather than resetting the count to 0.
+        const prevRounds = (hasStarted && S) ? S.rounds : 0;
+        S = { winNum: null, spots: [], spotIdx: 0, rounds: prevRounds, score: 0, lastNum: null, roundColor: null,
               payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
               history: [], difficulty: level,
               timerStart: null, timerInterval: null };
@@ -3283,7 +3286,7 @@ const Sims = {
           const btn = document.getElementById(`rpay-diff-${d}`);
           if (btn) btn.classList.toggle('rpay-diff-active', d === level);
         });
-        if ($('rpay-rounds')) $('rpay-rounds').textContent = '0';
+        if ($('rpay-rounds')) $('rpay-rounds').textContent = String(prevRounds);
         if ($('rpay-score'))  $('rpay-score').textContent  = '0';
         if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
         if ($('rpay-pay-zone'))   $('rpay-pay-zone').innerHTML   = '';
