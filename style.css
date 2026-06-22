@@ -670,6 +670,7 @@ body {
 .bj-start-bar {
   display: flex; justify-content: center; flex-shrink: 0;
   padding: clamp(.25rem,.5vh,.4rem) 0;
+  gap: .6rem;
 }
 .bj-start-btn {
   background: var(--gold);

@@ -237,8 +237,9 @@ const Views = {
           <span>Rounds: <strong id="bj-rounds">0</strong></span>
           <span>Score: <strong id="bj-score">0</strong></span>
         </div>
-        <div class="bj-start-bar">
-          <button class="bj-start-btn" id="bj-start-btn" onclick="Sims.blackjack.newGame()">Start</button>
+        <div class="bj-start-bar" id="bj-mode-bar">
+          <button class="bj-start-btn" id="bj-start-btn" onclick="Sims.blackjack.newGame()">Standard Mode</button>
+          <button class="bj-start-btn" id="bj-speed-btn" onclick="Sims.blackjack.newGameSpeed()">Speed Mode</button>
         </div>
         <div class="bj-play-area">
           <div class="players-row">
@@ -1128,8 +1129,8 @@ const Sims = {
     const clearDealerCtrl = () => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = ''; };
     const setSpotAct  = (i, h) => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = h; };
     const clearSpotAct = i     => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = ''; };
-    const enableStart  = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = false; e.style.opacity = ''; e.style.visibility = ''; e.textContent = 'Start'; } };
-    const disableStart = ()    => { const e = $('bj-start-btn'); if (e) { e.disabled = true;  e.style.opacity = '0.4'; e.style.visibility = 'hidden'; } };
+    const enableStart  = ()    => { const e = $('bj-mode-bar'); if (e) { e.style.opacity = ''; e.style.visibility = ''; } };
+    const disableStart = ()    => { const e = $('bj-mode-bar'); if (e) { e.style.opacity = '0.4'; e.style.visibility = 'hidden'; } };
 
     function bval(c) {
       if (c.rank === 'A') return 11;
@@ -1329,6 +1330,13 @@ const Sims = {
       actions('');
     }
 
+    function enterDealerPhase() {
+      S.dealerPhase = true;
+      S.phase = 'dealer';
+      renderPlayers();
+      actions('');
+      showDealerControls();
+    }
     function advancePlayer() {
       if (S.current >= 0) clearSpotAct(S.current);
       S.current++;
@@ -1336,16 +1344,13 @@ const Sims = {
         if (S.players[S.current].status === 'active') break;
         S.current++;
       }
-      if (S.current >= N) {
-        S.dealerPhase = true;
-        S.phase = 'dealer';
-        renderPlayers();
-        actions('');
-        showDealerControls();
-        return;
-      }
+      if (S.current >= N) { enterDealerPhase(); return; }
       renderPlayers();
       autoDecide();
+    }
+    function nextHand() {
+      if (S.speedMode) Sims.blackjack.newGameSpeed();
+      else              Sims.blackjack.newGame();
     }
 
     function startPayTest() {
@@ -1386,9 +1391,9 @@ const Sims = {
         ov.className = 'next-hand-overlay';
         ov.innerHTML = '<div class="next-hand-text">NEXT HAND</div>';
         table.appendChild(ov);
-        setTimeout(() => { ov.remove(); Sims.blackjack.newGame(); }, 1600);
+        setTimeout(() => { ov.remove(); nextHand(); }, 1600);
       } else {
-        setTimeout(() => Sims.blackjack.newGame(), 1600);
+        setTimeout(() => nextHand(), 1600);
       }
     }
 
@@ -1398,7 +1403,7 @@ const Sims = {
         const keepScore  = isRestart && S ? S.score  : 0;
         S = { deck: createDeck(6), players: [], dh: [], current: 0, dealerPhase: false,
               rounds: keepRounds, score: keepScore, pendingAction: null, payTestIdx: 4, phase: 'idle',
-              payTimerStart: null, payTimerInterval: null };
+              payTimerStart: null, payTimerInterval: null, speedMode: false };
         bjFlipId = 0;
         stats();
       },
@@ -1406,6 +1411,7 @@ const Sims = {
       newGame() {
         stopPayTimer();
         if (S.deck.length < 30) S.deck = createDeck(6);
+        S.speedMode = false;
         S.players = Array.from({length: N}, () => ({ hand: [], status: 'active', hideCards: false }));
         S.dh = [];
         S.current = 0;
@@ -1480,6 +1486,44 @@ const Sims = {
           for (let i = 0; i < N; i++) adjustPlayerHandScale(i);
           advancePlayer();
         }, steps.length * 140 + 320);
+      },
+
+      // Speed Mode: every hand is dealt fully revealed and already stood —
+      // no Hit/Stand decisions, straight to the dealer's Draw/Stop turn.
+      newGameSpeed() {
+        stopPayTimer();
+        if (S.deck.length < 30) S.deck = createDeck(6);
+        S.speedMode = true;
+        S.players = Array.from({length: N}, () => ({ hand: [], status: 'active', hideCards: false }));
+        S.dh = [];
+        S.current = N;
+        S.dealerPhase = false;
+        S.pendingAction = null;
+        S.payTestIdx = 4;
+        S.phase = 'player';
+        S.rounds++;
+        for (let i = 0; i < N; i++) {
+          clearSpotAct(i);
+          const st = $(`bj-status-${i}`); if (st) st.innerHTML = '';
+          const sp = $(`bj-spot-${i}`);   if (sp) sp.className = 'player-spot';
+        }
+        clearDealerCtrl();
+        disableStart();
+
+        for (let i = 0; i < N; i++) {
+          S.players[i].hand.push(S.deck.pop(), S.deck.pop());
+          S.players[i].status = 'stand';
+        }
+        S.dh.push(S.deck.pop());
+
+        const dealerEl = $('bj-dealer-hand');
+        if (dealerEl) dealerEl.innerHTML = S.dh.map(c => bjFlipHTML(c, ++bjFlipId, true)).join('');
+
+        renderPlayers();
+        for (let i = 0; i < N; i++) adjustPlayerHandScale(i);
+        stats();
+        msg('Game started!');
+        enterDealerPhase();
       },
 
       executeAction() {
