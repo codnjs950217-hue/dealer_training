@@ -3468,7 +3468,7 @@ body {
 /* Layout: main column with oval+pair rows stacked */
 .bside-pos-wrap  { display: flex; flex-direction: row; gap: .2rem; align-items: stretch; }
 .bside-pos-main  { flex: 1; min-height: 0; display: flex; flex-direction: column;
-                   gap: clamp(2px,.4vh,5px); justify-content: space-between; }
+                   gap: clamp(2px,.4vh,5px); justify-content: center; }
 /* Each oval row: oval (flex:1) + pair circle side by side */
 .bside-oval-pair-row { display: flex; flex-direction: row; align-items: stretch; gap: .2rem; flex-shrink: 1; }
 .bside-oval-pair-row .bpay-oval { flex: 1; }
