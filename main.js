@@ -2356,10 +2356,10 @@ const Sims = {
       restart() {
         const cur = S.mode || 'commission';
         S = { bets: [], commIdx: 0, rounds: S.rounds, score: S.score, commTarget: 0, mode: cur, lastTotal: 0 };
-        this.setMode(cur, true);
+        this.setMode(cur);
       },
 
-      setMode(mode, isRestart) {
+      setMode(mode) {
         const prevMode = S.mode;
         S.mode = mode;
         const btnComm = document.getElementById('bpay-btn-commission');
@@ -2377,15 +2377,15 @@ const Sims = {
           if (bsideContent) bsideContent.style.display = '';
           if (statsComm) statsComm.style.display = 'none';
           if (statsSide) statsSide.style.display = '';
-          // Each tab keeps its own Rounds/Score: only an in-app ↺ restart while
-          // already on this tab preserves the count, any tab switch resets it.
-          if (Sims.baccaratSide) { Sims.baccaratSide.init(isRestart && prevMode === 'side'); Sims.baccaratSide.deal(); }
+          // Re-entering the same Option Bet tab (re-click or ↺ restart) keeps
+          // accumulating its Rounds/Score; switching in from another tab resets it.
+          if (Sims.baccaratSide) { Sims.baccaratSide.init(prevMode === 'side'); Sims.baccaratSide.deal(); }
         } else {
           if (bpayContent) bpayContent.style.display = '';
           if (bsideContent) bsideContent.style.display = 'none';
           if (statsComm) statsComm.style.display = '';
           if (statsSide) statsSide.style.display = 'none';
-          if (!(isRestart && prevMode === mode)) {
+          if (prevMode !== mode) {
             S.rounds = 0; S.score = 0;
             if ($('bpay-score')) $('bpay-score').textContent = 0;
           }
