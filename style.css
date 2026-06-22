@@ -2974,9 +2974,9 @@ body {
   position: absolute;
   bottom: clamp(8px,1.8vh,14px); right: clamp(8px,1.5vw,14px);
   z-index: 10;
-  background: rgba(110,200,100,.1);
-  border: 1px solid rgba(110,200,100,.45);
-  color: #6ec864;
+  background: rgba(201,168,76,.1);
+  border: 1px solid rgba(201,168,76,.45);
+  color: var(--gold);
   border-radius: 50px;
   padding: clamp(.5rem,1.4vh,.8rem) clamp(1.5rem,3.8vw,2.4rem);
   font-size: clamp(.85rem,2.1vh,1rem);
@@ -2987,8 +2987,8 @@ body {
   transition: background .15s, border-color .15s, transform .1s;
 }
 .bac-next-hand-btn:hover {
-  background: rgba(110,200,100,.2);
-  border-color: rgba(110,200,100,.7);
+  background: rgba(201,168,76,.2);
+  border-color: rgba(201,168,76,.7);
 }
 .bac-next-hand-btn:active {
   transform: scale(.96);
