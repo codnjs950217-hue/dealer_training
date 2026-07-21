@@ -236,6 +236,7 @@ const Views = {
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="bj-rounds">0</strong></span>
           <span>Score: <strong id="bj-score">0</strong></span>
+          <span>Mistake: <strong id="bj-mistakes">0</strong></span>
         </div>
         <div class="bj-start-bar" id="bj-mode-bar">
           <button class="bj-start-btn" id="bj-start-btn" onclick="Sims.blackjack.newGame()">Standard Mode</button>
@@ -270,6 +271,7 @@ const Views = {
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="bac-rounds">0</strong></span>
           <span>Score: <strong id="bac-score">0</strong></span>
+          <span>Mistake: <strong id="bac-mistakes">0</strong></span>
         </div>
         <div class="bac-btn-cluster bac-btn-cluster-quiz">
           <div class="bac-bclust-side" id="bac-b-btn-top"></div>
@@ -315,6 +317,7 @@ const Views = {
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="rpay-rounds">0</strong></span>
           <span>Score: <strong id="rpay-score">0</strong></span>
+          <span>Mistake: <strong id="rpay-mistakes">0</strong></span>
         </div>
         <div class="rpay-bet-side">
           <div class="rpay-diff-row">
@@ -355,10 +358,12 @@ const Views = {
           <div id="bpay-stats-comm" style="display:flex;gap:.4rem">
             <span>Rounds: <strong id="bpay-rounds">0</strong></span>
             <span>Score: <strong id="bpay-score">0</strong></span>
+            <span>Mistake: <strong id="bpay-mistakes">0</strong></span>
           </div>
           <div id="bpay-stats-side" style="display:none;gap:.4rem">
             <span>Rounds: <strong id="bside-rounds">0</strong></span>
             <span>Score: <strong id="bside-score">0</strong></span>
+            <span>Mistake: <strong id="bside-mistakes">0</strong></span>
           </div>
         </div>
       </div>
@@ -434,6 +439,7 @@ const Views = {
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="bside-rounds">0</strong></span>
           <span>Score: <strong id="bside-score">0</strong></span>
+          <span>Mistake: <strong id="bside-mistakes">0</strong></span>
         </div>
         <div class="bpay-positions bside-layout">
           ${[1].map(i => `
@@ -481,6 +487,7 @@ const Views = {
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="pk-rounds">0</strong></span>
           <span>Score: <strong id="pk-score">0</strong></span>
+          <span>Mistake: <strong id="pk-mistakes">0</strong></span>
         </div>
         <div class="pk-zone pk-player-zone">
           <div class="pk-zone-label pk-label-player">PLAYER</div>
@@ -509,6 +516,7 @@ const Views = {
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="pk-rounds">0</strong></span>
           <span>Score: <strong id="pk-score">0</strong></span>
+          <span>Mistake: <strong id="pk-mistakes">0</strong></span>
         </div>
         <div class="pk-zone pk-player-zone">
           <div class="pk-zone-label pk-label-player">PLAYER</div>
@@ -541,6 +549,7 @@ const Views = {
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="thpr-rounds">0</strong></span>
           <span>Score: <strong id="thpr-score">0</strong></span>
+          <span>Mistake: <strong id="thpr-mistakes">0</strong></span>
         </div>
 
         <div class="thpr-players-row">
@@ -1126,7 +1135,8 @@ const Sims = {
     const msg    = () => {};
     const msgCol = () => {};
     const actions = () => {};
-    const stats   = ()    => { $('bj-rounds').textContent = S.rounds; $('bj-score').textContent = S.score; };
+    const stats   = ()    => { $('bj-rounds').textContent = S.rounds; $('bj-score').textContent = S.score; $('bj-mistakes').textContent = S.mistakes; };
+    const addMistake = () => { S.mistakes++; stats(); };
     const dealerCtrl      = h => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = h; };
     const clearDealerCtrl = () => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = ''; };
     const setSpotAct  = (i, h) => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = h; };
@@ -1409,10 +1419,11 @@ const Sims = {
 
     return {
       init(isRestart) {
-        const keepRounds = isRestart && S ? S.rounds : 0;
-        const keepScore  = isRestart && S ? S.score  : 0;
+        const keepRounds   = isRestart && S ? S.rounds   : 0;
+        const keepScore    = isRestart && S ? S.score    : 0;
+        const keepMistakes = isRestart && S ? S.mistakes : 0;
         S = { deck: createDeck(6), players: [], dh: [], current: 0, dealerPhase: false,
-              rounds: keepRounds, score: keepScore, pendingAction: null, payTestIdx: 4, phase: 'idle',
+              rounds: keepRounds, score: keepScore, mistakes: keepMistakes, pendingAction: null, payTestIdx: 4, phase: 'idle',
               payTimerStart: null, payTimerInterval: null, speedMode: false };
         bjFlipId = 0;
         stats();
@@ -1576,6 +1587,7 @@ const Sims = {
 
       dealerDraw() {
         if (!dealerShouldDraw(S.dh)) {
+          addMistake();
           showDealerAlert('Over Draw!', () => showDealerControls());
           return;
         }
@@ -1591,6 +1603,7 @@ const Sims = {
 
       dealerStop() {
         if (dealerShouldDraw(S.dh)) {
+          addMistake();
           showDealerAlert('Mistake!', () => showDealerControls());
           return;
         }
@@ -1606,6 +1619,7 @@ const Sims = {
         const correct = pv > dv ? 'pay' : pv === dv ? 'push' : 'take';
 
         if (answer !== correct) {
+          addMistake();
           clearSpotAct(i);
           const table = document.querySelector('.blackjack-table');
           if (table) {
@@ -1741,6 +1755,8 @@ const Sims = {
     }
 
     function showMistake(retryFn, msg = 'MISTAKE!') {
+      S.mistakes++;
+      const mEl = $('bac-mistakes'); if (mEl) mEl.textContent = S.mistakes;
       clearInlineBtns();
       const tbl = document.querySelector('.baccarat-table');
       if (!tbl) return;
@@ -2036,12 +2052,14 @@ const Sims = {
 
     return {
       init(isRestart) {
-        const keepRounds = isRestart && S ? S.rounds : 0;
-        const keepScore  = isRestart && S ? S.score  : 0;
+        const keepRounds   = isRestart && S ? S.rounds   : 0;
+        const keepScore    = isRestart && S ? S.score    : 0;
+        const keepMistakes = isRestart && S ? S.mistakes : 0;
         S = { deck: createBacDeck(), ph: [], bh: [], pThird: null,
-              rounds: keepRounds, score: keepScore, winner: null, bets: [] };
+              rounds: keepRounds, score: keepScore, mistakes: keepMistakes, winner: null, bets: [] };
         $('bac-rounds').textContent = S.rounds;
         $('bac-score').textContent = S.score;
+        $('bac-mistakes').textContent = S.mistakes;
         if (isRestart) {
           // In-app restart: skip the START/Next Hand button screen and deal right away.
           this.deal();
@@ -2358,6 +2376,8 @@ const Sims = {
     }
 
     function showMistake(retryFn) {
+      S.mistakes++;
+      if ($('bpay-mistakes')) $('bpay-mistakes').textContent = S.mistakes;
       const tbl = document.querySelector('.baccarat-table');
       if (!tbl) return;
       const ov = document.createElement('div');
@@ -2403,13 +2423,13 @@ const Sims = {
 
     return {
       init() {
-        S = { bets: [], commIdx: 0, rounds: 0, score: 0, commTarget: 0, mode: 'commission', lastTotal: 0 };
+        S = { bets: [], commIdx: 0, rounds: 0, score: 0, mistakes: 0, commTarget: 0, mode: 'commission', lastTotal: 0 };
         this.deal();
       },
 
       restart() {
         const cur = S.mode || 'commission';
-        S = { bets: [], commIdx: 0, rounds: S.rounds, score: S.score, commTarget: 0, mode: cur, lastTotal: 0 };
+        S = { bets: [], commIdx: 0, rounds: S.rounds, score: S.score, mistakes: S.mistakes, commTarget: 0, mode: cur, lastTotal: 0 };
         this.setMode(cur);
       },
 
@@ -2440,8 +2460,9 @@ const Sims = {
           if (statsComm) statsComm.style.display = '';
           if (statsSide) statsSide.style.display = 'none';
           if (prevMode !== mode) {
-            S.rounds = 0; S.score = 0;
+            S.rounds = 0; S.score = 0; S.mistakes = 0;
             if ($('bpay-score')) $('bpay-score').textContent = 0;
+            if ($('bpay-mistakes')) $('bpay-mistakes').textContent = 0;
           }
           this.deal();
         }
@@ -2667,8 +2688,10 @@ const Sims = {
     }
 
     function showMistake(retryFn) {
-      const tbl = document.querySelector('#bside-content .baccarat-table');
-      if (!tbl) return;
+      S.mistakes++;
+      if ($('bside-mistakes')) $('bside-mistakes').textContent = S.mistakes;
+      const tbl = document.querySelector('#bside-content .baccarat-table') || document.querySelector('.bside-sim .baccarat-table');
+      if (!tbl) { retryFn(); return; }
       const ov = document.createElement('div');
       ov.className = 'mistake-overlay';
       ov.innerHTML = '<div class="mistake-text">MISTAKE!</div>';
@@ -2749,10 +2772,12 @@ const Sims = {
 
     return {
       init(isRestart) {
-        const keepRounds = isRestart && S ? S.rounds : 0;
-        const keepScore  = isRestart && S ? S.score  : 0;
-        S = { rounds: keepRounds, score: keepScore, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0 };
+        const keepRounds   = isRestart && S ? S.rounds   : 0;
+        const keepScore    = isRestart && S ? S.score    : 0;
+        const keepMistakes = isRestart && S ? S.mistakes : 0;
+        S = { rounds: keepRounds, score: keepScore, mistakes: keepMistakes, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0 };
         if ($('bside-score')) $('bside-score').textContent = S.score;
+        if ($('bside-mistakes')) $('bside-mistakes').textContent = S.mistakes;
       },
 
       deal() {
@@ -3297,6 +3322,8 @@ const Sims = {
     }
 
     function showMistake(retry) {
+      S.mistakes = (S.mistakes || 0) + 1;
+      const mEl = document.getElementById('rpay-mistakes'); if (mEl) mEl.textContent = S.mistakes;
       const tbl = document.querySelector('.rpay-table');
       if (!tbl) { retry(); return; }
       const ov = document.createElement('div');
@@ -3319,7 +3346,7 @@ const Sims = {
 
       init() {
         if (S && S.timerInterval) clearInterval(S.timerInterval);
-        S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, lastNum: null, roundColor: null,
+        S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, mistakes: 0, lastNum: null, roundColor: null,
               payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
               history: [], difficulty: 'easy',
               timerStart: null, timerInterval: null };
@@ -3332,7 +3359,7 @@ const Sims = {
         // Re-clicking the same difficulty mid-game is a refresh that keeps
         // accumulating Rounds; switching to a different difficulty resets it.
         const prevRounds = (hasStarted && S && S.difficulty === level) ? S.rounds : 0;
-        S = { winNum: null, spots: [], spotIdx: 0, rounds: prevRounds, score: 0, lastNum: null, roundColor: null,
+        S = { winNum: null, spots: [], spotIdx: 0, rounds: prevRounds, score: 0, mistakes: 0, lastNum: null, roundColor: null,
               payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
               history: [], difficulty: level,
               timerStart: null, timerInterval: null };
@@ -3342,6 +3369,7 @@ const Sims = {
         });
         if ($('rpay-rounds')) $('rpay-rounds').textContent = String(prevRounds);
         if ($('rpay-score'))  $('rpay-score').textContent  = '0';
+        if ($('rpay-mistakes')) $('rpay-mistakes').textContent = '0';
         if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
         if ($('rpay-pay-zone'))   $('rpay-pay-zone').innerHTML   = '';
         const wb = $('rpay-chip-warn-banner'); if (wb) wb.style.visibility = 'hidden';
@@ -3519,15 +3547,16 @@ const Sims = {
   // ---- POKER ----
   poker: (() => {
     function mkSim(key, holeP, holeD, commN) {
-      let S = { rounds: 0, score: 0, phase: 'idle' };
+      let S = { rounds: 0, score: 0, mistakes: 0, phase: 'idle' };
       const $  = id => document.getElementById(id);
       const sh = (id, h) => { const e = $(id); if (e) e.innerHTML = h; };
 
       function init(isRestart) {
-        const keepRounds = isRestart ? S.rounds : 0;
-        const keepScore  = isRestart ? S.score  : 0;
-        S = { rounds: keepRounds, score: keepScore, phase: 'idle' };
-        sh('pk-rounds', S.rounds); sh('pk-score', S.score);
+        const keepRounds   = isRestart ? S.rounds   : 0;
+        const keepScore    = isRestart ? S.score    : 0;
+        const keepMistakes = isRestart ? S.mistakes : 0;
+        S = { rounds: keepRounds, score: keepScore, mistakes: keepMistakes, phase: 'idle' };
+        sh('pk-rounds', S.rounds); sh('pk-score', S.score); sh('pk-mistakes', S.mistakes);
         sh('pk-player-hand', ''); sh('pk-dealer-hand', ''); sh('pk-comm-hand', '');
         sh('pk-player-rank', ''); sh('pk-dealer-rank', '');
         sh('pk-quiz', ''); sh('pk-result', '');
@@ -3564,8 +3593,9 @@ const Sims = {
         const cmp = cmpPokerHands(pEv, dEv);
         const winner = cmp > 0 ? 'player' : cmp < 0 ? 'dealer' : 'tie';
         const ok = choice === winner;
-        if (ok) S.score++;
+        if (ok) S.score++; else S.mistakes++;
         sh('pk-score', S.score);
+        sh('pk-mistakes', S.mistakes);
         sh('pk-player-rank', `<span class="pk-rank-lbl">${pEv.l}</span>`);
         sh('pk-dealer-rank',  `<span class="pk-rank-lbl">${dEv.l}</span>`);
         const wText = winner === 'player' ? 'PLAYER WINS' : winner === 'dealer' ? 'DEALER WINS' : 'TIE';
@@ -3780,8 +3810,9 @@ const Sims = {
           spot.classList.add('thpr-' + result.winner.toLowerCase());
         }
 
-        if (correct) S.score++;
+        if (correct) S.score++; else S.mistakes++;
         var scEl = $('thpr-score'); if (scEl) scEl.textContent = S.score;
+        var mEl = $('thpr-mistakes'); if (mEl) mEl.textContent = S.mistakes;
 
         // Build winner-first hand lines
         var line1, line2;
@@ -3879,11 +3910,13 @@ const Sims = {
 
       function init(isRestart) {
         clearCd();
-        var keepRounds = isRestart && S ? S.rounds : 0;
-        var keepScore  = isRestart && S ? S.score  : 0;
-        S = { rounds: keepRounds, score: keepScore, phase: 'idle', activePlayer: null, results: [] };
+        var keepRounds   = isRestart && S ? S.rounds   : 0;
+        var keepScore    = isRestart && S ? S.score    : 0;
+        var keepMistakes = isRestart && S ? S.mistakes : 0;
+        S = { rounds: keepRounds, score: keepScore, mistakes: keepMistakes, phase: 'idle', activePlayer: null, results: [] };
         var r = $('thpr-rounds');    if (r)  r.textContent  = S.rounds;
         var sc = $('thpr-score');    if (sc) sc.textContent = S.score;
+        var mi = $('thpr-mistakes'); if (mi) mi.textContent = S.mistakes;
         var f = $('thpr-feedback');  if (f)  f.innerHTML    = '';
         var cd = $('thpr-countdown');
         if (cd) { cd.textContent = ''; cd.className = 'thpr-countdown'; }
