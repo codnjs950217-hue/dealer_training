@@ -1509,8 +1509,10 @@ const Sims = {
         }, steps.length * 140 + 320);
       },
 
-      // Speed Mode: every hand is dealt fully revealed and already stood —
-      // no Hit/Stand decisions, straight to the dealer's Draw/Stop turn.
+      // Speed Mode: every player hand is dealt AND auto-resolved (hit until 17+,
+      // same mimic-dealer rule as a manually-played Next Action) before the
+      // trainee sees the table, so practice starts right at the dealer's own
+      // Draw/Stop turn instead of stepping through each player's decisions.
       newGameSpeed() {
         stopPayTimer();
         if (S.deck.length < 30) S.deck = createDeck(6);
@@ -1532,8 +1534,12 @@ const Sims = {
         disableStart();
 
         for (let i = 0; i < N; i++) {
-          S.players[i].hand.push(S.deck.pop(), S.deck.pop());
-          S.players[i].status = 'stand';
+          const p = S.players[i];
+          p.hand.push(S.deck.pop(), S.deck.pop());
+          while (total(p.hand) < 17) {
+            p.hand.push(safeHit(p.hand));
+          }
+          p.status = total(p.hand) > 21 ? 'bust' : 'stand';
         }
         S.dh.push(pullDealerUpcard());
 
