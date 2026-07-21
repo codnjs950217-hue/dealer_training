@@ -722,7 +722,7 @@ body {
 }
 .dealer-area-bj .hand-display {
   flex-wrap: nowrap;
-  min-height: clamp(40px,7vh,60px);
+  min-height: var(--card-h-sm, clamp(40px,7vh,60px));
   gap: 0;
   justify-content: flex-start;
 }
