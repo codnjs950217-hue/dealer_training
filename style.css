@@ -706,14 +706,16 @@ body {
   margin-top: clamp(.5rem,2vh,1.2rem);
   position: relative;
   display: grid;
-  grid-template-columns: auto auto;
+  /* Flanking 1fr tracks are locked to min 0 so they always stay equal width —
+     that's what keeps column 2 (the cards) truly centered no matter how wide
+     the Draw/Stop controls in column 3 get. */
+  grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
   grid-template-rows: auto auto;
   align-items: center;
-  justify-content: center;
   gap: .3rem .5rem;
 }
-.dealer-area-bj .hand-display { grid-column: 1; grid-row: 1; justify-self: center; }
-.dealer-area-bj .dealer-ctrl-area { grid-column: 2; grid-row: 1; }
+.dealer-area-bj .hand-display { grid-column: 2; grid-row: 1; justify-self: center; }
+.dealer-area-bj .dealer-ctrl-area { grid-column: 3; grid-row: 1; justify-self: start; }
 .dealer-area-bj .area-label {
   grid-column: 1 / -1;
   grid-row: 2;

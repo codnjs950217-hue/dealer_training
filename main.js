@@ -1221,13 +1221,12 @@ const Sims = {
     function adjustDealerLayout() {
       const wrapEl = $('bj-dealer-wrap');
       const handEl = $('bj-dealer-hand');
-      const ctrlEl = $('bj-dealer-controls');
       if (!wrapEl || !handEl) return;
       const cards = handEl.querySelectorAll('.bj-flip-card');
       if (cards.length <= 1) { cards.forEach(c => c.style.marginLeft = ''); return; }
-      const ctrlW = ctrlEl ? ctrlEl.offsetWidth : 0;
-      const gapPx = parseFloat(getComputedStyle(wrapEl).gap) || 8;
-      const availW = wrapEl.offsetWidth - ctrlW - gapPx;
+      // Cards sit in their own centered grid column now, independent of the
+      // Draw/Stop controls column, so the full wrap width is available to them.
+      const availW = wrapEl.offsetWidth;
       const cardW = cards[0].offsetWidth || 60;
       const n = cards.length;
       const defaultGap = 6;
