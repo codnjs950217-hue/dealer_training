@@ -249,8 +249,8 @@ const Views = {
                 <div class="hand-display" id="bj-hand-${i}"><div class="hand-cards"></div></div>
                 <div class="spot-status-wrap" id="bj-status-${i}"></div>
                 <div class="spot-bottom-row">
-                  <div class="spot-inline-act" id="bj-spot-act-${i}"></div>
                   <div class="area-label">P${i < 3 ? i+1 : i+2}</div>
+                  <div class="spot-inline-act" id="bj-spot-act-${i}"></div>
                 </div>
               </div>`).join('')}
           </div>

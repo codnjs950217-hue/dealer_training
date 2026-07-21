@@ -1972,15 +1972,16 @@ body {
   gap: .25rem;
 }
 
-/* Bottom row: action button + spot label share one line, instead of stacking
-   as separate rows, so the hand-display above keeps more vertical room. */
+/* Bottom row: P# label stays pinned bottom-left; action button (when shown)
+   follows on the same line, instead of stacking as separate rows — this
+   keeps the hand-display above with more vertical room. */
 .spot-bottom-row {
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: center; justify-content: flex-start;
   gap: .4rem;
   min-height: 32px;
 }
 .spot-inline-act {
-  display: flex; align-items: center; justify-content: center;
+  display: flex; align-items: center; justify-content: flex-start;
   flex-wrap: wrap; gap: .2rem;
 }
 .spot-bottom-row .area-label { margin-bottom: 0; }
