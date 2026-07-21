@@ -1972,15 +1972,18 @@ body {
   gap: .25rem;
 }
 
-/* Action area at top of spot (player's side, seen upside-down by dealer) */
+/* Bottom row: action button + spot label share one line, instead of stacking
+   as separate rows, so the hand-display above keeps more vertical room. */
+.spot-bottom-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: .4rem;
+  min-height: 32px;
+}
 .spot-inline-act {
-  min-height: clamp(20px,3.5vh,26px);
   display: flex; align-items: center; justify-content: center;
   flex-wrap: wrap; gap: .2rem;
 }
-
-/* Label at the bottom (closest to dealer) */
-.player-spot .area-label { order: 10; }
+.spot-bottom-row .area-label { margin-bottom: 0; }
 
 /* Per-hand pay-test timer — sits at the top of each spot, above the cards */
 .bj-pay-timer {
