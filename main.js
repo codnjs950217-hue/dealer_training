@@ -253,7 +253,7 @@ const Views = {
               </div>`).join('')}
           </div>
           <div class="dealer-area-bj" id="bj-dealer-wrap">
-            <div class="area-label">DEALER</div>
+            <div class="area-label" id="bj-dealer-label" style="visibility:hidden">DEALER</div>
             <div class="hand-display" id="bj-dealer-hand"></div>
             <div class="dealer-ctrl-area" id="bj-dealer-controls"></div>
           </div>
@@ -1130,7 +1130,10 @@ const Sims = {
     const setSpotAct  = (i, h) => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = h; };
     const clearSpotAct = i     => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = ''; };
     const enableStart  = ()    => { const e = $('bj-mode-bar'); if (e) { e.style.opacity = ''; e.style.visibility = ''; } };
-    const disableStart = ()    => { const e = $('bj-mode-bar'); if (e) { e.style.opacity = '0.4'; e.style.visibility = 'hidden'; } };
+    const disableStart = ()    => {
+      const e = $('bj-mode-bar'); if (e) { e.style.opacity = '0.4'; e.style.visibility = 'hidden'; }
+      const lbl = $('bj-dealer-label'); if (lbl) lbl.style.visibility = '';
+    };
 
     function bval(c) {
       if (c.rank === 'A') return 11;
@@ -1162,6 +1165,12 @@ const Sims = {
     }
     function pullFrom(ranks) {
       const idx = S.deck.findIndex(c => ranks.includes(c.rank));
+      if (idx >= 0) { const [c] = S.deck.splice(idx, 1); return c; }
+      return S.deck.pop();
+    }
+    // Dealer's first (showing) card should never be an ace
+    function pullDealerUpcard() {
+      const idx = S.deck.findIndex(c => c.rank !== 'A');
       if (idx >= 0) { const [c] = S.deck.splice(idx, 1); return c; }
       return S.deck.pop();
     }
@@ -1437,8 +1446,8 @@ const Sims = {
         for (let i = 0; i < N; i++) {
           S.players[i].hand.push(hitSpots.has(i) ? pullRank('A') : S.deck.pop());
         }
-        // Dealer upcard: 8% chance of ace
-        S.dh.push(Math.random() < .08 ? pullRank('A') : S.deck.pop());
+        // Dealer upcard: never an ace
+        S.dh.push(pullDealerUpcard());
 
         // Round 2: second card per player
         for (let i = 0; i < N; i++) {
@@ -1514,7 +1523,7 @@ const Sims = {
           S.players[i].hand.push(S.deck.pop(), S.deck.pop());
           S.players[i].status = 'stand';
         }
-        S.dh.push(S.deck.pop());
+        S.dh.push(pullDealerUpcard());
 
         const dealerEl = $('bj-dealer-hand');
         if (dealerEl) dealerEl.innerHTML = S.dh.map(c => bjFlipHTML(c, ++bjFlipId, true)).join('');
