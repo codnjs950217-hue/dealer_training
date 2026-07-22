@@ -2581,9 +2581,9 @@ const Sims = {
 
     function generateSideChips(key) {
       const maxAmt = SIDE_BET_MAX[key] ?? 1_000_000;
-      // Roughly out of every 10 questions: 7 one-color, 2 two-color, 1 three-color
+      // Roughly out of every 10 questions: 5 one-color, 4 two-color, 1 three-color
       const r = Math.random();
-      const target = r < 0.70 ? 1 : r < 0.90 ? 2 : 3;
+      const target = r < 0.50 ? 1 : r < 0.90 ? 2 : 3;
       const numColors = (target === 3 && maxAmt >= 1_100_000) ? 3 : Math.min(target, 2);
 
       if (numColors === 1) {
