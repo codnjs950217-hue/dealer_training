@@ -1401,6 +1401,7 @@ const Sims = {
     function showFinalResult() {
       stopPayTimer();
       S.phase = 'done';
+      S.rounds++;
       for (let i = 0; i < N; i++) clearSpotAct(i);
       renderPlayers();
       S.score += S.players.filter(p => p.status === 'win').length;
@@ -1411,20 +1412,22 @@ const Sims = {
         ov.className = 'next-hand-overlay';
         ov.innerHTML = '<div class="next-hand-text">NEXT HAND</div>';
         table.appendChild(ov);
-        setTimeout(() => { ov.remove(); nextHand(); }, 1600);
+        S.nextHandTimer = setTimeout(() => { ov.remove(); nextHand(); }, 1600);
       } else {
-        setTimeout(() => nextHand(), 1600);
+        S.nextHandTimer = setTimeout(() => nextHand(), 1600);
       }
     }
 
     return {
       init(isRestart) {
-        const keepRounds   = isRestart && S ? S.rounds   : 0;
+        const wasMidHand = isRestart && S && S.phase && S.phase !== 'idle' && S.phase !== 'done';
+        if (S && S.nextHandTimer) { clearTimeout(S.nextHandTimer); S.nextHandTimer = null; }
+        const keepRounds   = isRestart && S ? S.rounds + (wasMidHand ? 1 : 0) : 0;
         const keepScore    = isRestart && S ? S.score    : 0;
         const keepMistakes = isRestart && S ? S.mistakes : 0;
         S = { deck: createDeck(6), players: [], dh: [], current: 0, dealerPhase: false,
               rounds: keepRounds, score: keepScore, mistakes: keepMistakes, pendingAction: null, payTestIdx: 4, phase: 'idle',
-              payTimerStart: null, payTimerInterval: null, speedMode: false };
+              payTimerStart: null, payTimerInterval: null, speedMode: false, nextHandTimer: null };
         bjFlipId = 0;
         stats();
       },
@@ -1440,7 +1443,6 @@ const Sims = {
         S.pendingAction = null;
         S.payTestIdx = 4;
         S.phase = 'player';
-        S.rounds++;
         for (let i = 0; i < N; i++) {
           clearSpotAct(i);
           const st = $(`bj-status-${i}`); if (st) st.innerHTML = '';
@@ -1524,7 +1526,6 @@ const Sims = {
         S.pendingAction = null;
         S.payTestIdx = 4;
         S.phase = 'player';
-        S.rounds++;
         for (let i = 0; i < N; i++) {
           clearSpotAct(i);
           const st = $(`bj-status-${i}`); if (st) st.innerHTML = '';
@@ -1997,6 +1998,7 @@ const Sims = {
     function announceWinner(side) {
       S.winner = side;
       S.score++;
+      S.rounds++;
       $('bac-score').textContent = S.score;
       $('bac-rounds').textContent = S.rounds;
       showWinnerFlash(side);
@@ -2058,7 +2060,8 @@ const Sims = {
 
     return {
       init(isRestart) {
-        const keepRounds   = isRestart && S ? S.rounds   : 0;
+        const wasMidHand = isRestart && S && S.ph && S.ph.length > 0 && S.winner === null;
+        const keepRounds   = isRestart && S ? S.rounds + (wasMidHand ? 1 : 0) : 0;
         const keepScore    = isRestart && S ? S.score    : 0;
         const keepMistakes = isRestart && S ? S.mistakes : 0;
         S = { deck: createBacDeck(), ph: [], bh: [], pThird: null,
@@ -2077,8 +2080,6 @@ const Sims = {
       deal() {
         if (S.deck.length < 20) S.deck = createBacDeck();
         S.ph = []; S.bh = []; S.pThird = null; S.winner = null;
-        S.rounds++;
-        $('bac-rounds').textContent = S.rounds;
         disableDraw();
 
         $('bac-ph').innerHTML   = '';
@@ -2398,15 +2399,18 @@ const Sims = {
     function showNextHand() {
       const pos = positions(); if (pos) pos.classList.remove('paying');
       for (let j = 1; j <= 1; j++) { const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active'); }
+      S.awaitingPay = false;
       S.score++;
+      S.rounds++;
       $('bpay-score').textContent = S.score;
+      $('bpay-rounds').textContent = S.rounds;
       const tbl = document.querySelector('.baccarat-table');
       if (!tbl) { Sims.baccaratPay.deal(); return; }
       const ov = document.createElement('div');
       ov.className = 'next-hand-overlay';
       ov.innerHTML = '<div class="next-hand-text">NEXT HAND</div>';
       tbl.appendChild(ov);
-      setTimeout(() => { ov.remove(); Sims.baccaratPay.deal(); }, 1600);
+      S.nextTimer = setTimeout(() => { ov.remove(); Sims.baccaratPay.deal(); }, 1600);
     }
 
     function startCommAt(idx) {
@@ -2429,17 +2433,19 @@ const Sims = {
 
     return {
       init() {
-        S = { bets: [], commIdx: 0, rounds: 0, score: 0, mistakes: 0, commTarget: 0, mode: 'commission', lastTotal: 0 };
+        S = { bets: [], commIdx: 0, rounds: 0, score: 0, mistakes: 0, commTarget: 0, mode: 'commission', lastTotal: 0, awaitingPay: false, nextTimer: null };
         this.deal();
       },
 
       restart() {
+        if (S.nextTimer) { clearTimeout(S.nextTimer); }
         const cur = S.mode || 'commission';
-        S = { bets: [], commIdx: 0, rounds: S.rounds, score: S.score, mistakes: S.mistakes, commTarget: 0, mode: cur, lastTotal: 0 };
+        S = { bets: [], commIdx: 0, rounds: S.rounds, score: S.score, mistakes: S.mistakes, commTarget: 0, mode: cur, lastTotal: 0, awaitingPay: S.awaitingPay, nextTimer: null };
         this.setMode(cur);
       },
 
       setMode(mode) {
+        if (S.nextTimer) { clearTimeout(S.nextTimer); S.nextTimer = null; }
         const prevMode = S.mode;
         S.mode = mode;
         const btnComm = document.getElementById('bpay-btn-commission');
@@ -2469,6 +2475,11 @@ const Sims = {
             S.rounds = 0; S.score = 0; S.mistakes = 0;
             if ($('bpay-score')) $('bpay-score').textContent = 0;
             if ($('bpay-mistakes')) $('bpay-mistakes').textContent = 0;
+          } else if (S.awaitingPay) {
+            // Re-entering the same tab (restart or mode-button re-click) while a
+            // hand was still in progress counts as abandoning it — one round.
+            S.rounds++;
+            if ($('bpay-rounds')) $('bpay-rounds').textContent = S.rounds;
           }
           this.deal();
         }
@@ -2476,7 +2487,7 @@ const Sims = {
 
       deal() {
         const pos = positions(); if (pos) pos.classList.remove('paying');
-        S.rounds++; S.commIdx = 0; S.commTarget = 0;
+        S.awaitingPay = true; S.commIdx = 0; S.commTarget = 0;
         $('bpay-rounds').textContent = S.rounds;
         for (let j = 1; j <= 1; j++) {
           const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active');
@@ -2712,7 +2723,7 @@ const Sims = {
       ov.className = 'next-hand-overlay';
       ov.innerHTML = '<div class="next-hand-text">NEXT HAND</div>';
       tbl.appendChild(ov);
-      setTimeout(() => { ov.remove(); Sims.baccaratSide.deal(); }, 1600);
+      S.nextTimer = setTimeout(() => { ov.remove(); Sims.baccaratSide.deal(); }, 1600);
     }
 
     const ZOOM_OUT_CHIP_SCALE = 0.55;
@@ -2778,10 +2789,13 @@ const Sims = {
 
     return {
       init(isRestart) {
-        const keepRounds   = isRestart && S ? S.rounds   : 0;
+        if (S.nextTimer) { clearTimeout(S.nextTimer); }
+        const wasMidHand = isRestart && S && S.awaitingPay === true;
+        const keepRounds   = isRestart && S ? S.rounds + (wasMidHand ? 1 : 0) : 0;
         const keepScore    = isRestart && S ? S.score    : 0;
         const keepMistakes = isRestart && S ? S.mistakes : 0;
-        S = { rounds: keepRounds, score: keepScore, mistakes: keepMistakes, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0 };
+        S = { rounds: keepRounds, score: keepScore, mistakes: keepMistakes, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0, awaitingPay: false, nextTimer: null };
+        if ($('bside-rounds')) $('bside-rounds').textContent = S.rounds;
         if ($('bside-score')) $('bside-score').textContent = S.score;
         if ($('bside-mistakes')) $('bside-mistakes').textContent = S.mistakes;
       },
@@ -2789,7 +2803,7 @@ const Sims = {
       deal() {
         const startOverlay = $('bside-start-overlay');
         if (startOverlay) startOverlay.style.display = 'none';
-        S.rounds++;
+        S.awaitingPay = true;
         $('bside-rounds').textContent = S.rounds;
         clearHighlights();
         SIDE_KEYS.forEach(k => { const el = $(`bside-${k}-amt-1`); if (el) el.innerHTML = ''; });
@@ -2884,8 +2898,11 @@ const Sims = {
         if (circ) { circ.classList.remove('bside-paying-circ'); circ.classList.add('bside-win-circ'); }
         COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
         updateSpread();
+        S.awaitingPay = false;
         S.score++;
+        S.rounds++;
         $('bside-score').textContent = S.score;
+        $('bside-rounds').textContent = S.rounds;
         showNextHand();
       },
     };
@@ -3350,24 +3367,32 @@ const Sims = {
         if (r) r.style.visibility = visible ? '' : 'hidden';
       },
 
-      init() {
+      init(isRestart) {
         if (S && S.timerInterval) clearInterval(S.timerInterval);
-        S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, mistakes: 0, lastNum: null, roundColor: null,
+        if (S && S.nextTimer) clearTimeout(S.nextTimer);
+        const wasMidHand = isRestart && hasStarted && S && S.awaitingPay === true;
+        const keepRounds = (isRestart && S) ? S.rounds + (wasMidHand ? 1 : 0) : 0;
+        S = { winNum: null, spots: [], spotIdx: 0, rounds: keepRounds, score: 0, mistakes: 0, lastNum: null, roundColor: null,
               payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
-              history: [], difficulty: 'easy',
+              history: [], difficulty: 'easy', awaitingPay: false, nextTimer: null,
               timerStart: null, timerInterval: null };
+        if ($('rpay-rounds')) $('rpay-rounds').textContent = String(keepRounds);
         hasStarted = false;
         this._setControlsVisible(false);
       },
 
       setDiff(level) {
         this._stopTimer();
+        if (S && S.nextTimer) clearTimeout(S.nextTimer);
         // Re-clicking the same difficulty mid-game is a refresh that keeps
-        // accumulating Rounds; switching to a different difficulty resets it.
-        const prevRounds = (hasStarted && S && S.difficulty === level) ? S.rounds : 0;
+        // accumulating Rounds; a hand still in progress at that moment counts
+        // as abandoned (+1 round); switching to a different difficulty resets it.
+        const sameContext = hasStarted && S && S.difficulty === level;
+        const wasMidHand = sameContext && S.awaitingPay === true;
+        const prevRounds = sameContext ? S.rounds + (wasMidHand ? 1 : 0) : 0;
         S = { winNum: null, spots: [], spotIdx: 0, rounds: prevRounds, score: 0, mistakes: 0, lastNum: null, roundColor: null,
               payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
-              history: [], difficulty: level,
+              history: [], difficulty: level, awaitingPay: false, nextTimer: null,
               timerStart: null, timerInterval: null };
         ['easy','medium','hard'].forEach(d => {
           const btn = document.getElementById(`rpay-diff-${d}`);
@@ -3447,8 +3472,7 @@ const Sims = {
         this._stopTimer();
         const timerEl = $('rpay-timer');
         if (timerEl) { timerEl.className = 'rpay-timer'; timerEl.textContent = '—'; }
-        S.rounds++;
-        $('rpay-rounds').textContent = S.rounds;
+        S.awaitingPay = true;
         if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
 
         let N;
@@ -3535,8 +3559,11 @@ const Sims = {
           timerEl.textContent = fmtTime(elapsed);
           timerEl.className = 'rpay-timer rpay-timer-done';
         }
+        S.awaitingPay = false;
         S.score++;
+        S.rounds++;
         $('rpay-score').textContent = S.score;
+        $('rpay-rounds').textContent = S.rounds;
         highlightSpot(-1);
         const tbl = document.querySelector('.rpay-table');
         if (tbl) {
@@ -3544,7 +3571,7 @@ const Sims = {
           ov2.className = 'next-hand-overlay';
           ov2.innerHTML = `<div class="next-hand-text">NEXT HAND</div>${elapsed !== null ? `<div class="next-hand-time">${elapsed.toFixed(1)}s</div>` : ''}`;
           tbl.appendChild(ov2);
-          setTimeout(() => { ov2.remove(); Sims.roulettePay.deal(); }, 1400);
+          S.nextTimer = setTimeout(() => { ov2.remove(); Sims.roulettePay.deal(); }, 1400);
         }
       },
     };
@@ -3558,7 +3585,8 @@ const Sims = {
       const sh = (id, h) => { const e = $(id); if (e) e.innerHTML = h; };
 
       function init(isRestart) {
-        const keepRounds   = isRestart ? S.rounds   : 0;
+        const wasMidHand   = isRestart && S.phase === 'quiz';
+        const keepRounds   = isRestart ? S.rounds + (wasMidHand ? 1 : 0) : 0;
         const keepScore    = isRestart ? S.score    : 0;
         const keepMistakes = isRestart ? S.mistakes : 0;
         S = { rounds: keepRounds, score: keepScore, mistakes: keepMistakes, phase: 'idle' };
@@ -3570,8 +3598,6 @@ const Sims = {
 
       function deal() {
         if (S.phase === 'quiz') return;
-        S.rounds++;
-        sh('pk-rounds', S.rounds);
         const deck = createDeck(1);
         S.pH = deck.splice(0, holeP);
         S.dH = deck.splice(0, holeD);
@@ -3600,6 +3626,8 @@ const Sims = {
         const winner = cmp > 0 ? 'player' : cmp < 0 ? 'dealer' : 'tie';
         const ok = choice === winner;
         if (ok) S.score++; else S.mistakes++;
+        S.rounds++;
+        sh('pk-rounds', S.rounds);
         sh('pk-score', S.score);
         sh('pk-mistakes', S.mistakes);
         sh('pk-player-rank', `<span class="pk-rank-lbl">${pEv.l}</span>`);
@@ -3916,7 +3944,8 @@ const Sims = {
 
       function init(isRestart) {
         clearCd();
-        var keepRounds   = isRestart && S ? S.rounds   : 0;
+        var wasMidHand   = isRestart && S && S.phase && S.phase !== 'idle';
+        var keepRounds   = isRestart && S ? S.rounds + (wasMidHand ? 1 : 0) : 0;
         var keepScore    = isRestart && S ? S.score    : 0;
         var keepMistakes = isRestart && S ? S.mistakes : 0;
         S = { rounds: keepRounds, score: keepScore, mistakes: keepMistakes, phase: 'idle', activePlayer: null, results: [] };
