@@ -333,6 +333,7 @@ const Views = {
           </div>
         </div>
         <div class="rpay-right-col">
+          <div class="rpay-deco-wheel" aria-hidden="true"><div class="rpay-deco-wheel-inner">${buildWheel()}</div></div>
           <div class="rpay-timer" id="rpay-timer">—</div>
           <div class="rpay-undo-row">
             <button class="comm-undo-btn" id="rpay-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
