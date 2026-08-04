@@ -3912,18 +3912,6 @@ body {
 .thpr-result-answer { color: var(--gold); font-weight: 700; }
 .thpr-result-explain { color: rgba(255,255,255,.42); font-style: italic; }
 
-/* Next Player / Next Hand button */
-.thpr-next-btn {
-  background: rgba(255,255,255,.09); color: rgba(255,255,255,.88);
-  border: 1px solid rgba(255,255,255,.22);
-  border-radius: var(--r);
-  padding: clamp(.34rem, .88vh, .5rem) clamp(1rem, 2.6vw, 1.7rem);
-  font-size: clamp(.76rem, 1.75vw, .88rem); font-weight: 800;
-  cursor: pointer; letter-spacing: .4px;
-  transition: background .12s; min-height: var(--tap-h);
-}
-.thpr-next-btn:active { background: rgba(255,255,255,.18); }
-
 /* ---- End-of-round summary ---- */
 .thpr-summary {
   display: flex; flex-direction: column;
@@ -3964,16 +3952,11 @@ body {
   background: rgba(201,168,76,.1);
   animation: thpr-active-pulse 1.8s ease-in-out infinite;
 }
-.thpr-player-spot.thpr-pay {
-  border-color: rgba(78,205,196,.65);
-  background: rgba(78,205,196,.08);
-}
-.thpr-player-spot.thpr-take {
-  border-color: rgba(255,107,107,.45);
-  background: rgba(255,107,107,.05);
-  opacity: .72;
-}
+.thpr-player-spot.thpr-pay,
+.thpr-player-spot.thpr-take,
 .thpr-player-spot.thpr-tie {
-  border-color: rgba(201,168,76,.5);
-  background: rgba(201,168,76,.06);
+  border-color: rgba(255,255,255,.08);
+  background: rgba(255,255,255,.02);
+  opacity: .5;
+  filter: grayscale(.7);
 }

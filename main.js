@@ -3876,13 +3876,13 @@ const Sims = {
             '</div>';
         }
 
-        // Replace PAY/TAKE/TIE with Next Player button
-        var isLast = (S.activePlayer === 1);
+        // Auto-advance to the next player after a brief pause to read the result
         var a = $('thpr-action-row');
-        if (a) {
-          a.innerHTML = '<button class="thpr-next-btn" onclick="Sims.poker.thpRank.next()">' +
-            (isLast ? 'Next Hand →' : 'Next Player →') + '</button>';
-        }
+        if (a) a.innerHTML = '';
+        S.phase = 'transitioning';
+        setTimeout(function() {
+          if (S.phase === 'transitioning') next();
+        }, 2200);
       }
 
       function next() {
