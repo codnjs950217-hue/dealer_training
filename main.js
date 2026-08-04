@@ -151,7 +151,7 @@ const Views = {
           <div class="home-game-name">Poker</div>
           <div class="home-game-divider"></div>
           <div class="home-game-btns">
-            <button class="home-game-btn" onclick="App.navigate('poker','thp')">THP Ranking</button>
+            <button class="home-game-btn" onclick="App.navigate('poker','thp')">Hold'em Ranking</button>
           </div>
         </div>
       </div>
