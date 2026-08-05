@@ -547,6 +547,7 @@ const Views = {
     <div class="sim-page thp-rank-sim">
       <div class="thpr-table">
         <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
+        <button class="thpr-help-btn" onclick="Sims.poker.thpRank.showRankHelp()" title="Hand Ranking Guide">?</button>
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="thpr-rounds">0</strong></span>
           <span>Score: <strong id="thpr-score">0</strong></span>
@@ -600,6 +601,21 @@ const Views = {
           <div class="thpr-action-row" id="thpr-action-row">
             <button class="thpr-start-btn" id="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">START</button>
           </div>
+        </div>
+      </div>
+
+      <div class="thpr-rank-modal-backdrop" id="thpr-rank-modal" style="display:none;" onclick="Sims.poker.thpRank.hideRankHelp(event)">
+        <div class="thpr-rank-modal-box" onclick="event.stopPropagation()">
+          <button class="thpr-rank-modal-close" onclick="Sims.poker.thpRank.hideRankHelp()">✕</button>
+          <div class="thpr-rank-modal-title">Poker Hand Rankings</div>
+          <ol class="thpr-rank-list">
+            ${THPR_RANK_GUIDE.map((h, i) => `
+              <li class="thpr-rank-item">
+                <span class="thpr-rank-num">${i + 1}</span>
+                <span class="thpr-rank-name">${h.name}</span>
+                <span class="thpr-rank-desc">${h.desc}</span>
+              </li>`).join('')}
+          </ol>
         </div>
       </div>
     </div>`,
@@ -827,6 +843,20 @@ const HAND_NAMES = [
   'High Card', 'One Pair', 'Two Pair', 'Three of a Kind',
   'Straight', 'Flush', 'Full House', 'Four of a Kind',
   'Straight Flush', 'Royal Straight Flush'
+];
+
+// Highest to lowest, for the hand-ranking help modal
+const THPR_RANK_GUIDE = [
+  { name: 'Royal Straight Flush', desc: 'A, K, Q, J, 10 of the same suit.' },
+  { name: 'Straight Flush',       desc: 'Five sequential cards, all the same suit.' },
+  { name: 'Four of a Kind',       desc: 'Four cards of the same rank.' },
+  { name: 'Full House',           desc: 'Three of a kind plus a pair.' },
+  { name: 'Flush',                desc: 'Five cards of the same suit, not in sequence.' },
+  { name: 'Straight',             desc: 'Five sequential cards, mixed suits.' },
+  { name: 'Three of a Kind',      desc: 'Three cards of the same rank.' },
+  { name: 'Two Pair',             desc: 'Two separate pairs.' },
+  { name: 'One Pair',             desc: 'Two cards of the same rank.' },
+  { name: 'High Card',            desc: 'No matching combination — highest card plays.' },
 ];
 
 function valToRank(v) {
@@ -3720,6 +3750,110 @@ const Sims = {
           '<button class="thpr-tie-btn" onclick="Sims.poker.thpRank.answer(\'tie\')">TIE</button>';
       }
 
+      // ---- Discard-2 card picking: identify the best 5-card hand from the 7 available ----
+
+      function pickSlotsFor(p) {
+        return {
+          hole0: { id: 'p' + p + 'c0', card: S.players[p - 1][0] },
+          hole1: { id: 'p' + p + 'c1', card: S.players[p - 1][1] },
+          comm0: { id: 'comm0', card: S.comm[0] },
+          comm1: { id: 'comm1', card: S.comm[1] },
+          comm2: { id: 'comm2', card: S.comm[2] },
+          comm3: { id: 'comm3', card: S.comm[3] },
+          comm4: { id: 'comm4', card: S.comm[4] },
+        };
+      }
+
+      function beginPick(p) {
+        S.activePlayer = p;
+        S.phase = 'pick-wait';
+        S.pickSlots = pickSlotsFor(p);
+        S.pickSelected = [];
+        S.pickLocked = false;
+        countdown('SELECT', 10, enablePicking);
+      }
+
+      function enablePicking() {
+        Object.keys(S.pickSlots).forEach(function(key) {
+          var el = $('thprfc_' + S.pickSlots[key].id);
+          if (!el) return;
+          el.classList.remove('thpr-card-picked');
+          el.classList.add('thpr-card-pick');
+          el.onclick = function() { pickCard(key); };
+        });
+        setLabel('CHOOSE 2 TO DISCARD');
+        S.phase = 'picking';
+      }
+
+      function pickCard(key) {
+        if (S.phase !== 'picking' || S.pickLocked || !S.pickSlots[key]) return;
+        var el = $('thprfc_' + S.pickSlots[key].id);
+        var idx = S.pickSelected.indexOf(key);
+        if (idx >= 0) {
+          S.pickSelected.splice(idx, 1);
+          if (el) el.classList.remove('thpr-card-picked');
+          return;
+        }
+        if (S.pickSelected.length >= 2) return;
+        S.pickSelected.push(key);
+        if (el) el.classList.add('thpr-card-picked');
+        if (S.pickSelected.length === 2) {
+          S.pickLocked = true;
+          setTimeout(checkPick, 350);
+        }
+      }
+
+      function checkPick() {
+        var keys = Object.keys(S.pickSlots);
+        var allCards = keys.map(function(k) { return S.pickSlots[k].card; });
+        var remaining = keys
+          .filter(function(k) { return S.pickSelected.indexOf(k) === -1; })
+          .map(function(k) { return S.pickSlots[k].card; });
+        var bestEv = bestPokerHandCards(allCards).ev;
+        var userEv = evalPokerHand(remaining);
+        var correct = cmpPokerHands(userEv, bestEv) === 0;
+
+        var fb = $('thpr-feedback');
+
+        if (correct) {
+          if (fb) fb.innerHTML = '<div class="thpr-pick-result thpr-pick-correct">Correct! — best 5-card hand selected.</div>';
+          keys.forEach(function(key) {
+            var el = $('thprfc_' + S.pickSlots[key].id);
+            if (el) { el.onclick = null; el.classList.remove('thpr-card-pick'); }
+          });
+          setTimeout(function() {
+            if (fb) fb.innerHTML = '';
+            var cd = $('thpr-countdown');
+            if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
+            setLabel('PLAYER ' + S.activePlayer);
+            showAnswerBtns();
+            S.phase = 'quiz';
+          }, 900);
+        } else {
+          if (fb) fb.innerHTML = '<div class="thpr-pick-result thpr-pick-wrong">다시 랭킹 확인하세요.</div>';
+          setTimeout(function() {
+            if (fb) fb.innerHTML = '';
+            S.pickSelected.forEach(function(key) {
+              var el = $('thprfc_' + S.pickSlots[key].id);
+              if (el) el.classList.remove('thpr-card-picked');
+            });
+            S.pickSelected = [];
+            S.pickLocked = false;
+          }, 1300);
+        }
+      }
+
+      function showRankHelp() {
+        var m = $('thpr-rank-modal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function hideRankHelp(e) {
+        if (e) e.stopPropagation();
+        var m = $('thpr-rank-modal');
+        if (m) m.style.display = 'none';
+      }
+
       function dealRandomHand() {
         var ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
         var suits = ['♠','♥','♦','♣'];
@@ -3805,10 +3939,8 @@ const Sims = {
                   reveal('p5c0'); reveal('p5c1');
                   var spot5 = $('thpr-spot-5');
                   if (spot5) spot5.classList.add('thpr-active');
-                  setLabel('PLAYER 5');
                   S.activePlayer = 5;
-                  showAnswerBtns();
-                  S.phase = 'quiz';
+                  beginPick(5);
                 }, 900);
               });
             });
@@ -3894,9 +4026,7 @@ const Sims = {
         reveal('p' + S.activePlayer + 'c1');
         var spot = $('thpr-spot-' + S.activePlayer);
         if (spot) spot.classList.add('thpr-active');
-        setLabel('PLAYER ' + S.activePlayer);
-        showAnswerBtns();
-        S.phase = 'quiz';
+        beginPick(S.activePlayer);
       }
 
       function endRound() {
@@ -3977,7 +4107,7 @@ const Sims = {
         }
       }
 
-      return { init, deal, answer, next, debugHand };
+      return { init, deal, answer, next, debugHand, showRankHelp, hideRankHelp };
     }
 
     return {
