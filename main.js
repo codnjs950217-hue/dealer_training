@@ -1478,6 +1478,7 @@ const Sims = {
           clearSpotAct(i);
           const st = $(`bj-status-${i}`); if (st) st.innerHTML = '';
           const sp = $(`bj-spot-${i}`);   if (sp) sp.className = 'player-spot';
+          const t  = $(`bj-pay-timer-${i}`); if (t) t.textContent = '';
         }
         clearDealerCtrl();
         disableStart();
@@ -1561,6 +1562,7 @@ const Sims = {
           clearSpotAct(i);
           const st = $(`bj-status-${i}`); if (st) st.innerHTML = '';
           const sp = $(`bj-spot-${i}`);   if (sp) sp.className = 'player-spot';
+          const t  = $(`bj-pay-timer-${i}`); if (t) t.textContent = '';
         }
         clearDealerCtrl();
         disableStart();
