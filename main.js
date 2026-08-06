@@ -1967,6 +1967,11 @@ const Sims = {
       setBtn('bac-tie-btn', b.tie);
       setBtn('bac-p-btn-top', b.player);
       setBtn('bac-p-btn-bot', '');
+      // Banker drew a 3rd card because Player stood (Player still has only 2 cards):
+      // keep the PLAYER DRAW option visible so an over-draw attempt can still be caught.
+      if (S.ph.length === 2) {
+        setBtn('bac-ph3', `<button class="btn-bac-draw bac-draw-slot-btn" onclick="Sims.baccarat.quizSpecial('draw-player')">PLAYER<br>DRAW</button>`);
+      }
       msg('Which outcome?');
     }
 
@@ -2175,6 +2180,12 @@ const Sims = {
         doBankerDraw(() => showSpecialQuiz());
       },
 
+      quizSpecial(choice) {
+        if (choice === 'draw-player') {
+          showMistake(() => showSpecialQuiz(), 'OVER DRAW');
+        }
+      },
+
       quizWinFull(label, source) {
         const pp = pts(S.ph), bp = pts(S.bh);
         if (source === 'initial') {
@@ -2208,6 +2219,8 @@ const Sims = {
           const ph3 = $('bac-ph3'); if (ph3) ph3.innerHTML = '';
         } else if (source === 'banker') {
           const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
+        } else if (source === 'special' && S.ph.length === 2) {
+          const ph3 = $('bac-ph3'); if (ph3) ph3.innerHTML = '';
         }
         const side = correct === 'tie' ? 'tie' : correct.startsWith('banker') ? 'banker' : 'player';
         announceWinner(side);
