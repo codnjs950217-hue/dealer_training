@@ -232,7 +232,6 @@ const Views = {
   blackjackSim: () => `
     <div class="sim-page blackjack-sim">
       <div class="blackjack-table">
-        <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="bj-rounds">0</strong></span>
           <span>Score: <strong id="bj-score">0</strong></span>
@@ -267,7 +266,6 @@ const Views = {
   baccaratSim: () => `
     <div class="sim-page baccarat-sim">
       <div class="baccarat-table">
-        <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="bac-rounds">0</strong></span>
           <span>Score: <strong id="bac-score">0</strong></span>
@@ -349,7 +347,6 @@ const Views = {
   baccaratPaySim: () => `
     <div class="sim-page baccarat-sim">
       <div class="bpay-mode-row">
-        <button class="table-refresh-btn bpay-hdr-btn" onclick="Sims.baccaratPay.restart()" title="Restart">↺</button>
         <div class="bpay-mode-btns">
           <button id="bpay-btn-commission" class="bpay-mode-btn active" onclick="Sims.baccaratPay.setMode('commission')">💰 Commission (5%)</button>
           <button id="bpay-btn-halfpay"    class="bpay-mode-btn"        onclick="Sims.baccaratPay.setMode('halfpay')">½ Half Pay</button>
