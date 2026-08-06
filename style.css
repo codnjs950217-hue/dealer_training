@@ -875,6 +875,23 @@ body {
   margin-bottom: 0; flex: 1; min-height: 0;
   display: flex; flex-direction: row;
 }
+/* Dashboard-style stat readout — segmented fields instead of a loose game HUD,
+   in keeping with a training console rather than a mobile game screen */
+.rpay-table .table-stats-overlay {
+  background: rgba(6,14,10,.6);
+  border: 1px solid rgba(201,168,76,.22);
+  padding: clamp(.22rem,.4vh,.3rem) clamp(.15rem,.3vw,.25rem);
+  gap: 0;
+  border-radius: 5px;
+}
+.rpay-table .table-stats-overlay span {
+  padding: 0 clamp(.35rem,.6vw,.5rem);
+  border-right: 1px solid rgba(255,255,255,.14);
+  color: rgba(255,255,255,.4);
+  letter-spacing: .3px;
+}
+.rpay-table .table-stats-overlay span:last-child { border-right: none; }
+.rpay-table .table-stats-overlay strong { color: var(--gold-light); font-weight: 800; }
 .rpay-bet-side {
   flex: 3; min-width: 0; position: relative;
   padding: clamp(.3rem,.5vh,.45rem) clamp(.3rem,.5vw,.45rem) 0;
@@ -906,7 +923,7 @@ body {
 .rpay-bet-side::after {
   content: '';
   position: absolute; right: 0; top: .7rem; bottom: .7rem;
-  width: 1px; background: rgba(255,255,255,.18);
+  width: 1px; background: rgba(201,168,76,.2);
 }
 /* zoom removed — table stays at natural scale */
 .rpay-hint-text {
@@ -1087,21 +1104,27 @@ body {
   -webkit-overflow-scrolling: touch;
   align-items: stretch;
 }
-.rpay-btray .comm-pay-btn { font-size: var(--bf-md); padding: .38rem .55rem; }
+/* Flat PAY button for the roulette tray — solid fill, no gilt-button gradient/glow */
+.rpay-btray .comm-pay-btn {
+  font-size: var(--bf-md); padding: .38rem .55rem;
+  background: var(--gold);
+  box-shadow: none;
+}
+.rpay-btray .comm-pay-btn:hover  { background: var(--gold-light); box-shadow: none; }
+.rpay-btray .comm-pay-btn:active { background: var(--gold); box-shadow: none; }
 
 /* Chip image buttons in roulette tray */
 .rpay-tray-chip-btn {
   display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
   gap: .18rem;
   padding: .4rem .15rem .3rem;
-  background: rgba(0,0,0,.22);
-  border: none; border-right: 1px solid rgba(255,190,50,.12);
+  background: rgba(0,0,0,.16);
+  border: none; border-right: 1px solid rgba(255,190,50,.1);
   cursor: pointer; flex: 1; min-width: 0;
-  transition: background .12s;
-  box-shadow: inset 0 2px 6px rgba(0,0,0,.4);
+  transition: background-color .12s;
 }
-.rpay-tray-chip-btn:hover  { background: rgba(255,255,255,.07); }
-.rpay-tray-chip-btn:active { transform: scale(.93); }
+.rpay-tray-chip-btn:hover  { background: rgba(255,255,255,.06); }
+.rpay-tray-chip-btn:active { transform: scale(.96); }
 
 /* Color chip stack structure */
 .rpay-tray-stk {
@@ -1195,9 +1218,6 @@ body {
   transform-origin: 0 0;
   overflow: hidden;
 }
-.rpay-win-cell {
-  z-index: 2;
-}
 .rpay-dolly {
   position: absolute;
   width: 9px; height: 18px;
@@ -1263,19 +1283,29 @@ body {
   border-radius: 50%;
 }
 .rpay-timer {
-  font-size: clamp(1.1rem,2.8vw,1.6rem); font-weight: 900;
-  color: rgba(255,255,255,.3);
+  font-size: clamp(1.1rem,2.8vw,1.6rem); font-weight: 800;
+  color: rgba(255,255,255,.35);
   font-variant-numeric: tabular-nums;
   letter-spacing: .02em;
   text-align: center;
-  padding: .4rem 0;
-  background: rgba(0,0,0,.25);
-  border-radius: 8px;
+  padding: .55rem 0 .4rem;
+  background: rgba(0,0,0,.22);
+  border: 1px solid rgba(201,168,76,.16);
+  border-radius: 6px;
   flex-shrink: 0;
   min-height: calc(clamp(1.1rem,2.8vw,1.6rem) * 1.4 + .8rem);
 }
+.rpay-timer::before {
+  content: 'TIME';
+  display: block;
+  font-size: .56rem; font-weight: 700; letter-spacing: 2px;
+  color: rgba(255,255,255,.3);
+  margin-bottom: .2rem;
+}
 .rpay-timer-running { color: #ffd700; }
+.rpay-timer-running::before { color: rgba(255,215,0,.55); }
 .rpay-timer-done    { color: #6ec864; }
+.rpay-timer-done::before { color: rgba(110,200,100,.55); }
 
 .rpay-spot {
   position: absolute;
@@ -1289,8 +1319,13 @@ body {
   width: clamp(11px, 1.5vw, 14px); height: clamp(11px, 1.5vw, 14px);
   aspect-ratio: 1 / 1;
   border-radius: 50%;
-  border: 1px solid rgba(255,255,255,.45);
-  box-shadow: 0 1px 3px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.3);
+  border: 1px solid rgba(255,255,255,.32);
+  /* A crisp inset rim reads as a chip edge; the drop shadow is kept small so
+     overlapping tokens (splits/corners) don't smear into a shadow blob */
+  box-shadow:
+    0 1px 2px rgba(0,0,0,.5),
+    inset 0 0 0 1.5px rgba(0,0,0,.22),
+    inset 0 1px 1px rgba(255,255,255,.22);
   flex-shrink: 0;
   position: relative;
   display: flex; align-items: center; justify-content: center;
@@ -1300,7 +1335,7 @@ body {
 }
 .rpay-spot-count {
   font-size: .35rem; font-weight: 800; line-height: 1;
-  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+  text-shadow: 0 1px 1px rgba(0,0,0,.55);
   pointer-events: none;
   white-space: nowrap;
 }
@@ -1360,13 +1395,25 @@ body {
 /* ---- ROULETTE ---- */
 
 /* ---- BETTING TABLE ---- */
+/* Premium-felt frame: deep vignette instead of a flat fill, thin gilt edge
+   instead of a heavy white outline, room to breathe instead of a cramped .5rem pad */
 .betting-table {
-  background: #0b3018; border: 2px solid rgba(255,255,255,.28);
-  border-radius: 8px; padding: .5rem; user-select: none;
+  background:
+    radial-gradient(ellipse 140% 80% at 50% -18%, rgba(255,255,255,.05) 0%, transparent 55%),
+    linear-gradient(180deg, #0d331a 0%, #082612 100%);
+  border: 1px solid rgba(201,168,76,.3);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.05),
+    0 10px 26px rgba(0,0,0,.4);
+  border-radius: 6px; padding: .65rem .55rem; user-select: none;
   /* Single source of truth for the grid's edge columns, shared with the outside-bet
      rows below so all three zones (2TO1 col, numbers, outside bets) line up edge to edge */
   --rg-col-bet-w:  7.3846%;
   --rg-col-zero-w: 6.5%;
+  /* Shared hairline tone for every internal divider — a warm, low-contrast
+     line reads as an inlaid table edge rather than a UI wireframe */
+  --rg-line: rgba(230,222,200,.16);
 }
 
 .roulette-grid { border-collapse: collapse; width: 100%; table-layout: fixed; }
@@ -1375,14 +1422,13 @@ body {
 .rg-col-bet  { width: var(--rg-col-bet-w); }
 .rg-col-num  { width: 7.3846%; }
 .rg-col-zero { width: var(--rg-col-zero-w); }
-.roulette-grid td { padding: 0; border: 1px solid rgba(255,255,255,.28); }
+.roulette-grid td { padding: 0; border: 1px solid var(--rg-line); }
 
 .zero-cell {
   position: relative;
   padding: 0 !important;
   border: none !important;
-  border-left: 1px solid rgba(255,255,255,.28) !important;
-  filter: drop-shadow(0 0 0.8px rgba(255,255,255,.45));
+  border-left: 1px solid var(--rg-line) !important;
 }
 .zero-cell div {
   position: absolute;
@@ -1396,26 +1442,42 @@ body {
 
 .bet-spot {
   display: flex; align-items: center; justify-content: center;
-  padding: .38rem .2rem; border-radius: 0; cursor: pointer;
-  font-size: .78rem; font-weight: 600; transition: opacity .14s;
+  padding: .3rem .2rem; border-radius: 0; cursor: pointer;
+  font-size: .78rem; font-weight: 700; letter-spacing: .2px;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 2px rgba(0,0,0,.5);
+  transition: background-color .15s ease, box-shadow .15s ease;
   border: none; text-align: center; min-height: 30px;
   width: 100%; height: 100%;
 }
-.bet-spot:hover { opacity: .75; }
-.bet-spot.active-bet { outline: 2px solid var(--gold); outline-offset: -2px; box-shadow: 0 0 10px rgba(201,168,76,.5); }
+.bet-spot:hover { background-color: rgba(255,255,255,.09); }
+.bet-spot.active-bet {
+  box-shadow: inset 0 0 0 1.5px var(--gold), 0 0 8px rgba(201,168,76,.4);
+}
+/* Winning number — a restrained gold ring instead of leaning on the dolly alone */
+.rpay-win-cell {
+  z-index: 2;
+  box-shadow: inset 0 0 0 2px var(--gold-light), 0 0 12px 1px rgba(201,168,76,.55);
+}
 
 .red-num   { background: #8b1414; color: #fff; }
 .black-num { background: #171717; color: #fff; }
 .green-num { background: #145c14; color: #fff; }
 
-.col-bet { background: rgba(255,255,255,.08); color: var(--text); font-size: .44rem; }
+.col-bet { background: rgba(0,0,0,.18); color: rgba(230,222,200,.8); font-size: .46rem; font-weight: 700; letter-spacing: .3px; }
 .col-bet span { display: inline-block; transform: rotate(-90deg); white-space: nowrap; }
-.zero-cell .bet-spot { font-size: .7rem; }
+.zero-cell .bet-spot { font-size: .72rem; font-weight: 800; }
 
-.dozens-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; margin-bottom: 1px; margin-left: var(--rg-col-bet-w); margin-right: var(--rg-col-zero-w); }
-.evens-row  { display: grid; grid-template-columns: repeat(6,1fr); gap: 0; margin-bottom: 1px; margin-left: var(--rg-col-bet-w); margin-right: var(--rg-col-zero-w); }
-.outside    { background: rgba(255,255,255,.09); color: var(--text); box-shadow: inset 0 0 0 1px rgba(255,255,255,.28); }
-.outside:hover { background: rgba(255,255,255,.18); }
+.dozens-row, .evens-row {
+  display: grid; gap: 1px;
+  background: var(--rg-line);
+  border: 1px solid var(--rg-line);
+  margin-left: var(--rg-col-bet-w); margin-right: var(--rg-col-zero-w);
+}
+.dozens-row { grid-template-columns: repeat(3,1fr); margin-bottom: 5px; }
+.evens-row  { grid-template-columns: repeat(6,1fr); margin-bottom: 5px; }
+.outside    { background: rgba(255,255,255,.06); color: var(--text); }
+.outside:hover { background: rgba(255,255,255,.13); }
 .red-bet    { background: #8b1414 !important; }
 .black-bet  { background: #171717 !important; }
 
@@ -2926,30 +2988,33 @@ body {
   white-space: nowrap;
   order: 1;
 }
-/* UNDO / ALL RESET — identical shape, size and color */
+/* UNDO / ALL RESET — flat, identical shape/size, no inherited 3D bevel */
 .rpay-undo-row .comm-undo-btn,
 .rpay-undo-row .comm-all-reset-btn {
   min-height: var(--tap-h);
   display: flex; align-items: center; justify-content: center;
-  border-radius: 6px;
-  border-width: 1.5px;
+  border-radius: 5px;
+  border-width: 1px;
   font-size: var(--bf-sm); font-weight: 700; letter-spacing: .3px;
   padding: clamp(.36rem,.85vh,.5rem) clamp(.6rem,1.3vw,.8rem);
-  background: rgba(40,55,90,.78);
-  border-color: rgba(140,180,255,.55);
+  background: rgba(40,55,90,.65);
+  border-color: rgba(140,180,255,.4);
   color: rgba(195,220,255,.95);
+  box-shadow: none;
+  transition: background-color .12s, border-color .12s, color .12s;
 }
 .rpay-undo-row .comm-undo-btn:hover {
-  background: rgba(55,72,115,.9); color: #fff;
+  background: rgba(55,72,115,.85); border-color: rgba(140,180,255,.6); color: #fff;
 }
 .rpay-undo-row .comm-all-reset-btn {
   order: 2;
-  background: rgba(110,20,38,.8);
-  border-color: rgba(200,85,100,.55);
+  background: rgba(110,20,38,.62);
+  border-color: rgba(200,85,100,.4);
   color: rgba(255,225,230,.95);
+  box-shadow: none;
 }
 .rpay-undo-row .comm-all-reset-btn:hover {
-  background: rgba(140,30,48,.9); color: #fff;
+  background: rgba(140,30,48,.82); border-color: rgba(200,85,100,.6); color: #fff;
 }
 .comm-undo-btn {
   background: rgba(60,80,120,.45);
