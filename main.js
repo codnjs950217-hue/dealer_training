@@ -572,12 +572,10 @@ const Views = {
               </div>
               <div class="thpr-group-label">FLOP</div>
             </div>
-            <div class="thpr-comm-sep"></div>
             <div class="thpr-comm-group" id="thpr-turn">
               <div class="thpr-group-cards">${cardHTML(null, true)}</div>
               <div class="thpr-group-label">TURN</div>
             </div>
-            <div class="thpr-comm-sep"></div>
             <div class="thpr-comm-group" id="thpr-river">
               <div class="thpr-group-cards">${cardHTML(null, true)}</div>
               <div class="thpr-group-label">RIVER</div>
