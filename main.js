@@ -3689,7 +3689,6 @@ const Sims = {
       const $ = id => document.getElementById(id);
       let S = {};
       let _cdTimer = null;
-      let _revealTimer = null;
 
       // Fixed sample hand for reveal-flow testing
       const SAMPLE = {
@@ -3727,25 +3726,27 @@ const Sims = {
 
       function clearCd() {
         if (_cdTimer) { clearInterval(_cdTimer); _cdTimer = null; }
-        if (_revealTimer) { clearTimeout(_revealTimer); _revealTimer = null; }
       }
 
+      // label falsy → show just the ticking number ("5", "4", ... ) with no
+      // word in front of it, e.g. the FLOP/TURN/RIVER reveal beats.
       function countdown(label, secs, done) {
         clearCd();
         const cd = $('thpr-countdown');
         if (!cd) { done(); return; }
         let n = secs;
+        const fmt = n => label ? (label + '  ' + n) : String(n);
         cd.className = 'thpr-countdown thpr-countdown-active';
-        cd.textContent = label + '  ' + n;
+        cd.textContent = fmt(n);
         _cdTimer = setInterval(function() {
           n--;
           if (n <= 0) {
             clearCd();
             cd.className = 'thpr-countdown thpr-countdown-done';
-            cd.textContent = label + '  ✓';
+            cd.textContent = label ? (label + '  ✓') : '';
             done();
           } else {
-            cd.textContent = label + '  ' + n;
+            cd.textContent = fmt(n);
           }
         }, 1000);
       }
@@ -3753,14 +3754,6 @@ const Sims = {
       function setLabel(text) {
         const cd = $('thpr-countdown');
         if (cd) { cd.className = 'thpr-countdown thpr-countdown-active'; cd.textContent = text; }
-      }
-
-      // Like countdown(), but shows only the static label (no ticking "5 4 3 2 1")
-      // while still waiting out the same number of seconds before continuing.
-      function waitLabel(label, secs, done) {
-        clearCd();
-        setLabel(label);
-        _revealTimer = setTimeout(function() { _revealTimer = null; done(); }, secs * 1000);
       }
 
       function showAnswerBtns() {
@@ -3983,11 +3976,11 @@ const Sims = {
         // Reveal sequence: FLOP → TURN → RIVER → DEALER → PLAYER 5
         setTimeout(function() {
           reveal('comm0'); reveal('comm1'); reveal('comm2');
-          waitLabel('FLOP', 5, function() {
+          countdown('', 5, function() {
             reveal('comm3');
-            waitLabel('TURN', 5, function() {
+            countdown('', 5, function() {
               reveal('comm4');
-              waitLabel('RIVER', 5, function() {
+              countdown('', 5, function() {
                 var cd = $('thpr-countdown');
                 if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
                 // Dealer's cards open first; customers' hole cards stay face-down
