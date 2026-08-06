@@ -3773,23 +3773,50 @@ const Sims = {
       }
 
       // ---- Discard-2 card picking: identify the best 5-card hand from the 7 available ----
+      // Shared by the dealer's own pick (comm 5 + dealer 2) and each player's pick
+      // (comm 5 + that player's hole 2). "role" drives which way a picked card
+      // slides — community up toward the board, hand cards down toward the seat.
+      var PICK_DIR_CLASSES = ['thpr-card-picked-up', 'thpr-card-picked-down'];
+
+      function buildPickSlots(hole0Id, hole0Card, hole1Id, hole1Card) {
+        return {
+          hole0: { id: hole0Id, card: hole0Card, role: 'hand' },
+          hole1: { id: hole1Id, card: hole1Card, role: 'hand' },
+          comm0: { id: 'comm0', card: S.comm[0], role: 'community' },
+          comm1: { id: 'comm1', card: S.comm[1], role: 'community' },
+          comm2: { id: 'comm2', card: S.comm[2], role: 'community' },
+          comm3: { id: 'comm3', card: S.comm[3], role: 'community' },
+          comm4: { id: 'comm4', card: S.comm[4], role: 'community' },
+        };
+      }
 
       function pickSlotsFor(p) {
-        return {
-          hole0: { id: 'p' + p + 'c0', card: S.players[p - 1][0] },
-          hole1: { id: 'p' + p + 'c1', card: S.players[p - 1][1] },
-          comm0: { id: 'comm0', card: S.comm[0] },
-          comm1: { id: 'comm1', card: S.comm[1] },
-          comm2: { id: 'comm2', card: S.comm[2] },
-          comm3: { id: 'comm3', card: S.comm[3] },
-          comm4: { id: 'comm4', card: S.comm[4] },
-        };
+        return buildPickSlots('p' + p + 'c0', S.players[p - 1][0], 'p' + p + 'c1', S.players[p - 1][1]);
+      }
+
+      function dealerPickSlots() {
+        return buildPickSlots('d0', S.dealer[0], 'd1', S.dealer[1]);
       }
 
       function beginPick(p) {
         S.activePlayer = p;
         S.phase = 'pick-wait';
+        S.pickContext = 'player';
         S.pickSlots = pickSlotsFor(p);
+        S.pickSelected = [];
+        S.pickLocked = false;
+        countdown('SELECT', 10, enablePicking);
+      }
+
+      // Runs once per round, right after the dealer's own 2 cards are revealed —
+      // the trainee builds the dealer's best 5-card hand while the customers'
+      // hole cards stay face-down. `done` reveals the customers' cards and
+      // starts the existing per-player pick/quiz loop unchanged.
+      function beginDealerPick(done) {
+        S.phase = 'pick-wait';
+        S.pickContext = 'dealer';
+        S.dealerPickDone = done;
+        S.pickSlots = dealerPickSlots();
         S.pickSelected = [];
         S.pickLocked = false;
         countdown('SELECT', 10, enablePicking);
@@ -3799,7 +3826,7 @@ const Sims = {
         Object.keys(S.pickSlots).forEach(function(key) {
           var el = $('thprfc_' + S.pickSlots[key].id);
           if (!el) return;
-          el.classList.remove('thpr-card-picked');
+          el.classList.remove('thpr-card-picked', PICK_DIR_CLASSES[0], PICK_DIR_CLASSES[1]);
           el.classList.add('thpr-card-pick');
           el.onclick = function() { pickCard(key); };
         });
@@ -3809,16 +3836,18 @@ const Sims = {
 
       function pickCard(key) {
         if (S.phase !== 'picking' || S.pickLocked || !S.pickSlots[key]) return;
-        var el = $('thprfc_' + S.pickSlots[key].id);
+        var slot = S.pickSlots[key];
+        var el = $('thprfc_' + slot.id);
+        var dirClass = slot.role === 'community' ? 'thpr-card-picked-up' : 'thpr-card-picked-down';
         var idx = S.pickSelected.indexOf(key);
         if (idx >= 0) {
           S.pickSelected.splice(idx, 1);
-          if (el) el.classList.remove('thpr-card-picked');
+          if (el) el.classList.remove('thpr-card-picked', dirClass);
           return;
         }
         if (S.pickSelected.length >= 2) return;
         S.pickSelected.push(key);
-        if (el) el.classList.add('thpr-card-picked');
+        if (el) el.classList.add('thpr-card-picked', dirClass);
         if (S.pickSelected.length === 2) {
           S.pickLocked = true;
           setTimeout(checkPick, 350);
@@ -3847,9 +3876,15 @@ const Sims = {
             if (fb) fb.innerHTML = '';
             var cd = $('thpr-countdown');
             if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
-            setLabel('PLAYER ' + S.activePlayer);
-            showAnswerBtns();
-            S.phase = 'quiz';
+            if (S.pickContext === 'dealer') {
+              var done = S.dealerPickDone;
+              S.dealerPickDone = null;
+              if (done) done();
+            } else {
+              setLabel('PLAYER ' + S.activePlayer);
+              showAnswerBtns();
+              S.phase = 'quiz';
+            }
           }, 900);
         } else {
           if (fb) fb.innerHTML = '<div class="thpr-pick-result thpr-pick-wrong">다시 랭킹 확인하세요.</div>';
@@ -3857,7 +3892,7 @@ const Sims = {
             if (fb) fb.innerHTML = '';
             S.pickSelected.forEach(function(key) {
               var el = $('thprfc_' + S.pickSlots[key].id);
-              if (el) el.classList.remove('thpr-card-picked');
+              if (el) el.classList.remove('thpr-card-picked', PICK_DIR_CLASSES[0], PICK_DIR_CLASSES[1]);
             });
             S.pickSelected = [];
             S.pickLocked = false;
@@ -3955,14 +3990,19 @@ const Sims = {
               waitLabel('RIVER', 5, function() {
                 var cd = $('thpr-countdown');
                 if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
+                // Dealer's cards open first; customers' hole cards stay face-down
+                // through the dealer's own discard-2 pick, and only flip once
+                // that's done — not simultaneously with the dealer's cards.
                 reveal('d0'); reveal('d1');
                 setLabel('DEALER');
                 setTimeout(function() {
-                  reveal('p5c0'); reveal('p5c1');
-                  var spot5 = $('thpr-spot-5');
-                  if (spot5) spot5.classList.add('thpr-active');
-                  S.activePlayer = 5;
-                  beginPick(5);
+                  beginDealerPick(function() {
+                    reveal('p5c0'); reveal('p5c1');
+                    var spot5 = $('thpr-spot-5');
+                    if (spot5) spot5.classList.add('thpr-active');
+                    S.activePlayer = 5;
+                    beginPick(5);
+                  });
                 }, 900);
               });
             });

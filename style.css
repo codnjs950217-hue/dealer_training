@@ -4037,13 +4037,15 @@ body {
 .thpr-card-pick:hover .flip-front .card {
   filter: brightness(1.14);
 }
-.thpr-card-picked {
-  transform: translateY(10px);
-}
+/* Picked cards always glow gold; the direction they slide tells the trainee
+   at a glance which side they pulled from — community up toward the board,
+   hand cards down toward the seat — so a selection reads instantly. */
 .thpr-card-picked .flip-front .card {
   box-shadow: 0 0 0 2px var(--gold), 0 4px 10px rgba(0,0,0,.45);
   filter: brightness(1.16);
 }
+.thpr-card-picked-up   { transform: translateY(-10px); }
+.thpr-card-picked-down { transform: translateY(10px); }
 
 .thpr-pick-result {
   font-weight: 800;
