@@ -3689,6 +3689,7 @@ const Sims = {
       const $ = id => document.getElementById(id);
       let S = {};
       let _cdTimer = null;
+      let _revealTimer = null;
 
       // Fixed sample hand for reveal-flow testing
       const SAMPLE = {
@@ -3726,6 +3727,7 @@ const Sims = {
 
       function clearCd() {
         if (_cdTimer) { clearInterval(_cdTimer); _cdTimer = null; }
+        if (_revealTimer) { clearTimeout(_revealTimer); _revealTimer = null; }
       }
 
       function countdown(label, secs, done) {
@@ -3751,6 +3753,14 @@ const Sims = {
       function setLabel(text) {
         const cd = $('thpr-countdown');
         if (cd) { cd.className = 'thpr-countdown thpr-countdown-active'; cd.textContent = text; }
+      }
+
+      // Like countdown(), but shows only the static label (no ticking "5 4 3 2 1")
+      // while still waiting out the same number of seconds before continuing.
+      function waitLabel(label, secs, done) {
+        clearCd();
+        setLabel(label);
+        _revealTimer = setTimeout(function() { _revealTimer = null; done(); }, secs * 1000);
       }
 
       function showAnswerBtns() {
@@ -3938,11 +3948,11 @@ const Sims = {
         // Reveal sequence: FLOP → TURN → RIVER → DEALER → PLAYER 5
         setTimeout(function() {
           reveal('comm0'); reveal('comm1'); reveal('comm2');
-          countdown('FLOP', 5, function() {
+          waitLabel('FLOP', 5, function() {
             reveal('comm3');
-            countdown('TURN', 5, function() {
+            waitLabel('TURN', 5, function() {
               reveal('comm4');
-              countdown('RIVER', 5, function() {
+              waitLabel('RIVER', 5, function() {
                 var cd = $('thpr-countdown');
                 if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
                 reveal('d0'); reveal('d1');
