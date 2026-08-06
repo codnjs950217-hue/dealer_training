@@ -3821,7 +3821,7 @@ body {
 .thpr-community-row {
   display: flex;
   align-items: center; justify-content: center;
-  gap: clamp(.24rem, .48vw, .52rem);
+  gap: clamp(.45rem, .9vw, 1rem);
 }
 
 .thpr-comm-group {
@@ -3838,7 +3838,7 @@ body {
 
 .thpr-group-cards {
   display: flex;
-  gap: clamp(.12rem, .22vw, .26rem);
+  gap: clamp(.24rem, .45vw, .55rem);
 }
 
 .thpr-comm-sep {
