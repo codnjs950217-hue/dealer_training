@@ -3839,17 +3839,18 @@ body {
 }
 
 .thpr-community-main {
-  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
   width: 100%;
-  display: flex;
-  align-items: center; justify-content: center;
 }
 
+.thpr-community-main .thpr-community-row { grid-column: 2; }
+
 .thpr-community-main .thpr-action-row {
-  position: absolute;
-  right: clamp(.2rem, 1.5vw, .8rem);
-  top: 50%;
-  transform: translateY(-50%);
+  grid-column: 3;
+  justify-self: start;
+  margin-left: clamp(.4rem, 1.2vw, .8rem);
 }
 
 .thpr-community-row {
