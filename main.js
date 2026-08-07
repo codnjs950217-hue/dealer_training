@@ -4003,7 +4003,6 @@ const Sims = {
                 // through the dealer's own discard-2 pick, and only flip once
                 // that's done — not simultaneously with the dealer's cards.
                 reveal('d0'); reveal('d1');
-                setLabel('DEALER');
                 setTimeout(function() {
                   beginDealerPick(function() {
                     reveal('p5c0'); reveal('p5c1');

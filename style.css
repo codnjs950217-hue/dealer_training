@@ -3829,6 +3829,7 @@ body {
 
 /* ---- Community area ---- */
 .thpr-community-area {
+  position: relative;
   flex: 2; min-height: 0;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
@@ -3876,10 +3877,20 @@ body {
   gap: clamp(.45rem, .9vw, 1rem);
 }
 
-/* Countdown — large and prominent in the center band */
+/* Countdown — sits above the community cards, overlapping upward into the
+   players row when the text is tall. Absolutely positioned so it never
+   pushes or resizes the players row / community cards — it's only ever
+   shown briefly. */
 .thpr-countdown {
+  position: absolute;
+  top: clamp(-1.2rem, -2.4vh, -.6rem);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 94%;
+  z-index: 5;
+  pointer-events: none;
   min-height: clamp(1.2rem, 3.4vh, 2.1rem);
-  max-width: 100%;
   font-size: clamp(1.2rem, 3.5vh, 2.2rem);
   font-weight: 900; text-align: center;
   color: transparent;
