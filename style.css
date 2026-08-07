@@ -3786,7 +3786,7 @@ body {
 
 .thpr-hole-cards {
   display: flex;
-  gap: clamp(.1rem, .16vw, .2rem);
+  gap: clamp(.45rem, .9vw, 1rem);
   align-items: center;
 }
 
@@ -3880,7 +3880,7 @@ body {
 
 .thpr-dealer-cards {
   display: flex;
-  gap: clamp(.16rem, .3vw, .34rem);
+  gap: clamp(.45rem, .9vw, 1rem);
 }
 
 /* ---- Controls ---- */
