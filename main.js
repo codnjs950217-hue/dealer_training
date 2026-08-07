@@ -3739,13 +3739,14 @@ const Sims = {
         if (!cd) { done(); return; }
         let n = secs;
         const fmt = n => label ? (label + '  ' + n) : String(n);
-        cd.className = 'thpr-countdown thpr-countdown-active';
+        const labeledClass = label ? ' thpr-countdown-labeled' : '';
+        cd.className = 'thpr-countdown thpr-countdown-active' + labeledClass;
         cd.textContent = fmt(n);
         _cdTimer = setInterval(function() {
           n--;
           if (n <= 0) {
             clearCd();
-            cd.className = 'thpr-countdown thpr-countdown-done';
+            cd.className = 'thpr-countdown thpr-countdown-done' + labeledClass;
             cd.textContent = label ? (label + '  ✓') : '';
             done();
           } else {
@@ -3802,7 +3803,7 @@ const Sims = {
         S.pickSelected = [];
         S.pickLocked = false;
         enablePicking();
-        countdown('CHOOSE 2', 10, pickTimeout);
+        countdown('제외할 카드 2장을 선택하세요', 10, pickTimeout);
       }
 
       // Runs once per round, right after the dealer's own 2 cards are revealed —
@@ -3817,7 +3818,7 @@ const Sims = {
         S.pickSelected = [];
         S.pickLocked = false;
         enablePicking();
-        countdown('CHOOSE 2', 10, pickTimeout);
+        countdown('제외할 카드 2장을 선택하세요', 10, pickTimeout);
       }
 
       // Picking is enabled the instant the cards open — the countdown IS the

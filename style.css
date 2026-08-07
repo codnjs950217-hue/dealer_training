@@ -3894,6 +3894,14 @@ body {
   text-shadow: 0 0 16px rgba(78,205,196,.6);
 }
 
+/* Longer instructional text (e.g. the discard-pick prompt) needs a smaller,
+   non-tabular font so it doesn't overflow on narrow screens. */
+.thpr-countdown-labeled {
+  font-size: clamp(.62rem, 1.7vh, .9rem);
+  font-variant-numeric: normal;
+  letter-spacing: 0;
+}
+
 /* ---- Dealer area ---- */
 .thpr-dealer-area {
   flex-shrink: 0;
