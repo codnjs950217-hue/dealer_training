@@ -568,37 +568,39 @@ const Views = {
         </div>
 
         <div class="thpr-community-area">
-          <div class="thpr-community-row">
-            <div class="thpr-comm-group" id="thpr-flop">
-              <div class="thpr-group-cards">
-                ${cardHTML(null, true)}${cardHTML(null, true)}${cardHTML(null, true)}
+          <div class="thpr-community-main">
+            <div class="thpr-community-row">
+              <div class="thpr-comm-group" id="thpr-flop">
+                <div class="thpr-group-cards">
+                  ${cardHTML(null, true)}${cardHTML(null, true)}${cardHTML(null, true)}
+                </div>
+                <div class="thpr-group-label">FLOP</div>
               </div>
-              <div class="thpr-group-label">FLOP</div>
+              <div class="thpr-comm-group" id="thpr-turn">
+                <div class="thpr-group-cards">${cardHTML(null, true)}</div>
+                <div class="thpr-group-label">TURN</div>
+              </div>
+              <div class="thpr-comm-group" id="thpr-river">
+                <div class="thpr-group-cards">${cardHTML(null, true)}</div>
+                <div class="thpr-group-label">RIVER</div>
+              </div>
             </div>
-            <div class="thpr-comm-group" id="thpr-turn">
-              <div class="thpr-group-cards">${cardHTML(null, true)}</div>
-              <div class="thpr-group-label">TURN</div>
-            </div>
-            <div class="thpr-comm-group" id="thpr-river">
-              <div class="thpr-group-cards">${cardHTML(null, true)}</div>
-              <div class="thpr-group-label">RIVER</div>
+            <div class="thpr-action-row" id="thpr-action-row">
+              <button class="thpr-start-btn" id="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">START</button>
             </div>
           </div>
           <div class="thpr-countdown" id="thpr-countdown"></div>
         </div>
 
         <div class="thpr-dealer-area">
-          <div class="thpr-area-label">DEALER</div>
           <div class="thpr-dealer-cards" id="thpr-dealer-cards">
             ${cardHTML(null, true)}${cardHTML(null, true)}
           </div>
+          <div class="thpr-area-label">DEALER</div>
         </div>
 
         <div class="thpr-controls">
           <div class="thpr-feedback" id="thpr-feedback"></div>
-          <div class="thpr-action-row" id="thpr-action-row">
-            <button class="thpr-start-btn" id="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">START</button>
-          </div>
         </div>
       </div>
 

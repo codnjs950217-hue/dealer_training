@@ -3838,6 +3838,12 @@ body {
   padding: clamp(.08rem, .16vh, .16rem) 0;
 }
 
+.thpr-community-main {
+  display: flex; flex-wrap: wrap;
+  align-items: center; justify-content: center;
+  gap: clamp(.5rem, 1.4vw, 1.1rem);
+}
+
 .thpr-community-row {
   display: flex;
   align-items: center; justify-content: center;
@@ -3882,15 +3888,13 @@ body {
 /* ---- Dealer area ---- */
 .thpr-dealer-area {
   flex-shrink: 0;
-  display: flex;
+  display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: clamp(.4rem, .8vw, .75rem);
+  gap: clamp(.04rem, .08vh, .08rem);
   padding: clamp(.08rem, .16vh, .16rem) 0;
-  position: relative;
 }
 
 .thpr-area-label {
-  position: absolute; left: .4rem;
   font-size: clamp(.44rem, .88vw, .54rem);
   font-weight: 800; letter-spacing: 2px;
   text-transform: uppercase;
@@ -3938,6 +3942,12 @@ body {
 .thpr-start-btn:hover:not(:disabled) { background: var(--gold-light); transform: translateY(-1px); }
 .thpr-start-btn:active:not(:disabled) { transform: scale(.97); }
 .thpr-start-btn:disabled { opacity: .4; cursor: default; transform: none; }
+
+/* Compact sizing when placed beside the community cards */
+.thpr-community-main .thpr-start-btn {
+  padding: clamp(.3rem, .8vh, .44rem) clamp(.7rem, 2vw, 1.3rem);
+  font-size: clamp(.68rem, 1.5vw, .82rem);
+}
 
 /* PAY / TAKE / TIE answer buttons */
 .thpr-pay-btn {
