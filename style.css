@@ -3731,9 +3731,9 @@ body {
 .thp-rank-sim .card-corner.bottom { bottom: 2px; right: 3px; }
 
 /* Card text — sized relative to viewport height so they scale with card */
-.thp-rank-sim .card-corner .rank { font-size: clamp(.66rem, 2vh, 1rem); }
-.thp-rank-sim .card-corner .suit { font-size: clamp(.56rem, 1.6vh, .82rem); }
-.thp-rank-sim .card-suit-center  { font-size: clamp(1rem,   3vh,  1.6rem); }
+.thp-rank-sim .card-corner .rank { font-size: clamp(.86rem, 2.5vh, 1.2rem); }
+.thp-rank-sim .card-corner .suit { font-size: clamp(.7rem, 2vh, 1rem); }
+.thp-rank-sim .card-suit-center  { font-size: clamp(1.25rem, 3.7vh, 1.9rem); }
 .thp-rank-sim .card-pattern      { width: clamp(18px, 5.2vh, 32px); height: clamp(25px, 7.2vh, 46px); }
 
 /* ---- Table shell ---- */
