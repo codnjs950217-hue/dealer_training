@@ -3801,7 +3801,8 @@ const Sims = {
         S.pickSlots = pickSlotsFor(p);
         S.pickSelected = [];
         S.pickLocked = false;
-        countdown('SELECT', 10, enablePicking);
+        enablePicking();
+        countdown('CHOOSE 2', 10, pickTimeout);
       }
 
       // Runs once per round, right after the dealer's own 2 cards are revealed —
@@ -3815,9 +3816,12 @@ const Sims = {
         S.pickSlots = dealerPickSlots();
         S.pickSelected = [];
         S.pickLocked = false;
-        countdown('SELECT', 10, enablePicking);
+        enablePicking();
+        countdown('CHOOSE 2', 10, pickTimeout);
       }
 
+      // Picking is enabled the instant the cards open — the countdown IS the
+      // 10-second window to choose, not a delay before choosing is allowed.
       function enablePicking() {
         Object.keys(S.pickSlots).forEach(function(key) {
           var el = $('thprfc_' + S.pickSlots[key].id);
@@ -3826,8 +3830,24 @@ const Sims = {
           el.classList.add('thpr-card-pick');
           el.onclick = function() { pickCard(key); };
         });
-        setLabel('CHOOSE 2 TO DISCARD');
         S.phase = 'picking';
+      }
+
+      // Ran out of time without finishing the pick — fill in the rest at
+      // random and score it, same as a manual pick, so the round always moves on.
+      function pickTimeout() {
+        if (S.phase !== 'picking' || S.pickLocked) return;
+        var remaining = Object.keys(S.pickSlots).filter(function(k) { return S.pickSelected.indexOf(k) === -1; });
+        while (S.pickSelected.length < 2 && remaining.length) {
+          var key = remaining.splice(Math.floor(Math.random() * remaining.length), 1)[0];
+          var slot = S.pickSlots[key];
+          var el = $('thprfc_' + slot.id);
+          var dirClass = slot.role === 'community' ? 'thpr-card-picked-up' : 'thpr-card-picked-down';
+          S.pickSelected.push(key);
+          if (el) el.classList.add('thpr-card-picked', dirClass);
+        }
+        S.pickLocked = true;
+        setTimeout(checkPick, 350);
       }
 
       function pickCard(key) {
@@ -3846,6 +3866,7 @@ const Sims = {
         if (el) el.classList.add('thpr-card-picked', dirClass);
         if (S.pickSelected.length === 2) {
           S.pickLocked = true;
+          clearCd();
           setTimeout(checkPick, 350);
         }
       }
