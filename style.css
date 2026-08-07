@@ -3736,6 +3736,26 @@ body {
 .thp-rank-sim .card-suit-center  { font-size: clamp(1.25rem, 3.7vh, 1.9rem); }
 .thp-rank-sim .card-pattern      { width: clamp(18px, 5.2vh, 32px); height: clamp(25px, 7.2vh, 46px); }
 
+/* ---- Page header: Rounds / Score / Mistake status panel ---- */
+.thpr-page-header {
+  display: flex; justify-content: flex-end;
+  flex-shrink: 0;
+  margin-bottom: clamp(20px, 2.6vh, 28px);
+}
+
+.thpr-stats-panel {
+  display: flex; flex-wrap: wrap;
+  align-items: center; justify-content: flex-end;
+  gap: clamp(.4rem, 1vw, .75rem);
+  font-size: clamp(.62rem, 1.4vw, .78rem);
+  color: rgba(255,255,255,.55);
+  background: rgba(0,0,0,.22);
+  border: 1px solid rgba(201,168,76,.18);
+  border-radius: 8px;
+  padding: clamp(.24rem, .55vh, .36rem) clamp(.5rem, 1vw, .7rem);
+}
+.thpr-stats-panel strong { color: rgba(255,255,255,.85); }
+
 /* ---- Table shell ---- */
 .thp-rank-sim .thpr-table {
   flex: 1; min-height: 0;

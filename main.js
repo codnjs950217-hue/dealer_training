@@ -542,14 +542,17 @@ const Views = {
 
   thpRankSim: () => `
     <div class="sim-page thp-rank-sim">
-      <div class="thpr-table">
-        <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
-        <button class="thpr-help-btn" onclick="Sims.poker.thpRank.showRankHelp()" title="Hand Ranking Guide">?</button>
-        <div class="table-stats-overlay">
+      <div class="thpr-page-header">
+        <div class="thpr-stats-panel">
           <span>Rounds: <strong id="thpr-rounds">0</strong></span>
           <span>Score: <strong id="thpr-score">0</strong></span>
           <span>Mistake: <strong id="thpr-mistakes">0</strong></span>
         </div>
+      </div>
+
+      <div class="thpr-table">
+        <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
+        <button class="thpr-help-btn" onclick="Sims.poker.thpRank.showRankHelp()" title="Hand Ranking Guide">?</button>
 
         <div class="thpr-players-row">
           ${[1,2,3,4,5].map(i => `
