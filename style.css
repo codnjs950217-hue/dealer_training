@@ -3883,7 +3883,7 @@ body {
    shown briefly. */
 .thpr-countdown {
   position: absolute;
-  top: clamp(-1.2rem, -2.4vh, -.6rem);
+  top: clamp(-2.4rem, -4.6vh, -1.3rem);
   left: 50%;
   transform: translateX(-50%);
   width: max-content;
@@ -4099,6 +4099,30 @@ body {
 }
 .thpr-pick-correct { color: #4ecdc4; }
 .thpr-pick-wrong   { color: #ff7777; }
+
+/* Wrong dealer pick: dim the cards being judged and flash a large warning
+   across them so the mistake actually registers. */
+.thpr-dimmed {
+  filter: grayscale(85%) brightness(.45);
+  transition: filter .2s;
+}
+
+.thpr-wrong-overlay {
+  position: absolute;
+  left: 0; right: 0;
+  z-index: 15;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 0 .5rem;
+  background: rgba(0,0,0,.4);
+  border-radius: 8px;
+  pointer-events: none;
+  color: #ff5b5b;
+  font-weight: 900;
+  font-size: clamp(1.1rem, 4vh, 2.1rem);
+  letter-spacing: .3px;
+  text-shadow: 0 0 18px rgba(255,50,50,.7), 0 2px 8px rgba(0,0,0,.85);
+}
 
 /* ---- Hand-ranking help button + modal ---- */
 .thpr-help-btn {

@@ -602,6 +602,8 @@ const Views = {
         <div class="thpr-controls">
           <div class="thpr-feedback" id="thpr-feedback"></div>
         </div>
+
+        <div class="thpr-wrong-overlay" id="thpr-wrong-overlay" style="display:none;"></div>
       </div>
 
       <div class="thpr-rank-modal-backdrop" id="thpr-rank-modal" style="display:none;" onclick="Sims.poker.thpRank.hideRankHelp(event)">
@@ -3896,9 +3898,34 @@ const Sims = {
             }
           }, 900);
         } else {
-          if (fb) fb.innerHTML = '<div class="thpr-pick-result thpr-pick-wrong">다시 랭킹 확인하세요.</div>';
+          var commEl = document.querySelector('.thpr-community-area');
+          var dealerEl = $('thpr-dealer-cards');
+          var tableEl = document.querySelector('.thpr-table');
+          var overlay = $('thpr-wrong-overlay');
+          var flashed = S.pickContext === 'dealer' && commEl && dealerEl && tableEl && overlay;
+          if (flashed) {
+            var tRect = tableEl.getBoundingClientRect();
+            var cRect = commEl.getBoundingClientRect();
+            var dRect = dealerEl.getBoundingClientRect();
+            var top = cRect.top - tRect.top;
+            var bottom = dRect.bottom - tRect.top;
+            overlay.style.top = top + 'px';
+            overlay.style.height = (bottom - top) + 'px';
+            overlay.textContent = '다시 랭킹 확인하세요.';
+            overlay.style.display = 'flex';
+            commEl.classList.add('thpr-dimmed');
+            dealerEl.classList.add('thpr-dimmed');
+          } else if (fb) {
+            fb.innerHTML = '<div class="thpr-pick-result thpr-pick-wrong">다시 랭킹 확인하세요.</div>';
+          }
           setTimeout(function() {
-            if (fb) fb.innerHTML = '';
+            if (flashed) {
+              overlay.style.display = 'none';
+              commEl.classList.remove('thpr-dimmed');
+              dealerEl.classList.remove('thpr-dimmed');
+            } else if (fb) {
+              fb.innerHTML = '';
+            }
             S.pickSelected.forEach(function(key) {
               var el = $('thprfc_' + S.pickSlots[key].id);
               if (el) el.classList.remove('thpr-card-picked', PICK_DIR_CLASSES[0], PICK_DIR_CLASSES[1]);
