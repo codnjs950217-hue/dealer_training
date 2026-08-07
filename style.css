@@ -3879,11 +3879,13 @@ body {
 /* Countdown — large and prominent in the center band */
 .thpr-countdown {
   min-height: clamp(1.2rem, 3.4vh, 2.1rem);
+  max-width: 100%;
   font-size: clamp(1.2rem, 3.5vh, 2.2rem);
   font-weight: 900; text-align: center;
   color: transparent;
   font-variant-numeric: tabular-nums;
-  line-height: 1; letter-spacing: .04em;
+  line-height: 1.15; letter-spacing: .04em;
+  overflow-wrap: break-word;
 }
 .thpr-countdown-active {
   color: #ffe44d;
@@ -3892,14 +3894,6 @@ body {
 .thpr-countdown-done {
   color: var(--win);
   text-shadow: 0 0 16px rgba(78,205,196,.6);
-}
-
-/* Longer instructional text (e.g. the discard-pick prompt) needs a smaller,
-   non-tabular font so it doesn't overflow on narrow screens. */
-.thpr-countdown-labeled {
-  font-size: clamp(.62rem, 1.7vh, .9rem);
-  font-variant-numeric: normal;
-  letter-spacing: 0;
 }
 
 /* ---- Dealer area ---- */

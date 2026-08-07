@@ -3739,14 +3739,13 @@ const Sims = {
         if (!cd) { done(); return; }
         let n = secs;
         const fmt = n => label ? (label + '  ' + n) : String(n);
-        const labeledClass = label ? ' thpr-countdown-labeled' : '';
-        cd.className = 'thpr-countdown thpr-countdown-active' + labeledClass;
+        cd.className = 'thpr-countdown thpr-countdown-active';
         cd.textContent = fmt(n);
         _cdTimer = setInterval(function() {
           n--;
           if (n <= 0) {
             clearCd();
-            cd.className = 'thpr-countdown thpr-countdown-done' + labeledClass;
+            cd.className = 'thpr-countdown thpr-countdown-done';
             cd.textContent = label ? (label + '  ✓') : '';
             done();
           } else {
@@ -3774,6 +3773,7 @@ const Sims = {
       // (comm 5 + that player's hole 2). "role" drives which way a picked card
       // slides — community up toward the board, hand cards down toward the seat.
       var PICK_DIR_CLASSES = ['thpr-card-picked-up', 'thpr-card-picked-down'];
+      var PICK_PROMPT = '제외할 카드 2장을 선택하세요';
 
       function buildPickSlots(hole0Id, hole0Card, hole1Id, hole1Card) {
         return {
@@ -3803,7 +3803,7 @@ const Sims = {
         S.pickSelected = [];
         S.pickLocked = false;
         enablePicking();
-        countdown('제외할 카드 2장을 선택하세요', 10, pickTimeout);
+        countdown(PICK_PROMPT, 10, pickTimeout);
       }
 
       // Runs once per round, right after the dealer's own 2 cards are revealed —
@@ -3818,7 +3818,7 @@ const Sims = {
         S.pickSelected = [];
         S.pickLocked = false;
         enablePicking();
-        countdown('제외할 카드 2장을 선택하세요', 10, pickTimeout);
+        countdown(PICK_PROMPT, 10, pickTimeout);
       }
 
       // Picking is enabled the instant the cards open — the countdown IS the
@@ -3839,7 +3839,7 @@ const Sims = {
       function pickTimeout() {
         if (S.phase !== 'picking' || S.pickLocked) return;
         var cd = $('thpr-countdown');
-        if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
+        if (cd) { cd.className = 'thpr-countdown thpr-countdown-active'; cd.textContent = PICK_PROMPT; }
       }
 
       function pickCard(key) {
