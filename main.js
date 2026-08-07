@@ -3833,21 +3833,12 @@ const Sims = {
         S.phase = 'picking';
       }
 
-      // Ran out of time without finishing the pick — fill in the rest at
-      // random and score it, same as a manual pick, so the round always moves on.
+      // The 10s countdown is just a pace-setter, not a deadline — picking
+      // stays open past zero so the trainee can keep retrying until correct.
       function pickTimeout() {
         if (S.phase !== 'picking' || S.pickLocked) return;
-        var remaining = Object.keys(S.pickSlots).filter(function(k) { return S.pickSelected.indexOf(k) === -1; });
-        while (S.pickSelected.length < 2 && remaining.length) {
-          var key = remaining.splice(Math.floor(Math.random() * remaining.length), 1)[0];
-          var slot = S.pickSlots[key];
-          var el = $('thprfc_' + slot.id);
-          var dirClass = slot.role === 'community' ? 'thpr-card-picked-up' : 'thpr-card-picked-down';
-          S.pickSelected.push(key);
-          if (el) el.classList.add('thpr-card-picked', dirClass);
-        }
-        S.pickLocked = true;
-        setTimeout(checkPick, 350);
+        var cd = $('thpr-countdown');
+        if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
       }
 
       function pickCard(key) {
