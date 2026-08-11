@@ -4019,11 +4019,11 @@ const Sims = {
         // Reveal sequence: FLOP → TURN → RIVER → DEALER → PLAYER 5
         setTimeout(function() {
           reveal('comm0'); reveal('comm1'); reveal('comm2');
-          countdown('', 5, function() {
+          countdown('FLOP', 5, function() {
             reveal('comm3');
-            countdown('', 5, function() {
+            countdown('TURN', 5, function() {
               reveal('comm4');
-              countdown('', 5, function() {
+              countdown('RIVER', 5, function() {
                 var cd = $('thpr-countdown');
                 if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
                 // Dealer's cards open first; customers' hole cards stay face-down
