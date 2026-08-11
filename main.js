@@ -3770,17 +3770,17 @@ const Sims = {
           '<button class="thpr-tie-btn" onclick="Sims.poker.thpRank.answer(\'tie\')">TIE</button>';
       }
 
-      // ---- Discard-2 card picking: identify the best 5-card hand from the 7 available ----
-      // Shared by the dealer's own pick (comm 5 + dealer 2) and each player's pick
-      // (comm 5 + that player's hole 2). "role" drives which way a picked card
-      // slides — community up toward the board, hand cards down toward the seat.
+      // ---- Discard-2 card picking: identify the dealer's best 5-card hand ----
+      // from comm 5 + dealer 2 — this runs once per round, for the dealer only.
+      // "role" drives which way a picked card slides — community up toward the
+      // board, dealer's own cards down toward the seat.
       var PICK_DIR_CLASSES = ['thpr-card-picked-up', 'thpr-card-picked-down'];
       var PICK_PROMPT = '제외할 카드 2장을 선택하세요';
 
-      function buildPickSlots(hole0Id, hole0Card, hole1Id, hole1Card) {
+      function dealerPickSlots() {
         return {
-          hole0: { id: hole0Id, card: hole0Card, role: 'hand' },
-          hole1: { id: hole1Id, card: hole1Card, role: 'hand' },
+          hole0: { id: 'd0', card: S.dealer[0], role: 'hand' },
+          hole1: { id: 'd1', card: S.dealer[1], role: 'hand' },
           comm0: { id: 'comm0', card: S.comm[0], role: 'community' },
           comm1: { id: 'comm1', card: S.comm[1], role: 'community' },
           comm2: { id: 'comm2', card: S.comm[2], role: 'community' },
@@ -3789,29 +3789,11 @@ const Sims = {
         };
       }
 
-      function pickSlotsFor(p) {
-        return buildPickSlots('p' + p + 'c0', S.players[p - 1][0], 'p' + p + 'c1', S.players[p - 1][1]);
-      }
-
-      function dealerPickSlots() {
-        return buildPickSlots('d0', S.dealer[0], 'd1', S.dealer[1]);
-      }
-
-      function beginPick(p) {
-        S.activePlayer = p;
-        S.phase = 'pick-wait';
-        S.pickContext = 'player';
-        S.pickSlots = pickSlotsFor(p);
-        S.pickSelected = [];
-        S.pickLocked = false;
-        enablePicking();
-        countdown(PICK_PROMPT, 10, pickTimeout);
-      }
-
       // Runs once per round, right after the dealer's own 2 cards are revealed —
       // the trainee builds the dealer's best 5-card hand while the customers'
-      // hole cards stay face-down. `done` reveals the customers' cards and
-      // starts the existing per-player pick/quiz loop unchanged.
+      // hole cards stay face-down. `done` reveals Player 5's cards and jumps
+      // straight into the PAY/TAKE/TIE quiz — players don't get their own
+      // discard-2 step.
       function beginDealerPick(done) {
         S.phase = 'pick-wait';
         S.pickContext = 'dealer';
@@ -4053,7 +4035,9 @@ const Sims = {
                     var spot5 = $('thpr-spot-5');
                     if (spot5) spot5.classList.add('thpr-active');
                     S.activePlayer = 5;
-                    beginPick(5);
+                    setLabel('PLAYER 5');
+                    showAnswerBtns();
+                    S.phase = 'quiz';
                   });
                 }, 900);
               });
@@ -4140,7 +4124,9 @@ const Sims = {
         reveal('p' + S.activePlayer + 'c1');
         var spot = $('thpr-spot-' + S.activePlayer);
         if (spot) spot.classList.add('thpr-active');
-        beginPick(S.activePlayer);
+        setLabel('PLAYER ' + S.activePlayer);
+        showAnswerBtns();
+        S.phase = 'quiz';
       }
 
       function endRound() {
