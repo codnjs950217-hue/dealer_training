@@ -4076,7 +4076,10 @@ body {
 .thpr-card-pick .flip-front .card {
   transition: filter .18s ease, box-shadow .18s ease;
 }
-.thpr-card-pick:hover {
+/* Excludes already-picked cards so the hover nudge (translateY(3px), specificity
+   0,2,0) can't mask the up/down pick motion below (specificity 0,1,0) while the
+   pointer is still resting on the card right after a click. */
+.thpr-card-pick:hover:not(.thpr-card-picked) {
   transform: translateY(3px);
 }
 .thpr-card-pick:hover .flip-front .card {
