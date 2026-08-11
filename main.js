@@ -4171,11 +4171,11 @@ const Sims = {
         var a = $('thpr-action-row');
         if (a) a.innerHTML = '';
 
-        // Show structured feedback (same content re-shown later via each finished hand's
-        // "?" button), then auto-advance after a brief pause to read the result.
-        var showFeedbackAndAdvance = function() {
-          var fb = $('thpr-feedback');
-          if (fb) fb.innerHTML = buildResultHTML(S.results[S.results.length - 1]);
+        // No more auto-shown rank explanation here — that's only available
+        // per finished hand via its own "?" button (buildResultHTML() is
+        // still used there, see showHandExplain()). This just advances after
+        // a brief pause, same timing as before.
+        var advance = function() {
           S.phase = 'transitioning';
           setTimeout(function() {
             if (S.phase === 'transitioning') next();
@@ -4183,19 +4183,19 @@ const Sims = {
         };
 
         if (correct) {
-          showFeedbackAndAdvance();
+          advance();
         } else {
           // Same MISTAKE! flash used across the other games, so a wrong
-          // PAY/TAKE/TIE pick is immediately obvious before the explanation shows.
+          // PAY/TAKE/TIE pick is immediately obvious.
           var tbl = document.querySelector('.thpr-table');
           if (tbl) {
             var ov = document.createElement('div');
             ov.className = 'mistake-overlay';
             ov.innerHTML = '<div class="mistake-text">MISTAKE!</div>';
             tbl.appendChild(ov);
-            setTimeout(function() { ov.remove(); showFeedbackAndAdvance(); }, 1600);
+            setTimeout(function() { ov.remove(); advance(); }, 1600);
           } else {
-            showFeedbackAndAdvance();
+            advance();
           }
         }
       }
