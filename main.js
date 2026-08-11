@@ -556,7 +556,7 @@ const Views = {
         <div class="thpr-players-row">
           ${[1,2,3,4,5].map(i => `
             <div class="thpr-player-spot" id="thpr-spot-${i}">
-              <div class="thpr-spot-label">Player ${i}</div>
+              <div class="thpr-spot-label">Player ${THPR_SEAT_NUM[i - 1]}</div>
               <div class="thpr-hole-wrap">
                 <div class="thpr-hole-cards">
                   ${cardHTML(null, true)}${cardHTML(null, true)}
@@ -870,6 +870,10 @@ const THPR_RANK_GUIDE = [
   { name: 'One Pair',             desc: 'Two cards of the same rank.' },
   { name: 'High Card',            desc: 'No matching combination — highest card plays.' },
 ];
+
+// Real casino tables skip seat #4 — internal player index (1-5, left to
+// right, unchanged) maps to displayed seat number 1/2/3/5/6.
+const THPR_SEAT_NUM = [1, 2, 3, 5, 6];
 
 function valToRank(v) {
   return v === 14 ? 'A' : v === 13 ? 'K' : v === 12 ? 'Q' : v === 11 ? 'J' : String(v);
@@ -3826,7 +3830,7 @@ const Sims = {
         }
         if (!r) return;
         var title = $('thpr-hand-modal-title');
-        if (title) title.textContent = 'PLAYER ' + p;
+        if (title) title.textContent = 'PLAYER ' + THPR_SEAT_NUM[p - 1];
         var content = $('thpr-hand-modal-content');
         if (content) content.innerHTML = buildResultHTML(r);
         var m = $('thpr-hand-modal');
@@ -3964,7 +3968,7 @@ const Sims = {
             S.dealerPickDone = null;
             if (done) done();
           } else {
-            setLabel('PLAYER ' + S.activePlayer);
+            setLabel('PLAYER ' + THPR_SEAT_NUM[S.activePlayer - 1]);
             showAnswerBtns();
             S.phase = 'quiz';
           }
@@ -4117,7 +4121,7 @@ const Sims = {
                     var spot5 = $('thpr-spot-5');
                     if (spot5) spot5.classList.add('thpr-active');
                     S.activePlayer = 5;
-                    setLabel('PLAYER 5');
+                    setLabel('PLAYER ' + THPR_SEAT_NUM[4]);
                     showAnswerBtns();
                     S.phase = 'quiz';
                   });
@@ -4185,7 +4189,7 @@ const Sims = {
         reveal('p' + S.activePlayer + 'c1');
         var spot = $('thpr-spot-' + S.activePlayer);
         if (spot) spot.classList.add('thpr-active');
-        setLabel('PLAYER ' + S.activePlayer);
+        setLabel('PLAYER ' + THPR_SEAT_NUM[S.activePlayer - 1]);
         showAnswerBtns();
         S.phase = 'quiz';
       }
@@ -4213,7 +4217,7 @@ const Sims = {
               : r.playerRankName + ' = ' + r.dealerRankName;
           return '<div class="thpr-sum-row">' +
             chk +
-            '<span class="thpr-sum-label">P' + r.player + '</span>' +
+            '<span class="thpr-sum-label">P' + THPR_SEAT_NUM[r.player - 1] + '</span>' +
             '<span class="thpr-sum-winner ' + wClass + '">' + r.winner + '</span>' +
             '<span class="thpr-sum-hands">' + hands + '</span>' +
             '</div>';
