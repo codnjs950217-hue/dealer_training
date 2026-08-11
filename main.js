@@ -4166,17 +4166,36 @@ const Sims = {
         var scEl = $('thpr-score'); if (scEl) scEl.textContent = S.score;
         var mEl = $('thpr-mistakes'); if (mEl) mEl.textContent = S.mistakes;
 
-        // Show structured feedback (same content re-shown later via each finished hand's "?" button)
-        var fb = $('thpr-feedback');
-        if (fb) fb.innerHTML = buildResultHTML(S.results[S.results.length - 1]);
-
-        // Auto-advance to the next player after a brief pause to read the result
         var a = $('thpr-action-row');
         if (a) a.innerHTML = '';
-        S.phase = 'transitioning';
-        setTimeout(function() {
-          if (S.phase === 'transitioning') next();
-        }, 2200);
+
+        // Show structured feedback (same content re-shown later via each finished hand's
+        // "?" button), then auto-advance after a brief pause to read the result.
+        var showFeedbackAndAdvance = function() {
+          var fb = $('thpr-feedback');
+          if (fb) fb.innerHTML = buildResultHTML(S.results[S.results.length - 1]);
+          S.phase = 'transitioning';
+          setTimeout(function() {
+            if (S.phase === 'transitioning') next();
+          }, 2200);
+        };
+
+        if (correct) {
+          showFeedbackAndAdvance();
+        } else {
+          // Same MISTAKE! flash used across the other games, so a wrong
+          // PAY/TAKE/TIE pick is immediately obvious before the explanation shows.
+          var tbl = document.querySelector('.thpr-table');
+          if (tbl) {
+            var ov = document.createElement('div');
+            ov.className = 'mistake-overlay';
+            ov.innerHTML = '<div class="mistake-text">MISTAKE!</div>';
+            tbl.appendChild(ov);
+            setTimeout(function() { ov.remove(); showFeedbackAndAdvance(); }, 1600);
+          } else {
+            showFeedbackAndAdvance();
+          }
+        }
       }
 
       function next() {
