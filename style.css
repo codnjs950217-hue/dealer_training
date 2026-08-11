@@ -4180,23 +4180,26 @@ body {
 .thpr-help-btn:hover { background: rgba(201,168,76,.18); transform: scale(1.06); }
 .thpr-help-btn:active { transform: scale(.95); }
 
-/* Small per-hand "?" — appears in a finished player spot's corner once the
-   round has moved on, so the trainee can re-open that hand's rank explanation. */
+/* Per-hand "?" — appears in a finished player spot's corner once the round
+   has moved on, so the trainee can re-open that hand's rank explanation.
+   Sits half-outside the spot's own border (negative top/right) so a bigger,
+   easier-to-tap circle doesn't creep inward over the hole cards below it. */
 .thpr-hand-help-btn {
   position: absolute;
-  top: 2px; right: 2px;
-  width: clamp(15px,3vh,20px); height: clamp(15px,3vh,20px);
+  top: clamp(-8px,-1.2vh,-5px); right: clamp(-8px,-1.2vw,-5px);
+  width: clamp(24px,5.4vh,32px); height: clamp(24px,5.4vh,32px);
   border-radius: 50%;
-  border: 1px solid rgba(201,168,76,.5);
-  background: rgba(0,0,0,.4);
+  border: 1.5px solid rgba(201,168,76,.55);
+  background: rgba(10,10,10,.75);
   color: var(--gold);
   font-weight: 900;
-  font-size: clamp(.5rem,1.1vw,.62rem);
+  font-size: clamp(.68rem,1.6vw,.84rem);
   line-height: 1;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,.5);
   z-index: 6;
-  opacity: .85;
+  opacity: .9;
 }
 .thpr-hand-help-btn:hover { opacity: 1; background: rgba(201,168,76,.22); }
 
