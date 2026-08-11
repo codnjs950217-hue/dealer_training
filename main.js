@@ -3906,10 +3906,15 @@ const Sims = {
 
       // The 10s countdown is just a pace-setter, not a deadline — picking
       // stays open past zero so the trainee can keep retrying until correct.
+      // Keeps the same boxed-pill markup/classes as countdown()'s stacked
+      // render so the prompt's style never changes once time runs out.
       function pickTimeout() {
         if (S.phase !== 'picking' || S.pickLocked) return;
         var cd = $('thpr-countdown');
-        if (cd) { cd.className = 'thpr-countdown thpr-countdown-active'; cd.textContent = PICK_PROMPT; }
+        if (cd) {
+          cd.className = 'thpr-countdown thpr-countdown-stacked';
+          cd.innerHTML = '<span class="thpr-countdown-prompt">' + PICK_PROMPT + '</span>';
+        }
       }
 
       function pickCard(key) {
