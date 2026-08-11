@@ -3982,12 +3982,12 @@ const Sims = {
             var bottom = dRect.bottom - tRect.top;
             overlay.style.top = top + 'px';
             overlay.style.height = (bottom - top) + 'px';
-            overlay.textContent = '다시 랭킹 확인하세요.';
+            overlay.textContent = '랭킹 다시 확인하세요.';
             overlay.style.display = 'flex';
             commEl.classList.add('thpr-dimmed');
             dealerEl.classList.add('thpr-dimmed');
           } else if (fb) {
-            fb.innerHTML = '<div class="thpr-pick-result thpr-pick-wrong">다시 랭킹 확인하세요.</div>';
+            fb.innerHTML = '<div class="thpr-pick-result thpr-pick-wrong">랭킹 다시 확인하세요.</div>';
           }
           setTimeout(function() {
             if (flashed) {
