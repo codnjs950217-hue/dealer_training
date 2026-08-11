@@ -4071,8 +4071,6 @@ body {
 .thpr-result-explain { color: rgba(255,255,255,.42); font-style: italic; }
 
 /* ---- End-of-round summary ---- */
-.thpr-sum-chk-ok    { color: #4ecdc4; }
-.thpr-sum-chk-wrong { color: #ff7777; }
 .thpr-sum-pay  { color: #4ecdc4; }
 .thpr-sum-take { color: #ff7777; }
 .thpr-sum-tie  { color: var(--gold); }
@@ -4084,43 +4082,31 @@ body {
 
 /* Per-hand result — sits under that player's own cards once the round ends
    (endRound() → buildSpotResultHTML()), instead of one combined list left
-   of the dealer cards. Small/tight so it never forces the row taller than
-   the table allows on mobile; only ever populated at round end. */
+   of the dealer cards. Exactly 3 lines (verdict, Player rank, Dealer rank);
+   bright/high-contrast so it's readable at a glance on mobile, not the dim
+   text used elsewhere in this panel. Only ever populated at round end. */
 .thpr-spot-result {
   width: 100%;
   display: flex; flex-direction: column;
   align-items: center;
-  gap: clamp(.03rem, .08vh, .08rem);
+  gap: clamp(.05rem, .12vh, .12rem);
   text-align: center;
   flex-shrink: 0;
 }
 .thpr-spot-result-verdict {
   font-weight: 900;
-  font-size: clamp(.56rem, 1.08vw, .66rem);
+  letter-spacing: .02em;
+  font-size: clamp(.64rem, 1.3vw, .8rem);
 }
-.thpr-spot-result-ranks {
+.thpr-spot-result-rank {
   width: 100%;
-  color: rgba(255,255,255,.55);
-  font-size: clamp(.46rem, .9vw, .54rem);
-  line-height: 1.2;
+  color: var(--text);
+  font-weight: 700;
+  font-size: clamp(.52rem, 1.02vw, .62rem);
+  line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-/* Line-clamped instead of left to grow freely — a long explanation sentence
-   must never push the player row taller than the table allows on mobile,
-   it just truncates with an ellipsis instead. */
-.thpr-spot-result-why {
-  color: rgba(255,255,255,.38);
-  font-style: italic;
-  font-size: clamp(.42rem, .8vw, .48rem);
-  line-height: 1.2;
-  overflow-wrap: break-word;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  max-height: calc(1.2em * 2);
 }
 
 /* ---- Player spot states ---- */

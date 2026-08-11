@@ -3824,23 +3824,13 @@ const Sims = {
       }
 
       // Compact per-hand result shown directly under that player's own cards
-      // once the round is over (see endRound()) — same info as
-      // buildResultHTML() (dealer/player rank, PAY/TAKE/TIE reason) but
-      // condensed to fit a single narrow player-spot column.
+      // once the round is over (see endRound()) — exactly 3 short, high-
+      // contrast lines: the winner, then Player's rank, then Dealer's rank.
       function buildSpotResultHTML(r) {
         var wClass = r.winner === 'PAY' ? 'thpr-sum-pay' : r.winner === 'TAKE' ? 'thpr-sum-take' : 'thpr-sum-tie';
-        var chk = r.correct
-          ? '<span class="thpr-sum-chk-ok">✓</span>'
-          : '<span class="thpr-sum-chk-wrong">✗</span>';
-        // One combined "winner-first" rank line instead of two, and the reason
-        // is line-clamped — keeps this to 2 short lines under the verdict so
-        // it can't push the layout taller than the table allows on mobile.
-        var ranks = r.winner === 'TAKE'
-          ? 'Dealer: ' + r.dealerRankName + ' · Player: ' + r.playerRankName
-          : 'Player: ' + r.playerRankName + ' · Dealer: ' + r.dealerRankName;
-        return '<div class="thpr-spot-result-verdict">' + chk + ' <span class="' + wClass + '">' + r.winner + '</span></div>' +
-          '<div class="thpr-spot-result-ranks">' + ranks + '</div>' +
-          '<div class="thpr-spot-result-why">' + r.verboseExplanation + '</div>';
+        return '<div class="thpr-spot-result-verdict ' + wClass + '">' + r.winner + '</div>' +
+          '<div class="thpr-spot-result-rank">Player: ' + r.playerRankName + '</div>' +
+          '<div class="thpr-spot-result-rank">Dealer: ' + r.dealerRankName + '</div>';
       }
 
       function showHandExplain(p) {
