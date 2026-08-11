@@ -3785,11 +3785,6 @@ const Sims = {
         }, 1000);
       }
 
-      function setLabel(text) {
-        const cd = $('thpr-countdown');
-        if (cd) { cd.className = 'thpr-countdown thpr-countdown-active'; cd.textContent = text; }
-      }
-
       function showAnswerBtns() {
         var b = $('thpr-spot-btns-' + S.activePlayer);
         if (!b) return;
@@ -3970,7 +3965,6 @@ const Sims = {
             S.dealerPickDone = null;
             if (done) done();
           } else {
-            setLabel('PLAYER ' + THPR_SEAT_NUM[S.activePlayer - 1]);
             showAnswerBtns();
             S.phase = 'quiz';
           }
@@ -4123,7 +4117,6 @@ const Sims = {
                     var spot5 = $('thpr-spot-5');
                     if (spot5) spot5.classList.add('thpr-active');
                     S.activePlayer = 5;
-                    setLabel('PLAYER ' + THPR_SEAT_NUM[4]);
                     showAnswerBtns();
                     S.phase = 'quiz';
                   });
@@ -4210,7 +4203,6 @@ const Sims = {
         reveal('p' + S.activePlayer + 'c1');
         var spot = $('thpr-spot-' + S.activePlayer);
         if (spot) spot.classList.add('thpr-active');
-        setLabel('PLAYER ' + THPR_SEAT_NUM[S.activePlayer - 1]);
         showAnswerBtns();
         S.phase = 'quiz';
       }
