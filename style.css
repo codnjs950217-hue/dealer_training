@@ -3770,6 +3770,39 @@ body {
   overflow: hidden;
 }
 
+/* Decorative poker-chip stack peeking in from the left edge — same "sliver
+   of real casino equipment" treatment as .rpay-deco-wheel on the roulette
+   payout page. Pure ambience: mostly cropped off-screen by the table's own
+   overflow:hidden, dim + blurred, and pointer-events:none so it never
+   competes with or covers cards/buttons/prompts. */
+.thpr-deco-chips {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: clamp(90px, 16vh, 150px);
+  height: clamp(150px, 30vh, 240px);
+  transform: translate(-64%, -50%);
+  opacity: .3;
+  filter: blur(2px);
+  pointer-events: none;
+  z-index: 0;
+}
+.thpr-deco-chip {
+  position: absolute;
+  left: 50%;
+  width: 100%;
+  height: clamp(24px, 4.6vh, 38px);
+  transform: translateX(-50%);
+  border-radius: 50%;
+  border: 3px dashed rgba(255,255,255,.5);
+  box-shadow: 0 3px 5px rgba(0,0,0,.5);
+}
+.thpr-deco-chip-1 { bottom: 0;                      background: #b3202a; }
+.thpr-deco-chip-2 { bottom: clamp(16px,3vh,26px);   background: #14181f; }
+.thpr-deco-chip-3 { bottom: clamp(32px,6vh,52px);   background: #c9a84c; }
+.thpr-deco-chip-4 { bottom: clamp(48px,9vh,78px);   background: #1b5e35; }
+.thpr-deco-chip-5 { bottom: clamp(64px,12vh,104px); background: #b3202a; }
+
 /* ---- Players row ---- */
 .thpr-players-row {
   display: flex;
