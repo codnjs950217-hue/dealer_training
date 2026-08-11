@@ -3749,19 +3749,20 @@ const Sims = {
 
       // label falsy → show just the ticking number ("5", "4", ... ) with no
       // word in front of it, e.g. the FLOP/TURN/RIVER reveal beats.
-      // stacked → the label renders exactly where it always has (plain text,
-      // untouched position); the ticking number is a separate absolutely-
-      // positioned element floating above it (.thpr-countdown-num, anchored
-      // via bottom:100% so it never pushes the label down). FLOP/TURN/RIVER
-      // keep the plain inline "LABEL  n" form untouched.
+      // stacked → the ticking number floats above (.thpr-countdown-num,
+      // absolutely positioned via bottom:100%) and the label renders as its
+      // own boxed pill (.thpr-countdown-prompt) below it — a sentence-length
+      // prompt no longer reuses the huge glowing digit style, which clashed
+      // with it. FLOP/TURN/RIVER keep the plain inline "LABEL  n" form.
       function countdown(label, secs, done, stacked) {
         clearCd();
         const cd = $('thpr-countdown');
         if (!cd) { done(); return; }
         let n = secs;
+        const promptHTML = label ? '<span class="thpr-countdown-prompt">' + label + '</span>' : '';
         const render = n => {
           if (stacked) {
-            cd.innerHTML = '<div class="thpr-countdown-num">' + n + '</div>' + (label || '');
+            cd.innerHTML = '<div class="thpr-countdown-num">' + n + '</div>' + promptHTML;
           } else {
             cd.textContent = label ? (label + '  ' + n) : String(n);
           }
@@ -3774,7 +3775,7 @@ const Sims = {
             clearCd();
             cd.className = 'thpr-countdown thpr-countdown-done';
             if (stacked) {
-              cd.innerHTML = label || '';
+              cd.innerHTML = promptHTML;
             } else {
               cd.textContent = label ? (label + '  ✓') : '';
             }

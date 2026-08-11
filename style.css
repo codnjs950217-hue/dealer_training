@@ -3909,9 +3909,9 @@ body {
 }
 
 /* Stacked countdown (see countdown(..., stacked=true) in main.js): the label
-   text renders in normal flow at its usual position (unchanged); the ticking
-   number is taken out of flow and floated above it via bottom:100%, so it
-   can never push the label down — just sits above with a clear gap. */
+   renders as its own boxed pill in normal flow at its usual position; the
+   ticking number is taken out of flow and floated above it via bottom:100%,
+   so it can never push the label down — just sits above with a clear gap. */
 .thpr-countdown-num {
   position: absolute;
   left: 50%;
@@ -3922,6 +3922,22 @@ body {
   font-size: clamp(1.3rem, 3.8vh, 2.3rem);
   font-weight: 900;
   line-height: 1.1;
+}
+/* Boxed prompt pill — a sentence-length label no longer reuses the huge
+   glowing digit style (.thpr-countdown-active/-done), which clashed with
+   the ticking number sitting right above it. */
+.thpr-countdown-prompt {
+  display: inline-block;
+  background: rgba(0,0,0,.6);
+  border: 1px solid rgba(255,228,77,.4);
+  border-radius: 999px;
+  padding: clamp(.28rem,.7vh,.42rem) clamp(.75rem,2vw,1.15rem);
+  font-size: clamp(.62rem,1.5vw,.78rem);
+  font-weight: 700;
+  letter-spacing: .01em;
+  line-height: 1.35;
+  color: rgba(255,255,255,.88);
+  text-shadow: none;
 }
 
 /* ---- Dealer area ---- */
