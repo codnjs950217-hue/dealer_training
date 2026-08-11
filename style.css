@@ -4125,6 +4125,13 @@ body {
 .thpr-player-spot.thpr-tie {
   border-color: rgba(255,255,255,.08);
   background: rgba(255,255,255,.02);
+}
+/* Grey out just the cards, not the whole spot — the round-end result text
+   (.thpr-spot-result) needs to stay fully bright/readable, and opacity on
+   an ancestor can't be selectively undone by a brighter child color. */
+.thpr-player-spot.thpr-pay .thpr-hole-wrap,
+.thpr-player-spot.thpr-take .thpr-hole-wrap,
+.thpr-player-spot.thpr-tie .thpr-hole-wrap {
   opacity: .5;
   filter: grayscale(.7);
 }
