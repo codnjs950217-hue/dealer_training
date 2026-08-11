@@ -3745,23 +3745,37 @@ const Sims = {
 
       // label falsy → show just the ticking number ("5", "4", ... ) with no
       // word in front of it, e.g. the FLOP/TURN/RIVER reveal beats.
-      function countdown(label, secs, done) {
+      // stacked → number on its own line above the label (with a gap), for
+      // longer prompts like PICK_PROMPT where "LABEL  n" on one line would
+      // be an unreadably long sentence. FLOP/TURN/RIVER keep the inline form.
+      function countdown(label, secs, done, stacked) {
         clearCd();
         const cd = $('thpr-countdown');
         if (!cd) { done(); return; }
         let n = secs;
-        const fmt = n => label ? (label + '  ' + n) : String(n);
+        const render = n => {
+          if (stacked) {
+            cd.innerHTML = '<div class="thpr-countdown-num">' + n + '</div>' +
+              (label ? '<div class="thpr-countdown-sub">' + label + '</div>' : '');
+          } else {
+            cd.textContent = label ? (label + '  ' + n) : String(n);
+          }
+        };
         cd.className = 'thpr-countdown thpr-countdown-active';
-        cd.textContent = fmt(n);
+        render(n);
         _cdTimer = setInterval(function() {
           n--;
           if (n <= 0) {
             clearCd();
             cd.className = 'thpr-countdown thpr-countdown-done';
-            cd.textContent = label ? (label + '  ✓') : '';
+            if (stacked) {
+              cd.innerHTML = label ? '<div class="thpr-countdown-sub">' + label + '  ✓</div>' : '';
+            } else {
+              cd.textContent = label ? (label + '  ✓') : '';
+            }
             done();
           } else {
-            cd.textContent = fmt(n);
+            render(n);
           }
         }, 1000);
       }
@@ -3865,7 +3879,7 @@ const Sims = {
         S.pickSelected = [];
         S.pickLocked = false;
         enablePicking();
-        countdown(PICK_PROMPT, 10, pickTimeout);
+        countdown(PICK_PROMPT, 10, pickTimeout, true);
       }
 
       // Picking is enabled the instant the cards open — the countdown IS the
