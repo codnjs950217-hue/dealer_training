@@ -4074,11 +4074,6 @@ body {
 .thpr-sum-pay  { color: #4ecdc4; }
 .thpr-sum-take { color: #ff7777; }
 .thpr-sum-tie  { color: var(--gold); }
-.thpr-sum-score {
-  color: var(--gold); font-weight: 900;
-  font-size: clamp(.64rem, 1.28vw, .76rem);
-  text-align: center;
-}
 
 /* Per-hand result — sits under that player's own cards once the round ends
    (endRound() → buildSpotResultHTML()), instead of one combined list left

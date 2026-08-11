@@ -4236,21 +4236,15 @@ const Sims = {
         var cd = $('thpr-countdown');
         if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
 
-        // Each hand's dealer/player rank + PAY/TAKE/TIE reason now shows
-        // directly under that player's own cards (buildSpotResultHTML()),
-        // not as one combined list left of the dealer cards — lets the
-        // trainee compare a hand's cards against its result side by side.
-        var correctCount = 0;
+        // Each hand's dealer/player rank + PAY/TAKE/TIE reason shows
+        // directly under that player's own cards (buildSpotResultHTML()) —
+        // lets the trainee compare a hand's cards against its result side
+        // by side. No overall "X / 5 correct" line — Score/Mistake up top
+        // already cover that.
         S.results.forEach(function(r) {
-          if (r.correct) correctCount++;
           var box = $('thpr-spot-result-' + r.player);
           if (box) box.innerHTML = buildSpotResultHTML(r);
         });
-
-        var fb = $('thpr-feedback');
-        if (fb) {
-          fb.innerHTML = '<div class="thpr-sum-score">' + correctCount + ' / 5 correct</div>';
-        }
 
         var a = $('thpr-action-row');
         if (a) a.innerHTML = '<button class="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">NEXT HAND</button>';
