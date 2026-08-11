@@ -4100,7 +4100,6 @@ body {
   font-size: clamp(.68rem, 1.5vw, .82rem);
   letter-spacing: .3px;
 }
-.thpr-pick-correct { color: #4ecdc4; }
 .thpr-pick-wrong   { color: #ff7777; }
 
 /* Wrong dealer pick: dim the cards being judged and flash a large warning

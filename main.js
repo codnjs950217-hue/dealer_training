@@ -3885,7 +3885,9 @@ const Sims = {
         var fb = $('thpr-feedback');
 
         if (correct) {
-          if (fb) fb.innerHTML = '<div class="thpr-pick-result thpr-pick-correct">Correct! — best 5-card hand selected.</div>';
+          // No "Correct!" message — a correct pick just flows straight into
+          // the next hand-processing step.
+          if (fb) fb.innerHTML = '';
           // Lock these 2 cards' up/down position for the rest of the round.
           S.pickSelected.forEach(function(key) {
             var id = S.pickSlots[key].id;
@@ -3895,20 +3897,17 @@ const Sims = {
             var el = $('thprfc_' + S.pickSlots[key].id);
             if (el) { el.onclick = null; el.classList.remove('thpr-card-pick'); }
           });
-          setTimeout(function() {
-            if (fb) fb.innerHTML = '';
-            var cd = $('thpr-countdown');
-            if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
-            if (S.pickContext === 'dealer') {
-              var done = S.dealerPickDone;
-              S.dealerPickDone = null;
-              if (done) done();
-            } else {
-              setLabel('PLAYER ' + S.activePlayer);
-              showAnswerBtns();
-              S.phase = 'quiz';
-            }
-          }, 900);
+          var cd = $('thpr-countdown');
+          if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
+          if (S.pickContext === 'dealer') {
+            var done = S.dealerPickDone;
+            S.dealerPickDone = null;
+            if (done) done();
+          } else {
+            setLabel('PLAYER ' + S.activePlayer);
+            showAnswerBtns();
+            S.phase = 'quiz';
+          }
         } else {
           var commEl = document.querySelector('.thpr-community-area');
           var dealerEl = $('thpr-dealer-cards');
