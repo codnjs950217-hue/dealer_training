@@ -3827,9 +3827,14 @@ const Sims = {
       // 10-second window to choose, not a delay before choosing is allowed.
       function enablePicking() {
         Object.keys(S.pickSlots).forEach(function(key) {
-          var el = $('thprfc_' + S.pickSlots[key].id);
+          var slot = S.pickSlots[key];
+          var el = $('thprfc_' + slot.id);
           if (!el) return;
-          el.classList.remove('thpr-card-picked', PICK_DIR_CLASSES[0], PICK_DIR_CLASSES[1]);
+          // A card locked in from an earlier correct pick this round stays
+          // slid up/down — don't reset its position for the next pick step.
+          if (S.lockedPicks.indexOf(slot.id) === -1) {
+            el.classList.remove('thpr-card-picked', PICK_DIR_CLASSES[0], PICK_DIR_CLASSES[1]);
+          }
           el.classList.add('thpr-card-pick');
           el.onclick = function() { pickCard(key); };
         });
@@ -3852,7 +3857,9 @@ const Sims = {
         var idx = S.pickSelected.indexOf(key);
         if (idx >= 0) {
           S.pickSelected.splice(idx, 1);
-          if (el) el.classList.remove('thpr-card-picked', dirClass);
+          // Already locked in from an earlier correct pick this round — deselecting
+          // it in this session doesn't slide it back (it was never really "put back").
+          if (el && S.lockedPicks.indexOf(slot.id) === -1) el.classList.remove('thpr-card-picked', dirClass);
           return;
         }
         if (S.pickSelected.length >= 2) return;
@@ -3879,6 +3886,11 @@ const Sims = {
 
         if (correct) {
           if (fb) fb.innerHTML = '<div class="thpr-pick-result thpr-pick-correct">Correct! — best 5-card hand selected.</div>';
+          // Lock these 2 cards' up/down position for the rest of the round.
+          S.pickSelected.forEach(function(key) {
+            var id = S.pickSlots[key].id;
+            if (S.lockedPicks.indexOf(id) === -1) S.lockedPicks.push(id);
+          });
           keys.forEach(function(key) {
             var el = $('thprfc_' + S.pickSlots[key].id);
             if (el) { el.onclick = null; el.classList.remove('thpr-card-pick'); }
@@ -3927,7 +3939,9 @@ const Sims = {
               fb.innerHTML = '';
             }
             S.pickSelected.forEach(function(key) {
-              var el = $('thprfc_' + S.pickSlots[key].id);
+              var id = S.pickSlots[key].id;
+              if (S.lockedPicks.indexOf(id) !== -1) return;
+              var el = $('thprfc_' + id);
               if (el) el.classList.remove('thpr-card-picked', PICK_DIR_CLASSES[0], PICK_DIR_CLASSES[1]);
             });
             S.pickSelected = [];
@@ -3991,6 +4005,10 @@ const Sims = {
         S.dealer  = hand.dealer;
         S.players = hand.players;
         S.results = [];
+        // Discard-2 picks confirmed correct this round stay slid up/down for the
+        // rest of the round (a real dealer doesn't put an excluded card back) —
+        // this is what resets it. See enablePicking()/pickCard()/checkPick().
+        S.lockedPicks = [];
 
         // Clear previous round's visual state
         for (var _p = 1; _p <= 5; _p++) {
