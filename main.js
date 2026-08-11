@@ -4173,13 +4173,15 @@ const Sims = {
 
         // No more auto-shown rank explanation here — that's only available
         // per finished hand via its own "?" button (buildResultHTML() is
-        // still used there, see showHandExplain()). This just advances after
-        // a brief pause, same timing as before.
+        // still used there, see showHandExplain()). The 2200ms pause used to
+        // exist so the trainee could read that explanation before moving on;
+        // now that it's gone, a short pause (just enough to register the
+        // spot's color change) is all that's needed.
         var advance = function() {
           S.phase = 'transitioning';
           setTimeout(function() {
             if (S.phase === 'transitioning') next();
-          }, 2200);
+          }, 600);
         };
 
         if (correct) {
