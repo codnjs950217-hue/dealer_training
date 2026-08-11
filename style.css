@@ -3726,6 +3726,13 @@ body {
 .thp-rank-sim .flip-inner { width: var(--thpr-card-w); height: var(--thpr-card-h); }
 .thp-rank-sim .flip-card  { display: inline-block; }
 
+/* The FLOP cards and the "FLOP 5→4→3→2→1" countdown both start together —
+   stretch just the FLOP flip to run the same 5s the countdown takes, so the
+   reveal finishes as the count reaches 1 instead of snapping open almost
+   instantly and leaving the rest of the count with nothing moving on screen.
+   TURN/RIVER/dealer/player reveals keep the site-wide .65s flip. */
+#thpr-flop .flip-inner { transition-duration: 5s; }
+
 /* Tighter corner positions for small cards */
 .thp-rank-sim .card-corner.top    { top: 2px; left: 3px; }
 .thp-rank-sim .card-corner.bottom { bottom: 2px; right: 3px; }
