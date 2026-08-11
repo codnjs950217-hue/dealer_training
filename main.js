@@ -551,7 +551,6 @@ const Views = {
       </div>
 
       <div class="thpr-table">
-        <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
         <button class="thpr-help-btn" onclick="Sims.poker.thpRank.showRankHelp()" title="Hand Ranking Guide">?</button>
 
         <div class="thpr-players-row">
