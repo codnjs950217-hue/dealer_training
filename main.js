@@ -3760,20 +3760,21 @@ const Sims = {
         if (!cd) { done(); return; }
         let n = secs;
         const promptHTML = label ? '<span class="thpr-countdown-prompt">' + label + '</span>' : '';
+        const stackedClass = stacked ? ' thpr-countdown-stacked' : '';
         const render = n => {
           if (stacked) {
-            cd.innerHTML = '<div class="thpr-countdown-num">' + n + '</div>' + promptHTML;
+            cd.innerHTML = promptHTML + '<div class="thpr-countdown-num">' + n + '</div>';
           } else {
             cd.textContent = label ? (label + '  ' + n) : String(n);
           }
         };
-        cd.className = 'thpr-countdown thpr-countdown-active';
+        cd.className = 'thpr-countdown thpr-countdown-active' + stackedClass;
         render(n);
         _cdTimer = setInterval(function() {
           n--;
           if (n <= 0) {
             clearCd();
-            cd.className = 'thpr-countdown thpr-countdown-done';
+            cd.className = 'thpr-countdown thpr-countdown-done' + stackedClass;
             if (stacked) {
               cd.innerHTML = promptHTML;
             } else {
