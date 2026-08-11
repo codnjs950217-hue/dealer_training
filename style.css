@@ -2229,19 +2229,20 @@ body {
 
 .blackjack-table { position: relative; overflow: hidden; }
 
-/* Decorative card-shoe sliver peeking in from the left edge — same
-   ambience treatment as .rpay-deco-wheel (roulette payout page) and
-   .thpr-deco-chips (Hold'em Ranking page): a dim, blurred fragment of real
-   table equipment, mostly cropped off-screen by the table's own
-   overflow:hidden, pointer-events:none so it never competes with or
-   covers cards/buttons/the game UI. */
+/* Decorative card-shoe sliver, positioned like a real shoe's opening sits
+   just left of the dealer's hand (inside .dealer-area-bj, not the whole
+   table) — same ambience treatment as .rpay-deco-wheel (roulette payout
+   page) and .thpr-deco-chips (Hold'em Ranking page): a dim, blurred
+   fragment of real table equipment, mostly cropped off-screen by the
+   table's own overflow:hidden, pointer-events:none so it never competes
+   with or covers cards/buttons/the game UI. */
 .bj-deco-shoe {
   position: absolute;
   left: 0;
   top: 50%;
-  width: clamp(90px, 16vh, 150px);
-  height: clamp(70px, 13vh, 120px);
-  transform: translate(-58%, -50%) rotate(-8deg);
+  width: clamp(70px, 20vh, 120px);
+  height: clamp(55px, 16vh, 96px);
+  transform: translate(-52%, -50%) rotate(-8deg);
   opacity: .3;
   filter: blur(2px);
   pointer-events: none;

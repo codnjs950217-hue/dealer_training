@@ -232,10 +232,6 @@ const Views = {
   blackjackSim: () => `
     <div class="sim-page blackjack-sim">
       <div class="blackjack-table">
-        <div class="bj-deco-shoe" aria-hidden="true">
-          <div class="bj-deco-shoe-body"></div>
-          <div class="bj-deco-shoe-card"></div>
-        </div>
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="bj-rounds">0</strong></span>
           <span>Score: <strong id="bj-score">0</strong></span>
@@ -259,6 +255,10 @@ const Views = {
               </div>`).join('')}
           </div>
           <div class="dealer-area-bj" id="bj-dealer-wrap">
+            <div class="bj-deco-shoe" aria-hidden="true">
+              <div class="bj-deco-shoe-body"></div>
+              <div class="bj-deco-shoe-card"></div>
+            </div>
             <div class="area-label" id="bj-dealer-label" style="visibility:hidden">DEALER</div>
             <div class="hand-display" id="bj-dealer-hand"></div>
             <div class="dealer-ctrl-area" id="bj-dealer-controls"></div>
