@@ -3752,30 +3752,30 @@ const Sims = {
       // word in front of it, e.g. the FLOP/TURN/RIVER reveal beats.
       // stacked → the ticking number floats above (.thpr-countdown-num,
       // absolutely positioned via bottom:100%) and the label renders as its
-      // own boxed pill (.thpr-countdown-prompt) below it — a sentence-length
-      // prompt no longer reuses the huge glowing digit style, which clashed
-      // with it. FLOP/TURN/RIVER keep the plain inline "LABEL  n" form.
+      // own boxed pill (.thpr-countdown-prompt) below it, in its usual
+      // position — a sentence-length prompt no longer reuses the huge
+      // glowing digit style, which clashed with it. FLOP/TURN/RIVER keep
+      // the plain inline "LABEL  n" form.
       function countdown(label, secs, done, stacked) {
         clearCd();
         const cd = $('thpr-countdown');
         if (!cd) { done(); return; }
         let n = secs;
         const promptHTML = label ? '<span class="thpr-countdown-prompt">' + label + '</span>' : '';
-        const stackedClass = stacked ? ' thpr-countdown-stacked' : '';
         const render = n => {
           if (stacked) {
-            cd.innerHTML = promptHTML + '<div class="thpr-countdown-num">' + n + '</div>';
+            cd.innerHTML = '<div class="thpr-countdown-num">' + n + '</div>' + promptHTML;
           } else {
             cd.textContent = label ? (label + '  ' + n) : String(n);
           }
         };
-        cd.className = 'thpr-countdown thpr-countdown-active' + stackedClass;
+        cd.className = 'thpr-countdown thpr-countdown-active';
         render(n);
         _cdTimer = setInterval(function() {
           n--;
           if (n <= 0) {
             clearCd();
-            cd.className = 'thpr-countdown thpr-countdown-done' + stackedClass;
+            cd.className = 'thpr-countdown thpr-countdown-done';
             if (stacked) {
               cd.innerHTML = promptHTML;
             } else {
@@ -3933,7 +3933,7 @@ const Sims = {
         if (S.phase !== 'picking' || S.pickLocked) return;
         var cd = $('thpr-countdown');
         if (cd) {
-          cd.className = 'thpr-countdown thpr-countdown-stacked';
+          cd.className = 'thpr-countdown';
           cd.innerHTML = '<span class="thpr-countdown-prompt">' + PICK_PROMPT + '</span>';
         }
       }

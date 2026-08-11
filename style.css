@@ -3910,21 +3910,14 @@ body {
 
 /* Stacked countdown (see countdown(..., stacked=true) in main.js): the label
    renders as its own boxed pill in normal flow at its usual position; the
-   ticking number is taken out of flow and floated below it via top:100%,
-   so it can never push the label around — just sits below with a clear gap.
-   Needs more headroom above the community cards than a single line does
-   (prompt + gap + number stacked), so it floats higher — this is the same
-   "overlaps upward into the players row when the text is tall" the base
-   .thpr-countdown already allows for (see comment above), just more of it. */
-.thpr-countdown.thpr-countdown-stacked {
-  top: clamp(-5.2rem, -8.4vh, -3.4rem);
-}
+   ticking number is taken out of flow and floated above it via bottom:100%,
+   so it can never push the label down — just sits above with a clear gap. */
 .thpr-countdown-num {
   position: absolute;
   left: 50%;
-  top: 100%;
+  bottom: 100%;
   transform: translateX(-50%);
-  margin-top: clamp(.35rem, 1vh, .6rem);
+  margin-bottom: clamp(.35rem, 1vh, .6rem);
   white-space: nowrap;
   font-size: clamp(1.3rem, 3.8vh, 2.3rem);
   font-weight: 900;
