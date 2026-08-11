@@ -4164,7 +4164,7 @@ body {
 /* ---- Hand-ranking help button + modal ---- */
 .thpr-help-btn {
   position: absolute;
-  top: clamp(6px,1.2vh,10px); right: clamp(6px,1.2vw,10px);
+  bottom: clamp(6px,1.2vh,10px); right: clamp(6px,1.2vw,10px);
   min-height: clamp(38px,5.5vh,48px); min-width: clamp(38px,5.5vh,48px);
   border-radius: 50%;
   border: 1.5px solid rgba(201,168,76,.5);
@@ -4182,11 +4182,10 @@ body {
 
 /* Per-hand "?" — appears in a finished player spot's corner once the round
    has moved on, so the trainee can re-open that hand's rank explanation.
-   Sits half-outside the spot's own border (negative top/right) so a bigger,
-   easier-to-tap circle doesn't creep inward over the hole cards below it. */
+   Sits fully inside the spot's own border (positive top/right). */
 .thpr-hand-help-btn {
   position: absolute;
-  top: clamp(-8px,-1.2vh,-5px); right: clamp(-8px,-1.2vw,-5px);
+  top: clamp(2px,.5vh,4px); right: clamp(2px,.5vw,4px);
   width: clamp(24px,5.4vh,32px); height: clamp(24px,5.4vh,32px);
   border-radius: 50%;
   border: 1.5px solid rgba(201,168,76,.55);
