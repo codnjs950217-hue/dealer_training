@@ -232,6 +232,10 @@ const Views = {
   blackjackSim: () => `
     <div class="sim-page blackjack-sim">
       <div class="blackjack-table">
+        <div class="bj-deco-shoe" aria-hidden="true">
+          <div class="bj-deco-shoe-body"></div>
+          <div class="bj-deco-shoe-card"></div>
+        </div>
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="bj-rounds">0</strong></span>
           <span>Score: <strong id="bj-score">0</strong></span>
