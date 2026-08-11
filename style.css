@@ -4157,6 +4157,11 @@ body {
 }
 .thpr-card-picked-up   { transform: translateY(-10px); }
 .thpr-card-picked-down { transform: translateY(10px); }
+/* Wrong-pick reset: forces the return trip to land exactly at 0, even if
+   the pointer is still hovering the card (see checkPick()'s wrong branch in
+   main.js) — otherwise .thpr-card-pick:hover's 3px nudge can hijack the
+   same transition and the card visibly stops short of its original spot. */
+.thpr-card-pick-settling { transform: translateY(0) !important; }
 
 .thpr-pick-result {
   font-weight: 800;

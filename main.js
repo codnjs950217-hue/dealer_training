@@ -4015,14 +4015,30 @@ const Sims = {
             } else if (fb) {
               fb.innerHTML = '';
             }
+            var settling = [];
             S.pickSelected.forEach(function(key) {
               var id = S.pickSlots[key].id;
               if (S.lockedPicks.indexOf(id) !== -1) return;
               var el = $('thprfc_' + id);
-              if (el) el.classList.remove('thpr-card-picked', PICK_DIR_CLASSES[0], PICK_DIR_CLASSES[1]);
+              if (!el) return;
+              el.classList.remove('thpr-card-picked', PICK_DIR_CLASSES[0], PICK_DIR_CLASSES[1]);
+              // The pointer is usually still resting on the just-clicked card,
+              // so the moment the picked class is gone, the hover-nudge rule
+              // (.thpr-card-pick:hover) can match and hijack this same
+              // transform mid-transition, leaving the card stuck at the 3px
+              // hover offset instead of back at its true 0 position. Force
+              // it to land exactly at 0 for the return trip; once settled,
+              // remove the override so hovering still nudges normally.
+              el.classList.add('thpr-card-pick-settling');
+              settling.push(el);
             });
             S.pickSelected = [];
             S.pickLocked = false;
+            if (settling.length) {
+              setTimeout(function() {
+                settling.forEach(function(el) { el.classList.remove('thpr-card-pick-settling'); });
+              }, 200);
+            }
           }, 1300);
         }
       }
