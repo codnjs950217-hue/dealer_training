@@ -4114,8 +4114,11 @@ const Sims = {
           if (hc) hc.innerHTML = S.players[p - 1].map(function(c, i) { return flipHTML(c, 'p' + p + 'c' + i); }).join('');
         }
 
-        var startBtn = $('thpr-start-btn');
-        if (startBtn) startBtn.disabled = true;
+        // Remove the START/NEXT HAND button outright (not just disable it) —
+        // it should vanish the instant the round starts, not linger greyed
+        // out through FLOP/TURN/RIVER/the dealer pick/player turns.
+        var actionRow = $('thpr-action-row');
+        if (actionRow) actionRow.innerHTML = '';
 
         // Reveal sequence: FLOP → TURN → RIVER → DEALER → PLAYER 5
         setTimeout(function() {
