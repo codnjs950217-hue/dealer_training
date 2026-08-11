@@ -3929,15 +3929,15 @@ body {
 .thpr-countdown-prompt {
   display: inline-block;
   background: rgba(0,0,0,.6);
-  border: 1px solid rgba(255,228,77,.4);
+  border: 1px solid rgba(255,77,77,.55);
   border-radius: 999px;
   padding: clamp(.28rem,.7vh,.42rem) clamp(.75rem,2vw,1.15rem);
   font-size: clamp(.62rem,1.5vw,.78rem);
   font-weight: 700;
   letter-spacing: .01em;
   line-height: 1.35;
-  color: rgba(255,255,255,.88);
-  text-shadow: none;
+  color: #ff5b5b;
+  text-shadow: 0 0 10px rgba(255,60,60,.5);
 }
 
 /* ---- Dealer area ---- */
