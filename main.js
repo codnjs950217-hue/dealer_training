@@ -620,6 +620,14 @@ const Views = {
           </ol>
         </div>
       </div>
+
+      <div class="thpr-rank-modal-backdrop" id="thpr-hand-modal" style="display:none;" onclick="Sims.poker.thpRank.hideHandExplain(event)">
+        <div class="thpr-rank-modal-box" onclick="event.stopPropagation()">
+          <button class="thpr-rank-modal-close" onclick="Sims.poker.thpRank.hideHandExplain()">✕</button>
+          <div class="thpr-rank-modal-title" id="thpr-hand-modal-title"></div>
+          <div id="thpr-hand-modal-content"></div>
+        </div>
+      </div>
     </div>`,
 
 };
@@ -3770,6 +3778,59 @@ const Sims = {
           '<button class="thpr-tie-btn" onclick="Sims.poker.thpRank.answer(\'tie\')">TIE</button>';
       }
 
+      // Builds the same rank-explanation markup shown live under the dealer
+      // cards right after answering — reused by each finished hand's "?" button.
+      function buildResultHTML(r) {
+        var line1, line2;
+        if (r.winner === 'TAKE') {
+          line1 = 'Dealer: ' + r.dealerRankName;
+          line2 = 'Player: ' + r.playerRankName;
+        } else {
+          line1 = 'Player: ' + r.playerRankName;
+          line2 = 'Dealer: ' + r.dealerRankName;
+        }
+        return '<div class="thpr-result">' +
+            '<span class="' + (r.correct ? 'thpr-verdict-ok' : 'thpr-verdict-wrong') + '">' +
+              (r.correct ? 'Correct!' : 'Incorrect.') +
+            '</span>' +
+            '<span class="thpr-result-answer">' +
+              (r.correct ? 'Answer: ' : 'Correct answer: ') + r.winner +
+            '</span>' +
+            '<span>' + line1 + '</span>' +
+            '<span>' + line2 + '</span>' +
+            '<span class="thpr-result-explain">' + r.verboseExplanation + '</span>' +
+          '</div>';
+      }
+
+      function showHandExplain(p) {
+        var r = null;
+        for (var i = 0; i < S.results.length; i++) {
+          if (S.results[i].player === p) { r = S.results[i]; break; }
+        }
+        if (!r) return;
+        var title = $('thpr-hand-modal-title');
+        if (title) title.textContent = 'PLAYER ' + p;
+        var content = $('thpr-hand-modal-content');
+        if (content) content.innerHTML = buildResultHTML(r);
+        var m = $('thpr-hand-modal');
+        if (m) m.style.display = 'flex';
+      }
+
+      function hideHandExplain(e) {
+        if (e) e.stopPropagation();
+        var m = $('thpr-hand-modal');
+        if (m) m.style.display = 'none';
+      }
+
+      // Only added once a finished hand's own turn has passed — not while it's
+      // still the active/in-progress hand.
+      function addHandHelpBtn(p) {
+        var spot = $('thpr-spot-' + p);
+        if (!spot || spot.querySelector('.thpr-hand-help-btn')) return;
+        spot.insertAdjacentHTML('beforeend',
+          '<button class="thpr-hand-help-btn" onclick="event.stopPropagation();Sims.poker.thpRank.showHandExplain(' + p + ')">?</button>');
+      }
+
       // ---- Discard-2 card picking: identify the dealer's best 5-card hand ----
       // from comm 5 + dealer 2 — this runs once per round, for the dealer only.
       // "role" drives which way a picked card slides — community up toward the
@@ -3994,7 +4055,11 @@ const Sims = {
         // Clear previous round's visual state
         for (var _p = 1; _p <= 5; _p++) {
           var _sp = $('thpr-spot-' + _p);
-          if (_sp) _sp.classList.remove('thpr-active', 'thpr-pay', 'thpr-take', 'thpr-tie');
+          if (_sp) {
+            _sp.classList.remove('thpr-active', 'thpr-pay', 'thpr-take', 'thpr-tie');
+            var _hb = _sp.querySelector('.thpr-hand-help-btn');
+            if (_hb) _hb.remove();
+          }
           var _sb = $('thpr-spot-btns-' + _p);
           if (_sb) _sb.innerHTML = '';
         }
@@ -4055,12 +4120,13 @@ const Sims = {
         var result = getResult(dealerCards, playerCards);
         var correct = choice.toUpperCase() === result.winner;
 
-        // Record result for end-of-round summary
+        // Record result for end-of-round summary and for this hand's re-openable "?" explanation
         S.results.push({
           player: S.activePlayer,
           winner: result.winner,
           playerRankName: result.playerRankName,
           dealerRankName: result.dealerRankName,
+          verboseExplanation: result.verboseExplanation,
           correct: correct
         });
 
@@ -4079,32 +4145,9 @@ const Sims = {
         var scEl = $('thpr-score'); if (scEl) scEl.textContent = S.score;
         var mEl = $('thpr-mistakes'); if (mEl) mEl.textContent = S.mistakes;
 
-        // Build winner-first hand lines
-        var line1, line2;
-        if (result.winner === 'TAKE') {
-          line1 = 'Dealer: ' + result.dealerRankName;
-          line2 = 'Player: ' + result.playerRankName;
-        } else {
-          line1 = 'Player: ' + result.playerRankName;
-          line2 = 'Dealer: ' + result.dealerRankName;
-        }
-
-        // Show structured feedback
+        // Show structured feedback (same content re-shown later via each finished hand's "?" button)
         var fb = $('thpr-feedback');
-        if (fb) {
-          fb.innerHTML =
-            '<div class="thpr-result">' +
-              '<span class="' + (correct ? 'thpr-verdict-ok' : 'thpr-verdict-wrong') + '">' +
-                (correct ? 'Correct!' : 'Incorrect.') +
-              '</span>' +
-              '<span class="thpr-result-answer">' +
-                (correct ? 'Answer: ' : 'Correct answer: ') + result.winner +
-              '</span>' +
-              '<span>' + line1 + '</span>' +
-              '<span>' + line2 + '</span>' +
-              '<span class="thpr-result-explain">' + result.verboseExplanation + '</span>' +
-            '</div>';
-        }
+        if (fb) fb.innerHTML = buildResultHTML(S.results[S.results.length - 1]);
 
         // Auto-advance to the next player after a brief pause to read the result
         var a = $('thpr-action-row');
@@ -4118,6 +4161,7 @@ const Sims = {
       function next() {
         var fb = $('thpr-feedback');
         if (fb) { fb.innerHTML = ''; }
+        addHandHelpBtn(S.activePlayer);
         S.activePlayer--;
         if (S.activePlayer < 1) { endRound(); return; }
         reveal('p' + S.activePlayer + 'c0');
@@ -4203,11 +4247,16 @@ const Sims = {
           var hc = document.querySelector('#thpr-spot-' + p + ' .thpr-hole-cards');
           if (hc) hc.innerHTML = Array(2).fill(cardHTML(null, true)).join('');
           var sp = $('thpr-spot-' + p);
-          if (sp) sp.classList.remove('thpr-active', 'thpr-pay', 'thpr-take', 'thpr-tie');
+          if (sp) {
+            sp.classList.remove('thpr-active', 'thpr-pay', 'thpr-take', 'thpr-tie');
+            var hb = sp.querySelector('.thpr-hand-help-btn');
+            if (hb) hb.remove();
+          }
         }
+        var hm = $('thpr-hand-modal'); if (hm) hm.style.display = 'none';
       }
 
-      return { init, deal, answer, next, debugHand, showRankHelp, hideRankHelp };
+      return { init, deal, answer, next, debugHand, showRankHelp, hideRankHelp, showHandExplain, hideHandExplain };
     }
 
     return {
