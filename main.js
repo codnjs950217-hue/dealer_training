@@ -3801,7 +3801,9 @@ const Sims = {
 
       // Builds the same rank-explanation markup shown live under the dealer
       // cards right after answering — reused by each finished hand's "?" button.
-      function buildResultHTML(r) {
+      // omitExplain drops the trailing "why the dealer/player won" sentence —
+      // used by the "?" modal, which only needs the dealer/player rank info.
+      function buildResultHTML(r, omitExplain) {
         var line1, line2;
         if (r.winner === 'TAKE') {
           line1 = 'Dealer: ' + r.dealerRankName;
@@ -3819,7 +3821,7 @@ const Sims = {
             '</span>' +
             '<span>' + line1 + '</span>' +
             '<span>' + line2 + '</span>' +
-            '<span class="thpr-result-explain">' + r.verboseExplanation + '</span>' +
+            (omitExplain ? '' : '<span class="thpr-result-explain">' + r.verboseExplanation + '</span>') +
           '</div>';
       }
 
@@ -3832,7 +3834,7 @@ const Sims = {
         var title = $('thpr-hand-modal-title');
         if (title) title.textContent = 'PLAYER ' + THPR_SEAT_NUM[p - 1];
         var content = $('thpr-hand-modal-content');
-        if (content) content.innerHTML = buildResultHTML(r);
+        if (content) content.innerHTML = buildResultHTML(r, true);
         var m = $('thpr-hand-modal');
         if (m) m.style.display = 'flex';
       }
