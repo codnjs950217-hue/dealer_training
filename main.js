@@ -4212,7 +4212,7 @@ const Sims = {
         }
 
         var a = $('thpr-action-row');
-        if (a) a.innerHTML = '<button class="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">NEW HAND</button>';
+        if (a) a.innerHTML = '<button class="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">NEXT HAND</button>';
 
         S.phase = 'idle';
       }
