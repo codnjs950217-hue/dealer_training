@@ -593,14 +593,17 @@ const Views = {
         </div>
 
         <div class="thpr-dealer-area">
-          <div class="thpr-dealer-cards" id="thpr-dealer-cards">
-            ${cardHTML(null, true)}${cardHTML(null, true)}
+          <div class="thpr-dealer-main">
+            <div class="thpr-controls">
+              <div class="thpr-feedback" id="thpr-feedback"></div>
+            </div>
+            <div class="thpr-dealer-group">
+              <div class="thpr-dealer-cards" id="thpr-dealer-cards">
+                ${cardHTML(null, true)}${cardHTML(null, true)}
+              </div>
+              <div class="thpr-area-label">DEALER</div>
+            </div>
           </div>
-          <div class="thpr-area-label">DEALER</div>
-        </div>
-
-        <div class="thpr-controls">
-          <div class="thpr-feedback" id="thpr-feedback"></div>
         </div>
 
         <div class="thpr-wrong-overlay" id="thpr-wrong-overlay" style="display:none;"></div>

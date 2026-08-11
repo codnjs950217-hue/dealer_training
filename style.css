@@ -3911,10 +3911,25 @@ body {
 /* ---- Dealer area ---- */
 .thpr-dealer-area {
   flex-shrink: 0;
+  padding: clamp(.08rem, .16vh, .16rem) 0;
+}
+
+/* Dealer cards stay centered on the table; the feedback/summary panel docks
+   to their left in the same row (instead of stacking below) — saves the
+   vertical space that's tight on mobile landscape, and the minmax(0,1fr)
+   tracks keep long explanation text from overlapping the dealer cards. */
+.thpr-dealer-main {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
+  align-items: center;
+  width: 100%;
+}
+
+.thpr-dealer-group {
+  grid-column: 2;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   gap: clamp(.04rem, .08vh, .08rem);
-  padding: clamp(.08rem, .16vh, .16rem) 0;
 }
 
 .thpr-area-label {
@@ -3932,11 +3947,14 @@ body {
 
 /* ---- Controls ---- */
 .thpr-controls {
+  grid-column: 1;
+  padding-right: clamp(.4rem, 1.2vw, .8rem);
   flex-shrink: 0;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   gap: clamp(.08rem, .18vh, .18rem);
-  padding: clamp(.06rem, .12vh, .12rem) 0;
+  padding-top: clamp(.06rem, .12vh, .12rem);
+  padding-bottom: clamp(.06rem, .12vh, .12rem);
 }
 
 .thpr-feedback {
