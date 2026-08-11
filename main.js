@@ -563,6 +563,7 @@ const Views = {
                 </div>
               </div>
               <div class="thpr-spot-btns" id="thpr-spot-btns-${i}"></div>
+              <div class="thpr-spot-result" id="thpr-spot-result-${i}"></div>
             </div>`).join('')}
         </div>
 
@@ -3822,6 +3823,26 @@ const Sims = {
           '</div>';
       }
 
+      // Compact per-hand result shown directly under that player's own cards
+      // once the round is over (see endRound()) — same info as
+      // buildResultHTML() (dealer/player rank, PAY/TAKE/TIE reason) but
+      // condensed to fit a single narrow player-spot column.
+      function buildSpotResultHTML(r) {
+        var wClass = r.winner === 'PAY' ? 'thpr-sum-pay' : r.winner === 'TAKE' ? 'thpr-sum-take' : 'thpr-sum-tie';
+        var chk = r.correct
+          ? '<span class="thpr-sum-chk-ok">✓</span>'
+          : '<span class="thpr-sum-chk-wrong">✗</span>';
+        // One combined "winner-first" rank line instead of two, and the reason
+        // is line-clamped — keeps this to 2 short lines under the verdict so
+        // it can't push the layout taller than the table allows on mobile.
+        var ranks = r.winner === 'TAKE'
+          ? 'Dealer: ' + r.dealerRankName + ' · Player: ' + r.playerRankName
+          : 'Player: ' + r.playerRankName + ' · Dealer: ' + r.dealerRankName;
+        return '<div class="thpr-spot-result-verdict">' + chk + ' <span class="' + wClass + '">' + r.winner + '</span></div>' +
+          '<div class="thpr-spot-result-ranks">' + ranks + '</div>' +
+          '<div class="thpr-spot-result-why">' + r.verboseExplanation + '</div>';
+      }
+
       function showHandExplain(p) {
         var r = null;
         for (var i = 0; i < S.results.length; i++) {
@@ -4086,6 +4107,8 @@ const Sims = {
           }
           var _sb = $('thpr-spot-btns-' + _p);
           if (_sb) _sb.innerHTML = '';
+          var _sr = $('thpr-spot-result-' + _p);
+          if (_sr) _sr.innerHTML = '';
         }
         var _fb = $('thpr-feedback'); if (_fb) _fb.innerHTML = '';
 
@@ -4223,35 +4246,20 @@ const Sims = {
         var cd = $('thpr-countdown');
         if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
 
-        // Build per-round summary (results are stored P5 first, so reverse to show P5 at top)
-        var ordered = S.results.slice().sort(function(a, b) { return b.player - a.player; });
+        // Each hand's dealer/player rank + PAY/TAKE/TIE reason now shows
+        // directly under that player's own cards (buildSpotResultHTML()),
+        // not as one combined list left of the dealer cards — lets the
+        // trainee compare a hand's cards against its result side by side.
         var correctCount = 0;
-        var rows = ordered.map(function(r) {
+        S.results.forEach(function(r) {
           if (r.correct) correctCount++;
-          var wClass = r.winner === 'PAY' ? 'thpr-sum-pay' : r.winner === 'TAKE' ? 'thpr-sum-take' : 'thpr-sum-tie';
-          var chk = r.correct
-            ? '<span class="thpr-sum-chk thpr-sum-chk-ok">✓</span>'
-            : '<span class="thpr-sum-chk thpr-sum-chk-wrong">✗</span>';
-          var hands = r.winner === 'TAKE'
-            ? r.dealerRankName + ' &gt; ' + r.playerRankName
-            : r.winner === 'PAY'
-              ? r.playerRankName + ' &gt; ' + r.dealerRankName
-              : r.playerRankName + ' = ' + r.dealerRankName;
-          return '<div class="thpr-sum-row">' +
-            chk +
-            '<span class="thpr-sum-label">P' + THPR_SEAT_NUM[r.player - 1] + '</span>' +
-            '<span class="thpr-sum-winner ' + wClass + '">' + r.winner + '</span>' +
-            '<span class="thpr-sum-hands">' + hands + '</span>' +
-            '</div>';
-        }).join('');
+          var box = $('thpr-spot-result-' + r.player);
+          if (box) box.innerHTML = buildSpotResultHTML(r);
+        });
 
         var fb = $('thpr-feedback');
         if (fb) {
-          fb.innerHTML =
-            '<div class="thpr-summary">' +
-              rows +
-              '<div class="thpr-sum-score">' + correctCount + ' / 5 correct</div>' +
-            '</div>';
+          fb.innerHTML = '<div class="thpr-sum-score">' + correctCount + ' / 5 correct</div>';
         }
 
         var a = $('thpr-action-row');
@@ -4295,6 +4303,8 @@ const Sims = {
             var hb = sp.querySelector('.thpr-hand-help-btn');
             if (hb) hb.remove();
           }
+          var sr = $('thpr-spot-result-' + p);
+          if (sr) sr.innerHTML = '';
         }
         var hm = $('thpr-hand-modal'); if (hm) hm.style.display = 'none';
       }
