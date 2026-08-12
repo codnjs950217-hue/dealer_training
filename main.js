@@ -255,9 +255,12 @@ const Views = {
               </div>`).join('')}
           </div>
           <div class="dealer-area-bj" id="bj-dealer-wrap">
-            <div class="bj-deco-shoe" aria-hidden="true">
-              <div class="bj-deco-shoe-body"></div>
-              <div class="bj-deco-shoe-card"></div>
+            <div class="bj-deco-shuffler" aria-hidden="true">
+              <div class="bj-deco-shuffler-body"></div>
+              <div class="bj-deco-shuffler-well"></div>
+              <div class="bj-deco-shuffler-slot"></div>
+              <div class="bj-deco-shuffler-plate"></div>
+              <div class="bj-deco-shuffler-led"></div>
             </div>
             <div class="area-label" id="bj-dealer-label" style="visibility:hidden">DEALER</div>
             <div class="hand-display" id="bj-dealer-hand"></div>
