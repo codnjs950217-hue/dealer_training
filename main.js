@@ -3783,13 +3783,17 @@ const Sims = {
             cd.textContent = label ? (label + '  ' + n) : String(n);
           }
         };
-        cd.className = 'thpr-countdown thpr-countdown-active';
+        // thpr-countdown-picking pushes the stacked (discard-2 pick) prompt
+        // further up, away from the community cards below — the plain
+        // inline FLOP/TURN/RIVER countdown keeps its original position.
+        var stackedClass = stacked ? ' thpr-countdown-picking' : '';
+        cd.className = 'thpr-countdown thpr-countdown-active' + stackedClass;
         render(n);
         _cdTimer = setInterval(function() {
           n--;
           if (n <= 0) {
             clearCd();
-            cd.className = 'thpr-countdown thpr-countdown-done';
+            cd.className = 'thpr-countdown thpr-countdown-done' + stackedClass;
             if (stacked) {
               cd.innerHTML = promptHTML;
             } else {
@@ -3948,7 +3952,7 @@ const Sims = {
         if (S.phase !== 'picking' || S.pickLocked) return;
         var cd = $('thpr-countdown');
         if (cd) {
-          cd.className = 'thpr-countdown';
+          cd.className = 'thpr-countdown thpr-countdown-picking';
           cd.innerHTML = '<span class="thpr-countdown-prompt">' + PICK_PROMPT + '</span>';
         }
       }

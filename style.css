@@ -4088,6 +4088,12 @@ body {
   color: var(--win);
   text-shadow: 0 0 16px rgba(78,205,196,.6);
 }
+/* Discard-2 pick prompt only — sits further up than the plain FLOP/TURN/
+   RIVER countdown, for clearer separation from the community cards below.
+   FLOP/TURN/RIVER keep the base .thpr-countdown position untouched. */
+.thpr-countdown-picking {
+  top: clamp(-3.8rem, -7.2vh, -2.6rem);
+}
 
 /* Stacked countdown (see countdown(..., stacked=true) in main.js): the label
    renders as its own boxed pill in normal flow at its usual position; the
