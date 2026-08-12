@@ -4197,6 +4197,16 @@ body {
   text-align: center;
   flex-shrink: 0;
 }
+/* CORRECT/MISTAKE mark — sits directly above the PAY/TAKE/TIE verdict line
+   so the trainee can tell at a glance which hands they got right, without
+   changing the existing verdict/rank lines below it. */
+.thpr-spot-result-mark {
+  font-weight: 900;
+  letter-spacing: .04em;
+  font-size: clamp(.5rem, 1vw, .6rem);
+}
+.thpr-spot-result-mark-ok    { color: #4ecdc4; }
+.thpr-spot-result-mark-wrong { color: #ff7777; }
 .thpr-spot-result-verdict {
   font-weight: 900;
   letter-spacing: .02em;

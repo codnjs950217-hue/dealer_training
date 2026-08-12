@@ -3840,7 +3840,9 @@ const Sims = {
       // contrast lines: the winner, then Player's rank, then Dealer's rank.
       function buildSpotResultHTML(r) {
         var wClass = r.winner === 'PAY' ? 'thpr-sum-pay' : r.winner === 'TAKE' ? 'thpr-sum-take' : 'thpr-sum-tie';
-        return '<div class="thpr-spot-result-verdict ' + wClass + '">' + r.winner + '</div>' +
+        var markClass = r.correct ? 'thpr-spot-result-mark-ok' : 'thpr-spot-result-mark-wrong';
+        return '<div class="thpr-spot-result-mark ' + markClass + '">' + (r.correct ? 'CORRECT' : 'MISTAKE') + '</div>' +
+          '<div class="thpr-spot-result-verdict ' + wClass + '">' + r.winner + '</div>' +
           '<div class="thpr-spot-result-rank">Player: ' + r.playerRankName + '</div>' +
           '<div class="thpr-spot-result-rank">Dealer: ' + r.dealerRankName + '</div>';
       }
