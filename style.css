@@ -4088,11 +4088,14 @@ body {
   color: var(--win);
   text-shadow: 0 0 16px rgba(78,205,196,.6);
 }
-/* Discard-2 pick prompt only — sits further up than the plain FLOP/TURN/
+/* Discard-2 pick prompt only — sits a bit higher than the plain FLOP/TURN/
    RIVER countdown, for clearer separation from the community cards below.
-   FLOP/TURN/RIVER keep the base .thpr-countdown position untouched. */
+   FLOP/TURN/RIVER keep the base .thpr-countdown position untouched.
+   Nudged back down slightly from an earlier pass that pushed it high
+   enough for the floating ticking number above it to overlap the players
+   row's cards. */
 .thpr-countdown-picking {
-  top: clamp(-3.8rem, -7.2vh, -2.6rem);
+  top: clamp(-2.8rem, -4.5vh, 0.4rem);
 }
 
 /* Stacked countdown (see countdown(..., stacked=true) in main.js): the label
