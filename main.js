@@ -555,12 +555,13 @@ const Views = {
       </div>
 
       <div class="thpr-table">
-        <div class="thpr-deco-chips" aria-hidden="true">
-          <div class="thpr-deco-chip thpr-deco-chip-1"></div>
-          <div class="thpr-deco-chip thpr-deco-chip-2"></div>
-          <div class="thpr-deco-chip thpr-deco-chip-3"></div>
-          <div class="thpr-deco-chip thpr-deco-chip-4"></div>
-          <div class="thpr-deco-chip thpr-deco-chip-5"></div>
+        <div class="thpr-deco-shuffler" aria-hidden="true">
+          <div class="thpr-deco-shuffler-body"></div>
+          <div class="thpr-deco-shuffler-well"></div>
+          <div class="thpr-deco-shuffler-slot"></div>
+          <div class="thpr-deco-shuffler-card"></div>
+          <div class="thpr-deco-shuffler-plate"></div>
+          <div class="thpr-deco-shuffler-led"></div>
         </div>
         <button class="thpr-help-btn" onclick="Sims.poker.thpRank.showRankHelp()" title="Hand Ranking Guide">?</button>
 

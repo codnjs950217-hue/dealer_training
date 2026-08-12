@@ -3810,38 +3810,74 @@ body {
   overflow: hidden;
 }
 
-/* Decorative poker-chip stack peeking in from the left edge — same "sliver
-   of real casino equipment" treatment as .rpay-deco-wheel on the roulette
-   payout page. Pure ambience: mostly cropped off-screen by the table's own
-   overflow:hidden, dim + blurred, and pointer-events:none so it never
-   competes with or covers cards/buttons/prompts. */
-.thpr-deco-chips {
+/* Decorative automatic card-shuffler/dealing-machine sliver peeking in from
+   the left edge, seen from above (top view, as a dealer would see it on the
+   table) — same "sliver of real casino equipment" treatment as
+   .rpay-deco-wheel on the roulette payout page. Pure ambience: mostly
+   cropped off-screen by the table's own overflow:hidden, dim + blurred, and
+   pointer-events:none so it never competes with or covers cards/buttons/
+   prompts. Replaces the earlier poker-chip-stack decoration in this spot. */
+.thpr-deco-shuffler {
   position: absolute;
   left: 0;
   top: 50%;
-  width: clamp(90px, 16vh, 150px);
-  height: clamp(150px, 30vh, 240px);
-  transform: translate(-64%, -50%);
+  width: clamp(130px, 24vh, 200px);
+  height: clamp(110px, 20vh, 170px);
+  transform: translate(-58%, -50%);
   opacity: .3;
   filter: blur(2px);
   pointer-events: none;
   z-index: 0;
 }
-.thpr-deco-chip {
+.thpr-deco-shuffler-body {
   position: absolute;
-  left: 50%;
-  width: 100%;
-  height: clamp(24px, 4.6vh, 38px);
-  transform: translateX(-50%);
-  border-radius: 50%;
-  border: 3px dashed rgba(255,255,255,.5);
-  box-shadow: 0 3px 5px rgba(0,0,0,.5);
+  inset: 0;
+  background: linear-gradient(155deg, #3a3f47, #14171c 60%);
+  border: 2px solid #8a8f99;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.6), inset 0 1px 3px rgba(255,255,255,.15);
 }
-.thpr-deco-chip-1 { bottom: 0;                      background: #b3202a; }
-.thpr-deco-chip-2 { bottom: clamp(16px,3vh,26px);   background: #14181f; }
-.thpr-deco-chip-3 { bottom: clamp(32px,6vh,52px);   background: #c9a84c; }
-.thpr-deco-chip-4 { bottom: clamp(48px,9vh,78px);   background: #1b5e35; }
-.thpr-deco-chip-5 { bottom: clamp(64px,12vh,104px); background: #b3202a; }
+.thpr-deco-shuffler-well {
+  position: absolute;
+  left: 12%; right: 12%; top: 14%; bottom: 34%;
+  background: linear-gradient(160deg, #565c66, #2c2f35);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.15);
+}
+.thpr-deco-shuffler-slot {
+  position: absolute;
+  left: 20%; right: 20%; top: 46%;
+  height: 6%;
+  background: #05060a;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.8);
+}
+.thpr-deco-shuffler-card {
+  position: absolute;
+  right: -10%; top: 38%;
+  width: 46%; height: 26%;
+  background: #f2ede0;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 3px;
+  transform: rotate(6deg);
+  box-shadow: 0 2px 6px rgba(0,0,0,.4);
+}
+.thpr-deco-shuffler-plate {
+  position: absolute;
+  left: 16%; right: 16%; bottom: 12%;
+  height: 16%;
+  background: #0d0f13;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,.2);
+}
+.thpr-deco-shuffler-led {
+  position: absolute;
+  right: 14%; top: 16%;
+  width: 8%; aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #7cfc7c, #0e5c1e);
+  box-shadow: 0 0 6px rgba(90,255,90,.8);
+}
 
 /* ---- Players row ---- */
 .thpr-players-row {
