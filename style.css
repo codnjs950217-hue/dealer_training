@@ -3863,7 +3863,7 @@ body {
 .thpr-deco-shuffler {
   position: absolute;
   left: 0;
-  top: 50%;
+  top: 22%;
   width: clamp(150px, 30vh, 240px);
   height: clamp(130px, 26vh, 210px);
   transform: translate(-58%, -50%);
@@ -3906,6 +3906,19 @@ body {
   border-style: solid;
   border-width: 8px 0 8px 12px;
   border-color: transparent transparent transparent #05060a;
+}
+/* A small sliver of card peeking out of the slot mouth — just a corner, not
+   a full card, so it reads as "a card is right there at the opening"
+   without becoming its own big shape (the earlier full-size peeking card
+   was removed per feedback). */
+.thpr-deco-shuffler-peek {
+  position: absolute;
+  right: 2%; top: 40%;
+  width: 16%; height: 22%;
+  background: #f2ede0;
+  border: 1px solid rgba(0,0,0,.3);
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.4);
 }
 .thpr-deco-shuffler-plate {
   position: absolute;
