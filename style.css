@@ -3864,7 +3864,7 @@ body {
 .thpr-deco-shuffler {
   position: absolute;
   left: 0;
-  top: 22%;
+  top: 0%;
   width: clamp(150px, 30vh, 240px);
   height: clamp(130px, 26vh, 210px);
   transform: translate(-58%, -50%);
