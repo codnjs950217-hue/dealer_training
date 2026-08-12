@@ -4251,8 +4251,17 @@ body {
 }
 
 /* ---- Discard-2 card picking ---- */
+/* .flip-card (the element this is added to) also carries the dealSlideIn
+   entrance animation from when it was first dealt. That animation is long
+   over by the time a card becomes pickable, but explicitly cancelling it
+   here (rather than trusting it to have already relinquished `transform`)
+   guarantees the pick slide's transition starts from a clean, settled
+   translateY(0) baseline instead of racing/inheriting anything left over
+   from the deal-in — the fix for cards appearing to move twice on pick. */
 .thpr-card-pick {
   cursor: pointer;
+  animation: none;
+  transform: translateY(0);
   transition: transform .18s ease;
 }
 .thpr-card-pick .flip-front .card {

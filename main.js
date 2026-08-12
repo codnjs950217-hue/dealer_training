@@ -3942,6 +3942,21 @@ const Sims = {
         }
       }
 
+      // Shared by both deselect paths (manual re-click and checkPick()'s wrong-
+      // pick auto-reset): drops the picked/direction classes and forces the
+      // return trip to land exactly at translateY(0). The pointer is usually
+      // still resting on the card being deselected, so the moment
+      // thpr-card-picked is gone, the hover-nudge rule
+      // (.thpr-card-pick:hover) can match and hijack this same transform
+      // mid-transition, leaving the card stuck at the 3px hover offset
+      // instead of back at its true 0 position — thpr-card-pick-settling
+      // overrides that until the return transition finishes.
+      function settleCard(el) {
+        el.classList.remove('thpr-card-picked', PICK_DIR_CLASSES[0], PICK_DIR_CLASSES[1]);
+        el.classList.add('thpr-card-pick-settling');
+        setTimeout(function() { el.classList.remove('thpr-card-pick-settling'); }, 200);
+      }
+
       function pickCard(key) {
         if (S.phase !== 'picking' || S.pickLocked || !S.pickSlots[key]) return;
         var slot = S.pickSlots[key];
@@ -3952,7 +3967,7 @@ const Sims = {
           S.pickSelected.splice(idx, 1);
           // Already locked in from an earlier correct pick this round — deselecting
           // it in this session doesn't slide it back (it was never really "put back").
-          if (el && S.lockedPicks.indexOf(slot.id) === -1) el.classList.remove('thpr-card-picked', dirClass);
+          if (el && S.lockedPicks.indexOf(slot.id) === -1) settleCard(el);
           return;
         }
         if (S.pickSelected.length >= 2) return;
@@ -4029,30 +4044,14 @@ const Sims = {
             } else if (fb) {
               fb.innerHTML = '';
             }
-            var settling = [];
             S.pickSelected.forEach(function(key) {
               var id = S.pickSlots[key].id;
               if (S.lockedPicks.indexOf(id) !== -1) return;
               var el = $('thprfc_' + id);
-              if (!el) return;
-              el.classList.remove('thpr-card-picked', PICK_DIR_CLASSES[0], PICK_DIR_CLASSES[1]);
-              // The pointer is usually still resting on the just-clicked card,
-              // so the moment the picked class is gone, the hover-nudge rule
-              // (.thpr-card-pick:hover) can match and hijack this same
-              // transform mid-transition, leaving the card stuck at the 3px
-              // hover offset instead of back at its true 0 position. Force
-              // it to land exactly at 0 for the return trip; once settled,
-              // remove the override so hovering still nudges normally.
-              el.classList.add('thpr-card-pick-settling');
-              settling.push(el);
+              if (el) settleCard(el);
             });
             S.pickSelected = [];
             S.pickLocked = false;
-            if (settling.length) {
-              setTimeout(function() {
-                settling.forEach(function(el) { el.classList.remove('thpr-card-pick-settling'); });
-              }, 200);
-            }
           }, 1300);
         }
       }
