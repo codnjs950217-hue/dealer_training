@@ -29,9 +29,8 @@ function cardHTML(c, faceDown = false) {
   if (faceDown) return `<div class="card back"><div class="card-pattern"></div></div>`;
   return `
     <div class="card ${c.red ? 'red' : ''}">
-      <div class="card-corner top"><span class="rank">${c.rank}</span><span class="suit">${c.suit}</span></div>
+      <div class="card-corner top"><span class="rank">${c.rank}</span></div>
       <div class="card-suit-center">${c.suit}</div>
-      <div class="card-corner bottom"><span class="rank">${c.rank}</span><span class="suit">${c.suit}</span></div>
     </div>`;
 }
 

@@ -431,14 +431,17 @@ body {
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
-.card.red .rank, .card.red .suit,
+.card.red .rank,
 .card.red .card-suit-center { color: var(--card-red); }
 
+/* Corner shows the rank number only — no small suit glyph (it rendered
+   grey/washed-out on some mobile viewports for black suits) and no
+   duplicate rotated bottom-right corner. The large center suit
+   (.card-suit-center) is the sole suit indicator, colored via .card.red
+   above / the black default below. */
 .card-corner { position: absolute; display: flex; flex-direction: column; align-items: center; line-height: 1; }
 .card-corner.top    { top: 5px; left: 6px; }
-.card-corner.bottom { bottom: 5px; right: 6px; transform: rotate(180deg); }
 .card-corner .rank  { font-size: clamp(.7rem, 2vh, 1.05rem); font-weight: 700; color: #111; }
-.card-corner .suit  { font-size: clamp(.55rem, 1.6vh, .82rem); }
 .card-suit-center   { font-size: clamp(1.2rem, 3.6vh, 1.9rem); color: #111; }
 
 .card.back {
@@ -737,7 +740,6 @@ body {
   height: var(--card-h-sm);
 }
 .dealer-area-bj .card-corner .rank { font-size: clamp(.55rem, 1.8vh, .88rem); }
-.dealer-area-bj .card-corner .suit { font-size: clamp(.45rem, 1.5vh, .72rem); }
 .dealer-area-bj .card-suit-center  { font-size: clamp(.9rem, 2.5vh, 1.4rem); }
 .dealer-area-bj .card-pattern      { width: clamp(24px, 7vh, 44px); height: clamp(35px, 9.7vh, 66px); }
 .dealer-ctrl-area {
@@ -796,7 +798,6 @@ body {
   height: var(--card-h-sm);
 }
 .player-spot .card-corner .rank { font-size: clamp(.55rem, 1.8vh, .88rem); }
-.player-spot .card-corner .suit { font-size: clamp(.45rem, 1.5vh, .72rem); }
 .player-spot .card-suit-center   { font-size: clamp(.9rem, 2.5vh, 1.4rem); }
 .player-spot .card-pattern       { width: clamp(24px, 7vh, 44px); height: clamp(35px, 9.7vh, 66px); }
 
@@ -1491,7 +1492,6 @@ body {
   --card-h-lg: clamp(80px, 21.5vh, 140px);
 }
 .baccarat-sim .card-corner .rank { font-size: clamp(1.15rem, 3.5vh, 1.85rem); }
-.baccarat-sim .card-corner .suit { font-size: clamp(.88rem,  2.6vh, 1.4rem); }
 .baccarat-sim .card-suit-center  { font-size: clamp(1.65rem,5vh,  2.7rem); }
 
 .bac-table-layout {
@@ -2091,11 +2091,9 @@ body {
   --card-cascade: clamp(9px, 2.6vh, 14px);
 }
 .blackjack-sim .player-spot .card-corner .rank { font-size: clamp(.9rem, 2.8vh, 1.35rem); }
-.blackjack-sim .player-spot .card-corner .suit { font-size: clamp(.72rem, 2.2vh, 1.08rem); }
 .blackjack-sim .player-spot .card-suit-center  { font-size: clamp(1.4rem, 3.9vh, 2.1rem); }
 .blackjack-sim .player-spot .card-pattern      { width: clamp(28px, 8vh, 50px); height: clamp(40px, 11vh, 74px); }
 .blackjack-sim .dealer-area-bj .card-corner .rank { font-size: clamp(.9rem, 2.8vh, 1.35rem); }
-.blackjack-sim .dealer-area-bj .card-corner .suit { font-size: clamp(.72rem, 2.2vh, 1.08rem); }
 .blackjack-sim .dealer-area-bj .card-suit-center  { font-size: clamp(1.4rem, 3.9vh, 2.1rem); }
 .blackjack-sim .dealer-area-bj .card-pattern      { width: clamp(28px, 8vh, 50px); height: clamp(40px, 11vh, 74px); }
 
@@ -3567,9 +3565,7 @@ body {
 }
 .thpc-best-cards .card         { width: 44px; height: 62px; border-radius: 5px; }
 .thpc-best-cards .card-corner.top    { top: 3px; left: 4px; }
-.thpc-best-cards .card-corner.bottom { bottom: 3px; right: 4px; }
 .thpc-best-cards .card-corner .rank  { font-size: .7rem; }
-.thpc-best-cards .card-corner .suit  { font-size: .6rem; }
 .thpc-best-cards .card-suit-center   { font-size: 1.05rem; }
 
 .thpc-split-row {
@@ -3812,13 +3808,11 @@ body {
    classes come and go afterward. */
 .thp-rank-sim .flip-card.revealed { animation: none; }
 
-/* Tighter corner positions for small cards */
+/* Tighter corner position for small cards */
 .thp-rank-sim .card-corner.top    { top: 2px; left: 3px; }
-.thp-rank-sim .card-corner.bottom { bottom: 2px; right: 3px; }
 
 /* Card text — sized relative to viewport height so they scale with card */
 .thp-rank-sim .card-corner .rank { font-size: clamp(.86rem, 2.5vh, 1.2rem); }
-.thp-rank-sim .card-corner .suit { font-size: clamp(.7rem, 2vh, 1rem); }
 .thp-rank-sim .card-suit-center  { font-size: clamp(1.25rem, 3.7vh, 1.9rem); }
 .thp-rank-sim .card-pattern      { width: clamp(18px, 5.2vh, 32px); height: clamp(25px, 7.2vh, 46px); }
 
