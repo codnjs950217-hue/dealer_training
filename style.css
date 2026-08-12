@@ -1222,6 +1222,44 @@ body {
   color: var(--stk-fg); flex-shrink: 0;
 }
 
+/* Real-casino-chip look shared by every money-chip disc (tray button, pay-
+   zone stack cap, pay-zone remainder disc) — was a flat solid-color circle
+   that read as a toy coin. Layered but deliberately restrained (a slight
+   radial sheen, a dark rim, a faint edge-stripe ring, a soft drop shadow)
+   since the printed value label is what actually matters here — the ring
+   pattern below is masked to a thin band near the edge so it never
+   competes with or crosses into the text. Comes after each disc's own
+   width/height/font rule above so it wins the cascade on background/
+   box-shadow/border without needing to touch those per-variant sizes. */
+.rpay-tray-disc-mc,
+.rpay-stack-disc-mc,
+.rpay-cc-disc-mc {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255,255,255,.32) 0%, rgba(255,255,255,.06) 42%, rgba(0,0,0,.16) 100%),
+    var(--stk-bg);
+  box-shadow:
+    0 2px 5px rgba(0,0,0,.45),
+    inset 0 0 0 2px rgba(0,0,0,.3),
+    inset 0 1px 3px rgba(255,255,255,.2);
+  border: 1.5px solid rgba(255,255,255,.28);
+}
+.rpay-tray-disc-mc::before,
+.rpay-stack-disc-mc::before,
+.rpay-cc-disc-mc::before {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    rgba(255,255,255,.16) 0deg 7deg,
+    transparent 7deg 22.5deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent 60%, #000 63%, #000 80%, transparent 83%);
+          mask: radial-gradient(circle, transparent 60%, #000 63%, #000 80%, transparent 83%);
+  pointer-events: none;
+}
+
 /* +N label below each chip image */
 .rpay-tray-chip-lbl {
   font-size: clamp(.52rem, .85vw, .65rem);
