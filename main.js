@@ -3990,8 +3990,13 @@ const Sims = {
         S.pickSelected.push(key);
         if (el) el.classList.add('thpr-card-picked', dirClass);
         if (S.pickSelected.length === 2) {
+          // Locks further clicks during the brief evaluation window below —
+          // does NOT touch the countdown. Selecting/deselecting cards must
+          // never clear or pause the timer; only a confirmed-correct pick,
+          // the timer's own expiry, Next Hand/Refresh/Reset, or a phase
+          // change may do that (see checkPick()'s correct branch, init(),
+          // and countdown()'s own n<=0 branch).
           S.pickLocked = true;
-          clearCd();
           setTimeout(checkPick, 350);
         }
       }
@@ -4021,6 +4026,10 @@ const Sims = {
             var el = $('thprfc_' + S.pickSlots[key].id);
             if (el) { el.onclick = null; el.classList.remove('thpr-card-pick'); }
           });
+          // Correct pick confirmed — this is the legitimate point to stop
+          // the SELECT countdown (was previously stopped the instant a 2nd
+          // card was picked, before knowing if it was even right).
+          clearCd();
           var cd = $('thpr-countdown');
           if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
           if (S.pickContext === 'dealer') {
