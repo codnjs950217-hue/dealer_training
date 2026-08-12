@@ -4221,61 +4221,66 @@ const Sims = {
         var result = getResult(dealerCards, playerCards);
         var correct = choice.toUpperCase() === result.winner;
 
-        // Record result for end-of-round summary and for this hand's re-openable "?" explanation
-        S.results.push({
-          player: S.activePlayer,
-          winner: result.winner,
-          playerRankName: result.playerRankName,
-          dealerRankName: result.dealerRankName,
-          verboseExplanation: result.verboseExplanation,
-          correct: correct
-        });
-
-        // Clear answer buttons from this spot
+        // Clear answer buttons while this attempt resolves
         var spotBtns = $('thpr-spot-btns-' + S.activePlayer);
         if (spotBtns) spotBtns.innerHTML = '';
-
-        // Color player spot with correct result
-        var spot = $('thpr-spot-' + S.activePlayer);
-        if (spot) {
-          spot.classList.remove('thpr-active');
-          spot.classList.add('thpr-' + result.winner.toLowerCase());
-        }
 
         if (correct) S.score++; else S.mistakes++;
         var scEl = $('thpr-score'); if (scEl) scEl.textContent = S.score;
         var mEl = $('thpr-mistakes'); if (mEl) mEl.textContent = S.mistakes;
 
-        var a = $('thpr-action-row');
-        if (a) a.innerHTML = '';
+        if (correct) {
+          // Only a confirmed-correct answer is recorded — this is the final
+          // result for the hand, used by endRound()'s reference and this
+          // hand's own re-openable "?" explanation (showHandExplain()). A
+          // wrong attempt is retried (see below) and never recorded, so
+          // S.results never ends up with more than one entry per player.
+          S.results.push({
+            player: S.activePlayer,
+            winner: result.winner,
+            playerRankName: result.playerRankName,
+            dealerRankName: result.dealerRankName,
+            verboseExplanation: result.verboseExplanation,
+            correct: true
+          });
 
-        // No more auto-shown rank explanation here — that's only available
-        // per finished hand via its own "?" button (buildResultHTML() is
-        // still used there, see showHandExplain()). The 2200ms pause used to
-        // exist so the trainee could read that explanation before moving on;
-        // now that it's gone, a short pause (just enough to register the
-        // spot's color change) is all that's needed.
-        var advance = function() {
+          var spot = $('thpr-spot-' + S.activePlayer);
+          if (spot) {
+            spot.classList.remove('thpr-active');
+            spot.classList.add('thpr-' + result.winner.toLowerCase());
+          }
+
+          // Show this hand's own CORRECT + PAY/TAKE/TIE result right under
+          // its cards immediately, instead of waiting for endRound() to
+          // build it once the whole round is done.
+          var box = $('thpr-spot-result-' + S.activePlayer);
+          if (box) box.innerHTML = buildSpotResultHTML(S.results[S.results.length - 1]);
+
+          var a = $('thpr-action-row');
+          if (a) a.innerHTML = '';
+
           S.phase = 'transitioning';
           setTimeout(function() {
             if (S.phase === 'transitioning') next();
           }, 600);
-        };
-
-        if (correct) {
-          advance();
         } else {
-          // Same MISTAKE! flash used across the other games, so a wrong
-          // PAY/TAKE/TIE pick is immediately obvious.
+          // Wrong — retry the SAME hand instead of advancing. Same
+          // MISTAKE! flash used across the other games, then this player's
+          // answer buttons reappear so the trainee tries again; the spot
+          // stays active/un-recorded until they get it right.
           var tbl = document.querySelector('.thpr-table');
+          var retry = function() {
+            showAnswerBtns();
+            S.phase = 'quiz';
+          };
           if (tbl) {
             var ov = document.createElement('div');
             ov.className = 'mistake-overlay';
             ov.innerHTML = '<div class="mistake-text">MISTAKE!</div>';
             tbl.appendChild(ov);
-            setTimeout(function() { ov.remove(); advance(); }, 1600);
+            setTimeout(function() { ov.remove(); retry(); }, 1600);
           } else {
-            advance();
+            retry();
           }
         }
       }
@@ -4301,15 +4306,10 @@ const Sims = {
         var cd = $('thpr-countdown');
         if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
 
-        // Each hand's dealer/player rank + PAY/TAKE/TIE reason shows
-        // directly under that player's own cards (buildSpotResultHTML()) —
-        // lets the trainee compare a hand's cards against its result side
-        // by side. No overall "X / 5 correct" line — Score/Mistake up top
-        // already cover that.
-        S.results.forEach(function(r) {
-          var box = $('thpr-spot-result-' + r.player);
-          if (box) box.innerHTML = buildSpotResultHTML(r);
-        });
+        // Each hand's CORRECT + dealer/player rank + PAY/TAKE/TIE result
+        // (buildSpotResultHTML()) is now written under that player's own
+        // cards immediately upon a correct answer (answer()), not deferred
+        // to here — nothing left to do for that display at round end.
 
         var a = $('thpr-action-row');
         if (a) a.innerHTML = '<button class="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">NEXT HAND</button>';
