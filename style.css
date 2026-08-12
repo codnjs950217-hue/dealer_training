@@ -4340,12 +4340,15 @@ body {
 .thpr-card-pick .flip-front .card {
   transition: filter .18s ease, box-shadow .18s ease;
 }
-/* Excludes already-picked cards so the hover nudge (translateY(3px), specificity
-   0,2,0) can't mask the up/down pick motion below (specificity 0,1,0) while the
-   pointer is still resting on the card right after a click. */
-.thpr-card-pick:hover:not(.thpr-card-picked) {
-  transform: translateY(3px);
-}
+/* Hover feedback is brightness-only — no position nudge. A translateY(3px)
+   hover nudge used to live here, but since :hover can persist on a card
+   after settleCard() resets it (mouse resting there, or a stuck touch
+   :hover on tablets), it left cards visibly 1-3px off their baseline
+   whenever the pointer happened to still be over them. Removing the
+   position component guarantees every unselected/settled card sits at
+   exactly translateY(0) — the deliberate pick animation
+   (.thpr-card-picked-up/-down below) is the only thing that ever moves a
+   card now. */
 .thpr-card-pick:hover .flip-front .card {
   filter: brightness(1.14);
 }
@@ -4358,10 +4361,11 @@ body {
 }
 .thpr-card-picked-up   { transform: translateY(-10px); }
 .thpr-card-picked-down { transform: translateY(10px); }
-/* Wrong-pick reset: forces the return trip to land exactly at 0, even if
-   the pointer is still hovering the card (see checkPick()'s wrong branch in
-   main.js) — otherwise .thpr-card-pick:hover's 3px nudge can hijack the
-   same transition and the card visibly stops short of its original spot. */
+/* Wrong-pick reset: forces the return trip to land exactly at 0 during the
+   ~200ms return transition (see settleCard() in main.js). The hover-nudge
+   that used to be able to hijack this mid-transition is gone now (hover is
+   brightness-only above), but this !important override is kept as a
+   defensive guarantee that the return always resolves to exactly 0. */
 .thpr-card-pick-settling { transform: translateY(0) !important; }
 
 .thpr-pick-result {
