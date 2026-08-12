@@ -3886,39 +3886,29 @@ body {
   border-radius: 8px;
   border: 1px solid rgba(255,255,255,.15);
 }
-/* Output slot — shifted into the machine's right side (the part of the box
-   that actually peeks past the table edge) and given a rightward-pointing
-   wedge, so cards read as feeding out toward the dealer's hand. */
+/* Output slot — shaped to read as an actual shoe mouth (a recessed opening
+   with a raised rim/lip around it, like the real thing), not just a flat
+   bar. Shifted into the machine's right side (the part of the box that
+   actually peeks past the table edge) and given a rightward-pointing wedge,
+   so it reads as facing/feeding out toward the dealer's hand. */
 .thpr-deco-shuffler-slot {
   position: absolute;
-  left: 58%; right: 8%; top: 30%;
-  height: 40%;
+  left: 55%; right: 6%; top: 26%;
+  height: 48%;
   background: #05060a;
-  border-radius: 4px;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,.8);
+  border-radius: 5px;
+  border: 1px solid #6b7078;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.9), inset 0 -1px 0 rgba(255,255,255,.08);
 }
 .thpr-deco-shuffler-slot::after {
   content: '';
   position: absolute;
-  right: -22%; top: 50%;
+  right: -20%; top: 50%;
   width: 0; height: 0;
   transform: translateY(-50%);
   border-style: solid;
-  border-width: 8px 0 8px 12px;
-  border-color: transparent transparent transparent #05060a;
-}
-/* A small sliver of card peeking out of the slot mouth — just a corner, not
-   a full card, so it reads as "a card is right there at the opening"
-   without becoming its own big shape (the earlier full-size peeking card
-   was removed per feedback). */
-.thpr-deco-shuffler-peek {
-  position: absolute;
-  right: 2%; top: 40%;
-  width: 16%; height: 22%;
-  background: #f2ede0;
-  border: 1px solid rgba(0,0,0,.3);
-  border-radius: 2px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.4);
+  border-width: 9px 0 9px 13px;
+  border-color: transparent transparent transparent #6b7078;
 }
 .thpr-deco-shuffler-plate {
   position: absolute;

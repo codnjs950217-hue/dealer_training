@@ -604,7 +604,6 @@ const Views = {
             <div class="thpr-deco-shuffler-body"></div>
             <div class="thpr-deco-shuffler-well"></div>
             <div class="thpr-deco-shuffler-slot"></div>
-            <div class="thpr-deco-shuffler-peek"></div>
             <div class="thpr-deco-shuffler-plate"></div>
             <div class="thpr-deco-shuffler-led"></div>
           </div>
