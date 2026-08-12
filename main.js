@@ -3884,6 +3884,15 @@ const Sims = {
       // board, dealer's own cards down toward the seat.
       var PICK_DIR_CLASSES = ['thpr-card-picked-up', 'thpr-card-picked-down'];
       var PICK_PROMPT = '제외할 카드 2장을 선택하세요';
+      // Guards settleCard() against overlapping cleanup timers on the same
+      // element — if a card gets settled twice in quick succession (e.g. a
+      // fast manual deselect/reselect right around a wrong-pick reset), the
+      // first call's 200ms cleanup could otherwise fire after the second
+      // call re-added thpr-card-pick-settling, tearing it down early and
+      // leaving whatever classes are on the card at that instant (possibly
+      // a fresh thpr-card-picked-up/-down) to resolve immediately instead
+      // of the card actually finishing its return to translateY(0).
+      var _settleTimers = new WeakMap();
 
       function dealerPickSlots() {
         return {
@@ -3956,7 +3965,12 @@ const Sims = {
       function settleCard(el) {
         el.classList.remove('thpr-card-picked', PICK_DIR_CLASSES[0], PICK_DIR_CLASSES[1]);
         el.classList.add('thpr-card-pick-settling');
-        setTimeout(function() { el.classList.remove('thpr-card-pick-settling'); }, 200);
+        var prev = _settleTimers.get(el);
+        if (prev) clearTimeout(prev);
+        _settleTimers.set(el, setTimeout(function() {
+          el.classList.remove('thpr-card-pick-settling');
+          _settleTimers.delete(el);
+        }, 200));
       }
 
       function pickCard(key) {
@@ -4046,7 +4060,11 @@ const Sims = {
             } else if (fb) {
               fb.innerHTML = '';
             }
-            S.pickSelected.forEach(function(key) {
+            // Settle every unlocked slot, not just the 2 tracked in
+            // S.pickSelected — guarantees every card starts the next
+            // attempt from translateY(0) regardless of any stray offset
+            // left over from a fast deselect/reselect during this attempt.
+            Object.keys(S.pickSlots).forEach(function(key) {
               var id = S.pickSlots[key].id;
               if (S.lockedPicks.indexOf(id) !== -1) return;
               var el = $('thprfc_' + id);
