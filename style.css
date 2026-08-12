@@ -434,6 +434,21 @@ body {
 .card-corner { position: absolute; display: flex; flex-direction: column; align-items: center; line-height: 1; }
 .card-corner.top    { top: 5px; left: 6px; }
 .card-corner.bottom { bottom: 5px; right: 6px; transform: rotate(180deg); }
+/* Every element inside .card is explicitly position:absolute and pinned to
+   a fixed spot — top-left corner (top/left), bottom-right corner
+   (bottom/right + the static rotate(180deg) above), center suit
+   (top/left 50% + translate(-50%,-50%)). The card-open/flip animation's
+   transform only ever lives on the outer wrapper (.flip-inner's
+   rotateY — see the shared flip-card rules), never here: rank/suit get
+   transition:none + animation:none so nothing can animate a transform on
+   them, and their only transform values are the static ones above (fixed
+   numbers, not part of any transition/animation). */
+.card-corner .rank,
+.card-corner .suit,
+.card-suit-center {
+  transition: none;
+  animation: none;
+}
 /* Black is the explicit default for rank, corner suit, AND the center suit
    — previously the corner .suit span had no color rule of its own and just
    inherited whatever ambient/dim text color was in scope, which is why
@@ -442,7 +457,13 @@ body {
    regardless of context. */
 .card-corner .rank  { font-size: clamp(.7rem, 2vh, 1.05rem); font-weight: 700; color: #111; }
 .card-corner .suit  { font-size: clamp(.55rem, 1.6vh, .82rem); color: #111; }
-.card-suit-center   { font-size: clamp(1.2rem, 3.6vh, 1.9rem); color: #111; }
+.card-suit-center   {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(1.2rem, 3.6vh, 1.9rem);
+  color: #111;
+}
 
 /* Red suits (hearts/diamonds) override the black default above on every
    suit-colored part of the face. Must come after the black-default rules —
