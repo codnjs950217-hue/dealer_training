@@ -3812,20 +3812,23 @@ body {
 
 /* Decorative automatic card-shuffler/dealing-machine sliver peeking in from
    the left edge, seen from above (top view, as a dealer would see it on the
-   table) — same "sliver of real casino equipment" treatment as
-   .rpay-deco-wheel on the roulette payout page. Pure ambience: mostly
-   cropped off-screen by the table's own overflow:hidden, dim + blurred, and
-   pointer-events:none so it never competes with or covers cards/buttons/
-   prompts. Replaces the earlier poker-chip-stack decoration in this spot. */
+   table). Lives inside .thpr-dealer-area (not the whole .thpr-table) so it
+   lines up with the dealer's own card row specifically — same "beside the
+   dealer's hand" placement used for .bj-deco-shoe on the Blackjack page —
+   and is sized to fit that shorter row. Rendered crisp/near-full-opacity
+   (no blur, no heavy dim) per explicit request, unlike the other table-edge
+   decorations on this site; still mostly cropped off-screen by the table's
+   own overflow:hidden and pointer-events:none so it never competes with or
+   covers cards/buttons/prompts. Replaces the earlier poker-chip-stack
+   decoration that used to sit at the table's overall left-center. */
 .thpr-deco-shuffler {
   position: absolute;
   left: 0;
   top: 50%;
-  width: clamp(130px, 24vh, 200px);
-  height: clamp(110px, 20vh, 170px);
+  width: clamp(60px, 16vh, 100px);
+  height: clamp(50px, 14vh, 86px);
   transform: translate(-58%, -50%);
-  opacity: .3;
-  filter: blur(2px);
+  opacity: .85;
   pointer-events: none;
   z-index: 0;
 }
@@ -4053,6 +4056,7 @@ body {
 .thpr-dealer-area {
   flex-shrink: 0;
   padding: clamp(.08rem, .16vh, .16rem) 0;
+  position: relative;
 }
 
 /* Dealer cards stay centered on the table; the feedback/summary panel docks
