@@ -4342,6 +4342,13 @@ body {
   animation: none;
   transform: translateY(0);
   transition: transform .18s ease;
+  /* Promotes the whole card to its own compositor layer for the pick/
+     return slide, so the rank/corner-suit/center-suit inside move as one
+     rigid bitmap with the card instead of being re-laid-out and
+     re-rasterized (sub-pixel text jitter) on every animation frame. No
+     element inside .card ever gets its own transform/transition — this is
+     the only thing that moves. */
+  will-change: transform;
 }
 .thpr-card-pick .flip-front .card {
   transition: filter .18s ease, box-shadow .18s ease;
