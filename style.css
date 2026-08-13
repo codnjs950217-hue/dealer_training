@@ -1208,35 +1208,16 @@ body {
   height: clamp(28px, 3.8vw, 34px);
 }
 
-/* Money chip disc */
-.rpay-tray-disc-mc {
-  width: clamp(28px, 3.8vw, 34px);
-  height: clamp(28px, 3.8vw, 34px);
-  display: flex; align-items: center; justify-content: center;
-  font-size: clamp(.48rem, .75vw, .6rem); font-weight: 900;
-  color: var(--stk-fg); flex-shrink: 0;
-}
-
-/* Real-casino-chip look shared by every chip visual on this page: flat
-   discs (money AND color), stack top-faces, and stack-remainder discs.
-   These used to be two different treatments — money chips had this CSS
-   radial-gradient + edge-stripe-ring; color chips had their own hand-
-   drawn SVG overlay with a different rim/dot pattern — which is why they
-   didn't read as one chip set even though they used the same colors.
-   One shared rule now: a slight radial sheen, a dark rim, a faint edge-
-   stripe ring, a soft drop shadow — deliberately restrained since the
-   printed value label (money chips) is what matters most; the ring
-   pattern is masked to a thin band near the edge so it never competes
-   with or crosses into the text. Comes after each element's own width/
-   height/font rule above so it wins the cascade on background/box-
-   shadow/border/border-radius without needing to touch those per-variant
-   sizes. Ellipse-shaped faces (.rpay-tray-stk-face/.rpay-chip-stack-face,
-   the top of a chip stack seen edge-on) get the same ring proportionally
-   squashed to their own width/height — a realistic side-on chip view,
-   not a flaw. */
-.rpay-tray-disc-mc,
-.rpay-stack-disc-mc,
-.rpay-cc-disc-mc,
+/* Real-casino-chip look shared by every COLOR-chip visual on this page:
+   flat discs, stack top-faces. Color chips used to draw their own hand-
+   rolled SVG rim/dot overlay before being switched to this shared CSS
+   treatment (radial sheen, dark rim, faint edge-stripe ring, soft drop
+   shadow) so every color chip reads as one set regardless of context.
+   Money chips are intentionally NOT part of this rule — see below, and
+   note that rule has to come AFTER this one: .rpay-cc-disc-mc is always
+   combined with .rpay-cc-disc on the same element (a money-chip
+   remainder disc in the pay-zone spread), so its flat override needs to
+   win the cascade over this shaded background. */
 .rpay-tray-disc-cc,
 .rpay-cc-disc,
 .rpay-tray-stk-face,
@@ -1255,9 +1236,6 @@ body {
     inset 0 1px 3px rgba(255,255,255,.2);
   border: 1.5px solid rgba(255,255,255,.28);
 }
-.rpay-tray-disc-mc::before,
-.rpay-stack-disc-mc::before,
-.rpay-cc-disc-mc::before,
 .rpay-tray-disc-cc::before,
 .rpay-cc-disc::before,
 .rpay-tray-stk-face::before,
@@ -1273,6 +1251,40 @@ body {
   -webkit-mask: radial-gradient(circle, transparent 60%, #000 63%, #000 80%, transparent 83%);
           mask: radial-gradient(circle, transparent 60%, #000 63%, #000 80%, transparent 83%);
   pointer-events: none;
+}
+
+/* Money chip disc — reverted to its original flat-color look (explicit
+   request: the radial-gradient-sheen + edge-stripe-ring "shaded casino
+   chip" treatment above read as an unwanted gold/orange metallic effect
+   once applied to the 1M/100K/10K/5K denominations). Restored verbatim
+   from the pre-shading version of this rule; shared across all three
+   money-chip contexts (tray button, pay-zone stack cap, pay-zone
+   remainder disc) so they stay identical to each other, same as before.
+   Must come after the shaded rule above so .rpay-cc-disc-mc's flat
+   background wins over .rpay-cc-disc's shaded one where both classes
+   land on the same element. */
+.rpay-tray-disc-mc,
+.rpay-stack-disc-mc,
+.rpay-cc-disc-mc {
+  border-radius: 50%;
+  background: var(--stk-bg);
+  box-shadow: 0 2px 5px rgba(0,0,0,.5), inset 0 1px 3px rgba(255,255,255,.2);
+  border: 1.5px solid rgba(255,255,255,.3);
+}
+/* .rpay-cc-disc-mc is always combined with .rpay-cc-disc on the same
+   element, which also draws the color-chip edge-stripe ring via
+   ::before — cancel it here so the reverted flat money-chip disc has no
+   ring either. */
+.rpay-cc-disc-mc::before {
+  content: none;
+}
+.rpay-tray-disc-mc,
+.rpay-stack-disc-mc {
+  width: clamp(28px, 3.8vw, 34px);
+  height: clamp(28px, 3.8vw, 34px);
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(.48rem, .75vw, .6rem); font-weight: 900;
+  color: var(--stk-fg); flex-shrink: 0;
 }
 
 /* +N label below each chip image */
