@@ -52,6 +52,18 @@ const App = {
   // home screen should zero those out.
   reload() { this.navigate(this._game, this._mode, true); },
   navigate(game, mode, isRestart) {
+    // Leaving Blackjack's Pay Practice sim (Home, another game, or even a
+    // reload/restart of the same sim) never runs any of its own teardown —
+    // #app's HTML just gets replaced — so its per-seat pay-timer interval
+    // and NEXT HAND auto-advance timeout would otherwise keep running in
+    // the background and, on returning, immediately start writing stale
+    // elapsed-time text into the freshly recreated (same-id) DOM. Stopping
+    // them here, before anything else changes, guarantees a clean slate
+    // regardless of where the trainee navigates to. init() also calls this
+    // defensively on entry, so this isn't the only guard, just the first.
+    if (this._game === 'blackjack' && typeof Sims !== 'undefined' && Sims.blackjack && Sims.blackjack.stopTimers) {
+      Sims.blackjack.stopTimers();
+    }
     this._game = game; this._mode = mode || null;
     this.closeSidebar();
     const titleEl = document.getElementById('top-bar-title');
@@ -1308,6 +1320,20 @@ const Sims = {
     function stopPayTimer() {
       if (S.payTimerInterval) { clearInterval(S.payTimerInterval); S.payTimerInterval = null; }
     }
+    // Kills every outstanding timer/interval this sim can have running —
+    // the per-seat pay-timer interval AND the NEXT HAND auto-advance
+    // setTimeout from showFinalResult(). Reassigning S (as init() does)
+    // only replaces what the *new* S points to; it does nothing to an
+    // already-scheduled setInterval/setTimeout still holding a reference
+    // to the *old* S via closure, which is exactly what let a stale timer
+    // interval keep writing into a freshly re-entered #bj-pay-timer-N
+    // element (same id, brand new DOM) after leaving for Home and coming
+    // back — hence calling this explicitly, both when navigating away
+    // (App.navigate) and defensively again at the top of init().
+    function stopAllTimers() {
+      stopPayTimer();
+      if (S.nextHandTimer) { clearTimeout(S.nextHandTimer); S.nextHandTimer = null; }
+    }
     function startPayTimer(i) {
       stopPayTimer();
       S.payTimerStart = performance.now();
@@ -1529,9 +1555,10 @@ const Sims = {
     }
 
     return {
+      stopTimers: stopAllTimers,
       init(isRestart) {
         const wasMidHand = isRestart && S && S.phase && S.phase !== 'idle' && S.phase !== 'done';
-        if (S && S.nextHandTimer) { clearTimeout(S.nextHandTimer); S.nextHandTimer = null; }
+        if (S) stopAllTimers();
         const keepRounds   = isRestart && S ? S.rounds + (wasMidHand ? 1 : 0) : 0;
         const keepScore    = isRestart && S ? S.score    : 0;
         const keepMistakes = isRestart && S ? S.mistakes : 0;
