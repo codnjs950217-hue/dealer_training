@@ -1231,7 +1231,8 @@ body {
 .rpay-tray-disc-cc,
 .rpay-cc-disc,
 .rpay-tray-stk-face,
-.rpay-chip-stack-face {
+.rpay-chip-stack-face,
+.rpay-spot-chip {
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
@@ -1251,7 +1252,8 @@ body {
 .rpay-tray-disc-cc::before,
 .rpay-cc-disc::before,
 .rpay-tray-stk-face::before,
-.rpay-chip-stack-face::before {
+.rpay-chip-stack-face::before,
+.rpay-spot-chip::before {
   content: '';
   position: absolute; inset: 0;
   border-radius: 50%;
@@ -1389,28 +1391,14 @@ body {
   transition: opacity .2s, transform .25s ease;
 }
 .rpay-spot-chips { display: flex; flex-direction: column; align-items: center; }
+/* Sizing/positioning only — the actual casino-chip background/shadow/
+   border/edge-ring look is the same shared rule every tray and pay-zone
+   chip uses (see .rpay-tray-disc-mc and friends further down); this is a
+   true miniature of the exact same chip, not a separate lighter-weight
+   design, so it can never drift back into looking like a plain token. */
 .rpay-spot-chip {
   width: clamp(11px, 1.5vw, 14px); height: clamp(11px, 1.5vw, 14px);
   aspect-ratio: 1 / 1;
-  border-radius: 50%;
-  /* Same radial-gradient sheen used by every other color-chip element on
-     this page (.rpay-cc-disc/.rpay-tray-disc-cc/.rpay-chip-stack-face) —
-     the board's placed chip is the same casino-chip set as the tray, just
-     drawn small. No edge-stripe ring here on purpose: at 11-14px it would
-     be noise that fights the value label, which is what matters most at
-     this size (also .rpay-spot-count's number must stay readable). */
-  background:
-    radial-gradient(circle at 35% 30%, rgba(255,255,255,.4) 0%, rgba(255,255,255,.1) 45%, rgba(0,0,0,.15) 100%),
-    var(--stk-bg);
-  border: 1px solid rgba(255,255,255,.32);
-  /* A crisp inset rim reads as a chip edge; the drop shadow is kept small so
-     overlapping tokens (splits/corners) don't smear into a shadow blob */
-  box-shadow:
-    0 1px 2px rgba(0,0,0,.5),
-    inset 0 0 0 1.5px rgba(0,0,0,.22),
-    inset 0 1px 1px rgba(255,255,255,.22);
-  flex-shrink: 0;
-  position: relative;
   display: flex; align-items: center; justify-content: center;
   /* zoomToSpot() stretches the stage scaleX 1.5x more than scaleY (main.js) —
      counter-scale here so the chip stays a true circle and its number stays undistorted */
