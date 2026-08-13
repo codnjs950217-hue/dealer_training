@@ -3083,46 +3083,15 @@ const Sims = {
     ];
     const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
-    // SVG overlays for color chip visuals — realistic 3D casino chip style
-    // CC_FACE_SVG: same design as disc, preserveAspectRatio="none" squishes it to the ellipse face shape
-    const CC_FACE_SVG = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3">
-  <circle cx="50" cy="50" r="40.5" fill="none"
-    stroke="rgba(255,255,255,.9)" stroke-width="9"
-    stroke-dasharray="15.9 15.9" stroke-dashoffset="7.95"
-    transform="rotate(-90,50,50)"/>
-  <circle cx="50"   cy="9.5"  r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="78.6" cy="21.4" r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="90.5" cy="50"   r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="78.6" cy="78.6" r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="50"   cy="90.5" r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="21.4" cy="78.6" r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="9.5"  cy="50"   r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="21.4" cy="21.4" r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="50" cy="50" r="46"   fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.2"/>
-  <circle cx="50" cy="50" r="35.5" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="1"/>
-  <ellipse cx="57" cy="59" rx="28" ry="28" fill="rgba(0,0,0,.13)"/>
-  <ellipse cx="37" cy="31" rx="16" ry="10" fill="rgba(255,255,255,.3)" transform="rotate(-35,37,31)"/>
-  <ellipse cx="44" cy="22" rx="10" ry="4.5" fill="rgba(255,255,255,.5)"/>
-</svg>`;
-    const CC_DISC_SVG = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none">
-  <circle cx="50" cy="50" r="40.5" fill="none"
-    stroke="rgba(255,255,255,.9)" stroke-width="9"
-    stroke-dasharray="15.9 15.9" stroke-dashoffset="7.95"
-    transform="rotate(-90,50,50)"/>
-  <circle cx="50"   cy="9.5"  r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="78.6" cy="21.4" r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="90.5" cy="50"   r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="78.6" cy="78.6" r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="50"   cy="90.5" r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="21.4" cy="78.6" r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="9.5"  cy="50"   r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="21.4" cy="21.4" r="2.4" fill="var(--stk-bg)"/>
-  <circle cx="50" cy="50" r="46"   fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.2"/>
-  <circle cx="50" cy="50" r="35.5" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="1"/>
-  <ellipse cx="57" cy="59" rx="28" ry="28" fill="rgba(0,0,0,.13)"/>
-  <ellipse cx="37" cy="31" rx="16" ry="10" fill="rgba(255,255,255,.3)" transform="rotate(-35,37,31)"/>
-  <ellipse cx="44" cy="22" rx="10" ry="4.5" fill="rgba(255,255,255,.5)"/>
-</svg>`;
+    // Color-chip visuals used to draw their own hand-rolled SVG rim/dot/
+    // highlight overlay (CC_FACE_SVG/CC_DISC_SVG), separate from the CSS
+    // radial-gradient + repeating-conic-gradient "real casino chip" look
+    // money chips get (.rpay-tray-disc-mc etc. in style.css) — two
+    // different edge-marking techniques on what's supposed to read as one
+    // chip set is exactly why they looked mismatched. Removed; every chip
+    // face/disc/stack-top now shares the same CSS-only treatment instead
+    // (see the shared .rpay-tray-disc-mc/-cc, .rpay-tray-stk-face/
+    // .rpay-chip-stack-face rules in style.css).
 
     function genChips(color, maxCount = 5) {
       const count = 1 + Math.floor(Math.random() * maxCount);
@@ -3354,7 +3323,7 @@ const Sims = {
       const ccStk = (bodyClass, lbl) =>
         `<button class="rpay-tray-chip-btn" onclick="Sims.roulettePay.addChip('color',${lbl.slice(1)})">
           <div class="rpay-tray-stk" style="--stk-bg:${color.bg};--stk-fg:${color.fg}">
-            <div class="rpay-tray-stk-face">${CC_FACE_SVG}</div>
+            <div class="rpay-tray-stk-face"></div>
             <div class="rpay-tray-stk-body ${bodyClass}"></div>
           </div>
           <span class="rpay-tray-chip-lbl">${lbl}</span>
@@ -3368,7 +3337,7 @@ const Sims = {
             ${ccStk('rpay-tray-body-10', '+10')}
             ${ccStk('rpay-tray-body-5',  '+5')}
             <button class="rpay-tray-chip-btn" onclick="Sims.roulettePay.addChip('color',1)">
-              <div class="rpay-tray-disc-cc" style="--stk-bg:${color.bg};--stk-fg:${color.fg}">${CC_DISC_SVG}</div>
+              <div class="rpay-tray-disc-cc" style="--stk-bg:${color.bg};--stk-fg:${color.fg}"></div>
               <span class="rpay-tray-chip-lbl">+1</span>
             </button>
             <div class="rpay-tray-sep"></div>
@@ -3439,7 +3408,7 @@ const Sims = {
         const stackHtml = layout.slice(0, count).map(([col, row]) =>
           `<div class="rpay-chip-stack${isCC ? '' : ' rpay-chip-stack-mc'}" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*colStep}px;top:${row*rowStep}px;z-index:${(row+1)*10+(maxCol-col+1)}">` +
           (isCC
-            ? `<div class="rpay-chip-stack-face">${CC_FACE_SVG}</div><div class="rpay-chip-stack-body"></div>`
+            ? `<div class="rpay-chip-stack-face"></div><div class="rpay-chip-stack-body"></div>`
             : `<div class="rpay-stack-disc-mc">${label}</div>`) +
           `</div>`
         ).join('');
@@ -3475,12 +3444,12 @@ const Sims = {
           // no smaller mini-stack tier in the tray, see above.
           for (let i = 0; i < miniStacks; i++) {
             html += `<div class="rpay-chip-stack rpay-mini-stack" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">` +
-              `<div class="rpay-chip-stack-face">${CC_FACE_SVG}</div><div class="rpay-chip-stack-body"></div>` +
+              `<div class="rpay-chip-stack-face"></div><div class="rpay-chip-stack-body"></div>` +
               `</div>`;
           }
           for (let i = 0; i < spreadCount; i++) {
             const gap = i > 0 && i % 5 === 0 ? ' rpay-disc-gap5' : '';
-            html += `<div class="rpay-cc-disc${isCC2 ? '' : ' rpay-cc-disc-mc'}${gap}" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${isCC2 ? CC_DISC_SVG : label}</div>`;
+            html += `<div class="rpay-cc-disc${isCC2 ? '' : ' rpay-cc-disc-mc'}${gap}" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${isCC2 ? '' : label}</div>`;
           }
           html += `</div>`;
           parts.push(html);

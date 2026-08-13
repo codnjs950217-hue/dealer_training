@@ -1049,31 +1049,28 @@ body {
   position: relative;
 }
 /* Top face — ellipse cap, bottom half overlaps body for seamless join.
-   Shares its gradient/shadow "look" with .rpay-tray-stk-face (the same
-   chip-stack top face, just in the tray selector instead of the pay
-   zone) — same casino-chip design language in both places. */
+   Sizing/layering only here — the actual casino-chip background/shadow/
+   border/edge-ring look is shared with every other chip face/disc in this
+   page, see the big shared rule further below. */
 .rpay-chip-stack-face,
 .rpay-tray-stk-face {
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 35% 30%, rgba(255,255,255,.35) 0%, rgba(255,255,255,.08) 42%, rgba(0,0,0,.18) 100%),
-    var(--stk-bg);
-  box-shadow:
-    0 2px 6px rgba(0,0,0,.5),
-    inset 0 2px 5px rgba(255,255,255,.45),
-    inset 0 -1px 3px rgba(0,0,0,.35);
-  flex-shrink: 0;
-  position: relative; z-index: 2;
-  overflow: hidden;
+  z-index: 2;
 }
 .rpay-chip-stack-face {
   width: var(--ch-lg); height: clamp(13px, 1.8vw, 16px);
   margin-bottom: -7px;
 }
-/* Cylinder body — repeating chip-edge stripes + side shading */
-.rpay-chip-stack-body {
-  width: var(--ch-lg); height: clamp(50px, 6.5vw, 64px);
-  flex-shrink: 0;
+/* Stack body: reads as several individual round chips stacked on top of
+   each other — a light rim line, a base-color band, then a dark shadow
+   line, repeating per "chip" — instead of a single uniformly-striped
+   tube (which was the "blue stack icon" complaint: countable stacked
+   coins vs. an abstract barcode cylinder). Left/right linear-gradient
+   layer keeps the overall cylindrical shading so it still reads as one
+   solid object, not a flat printed pattern. Shared between the pay
+   zone's full-size stack and the tray's smaller selector stack so they
+   never drift apart. */
+.rpay-chip-stack-body,
+.rpay-tray-stk-body {
   background:
     linear-gradient(to right,
       rgba(255,255,255,.2)  0%,
@@ -1083,11 +1080,16 @@ body {
       rgba(0,0,0,.55)       100%),
     repeating-linear-gradient(
       to bottom,
-      var(--stk-bg) 0px, var(--stk-bg) 3px,
-      rgba(0,0,0,.7) 3px,  rgba(0,0,0,.7) 4px
+      rgba(255,255,255,.55) 0px,   rgba(255,255,255,.55) 1px,
+      var(--stk-bg)         1px,   var(--stk-bg)         5.5px,
+      rgba(0,0,0,.6)        5.5px, rgba(0,0,0,.6)         7px
     );
   border-left:  1px solid rgba(255,255,255,.18);
   border-right: 1px solid rgba(0,0,0,.5);
+}
+.rpay-chip-stack-body {
+  width: var(--ch-lg); height: clamp(50px, 6.5vw, 64px);
+  flex-shrink: 0;
 }
 /* 5-chip mini-stack in spread context */
 .rpay-mini-stack .rpay-chip-stack-body { height: clamp(22px,3.5vw,31px); }
@@ -1101,10 +1103,6 @@ body {
 .rpay-stack-disc-mc {
   width: clamp(28px, 3.8vw, 34px);
   height: clamp(28px, 3.8vw, 34px);
-  border-radius: 50%;
-  background: var(--stk-bg);
-  box-shadow: 0 2px 5px rgba(0,0,0,.5), inset 0 1px 3px rgba(255,255,255,.2);
-  border: 1.5px solid rgba(255,255,255,.3);
   display: flex; align-items: center; justify-content: center;
   font-size: clamp(.48rem, .75vw, .6rem); font-weight: 900;
   color: var(--stk-fg); flex-shrink: 0;
@@ -1115,24 +1113,9 @@ body {
 }
 .rpay-cc-spread .rpay-mini-stack + .rpay-mini-stack { margin-left: -3px; }
 .rpay-cc-spread .rpay-mini-stack + .rpay-cc-disc   { margin-left: -6px; }
-.rpay-cc-spread .rpay-cc-disc { margin-left: -9px; position: relative; }
+.rpay-cc-spread .rpay-cc-disc { margin-left: -9px; }
 .rpay-cc-spread .rpay-cc-disc:first-child { margin-left: 0; }
 .rpay-cc-spread .rpay-cc-disc.rpay-disc-gap5 { margin-left: 4px; }
-/* Same casino-chip gradient/rim/shadow language as .rpay-tray-disc-cc below
-   (the same single color-chip disc, just shown in the pay zone instead of
-   the tray) — kept as one shared declaration so the two can't drift apart
-   again. */
-.rpay-cc-disc,
-.rpay-tray-disc-cc {
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 35% 30%, rgba(255,255,255,.35) 0%, rgba(255,255,255,.08) 42%, rgba(0,0,0,.18) 100%),
-    var(--stk-bg);
-  box-shadow: 0 3px 10px rgba(0,0,0,.65), 0 1px 3px rgba(0,0,0,.35), inset 0 1px 4px rgba(255,255,255,.25);
-  border: 1.5px solid rgba(255,255,255,.22);
-  position: relative; flex-shrink: 0;
-  overflow: hidden;
-}
 .rpay-cc-disc {
   width: var(--ch-sm); height: var(--ch-sm);
   display: flex; align-items: center; justify-content: center;
@@ -1143,7 +1126,6 @@ body {
 .rpay-cc-disc-mc {
   width: clamp(28px, 3.8vw, 34px);
   height: clamp(28px, 3.8vw, 34px);
-  background: var(--stk-bg);
   font-size: clamp(.48rem, .75vw, .6rem);
   text-shadow: none;
 }
@@ -1187,10 +1169,10 @@ body {
   background: rgba(0,0,0,.16);
   border: none; border-right: 1px solid rgba(255,190,50,.1);
   cursor: pointer; flex: 1; min-width: 0;
-  transition: background-color .12s;
+  transition: background-color .12s, transform .12s;
 }
-.rpay-tray-chip-btn:hover  { background: rgba(255,255,255,.06); }
-.rpay-tray-chip-btn:active { transform: scale(.96); }
+.rpay-tray-chip-btn:hover  { background: rgba(255,255,255,.06); transform: translateY(-2px); }
+.rpay-tray-chip-btn:active { transform: translateY(-1px) scale(.96); }
 
 /* Color chip stack structure */
 .rpay-tray-stk {
@@ -1205,27 +1187,13 @@ body {
 .rpay-tray-stk-body {
   width: clamp(28px, 3.8vw, 34px);
   flex-shrink: 0;
-  background:
-    linear-gradient(to right,
-      rgba(255,255,255,.2)  0%,
-      rgba(255,255,255,.07) 22%,
-      transparent           42%,
-      rgba(0,0,0,.0)        62%,
-      rgba(0,0,0,.55)       100%),
-    repeating-linear-gradient(
-      to bottom,
-      var(--stk-bg) 0px, var(--stk-bg) 3px,
-      rgba(0,0,0,.7) 3px,  rgba(0,0,0,.7) 4px
-    );
-  border-left:  1px solid rgba(255,255,255,.18);
-  border-right: 1px solid rgba(0,0,0,.5);
 }
 .rpay-tray-body-20 { height: clamp(36px, 5vw, 44px); }
 .rpay-tray-body-10 { height: clamp(22px, 3vw, 28px); }
 .rpay-tray-body-5  { height: clamp(11px, 1.5vw, 14px); }
 
-/* Single color chip disc (background/shadow/border shared with .rpay-cc-disc
-   above) */
+/* Single color chip disc — background/shadow/border/edge-ring shared with
+   every other chip face/disc below */
 .rpay-tray-disc-cc {
   width: clamp(28px, 3.8vw, 34px);
   height: clamp(28px, 3.8vw, 34px);
@@ -1235,29 +1203,39 @@ body {
 .rpay-tray-disc-mc {
   width: clamp(28px, 3.8vw, 34px);
   height: clamp(28px, 3.8vw, 34px);
-  border-radius: 50%;
-  background: var(--stk-bg);
-  box-shadow: 0 2px 5px rgba(0,0,0,.5), inset 0 1px 3px rgba(255,255,255,.2);
-  border: 1.5px solid rgba(255,255,255,.3);
   display: flex; align-items: center; justify-content: center;
   font-size: clamp(.48rem, .75vw, .6rem); font-weight: 900;
   color: var(--stk-fg); flex-shrink: 0;
 }
 
-/* Real-casino-chip look shared by every money-chip disc (tray button, pay-
-   zone stack cap, pay-zone remainder disc) — was a flat solid-color circle
-   that read as a toy coin. Layered but deliberately restrained (a slight
-   radial sheen, a dark rim, a faint edge-stripe ring, a soft drop shadow)
-   since the printed value label is what actually matters here — the ring
-   pattern below is masked to a thin band near the edge so it never
-   competes with or crosses into the text. Comes after each disc's own
-   width/height/font rule above so it wins the cascade on background/
-   box-shadow/border without needing to touch those per-variant sizes. */
+/* Real-casino-chip look shared by every chip visual on this page: flat
+   discs (money AND color), stack top-faces, and stack-remainder discs.
+   These used to be two different treatments — money chips had this CSS
+   radial-gradient + edge-stripe-ring; color chips had their own hand-
+   drawn SVG overlay with a different rim/dot pattern — which is why they
+   didn't read as one chip set even though they used the same colors.
+   One shared rule now: a slight radial sheen, a dark rim, a faint edge-
+   stripe ring, a soft drop shadow — deliberately restrained since the
+   printed value label (money chips) is what matters most; the ring
+   pattern is masked to a thin band near the edge so it never competes
+   with or crosses into the text. Comes after each element's own width/
+   height/font rule above so it wins the cascade on background/box-
+   shadow/border/border-radius without needing to touch those per-variant
+   sizes. Ellipse-shaped faces (.rpay-tray-stk-face/.rpay-chip-stack-face,
+   the top of a chip stack seen edge-on) get the same ring proportionally
+   squashed to their own width/height — a realistic side-on chip view,
+   not a flaw. */
 .rpay-tray-disc-mc,
 .rpay-stack-disc-mc,
-.rpay-cc-disc-mc {
+.rpay-cc-disc-mc,
+.rpay-tray-disc-cc,
+.rpay-cc-disc,
+.rpay-tray-stk-face,
+.rpay-chip-stack-face {
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 50%;
   background:
     radial-gradient(circle at 35% 30%, rgba(255,255,255,.32) 0%, rgba(255,255,255,.06) 42%, rgba(0,0,0,.16) 100%),
     var(--stk-bg);
@@ -1269,7 +1247,11 @@ body {
 }
 .rpay-tray-disc-mc::before,
 .rpay-stack-disc-mc::before,
-.rpay-cc-disc-mc::before {
+.rpay-cc-disc-mc::before,
+.rpay-tray-disc-cc::before,
+.rpay-cc-disc::before,
+.rpay-tray-stk-face::before,
+.rpay-chip-stack-face::before {
   content: '';
   position: absolute; inset: 0;
   border-radius: 50%;
