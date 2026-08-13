@@ -1390,8 +1390,8 @@ const Sims = {
     const STATUS_BADGE = {
       blackjack: '<div class="spot-status s-bj">BJ ♠</div>',
       bust: '<div class="spot-status s-bust">BUST</div>',
-      win:  '<div class="spot-status s-win">PAY ✓</div>',
-      lose: '<div class="spot-status s-lose">TAKE ✕</div>',
+      win:  '<div class="spot-status s-win">PAY</div>',
+      lose: '<div class="spot-status s-lose">TAKE</div>',
       push: '<div class="spot-status s-push">PUSH</div>',
     };
 
@@ -3894,16 +3894,19 @@ const Sims = {
       // Compact per-hand result shown directly under that player's own cards
       // the instant that hand is answered correctly (see answer()) — reuses
       // Blackjack's own .spot-status/.s-win/.s-lose/.s-push badge (same
-      // markup, same pill/border/tint styling, same PAY ✓ / TAKE ✕ text),
-      // just sized down for this panel's narrower columns (see the
+      // markup, same pill/border/tint styling), just sized down for this
+      // panel's narrower columns (see the
       // .thp-rank-sim .spot-status override in CSS). No rank breakdown or
       // explanation here — those stay behind the per-hand "?" button
       // (showHandExplain()/buildResultHTML()) instead of being shown
       // automatically while the round is still in progress.
       function buildSpotResultHTML(r) {
-        var cls  = r.winner === 'PAY' ? 's-win' : r.winner === 'TAKE' ? 's-lose' : 's-push';
-        var text = r.winner === 'PAY' ? 'PAY ✓' : r.winner === 'TAKE' ? 'TAKE ✕' : 'TIE';
-        return '<div class="spot-status ' + cls + '">' + text + '</div>';
+        var cls = r.winner === 'PAY' ? 's-win' : r.winner === 'TAKE' ? 's-lose' : 's-push';
+        // r.winner is already exactly 'PAY' / 'TAKE' / 'TIE' — no ✓/✕ suffix.
+        // Wrong-answer feedback is handled entirely by the separate MISTAKE
+        // overlay; this badge only ever renders once a hand is correct, so
+        // it doesn't need its own correctness mark.
+        return '<div class="spot-status ' + cls + '">' + r.winner + '</div>';
       }
 
       // Player/Dealer rank lines appended under the badge (never replacing

@@ -4354,7 +4354,7 @@ body {
 /* Per-hand result — sits under that player's own cards the instant that
    hand is answered correctly (answer() → buildSpotResultHTML()). Reuses
    Blackjack's own .spot-status/.s-win/.s-lose/.s-push badge markup as-is
-   (same pill shape, tint background, border, PAY ✓ / TAKE ✕ text) — only
+   (same pill shape, tint background, border) — only
    override here is sizing it down for this panel's much narrower per-
    player columns; the colors/shape/border come from the shared rule above
    unchanged. While the round is still going, that badge is all this box
