@@ -432,8 +432,19 @@ body {
   flex-shrink: 0;
 }
 .card-corner { position: absolute; display: flex; flex-direction: column; align-items: center; line-height: 1; }
-.card-corner.top    { top: 5px; left: 6px; }
-.card-corner.bottom { bottom: 5px; right: 6px; transform: rotate(180deg); }
+/* backface-visibility:hidden + translateZ(0) isolate each corner/center-suit
+   element onto its own compositing layer. Without this, during the
+   .flip-inner rotateY open animation these are flattened text inside a
+   subtree whose ancestor 3D transform matrix changes every single frame —
+   even though their own transform values (rotate(180deg) / translate(-50%,
+   -50%)) never change, the browser still has to re-project and re-rasterize
+   that flattened text at each frame's slightly different matrix, and
+   floating-point rounding in that per-frame projection is what reads as the
+   rank/suit "shaking" up/down while the card opens. Giving each one its own
+   pre-rasterized layer means only the layer's bitmap gets transformed by the
+   GPU during the flip — the text inside never gets re-rasterized mid-animation. */
+.card-corner.top    { top: 5px; left: 6px; transform: translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.card-corner.bottom { bottom: 5px; right: 6px; transform: rotate(180deg) translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 /* Every element inside .card is explicitly position:absolute and pinned to
    a fixed spot — top-left corner (top/left), bottom-right corner
    (bottom/right + the static rotate(180deg) above), center suit
@@ -460,7 +471,8 @@ body {
 .card-suit-center   {
   position: absolute;
   top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) translateZ(0);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
   font-size: clamp(1.2rem, 3.6vh, 1.9rem);
   color: #111;
 }
@@ -1027,12 +1039,15 @@ body {
   flex-shrink: 0;
   position: relative;
 }
-/* Top face — ellipse cap, bottom half overlaps body for seamless join */
-.rpay-chip-stack-face {
-  width: var(--ch-lg); height: clamp(13px, 1.8vw, 16px);
+/* Top face — ellipse cap, bottom half overlaps body for seamless join.
+   Shares its gradient/shadow "look" with .rpay-tray-stk-face (the same
+   chip-stack top face, just in the tray selector instead of the pay
+   zone) — same casino-chip design language in both places. */
+.rpay-chip-stack-face,
+.rpay-tray-stk-face {
   border-radius: 50%;
   background:
-    radial-gradient(circle at 36% 30%, rgba(255,255,255,.35) 0%, rgba(255,255,255,.08) 40%, rgba(0,0,0,.2) 100%),
+    radial-gradient(circle at 35% 30%, rgba(255,255,255,.35) 0%, rgba(255,255,255,.08) 42%, rgba(0,0,0,.18) 100%),
     var(--stk-bg);
   box-shadow:
     0 2px 6px rgba(0,0,0,.5),
@@ -1040,8 +1055,11 @@ body {
     inset 0 -1px 3px rgba(0,0,0,.35);
   flex-shrink: 0;
   position: relative; z-index: 2;
-  margin-bottom: -7px;
   overflow: hidden;
+}
+.rpay-chip-stack-face {
+  width: var(--ch-lg); height: clamp(13px, 1.8vw, 16px);
+  margin-bottom: -7px;
 }
 /* Cylinder body — repeating chip-edge stripes + side shading */
 .rpay-chip-stack-body {
@@ -1091,19 +1109,26 @@ body {
 .rpay-cc-spread .rpay-cc-disc { margin-left: -9px; position: relative; }
 .rpay-cc-spread .rpay-cc-disc:first-child { margin-left: 0; }
 .rpay-cc-spread .rpay-cc-disc.rpay-disc-gap5 { margin-left: 4px; }
-.rpay-cc-disc {
-  width: var(--ch-sm); height: var(--ch-sm); border-radius: 50%;
-  flex-shrink: 0;
+/* Same casino-chip gradient/rim/shadow language as .rpay-tray-disc-cc below
+   (the same single color-chip disc, just shown in the pay zone instead of
+   the tray) — kept as one shared declaration so the two can't drift apart
+   again. */
+.rpay-cc-disc,
+.rpay-tray-disc-cc {
+  border-radius: 50%;
   background:
-    radial-gradient(circle at 38% 35%, rgba(255,255,255,.22) 0%, transparent 60%),
+    radial-gradient(circle at 35% 30%, rgba(255,255,255,.35) 0%, rgba(255,255,255,.08) 42%, rgba(0,0,0,.18) 100%),
     var(--stk-bg);
-  box-shadow: 0 2px 5px rgba(0,0,0,.5), inset 0 1px 3px rgba(255,255,255,.2);
-  border: 1.5px solid rgba(255,255,255,.3);
+  box-shadow: 0 3px 10px rgba(0,0,0,.65), 0 1px 3px rgba(0,0,0,.35), inset 0 1px 4px rgba(255,255,255,.25);
+  border: 1.5px solid rgba(255,255,255,.22);
+  position: relative; flex-shrink: 0;
+  overflow: hidden;
+}
+.rpay-cc-disc {
+  width: var(--ch-sm); height: var(--ch-sm);
   display: flex; align-items: center; justify-content: center;
   font-size: var(--bf-xs); font-weight: 900; color: var(--stk-fg);
   text-shadow: 0 1px 2px rgba(0,0,0,.8);
-  position: relative;
-  overflow: hidden;
 }
 /* Remainder money chip discs (no mini-stack tier) — exact match to the tray's money chip disc */
 .rpay-cc-disc-mc {
@@ -1166,12 +1191,7 @@ body {
 .rpay-tray-stk-face {
   width: clamp(28px, 3.8vw, 34px);
   height: clamp(9px, 1.2vw, 11px);
-  border-radius: 50%;
-  background: var(--stk-bg);
-  box-shadow: inset 0 3px 7px rgba(255,255,255,.5), inset 0 -2px 4px rgba(0,0,0,.4);
-  position: relative; z-index: 2;
   margin-bottom: -4px;
-  flex-shrink: 0;
 }
 .rpay-tray-stk-body {
   width: clamp(28px, 3.8vw, 34px);
@@ -1195,18 +1215,11 @@ body {
 .rpay-tray-body-10 { height: clamp(22px, 3vw, 28px); }
 .rpay-tray-body-5  { height: clamp(11px, 1.5vw, 14px); }
 
-/* Single color chip disc */
+/* Single color chip disc (background/shadow/border shared with .rpay-cc-disc
+   above) */
 .rpay-tray-disc-cc {
   width: clamp(28px, 3.8vw, 34px);
   height: clamp(28px, 3.8vw, 34px);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 36% 33%, rgba(255,255,255,.25) 0%, rgba(255,255,255,.06) 45%, rgba(0,0,0,.18) 100%),
-    var(--stk-bg);
-  box-shadow: 0 3px 10px rgba(0,0,0,.65), 0 1px 3px rgba(0,0,0,.35), inset 0 1px 4px rgba(255,255,255,.25);
-  border: 1.5px solid rgba(255,255,255,.22);
-  position: relative; flex-shrink: 0;
-  overflow: hidden;
 }
 
 /* Money chip disc */
@@ -1389,6 +1402,15 @@ body {
   width: clamp(11px, 1.5vw, 14px); height: clamp(11px, 1.5vw, 14px);
   aspect-ratio: 1 / 1;
   border-radius: 50%;
+  /* Same radial-gradient sheen used by every other color-chip element on
+     this page (.rpay-cc-disc/.rpay-tray-disc-cc/.rpay-chip-stack-face) —
+     the board's placed chip is the same casino-chip set as the tray, just
+     drawn small. No edge-stripe ring here on purpose: at 11-14px it would
+     be noise that fights the value label, which is what matters most at
+     this size (also .rpay-spot-count's number must stay readable). */
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255,255,255,.4) 0%, rgba(255,255,255,.1) 45%, rgba(0,0,0,.15) 100%),
+    var(--stk-bg);
   border: 1px solid rgba(255,255,255,.32);
   /* A crisp inset rim reads as a chip edge; the drop shadow is kept small so
      overlapping tokens (splits/corners) don't smear into a shadow blob */
