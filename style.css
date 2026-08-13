@@ -1116,7 +1116,16 @@ body {
 .rpay-cc-spread .rpay-cc-disc { margin-left: -9px; }
 .rpay-cc-spread .rpay-cc-disc:first-child { margin-left: 0; }
 .rpay-cc-spread .rpay-cc-disc.rpay-disc-gap5 { margin-left: 4px; }
-.rpay-cc-disc {
+/* .rpay-spot-chip (the board's placed-bet marker) shares this rule
+   outright — same width/height/font-size/font-weight/text-shadow, not
+   independently-chosen numbers that happen to look similar. It's scaled
+   down from this exact size afterward (see .rpay-spot-chip below)
+   instead of being redeclared smaller, so the rim thickness, shadow
+   spread, ring width, and number size all shrink in the same proportion
+   together — the only way for it to actually read as "this same chip,
+   just smaller" instead of a lookalike. */
+.rpay-cc-disc,
+.rpay-spot-chip {
   width: var(--ch-sm); height: var(--ch-sm);
   display: flex; align-items: center; justify-content: center;
   font-size: var(--bf-xs); font-weight: 900; color: var(--stk-fg);
@@ -1386,27 +1395,39 @@ body {
 .rpay-spot {
   position: absolute;
   transform: translate(-50%, -50%);
-  display: flex; flex-direction: column; align-items: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 1px; z-index: 6;
   transition: opacity .2s, transform .25s ease;
 }
-.rpay-spot-chips { display: flex; flex-direction: column; align-items: center; }
+/* justify-content:center matters here now that .rpay-spot-chip's own
+   layout footprint (var(--ch-sm), the full pay-zone chip size) is bigger
+   than its scaled-down visual size — without it the chip sits at the top
+   of that taller box instead of centered within it, drifting the visible
+   chip off the target betting cell. */
+.rpay-spot-chips { display: flex; flex-direction: column; align-items: center; justify-content: center; }
 /* Sizing/positioning only — the actual casino-chip background/shadow/
    border/edge-ring look is the same shared rule every tray and pay-zone
    chip uses (see .rpay-tray-disc-mc and friends further down); this is a
    true miniature of the exact same chip, not a separate lighter-weight
    design, so it can never drift back into looking like a plain token. */
 .rpay-spot-chip {
-  width: clamp(11px, 1.5vw, 14px); height: clamp(11px, 1.5vw, 14px);
-  aspect-ratio: 1 / 1;
-  display: flex; align-items: center; justify-content: center;
-  /* zoomToSpot() stretches the stage scaleX 1.5x more than scaleY (main.js) —
-     counter-scale here so the chip stays a true circle and its number stays undistorted */
-  transform: scaleX(calc(1 / 1.5));
+  /* Size/typography come from the shared .rpay-cc-disc rule above (this
+     selector is part of it) — full pay-zone chip size rendered first,
+     then scaled down here. scale(.5) shrinks the whole chip (rim,
+     shadow, ring, number) together to board-marker size; scaleX(1/1.5)
+     is folded into the same transform to counter zoomToSpot()'s stage
+     stretch (main.js scales scaleX 1.5x more than scaleY during the
+     reveal zoom) so the chip stays a true circle and its number stays
+     undistorted. Both are plain scale transforms, so combining them in
+     one declaration is equivalent regardless of order. */
+  transform: scale(.5) scaleX(calc(1 / 1.5));
 }
 .rpay-spot-count {
-  font-size: .35rem; font-weight: 800; line-height: 1;
-  text-shadow: 0 1px 1px rgba(0,0,0,.55);
+  /* No font-size/weight/text-shadow of its own — inherits all of it
+     from .rpay-spot-chip (which shares .rpay-cc-disc's exact values),
+     so the number shrinks through the same scale() as the rest of the
+     chip instead of being independently sized to "look about right." */
+  line-height: 1;
   pointer-events: none;
   white-space: nowrap;
 }
