@@ -4326,9 +4326,36 @@ const Sims = {
         }
       }
 
+      // Class names in this app that represent transient per-hand
+      // interaction/animation state (the active-turn pulse, and the
+      // dealer-pick "raised"/selected card-offset classes, in case they
+      // were ever left on a hole card) — never anything that renders the
+      // PAY/TIE/TAKE result itself (thpr-pay/thpr-take/thpr-tie on the
+      // spot, .spot-status/.s-win/.s-lose/.s-push on the result badge,
+      // .revealed on the cards). Swept off a hand's spot + hole cards the
+      // instant we move on to the next one, alongside any inline
+      // `transform` left on them, so nothing about how that hand looked
+      // mid-turn can still be sitting on its DOM once it's done — only
+      // the frozen result badge should remain.
+      var TRANSIENT_HAND_STATE_CLASSES = [
+        'thpr-active',
+        'thpr-card-pick', 'thpr-card-picked',
+        'thpr-card-picked-up', 'thpr-card-picked-down', 'thpr-card-pick-settling'
+      ];
+      function clearTransientHandState(p) {
+        var spot = $('thpr-spot-' + p);
+        if (!spot) return;
+        var els = [spot].concat(Array.prototype.slice.call(spot.querySelectorAll('.flip-card, .flip-inner')));
+        els.forEach(function(el) {
+          TRANSIENT_HAND_STATE_CLASSES.forEach(function(cls) { el.classList.remove(cls); });
+          if (el.style.transform) el.style.transform = '';
+        });
+      }
+
       function next() {
         var fb = $('thpr-feedback');
         if (fb) { fb.innerHTML = ''; }
+        clearTransientHandState(S.activePlayer);
         addHandHelpBtn(S.activePlayer);
         S.activePlayer--;
         if (S.activePlayer < 1) { endRound(); return; }
