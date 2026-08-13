@@ -4369,14 +4369,28 @@ body {
    holds — no rank breakdown here yet; that detail is still also available
    any time via the per-hand "?" button. Once the whole round ends
    (endRound() → appendHandRanksHTML()), the Player/Dealer rank lines below
-   get appended under the existing badge in every hand's box at once. */
+   get appended under the existing badge in every hand's box at once.
+
+   position:absolute (anchored to .thpr-player-spot, which is
+   position:relative) is load-bearing here, not decoration: .thpr-player-
+   spot is a fixed-height flex column (stretched by .thpr-players-row) with
+   exactly one flexible child, .thpr-hole-wrap (flex:1) — the cards. This
+   box starts empty (0 height) and grows once the badge — and later the two
+   rank lines — get written into it. Left in normal flow, that growth has
+   nowhere to come from but .thpr-hole-wrap shrinking, which re-centers
+   (visibly shifts up) the cards inside it. Removing this box from flow
+   means its content can grow freely without .thpr-hole-wrap, or the cards
+   inside it, ever being asked to resize — the "hand slides up when it
+   resolves" bug. It never overlaps .thpr-spot-btns above it since the two
+   are mutually exclusive in time for a given seat (spot-btns is cleared to
+   empty in the same step that first populates spot-result). */
 .thpr-spot-result {
-  width: 100%;
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
   display: flex; flex-direction: column;
   align-items: center;
   gap: clamp(.05rem, .12vh, .12rem);
   text-align: center;
-  flex-shrink: 0;
 }
 .thp-rank-sim .spot-status {
   padding: clamp(.08rem, .26vh, .18rem) clamp(.28rem, .7vw, .5rem);
