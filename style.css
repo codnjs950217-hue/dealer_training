@@ -2521,13 +2521,27 @@ body {
 }
 
 /* 3 Player betting positions */
+/* Grid, not flex: with the row as a plain flex container, .bpay-mode-btns
+   (flex:1) only centered itself within the space LEFT OVER after
+   .bpay-hdr-stats' own width — since only the stats panel sits on the
+   right (nothing mirrors it on the left), that leftover area's midpoint
+   sits left of the row's true center, visually shifting the toggle group
+   off BANKER's center below it. A 3-column grid with symmetric outer
+   tracks (minmax(0,1fr) on both sides of the auto-sized button group)
+   centers the buttons on the row's actual full width regardless of how
+   wide the stats panel is — the empty first column needs no markup of
+   its own, it's just however much space grid-column 3's content doesn't
+   use, mirrored on the left. */
 .bpay-mode-row {
-  display: flex; align-items: center; justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto minmax(0,1fr);
+  align-items: center;
   flex-shrink: 0; gap: .4rem;
   margin-bottom: clamp(.25rem,.5vh,.45rem);
 }
 .bpay-mode-btns {
-  display: flex; gap: .6rem; justify-content: center; flex: 1;
+  grid-column: 2;
+  display: flex; gap: .6rem;
 }
 .bpay-mode-btn {
   padding: clamp(.28rem,.7vh,.42rem) clamp(.6rem,1.4vw,1.1rem);
@@ -2540,6 +2554,8 @@ body {
 .bpay-mode-btn:not(.active):hover { border-color: rgba(255,255,255,.3); color: var(--text); }
 
 .bpay-hdr-stats {
+  grid-column: 3;
+  justify-self: end;
   font-size: clamp(.6rem,1.3vw,.7rem);
   color: rgba(255,255,255,.5);
   display: flex; gap: clamp(.3rem,.6vw,.5rem);
