@@ -3906,6 +3906,15 @@ const Sims = {
         return '<div class="spot-status ' + cls + '">' + text + '</div>';
       }
 
+      // Player/Dealer rank lines appended under the badge (never replacing
+      // it) once the whole round is over — see endRound(). Kept separate
+      // from buildSpotResultHTML() so the in-progress badge-only display
+      // above is untouched; this only ever runs after every hand is done.
+      function appendHandRanksHTML(r) {
+        return '<div class="thpr-spot-result-rank">Player: ' + r.playerRankName + '</div>' +
+          '<div class="thpr-spot-result-rank">Dealer: ' + r.dealerRankName + '</div>';
+      }
+
       function showHandExplain(p) {
         var r = null;
         for (var i = 0; i < S.results.length; i++) {
@@ -4386,10 +4395,17 @@ const Sims = {
         var cd = $('thpr-countdown');
         if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
 
-        // Each hand's CORRECT + dealer/player rank + PAY/TAKE/TIE result
-        // (buildSpotResultHTML()) is now written under that player's own
-        // cards immediately upon a correct answer (answer()), not deferred
-        // to here — nothing left to do for that display at round end.
+        // Each hand's PAY/TAKE/TIE badge (buildSpotResultHTML()) is already
+        // written under that player's own cards the instant it's answered
+        // correctly (answer()) and stays untouched here. Now that the whole
+        // round is done and NEXT HAND is about to show, append the Player/
+        // Dealer rank lines under each hand's existing badge — this is the
+        // one point where that detail becomes visible; during the round
+        // only the badge shows.
+        S.results.forEach(function(r) {
+          var box = $('thpr-spot-result-' + r.player);
+          if (box) box.insertAdjacentHTML('beforeend', appendHandRanksHTML(r));
+        });
 
         var a = $('thpr-action-row');
         if (a) a.innerHTML = '<button class="thpr-start-btn" onclick="Sims.poker.thpRank.deal()">NEXT HAND</button>';

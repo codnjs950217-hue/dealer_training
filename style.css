@@ -4357,9 +4357,11 @@ body {
    (same pill shape, tint background, border, PAY ✓ / TAKE ✕ text) — only
    override here is sizing it down for this panel's much narrower per-
    player columns; the colors/shape/border come from the shared rule above
-   unchanged. No rank breakdown or explanation here; that detail lives
-   behind the per-hand "?" button instead of being shown automatically
-   while the round is still going. */
+   unchanged. While the round is still going, that badge is all this box
+   holds — no rank breakdown here yet; that detail is still also available
+   any time via the per-hand "?" button. Once the whole round ends
+   (endRound() → appendHandRanksHTML()), the Player/Dealer rank lines below
+   get appended under the existing badge in every hand's box at once. */
 .thpr-spot-result {
   width: 100%;
   display: flex; flex-direction: column;
@@ -4373,6 +4375,16 @@ body {
   border-radius: 4px;
   font-size: clamp(.52rem, 1.05vw, .64rem);
   letter-spacing: .2px;
+}
+.thpr-spot-result-rank {
+  width: 100%;
+  color: var(--text);
+  font-weight: 700;
+  font-size: clamp(.52rem, 1.02vw, .62rem);
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ---- Player spot states ---- */
