@@ -4347,11 +4347,12 @@ body {
 .thpr-sum-take { color: #ff7777; }
 .thpr-sum-tie  { color: var(--gold); }
 
-/* Per-hand result — sits under that player's own cards once the round ends
-   (endRound() → buildSpotResultHTML()), instead of one combined list left
-   of the dealer cards. Exactly 3 lines (verdict, Player rank, Dealer rank);
-   bright/high-contrast so it's readable at a glance on mobile, not the dim
-   text used elsewhere in this panel. Only ever populated at round end. */
+/* Per-hand result — sits under that player's own cards the instant that
+   hand is answered correctly (answer() → buildSpotResultHTML()). Just the
+   PAY/TAKE/TIE verdict word, same minimal single-badge treatment Blackjack
+   uses for its own per-hand PAY/TAKE result — no rank breakdown or
+   explanation here; that detail lives behind the per-hand "?" button
+   instead of being shown automatically while the round is still going. */
 .thpr-spot-result {
   width: 100%;
   display: flex; flex-direction: column;
@@ -4360,30 +4361,10 @@ body {
   text-align: center;
   flex-shrink: 0;
 }
-/* CORRECT/MISTAKE mark — sits directly above the PAY/TAKE/TIE verdict line
-   so the trainee can tell at a glance which hands they got right, without
-   changing the existing verdict/rank lines below it. */
-.thpr-spot-result-mark {
-  font-weight: 900;
-  letter-spacing: .04em;
-  font-size: clamp(.5rem, 1vw, .6rem);
-}
-.thpr-spot-result-mark-ok    { color: #4ecdc4; }
-.thpr-spot-result-mark-wrong { color: #ff7777; }
 .thpr-spot-result-verdict {
   font-weight: 900;
   letter-spacing: .02em;
   font-size: clamp(.64rem, 1.3vw, .8rem);
-}
-.thpr-spot-result-rank {
-  width: 100%;
-  color: var(--text);
-  font-weight: 700;
-  font-size: clamp(.52rem, 1.02vw, .62rem);
-  line-height: 1.25;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* ---- Player spot states ---- */
