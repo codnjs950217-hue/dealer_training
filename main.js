@@ -1242,10 +1242,40 @@ const Sims = {
       if (idx >= 0) { const [c] = S.deck.splice(idx, 1); return c; }
       return S.deck.pop();
     }
-    // Dealer's first (showing) card should never be an ace
+    // Dealer's first (showing) card should never be an ace. A 10-value
+    // upcard (10/J/Q/K) is the only other precondition for a natural
+    // two-card Dealer Blackjack once the trainee draws again (ace excluded
+    // above, so 10 + Ace is the sole path) — throttling how often THAT
+    // upcard is dealt directly rate-limits Dealer Blackjack frequency at
+    // the hand-generation stage, without touching the trainee-driven draw
+    // (dealerDraw()/safeHit()), dealerShouldDraw(), or the Pay/Push/Take
+    // judging in testAnswer(), all of which stay exactly as before —
+    // Dealer Blackjack still plays out with the same judging when it does
+    // happen, it's just rarer. Naturally a 10-value upcard would show ~33%
+    // of the time (4 of the 12 non-ace ranks); DEALER_TEN_UPCARD_RATE
+    // drops that to ~12%, so Dealer Blackjack becomes roughly a third as
+    // frequent instead of disappearing outright. The other 2-9 upcards
+    // (which can never two-card-blackjack) fill the rest, unchanged
+    // relative to each other, keeping the rest of the practice pool varied.
+    const DEALER_TEN_UPCARD_RATE = 0.12;
     function pullDealerUpcard() {
-      const idx = S.deck.findIndex(c => c.rank !== 'A');
+      const TEN_VALUE = ['10', 'J', 'Q', 'K'];
+      const NON_TEN = ['2', '3', '4', '5', '6', '7', '8', '9'];
+      // Decide the target rank *group* first, then search for it — picking
+      // "allow ten" as a loose OR on the search predicate would collapse to
+      // just "any non-ace card" (whichever rank happens to sit first in the
+      // shuffled deck), which stops DEALER_TEN_UPCARD_RATE from actually
+      // controlling the odds. Committing to one target group up front makes
+      // the resulting ten-vs-other split match the constant directly.
+      const wantTen = Math.random() < DEALER_TEN_UPCARD_RATE;
+      const primary = wantTen ? TEN_VALUE : NON_TEN;
+      const fallback = wantTen ? NON_TEN : TEN_VALUE;
+      let idx = S.deck.findIndex(c => primary.includes(c.rank));
+      if (idx < 0) idx = S.deck.findIndex(c => fallback.includes(c.rank));
       if (idx >= 0) { const [c] = S.deck.splice(idx, 1); return c; }
+      // Deck has nothing left but aces near a reshuffle boundary.
+      const idx2 = S.deck.findIndex(c => c.rank !== 'A');
+      if (idx2 >= 0) { const [c] = S.deck.splice(idx2, 1); return c; }
       return S.deck.pop();
     }
 
