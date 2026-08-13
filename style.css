@@ -4178,14 +4178,22 @@ body {
   color: var(--win);
   text-shadow: 0 0 16px rgba(78,205,196,.6);
 }
-/* Discard-2 pick prompt only — sits a bit higher than the plain FLOP/TURN/
-   RIVER countdown, for clearer separation from the community cards below.
+/* Discard-2 pick prompt only — sits higher than the plain FLOP/TURN/RIVER
+   countdown, for clearer separation from the community cards below.
    FLOP/TURN/RIVER keep the base .thpr-countdown position untouched.
-   Nudged back down slightly from an earlier pass that pushed it high
-   enough for the floating ticking number above it to overlap the players
-   row's cards. */
+   A previous pass had to nudge this back down because pushing the prompt
+   too high also pushes the floating ticking number above it
+   (.thpr-countdown-num, itself offset further up via bottom:100% + its
+   own margin-bottom) into the players row. Rather than re-risk that,
+   .thpr-countdown-num's margin-bottom is shrunk in tandem right below —
+   the prompt moves up (more gap from the community cards) while the
+   numeral's own extra offset shrinks by close to the same amount, so its
+   absolute position barely moves versus before. */
 .thpr-countdown-picking {
-  top: clamp(-2.8rem, -4.5vh, 0.4rem);
+  top: clamp(-3.2rem, -6.4vh, -0.4rem);
+}
+.thpr-countdown-picking .thpr-countdown-num {
+  margin-bottom: clamp(0rem, .5vh, .3rem);
 }
 
 /* Stacked countdown (see countdown(..., stacked=true) in main.js): the label
