@@ -906,6 +906,38 @@ function valToRank(v) {
   return v === 14 ? 'A' : v === 13 ? 'K' : v === 12 ? 'Q' : v === 11 ? 'J' : String(v);
 }
 
+// Spelled-out singular rank word (10 and up), digits below that — matches
+// the round-end display convention: "Ace High", "Tens", but "8s" not
+// "Eights". Plural is always this + 's' (every case here pluralizes
+// regularly, including the digit forms).
+function _thpRankWord(v) {
+  return v === 14 ? 'Ace' : v === 13 ? 'King' : v === 12 ? 'Queen' : v === 11 ? 'Jack' : v === 10 ? 'Ten' : String(v);
+}
+
+// Builds the "(...)" qualifier shown after a hand-rank name at round end
+// — e.g. "One Pair (8s)", "Two Pair (Aces & Tens)", "High Card (Ace
+// High)" — using the tiebreak array evalPokerHand() already computed
+// (no re-evaluation, purely a display string built from existing data).
+// Returns '' for hand ranks where the name alone is unambiguous (Royal
+// Flush is always the same five ranks).
+function _thpRankDetail(handInfo) {
+  var r = handInfo.rank, tb = handInfo.tiebreak;
+  var w = _thpRankWord;
+  var plural = function(v) { return w(v) + 's'; };
+  switch (r) {
+    case 0: return w(tb[0]) + ' High';                     // High Card
+    case 1: return plural(tb[0]);                           // One Pair
+    case 2: return plural(tb[0]) + ' & ' + plural(tb[1]);   // Two Pair
+    case 3: return plural(tb[0]);                           // Three of a Kind
+    case 4: return w(tb[0]) + ' High';                      // Straight
+    case 5: return w(tb[0]) + ' High';                      // Flush
+    case 6: return plural(tb[0]) + ' over ' + plural(tb[1]); // Full House
+    case 7: return plural(tb[0]);                           // Four of a Kind
+    case 8: return w(tb[0]) + ' High';                      // Straight Flush
+    default: return '';                                      // Royal Flush
+  }
+}
+
 // Returns { rank, rankName, tiebreak, bestFive, ev } for 5–7 cards
 function evaluateBestHand(cards) {
   const { ev, bestCards } = bestPokerHandCards(cards);
@@ -965,6 +997,8 @@ function getResult(dealerCards, playerCards) {
     winner,
     dealerRankName: dealer.rankName,
     playerRankName: player.rankName,
+    dealerRankDetail: _thpRankDetail(dealer),
+    playerRankDetail: _thpRankDetail(player),
     dealerBestFiveCards: dealer.bestFive,
     playerBestFiveCards: player.bestFive,
     shortExplanation: _thpExplain(winner, dealer, player),
@@ -3910,8 +3944,14 @@ const Sims = {
       // from buildSpotResultHTML() so the in-progress badge-only display
       // above is untouched; this only ever runs after every hand is done.
       function appendHandRanksHTML(r) {
-        return '<div class="thpr-spot-result-rank">Player: ' + r.playerRankName + '</div>' +
-          '<div class="thpr-spot-result-rank">Dealer: ' + r.dealerRankName + '</div>';
+        // Same hand rank on both sides (e.g. both High Card) is exactly
+        // when a trainee most needs to see WHAT actually decided it — the
+        // (...) qualifier is built from the same tiebreak data
+        // getResult()/evalPokerHand() already computed, not a re-judge.
+        var playerLine = 'Player: ' + r.playerRankName + (r.playerRankDetail ? ' (' + r.playerRankDetail + ')' : '');
+        var dealerLine = 'Dealer: ' + r.dealerRankName + (r.dealerRankDetail ? ' (' + r.dealerRankDetail + ')' : '');
+        return '<div class="thpr-spot-result-rank">' + playerLine + '</div>' +
+          '<div class="thpr-spot-result-rank">' + dealerLine + '</div>';
       }
 
       function showHandExplain(p) {
@@ -4301,6 +4341,8 @@ const Sims = {
             winner: result.winner,
             playerRankName: result.playerRankName,
             dealerRankName: result.dealerRankName,
+            playerRankDetail: result.playerRankDetail,
+            dealerRankDetail: result.dealerRankDetail,
             verboseExplanation: result.verboseExplanation,
             correct: true
           });
