@@ -3842,14 +3842,18 @@ const Sims = {
       }
 
       // Compact per-hand result shown directly under that player's own cards
-      // the instant that hand is answered correctly (see answer()) — same
-      // minimal single-word badge Blackjack's STATUS_BADGE uses (PAY/TAKE),
-      // no rank breakdown or explanation. Those stay behind the per-hand "?"
-      // button (showHandExplain()/buildResultHTML()) instead of being shown
+      // the instant that hand is answered correctly (see answer()) — reuses
+      // Blackjack's own .spot-status/.s-win/.s-lose/.s-push badge (same
+      // markup, same pill/border/tint styling, same PAY ✓ / TAKE ✕ text),
+      // just sized down for this panel's narrower columns (see the
+      // .thp-rank-sim .spot-status override in CSS). No rank breakdown or
+      // explanation here — those stay behind the per-hand "?" button
+      // (showHandExplain()/buildResultHTML()) instead of being shown
       // automatically while the round is still in progress.
       function buildSpotResultHTML(r) {
-        var wClass = r.winner === 'PAY' ? 'thpr-sum-pay' : r.winner === 'TAKE' ? 'thpr-sum-take' : 'thpr-sum-tie';
-        return '<div class="thpr-spot-result-verdict ' + wClass + '">' + r.winner + '</div>';
+        var cls  = r.winner === 'PAY' ? 's-win' : r.winner === 'TAKE' ? 's-lose' : 's-push';
+        var text = r.winner === 'PAY' ? 'PAY ✓' : r.winner === 'TAKE' ? 'TAKE ✕' : 'TIE';
+        return '<div class="spot-status ' + cls + '">' + text + '</div>';
       }
 
       function showHandExplain(p) {

@@ -4342,17 +4342,15 @@ body {
 .thpr-result-answer { color: var(--gold); font-weight: 700; }
 .thpr-result-explain { color: rgba(255,255,255,.42); font-style: italic; }
 
-/* ---- End-of-round summary ---- */
-.thpr-sum-pay  { color: #4ecdc4; }
-.thpr-sum-take { color: #ff7777; }
-.thpr-sum-tie  { color: var(--gold); }
-
 /* Per-hand result — sits under that player's own cards the instant that
-   hand is answered correctly (answer() → buildSpotResultHTML()). Just the
-   PAY/TAKE/TIE verdict word, same minimal single-badge treatment Blackjack
-   uses for its own per-hand PAY/TAKE result — no rank breakdown or
-   explanation here; that detail lives behind the per-hand "?" button
-   instead of being shown automatically while the round is still going. */
+   hand is answered correctly (answer() → buildSpotResultHTML()). Reuses
+   Blackjack's own .spot-status/.s-win/.s-lose/.s-push badge markup as-is
+   (same pill shape, tint background, border, PAY ✓ / TAKE ✕ text) — only
+   override here is sizing it down for this panel's much narrower per-
+   player columns; the colors/shape/border come from the shared rule above
+   unchanged. No rank breakdown or explanation here; that detail lives
+   behind the per-hand "?" button instead of being shown automatically
+   while the round is still going. */
 .thpr-spot-result {
   width: 100%;
   display: flex; flex-direction: column;
@@ -4361,10 +4359,11 @@ body {
   text-align: center;
   flex-shrink: 0;
 }
-.thpr-spot-result-verdict {
-  font-weight: 900;
-  letter-spacing: .02em;
-  font-size: clamp(.64rem, 1.3vw, .8rem);
+.thp-rank-sim .spot-status {
+  padding: clamp(.08rem, .26vh, .18rem) clamp(.28rem, .7vw, .5rem);
+  border-radius: 4px;
+  font-size: clamp(.52rem, 1.05vw, .64rem);
+  letter-spacing: .2px;
 }
 
 /* ---- Player spot states ---- */
