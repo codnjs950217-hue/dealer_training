@@ -1436,9 +1436,17 @@ const Sims = {
     }
 
     function startPayTest() {
+      // Only clears the spot-action buttons for every seat — never the
+      // bj-pay-timer text. A hand already resolved (correct Pay/Push/Take)
+      // has its interval stopped by startPayTimer()'s own stopPayTimer()
+      // call, so its last "Ns" reading is already frozen in place; wiping
+      // it here on every subsequent startPayTest() call (e.g. when moving
+      // to the next seat) was erasing that seat's final elapsed time
+      // instead of leaving it where the timer was shown. The one timer
+      // that DOES need resetting — the seat about to become active — gets
+      // that from startPayTimer(i) below, which sets its own text to '0s'.
       for (let i = 0; i < N; i++) {
         clearSpotAct(i);
-        const t = $(`bj-pay-timer-${i}`); if (t) t.textContent = '';
       }
       while (S.payTestIdx >= 0) {
         const p = S.players[S.payTestIdx];
