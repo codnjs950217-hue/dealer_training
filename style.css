@@ -364,8 +364,12 @@ body {
   letter-spacing: .8px; text-align: center; text-transform: uppercase;
 }
 .home-game-divider {
-  width: 45%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(201,168,76,.45), transparent);
+  /* Already shared by every home-page card (Baccarat/Blackjack/Roulette/
+     Poker all render this same element between their name and buttons),
+     but at .45 opacity + 1px it was faint enough to go unnoticed on the
+     3 single-button cards — brightened so it reads clearly everywhere. */
+  width: 55%; height: 1.5px;
+  background: linear-gradient(90deg, transparent, rgba(220,185,80,.85), transparent);
   margin: .1rem 0;
 }
 .home-game-btns { display: flex; flex-direction: column; gap: .35rem; width: 100%; }
