@@ -1492,7 +1492,17 @@ const Sims = {
         <button class="spot-btn spot-push-btn" onclick="Sims.blackjack.testAnswer('push')">Push</button>
         <button class="spot-btn spot-take-btn" onclick="Sims.blackjack.testAnswer('take')">Take</button>
       </div>`);
-      startPayTimer(i);
+      // startPayTest() runs again for the SAME seat on a MISTAKE retry
+      // (testAnswer()'s wrong-answer branch), not just when a genuinely new
+      // seat becomes active. Only (re)start the timer when the seat has
+      // actually changed — S.payTimerIdx tracks whichever seat the running
+      // interval belongs to — so a wrong answer never resets or restarts
+      // this seat's elapsed time; the same interval just keeps counting
+      // straight through the MISTAKE flash and into the retry.
+      if (S.payTimerIdx !== i) {
+        startPayTimer(i);
+        S.payTimerIdx = i;
+      }
       renderPlayers();
       msg(`Player ${i + 1}: Pay, Push, or Take?`);
       actions('');
@@ -1527,13 +1537,14 @@ const Sims = {
         const keepMistakes = isRestart && S ? S.mistakes : 0;
         S = { deck: createDeck(6), players: [], dh: [], current: 0, dealerPhase: false,
               rounds: keepRounds, score: keepScore, mistakes: keepMistakes, pendingAction: null, payTestIdx: 4, phase: 'idle',
-              payTimerStart: null, payTimerInterval: null, speedMode: false, nextHandTimer: null };
+              payTimerStart: null, payTimerInterval: null, payTimerIdx: null, speedMode: false, nextHandTimer: null };
         bjFlipId = 0;
         stats();
       },
 
       newGame() {
         stopPayTimer();
+        S.payTimerIdx = null;
         if (S.deck.length < 30) S.deck = createDeck(6);
         S.speedMode = false;
         S.players = Array.from({length: N}, () => ({ hand: [], status: 'active', hideCards: false }));
@@ -1618,6 +1629,7 @@ const Sims = {
       // Draw/Stop turn instead of stepping through each player's decisions.
       newGameSpeed() {
         stopPayTimer();
+        S.payTimerIdx = null;
         if (S.deck.length < 30) S.deck = createDeck(6);
         S.speedMode = true;
         S.players = Array.from({length: N}, () => ({ hand: [], status: 'active', hideCards: false }));
