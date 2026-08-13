@@ -2993,7 +2993,7 @@ const Sims = {
       { key: 'red',    val: 5_000, bg: '#e53935', fg: '#fff'    },
       { key: 'blue',   val: 5_000, bg: '#1e88e5', fg: '#fff'    },
       { key: 'green',  val: 5_000, bg: '#43a047', fg: '#fff'    },
-      { key: 'teal',   val: 5_000, bg: '#00897b', fg: '#fff'    },
+      { key: 'teal',   val: 5_000, bg: '#00bfa5', fg: '#0a2622' },
       { key: 'orange', val: 5_000, bg: '#fb8c00', fg: '#fff'    },
       { key: 'purple', val: 5_000, bg: '#8e24aa', fg: '#fff'    },
       { key: 'pink',   val: 5_000, bg: '#e91e8c', fg: '#fff'    },
@@ -3171,7 +3171,7 @@ const Sims = {
 
           const [[key, cnt]] = Object.entries(sp.chips);
           const c = COLOR_CHIPS.find(b => b.key === key);
-          const chipHtml = `<div class="rpay-spot-chip" style="background:${c.bg};border-color:${c.fg==='#fff'?'rgba(255,255,255,.5)':'rgba(0,0,0,.25)'}"><span class="rpay-spot-count" style="color:${c.fg}">${cnt}</span></div>`;
+          const chipHtml = `<div class="rpay-spot-chip" style="--stk-bg:${c.bg};border-color:${c.fg==='#fff'?'rgba(255,255,255,.5)':'rgba(0,0,0,.25)'}"><span class="rpay-spot-count" style="color:${c.fg}">${cnt}</span></div>`;
 
           const el = document.createElement('div');
           el.className = 'rpay-spot';
