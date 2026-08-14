@@ -462,10 +462,10 @@ const Views = {
         </div>
         <div class="bac-field">
           <div class="bac-pair-quiz-anchor">
-            <div class="bac-btn-cluster">
-              <div class="bac-bclust-side" id="bac-pair-b"></div>
-              <div class="bac-bclust-mid" id="bac-pair-mid"></div>
-              <div class="bac-bclust-side" id="bac-pair-p"></div>
+            <div class="bac-pair-quiz-row">
+              <span id="bac-pair-b"></span>
+              <span id="bac-pair-mid"></span>
+              <span id="bac-pair-p"></span>
             </div>
           </div>
           <div class="bac-shoe-col">
@@ -2272,9 +2272,9 @@ const Sims = {
     function renderPairBtns() {
       const bLocked = S.pairPicked.banker;
       const pLocked = S.pairPicked.player;
-      setBtn('bac-pair-b', `<button class="btn-bac-banker bac-inline-btn"${bLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('banker-pair')">BANKER PAIR</button>`);
-      setBtn('bac-pair-mid', `<button class="btn-bac-tie bac-inline-btn" onclick="Sims.baccarat.quizPair('no-pair')">NO PAIR</button>`);
-      setBtn('bac-pair-p', `<button class="btn-bac-player bac-inline-btn"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">PLAYER PAIR</button>`);
+      setBtn('bac-pair-b', `<button class="btn-bac-pair"${bLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('banker-pair')">BANKER PAIR</button>`);
+      setBtn('bac-pair-mid', `<button class="btn-bac-pair" onclick="Sims.baccarat.quizPair('no-pair')">NO PAIR</button>`);
+      setBtn('bac-pair-p', `<button class="btn-bac-pair"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">PLAYER PAIR</button>`);
     }
 
     function showPairQuiz() {

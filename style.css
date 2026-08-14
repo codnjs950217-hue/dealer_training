@@ -1797,13 +1797,37 @@ body {
 }
 /* Pair-judgment quiz: floats in the gap between the win-quiz row and the
    hands (.bac-field vertically centers its row, leaving empty space above
-   the cards) so it never displaces any existing element. */
+   the cards) so it never displaces any existing element. Kept small and
+   centered (not column-width like the win-quiz row) so it reads as a
+   compact secondary control, not a second full-size button row. */
 .bac-pair-quiz-anchor {
   position: absolute; top: 0; left: 0; right: 0; z-index: 5;
+  display: flex; justify-content: center; pointer-events: none;
 }
-.bac-pair-quiz-anchor .btn-bac-banker,
-.bac-pair-quiz-anchor .btn-bac-player {
-  width: 100%;
+.bac-pair-quiz-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(.3rem,.8vw,.5rem);
+  pointer-events: auto;
+}
+.btn-bac-pair {
+  background: linear-gradient(160deg, #0e4a6b 0%, #062232 100%);
+  color: #7fd4f5;
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(150,220,255,.12), 0 2px 8px rgba(20,120,180,.3);
+  padding: clamp(.2rem,.5vh,.32rem) clamp(.45rem,1.1vw,.7rem);
+  border-radius: var(--r);
+  font-weight: 800; cursor: pointer;
+  font-size: clamp(.58rem,1.5vh,.7rem);
+  min-height: clamp(24px,3.6vh,32px);
+  letter-spacing: .4px; text-shadow: 0 1px 5px rgba(90,200,255,.35);
+  white-space: nowrap; transition: all .18s;
+}
+.btn-bac-pair:hover {
+  background: linear-gradient(160deg, #12587f 0%, #082a3f 100%);
+  box-shadow: inset 0 1px 0 rgba(150,220,255,.18), 0 3px 12px rgba(30,150,210,.4);
+}
+.btn-bac-pair:disabled {
+  opacity: .5; cursor: default; pointer-events: none;
 }
 .bac-banker-zone {
   flex: 1; display: flex; justify-content: flex-end; align-items: center;
@@ -2158,10 +2182,6 @@ body {
 .btn-bac-tie:hover {
   background: linear-gradient(160deg, #156015 0%, #0a2e0a 100%);
   box-shadow: inset 0 1px 0 rgba(150,255,140,.16), 0 3px 14px rgba(40,170,40,.45);
-}
-.btn-bac-banker:disabled,
-.btn-bac-player:disabled {
-  opacity: .5; cursor: default; pointer-events: none;
 }
 .btn-bac-draw {
   background: rgba(255,255,255,.08);
