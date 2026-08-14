@@ -1,0 +1,7 @@
+node_modules/
+
+# Firebase service account keys — full admin access to Firestore, must
+# never be committed. Keep them outside the repo or name them so this
+# pattern catches them.
+*serviceAccountKey*.json
+*service-account*.json

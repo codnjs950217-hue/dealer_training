@@ -1,0 +1,13 @@
+{
+  "name": "dealer-training-admin-tools",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local admin CLI tools for the Casino Dealer Training System (Firestore user bulk-upload). Not part of the served app.",
+  "scripts": {
+    "upload-users": "node scripts/upload-users.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "xlsx": "^0.18.5"
+  }
+}
