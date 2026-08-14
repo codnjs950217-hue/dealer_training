@@ -4482,16 +4482,19 @@ const Sims = {
         var actionRow = $('thpr-action-row');
         if (actionRow) actionRow.innerHTML = '';
 
-        // Reveal sequence: FLOP → TURN → RIVER → DEALER → PLAYER 5
+        // Reveal sequence: FLOP → TURN → RIVER → DEALER → PLAYER 5.
+        // No countdown number/label shown between streets anymore — just a
+        // fixed pause after each reveal, timed like a real dealer turning
+        // cards rather than a 5-second on-screen clock. Order/animation
+        // (reveal()'s .revealed flip) and everything past RIVER (dealer
+        // pick, PLAYER 5 quiz) are unchanged.
         setTimeout(function() {
           reveal('comm0'); reveal('comm1'); reveal('comm2');
-          countdown('FLOP', 5, function() {
+          setTimeout(function() {
             reveal('comm3');
-            countdown('TURN', 5, function() {
+            setTimeout(function() {
               reveal('comm4');
-              countdown('RIVER', 5, function() {
-                var cd = $('thpr-countdown');
-                if (cd) { cd.className = 'thpr-countdown'; cd.textContent = ''; }
+              setTimeout(function() {
                 // Dealer's cards open first; customers' hole cards stay face-down
                 // through the dealer's own discard-2 pick, and only flip once
                 // that's done — not simultaneously with the dealer's cards.
@@ -4506,9 +4509,9 @@ const Sims = {
                     S.phase = 'quiz';
                   });
                 }, 900);
-              });
-            });
-          });
+              }, 600); // River -> dealer cards
+            }, 600); // Turn -> River
+          }, 700); // Flop -> Turn
         }, 400);
       }
 
