@@ -3272,11 +3272,6 @@ const Sims = {
       { key: '10K',  val:    10_000, bg: '#2e7d32', fg: '#fff'    },
       { key: '5K',   val:     5_000, bg: '#b5176b', fg: '#fff'    },
     ];
-    // 100K's near-black bg (#212121) has almost no contrast against the
-    // tray/pay-zone's own dark background, so its chip reads as smaller/
-    // fuzzier than the other three even though the box is the same size —
-    // brightens just that chip's border. See .rpay-mc-dark in style.css.
-    const mcDarkCls = key => key === '100K' ? ' rpay-mc-dark' : '';
     const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
     // Color-chip visuals used to draw their own hand-rolled SVG rim/dot/
@@ -3539,7 +3534,7 @@ const Sims = {
             <div class="rpay-tray-sep"></div>
             ${[...MONEY_CHIPS].reverse().map(c => `
             <button class="rpay-tray-chip-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">
-              <div class="rpay-tray-disc-mc${mcDarkCls(c.key)}" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${c.key}</div>
+              <div class="rpay-tray-disc-mc" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${c.key}</div>
               <span class="rpay-tray-chip-lbl">+1</span>
             </button>`).join('')}
             <div class="comm-pay-slot">
@@ -3605,7 +3600,7 @@ const Sims = {
           `<div class="rpay-chip-stack${isCC ? '' : ' rpay-chip-stack-mc'}" style="--stk-bg:${c.bg};--stk-fg:${c.fg};position:absolute;left:${col*colStep}px;top:${row*rowStep}px;z-index:${(row+1)*10+(maxCol-col+1)}">` +
           (isCC
             ? `<div class="rpay-chip-stack-face"></div><div class="rpay-chip-stack-body"></div>`
-            : `<div class="rpay-stack-disc-mc${mcDarkCls(label)}">${label}</div>`) +
+            : `<div class="rpay-stack-disc-mc">${label}</div>`) +
           `</div>`
         ).join('');
         return `<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">` +
@@ -3645,7 +3640,7 @@ const Sims = {
           }
           for (let i = 0; i < spreadCount; i++) {
             const gap = i > 0 && i % 5 === 0 ? ' rpay-disc-gap5' : '';
-            html += `<div class="rpay-cc-disc${isCC2 ? '' : ' rpay-cc-disc-mc' + mcDarkCls(label)}${gap}" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${isCC2 ? '' : label}</div>`;
+            html += `<div class="rpay-cc-disc${isCC2 ? '' : ' rpay-cc-disc-mc'}${gap}" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${isCC2 ? '' : label}</div>`;
           }
           html += `</div>`;
           parts.push(html);
