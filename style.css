@@ -1797,17 +1797,23 @@ body {
 }
 /* Pair-judgment quiz: floats in the gap between the win-quiz row and the
    hands (.bac-field vertically centers its row, leaving empty space above
-   the cards) so it never displaces any existing element. Kept small and
-   centered (not column-width like the win-quiz row) so it reads as a
-   compact secondary control, not a second full-size button row. */
+   the cards) so it never displaces any existing element. The row mirrors
+   .bac-btn-cluster-quiz's own padding/gap/column-basis exactly (same
+   flex:1 side columns, same clamp(150px,26vw,220px) mid column) so each
+   Pair button lines up under its matching Banker/Tie/Player column. */
 .bac-pair-quiz-anchor {
   position: absolute; top: 0; left: 0; right: 0; z-index: 5;
-  display: flex; justify-content: center; pointer-events: none;
 }
 .bac-pair-quiz-row {
-  display: flex; align-items: center; justify-content: center;
-  gap: clamp(.3rem,.8vw,.5rem);
-  pointer-events: auto;
+  display: flex; align-items: flex-start;
+  padding: 0 clamp(.6rem,2vw,2rem);
+  gap: clamp(.5rem,1.8vw,1.2rem);
+}
+.bac-pair-quiz-col {
+  flex: 1; display: flex; justify-content: center;
+}
+.bac-pair-quiz-col-mid {
+  flex: none; width: clamp(150px,26vw,220px);
 }
 .btn-bac-pair {
   background: linear-gradient(160deg, #0e4a6b 0%, #062232 100%);

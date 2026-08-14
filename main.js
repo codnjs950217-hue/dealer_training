@@ -463,9 +463,9 @@ const Views = {
         <div class="bac-field">
           <div class="bac-pair-quiz-anchor">
             <div class="bac-pair-quiz-row">
-              <span id="bac-pair-b"></span>
-              <span id="bac-pair-mid"></span>
-              <span id="bac-pair-p"></span>
+              <div class="bac-pair-quiz-col" id="bac-pair-b"></div>
+              <div class="bac-pair-quiz-col bac-pair-quiz-col-mid" id="bac-pair-mid"></div>
+              <div class="bac-pair-quiz-col" id="bac-pair-p"></div>
             </div>
           </div>
           <div class="bac-shoe-col">
