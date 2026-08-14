@@ -1795,6 +1795,16 @@ body {
   flex: 1; min-height: 0; padding: clamp(.15rem,.3vh,.3rem) 0; overflow: visible;
   position: relative;
 }
+/* Pair-judgment quiz: floats in the gap between the win-quiz row and the
+   hands (.bac-field vertically centers its row, leaving empty space above
+   the cards) so it never displaces any existing element. */
+.bac-pair-quiz-anchor {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 5;
+}
+.bac-pair-quiz-anchor .btn-bac-banker,
+.bac-pair-quiz-anchor .btn-bac-player {
+  width: 100%;
+}
 .bac-banker-zone {
   flex: 1; display: flex; justify-content: flex-end; align-items: center;
   overflow: visible; position: relative; gap: .35rem;

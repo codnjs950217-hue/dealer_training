@@ -461,6 +461,13 @@ const Views = {
           <div class="bac-bclust-side" id="bac-p-btn-top"></div>
         </div>
         <div class="bac-field">
+          <div class="bac-pair-quiz-anchor">
+            <div class="bac-btn-cluster">
+              <div class="bac-bclust-side" id="bac-pair-b"></div>
+              <div class="bac-bclust-mid" id="bac-pair-mid"></div>
+              <div class="bac-bclust-side" id="bac-pair-p"></div>
+            </div>
+          </div>
           <div class="bac-shoe-col">
             <div class="shoe-visual">
               <div class="shoe-label-text">SHOE</div>
@@ -2256,19 +2263,35 @@ const Sims = {
       if (pPair && !bPair) spawnSideNoPair('banker');
     }
 
+    function clearPairBtns() {
+      setBtn('bac-pair-b', '');
+      setBtn('bac-pair-mid', '');
+      setBtn('bac-pair-p', '');
+    }
+
     function renderPairBtns() {
       const bLocked = S.pairPicked.banker;
       const pLocked = S.pairPicked.player;
-      setBtn('bac-b-btn-top', `<button class="btn-bac-banker bac-inline-btn"${bLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('banker-pair')">BANKER PAIR</button>`);
-      setBtn('bac-b-btn-bot', '');
-      setBtn('bac-tie-btn', `<button class="btn-bac-tie bac-inline-btn" onclick="Sims.baccarat.quizPair('no-pair')">NO PAIR</button>`);
-      setBtn('bac-p-btn-top', `<button class="btn-bac-player bac-inline-btn"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">PLAYER PAIR</button>`);
-      setBtn('bac-p-btn-bot', '');
+      setBtn('bac-pair-b', `<button class="btn-bac-banker bac-inline-btn"${bLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('banker-pair')">BANKER PAIR</button>`);
+      setBtn('bac-pair-mid', `<button class="btn-bac-tie bac-inline-btn" onclick="Sims.baccarat.quizPair('no-pair')">NO PAIR</button>`);
+      setBtn('bac-pair-p', `<button class="btn-bac-player bac-inline-btn"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">PLAYER PAIR</button>`);
     }
 
     function showPairQuiz() {
       renderPairBtns();
-      msg('Any pairs?');
+    }
+
+    function showPairMistake(retryFn) {
+      S.mistakes++;
+      const mEl = $('bac-mistakes'); if (mEl) mEl.textContent = S.mistakes;
+      clearPairBtns();
+      const tbl = document.querySelector('.baccarat-table');
+      if (!tbl) return;
+      const ov = document.createElement('div');
+      ov.className = 'mistake-overlay';
+      ov.innerHTML = `<div class="mistake-text">MISTAKE!</div>`;
+      tbl.appendChild(ov);
+      setTimeout(() => { ov.remove(); retryFn(); }, 1600);
     }
 
     function showInitialQuiz() {
@@ -2371,6 +2394,7 @@ const Sims = {
       setBtn('bac-b-btn-top', '');
       setBtn('bac-p-btn-top', '');
       setBtn('bac-tie-btn', html);
+      clearPairBtns();
     }
 
     function buildPayPanel() {
@@ -2452,6 +2476,7 @@ const Sims = {
         const pp = $('bac-pay-panel');
         if (pp) pp.style.display = 'none';
         clearInlineBtns();
+        clearPairBtns();
 
         const wf = $('bac-winner-flash'); if (wf) { wf.className = 'bac-winner-flash'; wf.innerHTML = ''; }
 
@@ -2467,29 +2492,30 @@ const Sims = {
         msg('Dealing...');
 
         // Deal visual order: 4→2→3→1 (P2, B1, P1, B2)
-        dealSequence(cards, ['bac-ph','bac-bh','bac-ph','bac-bh'], () => showPairQuiz());
+        dealSequence(cards, ['bac-ph','bac-bh','bac-ph','bac-bh'], () => {
+          showInitialQuiz();
+          showPairQuiz();
+        });
       },
 
       quizPair(side) {
         const bPair = S.bh[0].rank === S.bh[1].rank;
         const pPair = S.ph[0].rank === S.ph[1].rank;
         if (side === 'no-pair') {
-          if (bPair || pPair) { showMistake(renderPairBtns); return; }
-          clearInlineBtns();
-          showInitialQuiz();
+          if (bPair || pPair) { showPairMistake(renderPairBtns); return; }
+          clearPairBtns();
           return;
         }
         if (side === 'banker-pair') {
-          if (!bPair) { showMistake(renderPairBtns); return; }
+          if (!bPair) { showPairMistake(renderPairBtns); return; }
           S.pairPicked.banker = true;
         } else if (side === 'player-pair') {
-          if (!pPair) { showMistake(renderPairBtns); return; }
+          if (!pPair) { showPairMistake(renderPairBtns); return; }
           S.pairPicked.player = true;
         }
         const done = (!bPair || S.pairPicked.banker) && (!pPair || S.pairPicked.player);
         if (done) {
-          clearInlineBtns();
-          showInitialQuiz();
+          clearPairBtns();
         } else {
           renderPairBtns();
         }
