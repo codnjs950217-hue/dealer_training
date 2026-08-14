@@ -2234,14 +2234,7 @@ const Sims = {
       const tbl = document.querySelector('.baccarat-table');
       if (!tbl) return;
 
-      if (!pPair && !bPair) {
-        const el = document.createElement('div');
-        el.className = 'bac-no-pair-notif';
-        el.textContent = 'NO PAIR';
-        tbl.appendChild(el);
-        setTimeout(() => el.remove(), 1800);
-        return;
-      }
+      if (!pPair && !bPair) return;
       function spawnSideNoPair(side) {
         const anchorId = side === 'player' ? 'bac-ph' : 'bac-bh';
         const anchor = document.getElementById(anchorId);
