@@ -52,10 +52,6 @@
   margin-bottom: .6rem;
 }
 .login-title .gold { color: var(--gold); }
-.login-label {
-  font-size: .78rem; color: rgba(255,255,255,.55);
-  text-align: center;
-}
 .login-input {
   height: var(--tap-h);
   padding: 0 .8rem;
