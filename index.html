@@ -1,9 +1,18 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" translate="no">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Casino Dealer Training</title>
+
+  <!-- Disable browser auto-translate (Chrome/Safari) — casino terms like
+       BANKER/PLAYER/DEALER/PAY/TAKE/TIE must never get machine-translated.
+       translate="no" (html tag above + body below) is the HTML-spec
+       attribute Safari's translator honors; the "google"/"notranslate"
+       meta + class cover Chrome's Google Translate specifically. Both
+       are inherited by descendants, so every dynamically-rendered game
+       screen is covered without touching main.js's game logic. -->
+  <meta name="google" content="notranslate" />
 
   <!-- PWA -->
   <link rel="manifest" href="/manifest.json" />
@@ -16,7 +25,7 @@
 
   <link href="/style.css" rel="stylesheet">
 </head>
-<body>
+<body translate="no" class="notranslate">
 
   <!-- Portrait blocking overlay -->
   <div id="portrait-block" aria-hidden="true">
@@ -114,7 +123,7 @@
       </nav>
     </aside>
 
-    <main id="app" class="main-content"></main>
+    <main id="app" class="main-content notranslate" translate="no"></main>
 
   </div>
 

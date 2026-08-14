@@ -26,9 +26,9 @@ function shuffle(a) {
 }
 
 function cardHTML(c, faceDown = false) {
-  if (faceDown) return `<div class="card back"><div class="card-pattern"></div></div>`;
+  if (faceDown) return `<div class="card back notranslate" translate="no"><div class="card-pattern"></div></div>`;
   return `
-    <div class="card ${c.red ? 'red' : ''}">
+    <div class="card notranslate${c.red ? ' red' : ''}" translate="no">
       <div class="card-corner top"><span class="rank">${c.rank}</span><span class="suit">${c.suit}</span></div>
       <div class="card-suit-center">${c.suit}</div>
       <div class="card-corner bottom"><span class="rank">${c.rank}</span><span class="suit">${c.suit}</span></div>
@@ -347,7 +347,7 @@ const Views = {
       ? `<button class="btn btn-secondary" onclick="App.navigate('roulette','paysim')">⚡ Payout Practice</button>`
       : `<button class="btn btn-secondary" onclick="App.navigate('${game}','simulation')">⚡ Go to Simulation</button>`;
     return `
-      <div class="sim-page">
+      <div class="sim-page notranslate" translate="no">
         <p style="color:var(--text-dim);margin-bottom:2rem;max-width:560px">${g.desc}</p>
         <div style="display:flex;gap:1rem;flex-wrap:wrap">
           <button class="btn btn-primary"   onclick="App.navigate('${game}','tutorial')">▶ Start Tutorial</button>
@@ -407,7 +407,7 @@ const Views = {
   },
 
   blackjackSim: () => `
-    <div class="sim-page blackjack-sim">
+    <div class="sim-page blackjack-sim notranslate" translate="no">
       <div class="blackjack-table">
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="bj-rounds">0</strong></span>
@@ -448,7 +448,7 @@ const Views = {
     </div>`,
 
   baccaratSim: () => `
-    <div class="sim-page baccarat-sim">
+    <div class="sim-page baccarat-sim notranslate" translate="no">
       <div class="baccarat-table">
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="bac-rounds">0</strong></span>
@@ -494,7 +494,7 @@ const Views = {
     </div>`,
 
   roulettePaySim: () => `
-    <div class="sim-page rpay-sim">
+    <div class="sim-page rpay-sim notranslate" translate="no">
       <div class="rpay-table">
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="rpay-rounds">0</strong></span>
@@ -529,7 +529,7 @@ const Views = {
     </div>`,
 
   baccaratPaySim: () => `
-    <div class="sim-page baccarat-sim">
+    <div class="sim-page baccarat-sim notranslate" translate="no">
       <div class="bpay-mode-row">
         <div class="bpay-mode-btns">
           <button id="bpay-btn-commission" class="bpay-mode-btn active" onclick="Sims.baccaratPay.setMode('commission')">💰 Commission (5%)</button>
@@ -615,7 +615,7 @@ const Views = {
     </div>`,
 
   baccaratSideSim: () => `
-    <div class="sim-page baccarat-sim bside-sim">
+    <div class="sim-page baccarat-sim bside-sim notranslate" translate="no">
       <div class="baccarat-table">
         <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
         <div class="table-stats-overlay">
@@ -663,7 +663,7 @@ const Views = {
     </div>`,
 
   ispSim: () => `
-    <div class="sim-page poker-sim">
+    <div class="sim-page poker-sim notranslate" translate="no">
       <div class="poker-table">
         <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
         <div class="table-stats-overlay">
@@ -692,7 +692,7 @@ const Views = {
     </div>`,
 
   tcpSim: () => `
-    <div class="sim-page poker-sim">
+    <div class="sim-page poker-sim notranslate" translate="no">
       <div class="poker-table">
         <button class="table-refresh-btn" onclick="App.reload()" title="Restart">↺</button>
         <div class="table-stats-overlay">
@@ -725,7 +725,7 @@ const Views = {
     </div>`,
 
   thpRankSim: () => `
-    <div class="sim-page thp-rank-sim">
+    <div class="sim-page thp-rank-sim notranslate" translate="no">
       <div class="thpr-page-header">
         <div class="thpr-stats-panel">
           <span>Rounds: <strong id="thpr-rounds">0</strong></span>
