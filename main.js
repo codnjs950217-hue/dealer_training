@@ -150,7 +150,7 @@ const Auth = {
     // status in the background once Firestore is reachable, so an employee
     // deactivated after they logged in gets signed out on their next visit
     // instead of staying logged in forever.
-    this._showLoggedIn(this.session.name);
+    this._showLoggedIn(this.session.employeeId, this.session.name);
     waitForDealerAuth().then(auth => auth.lookupEmployee(this.session.employeeId)).then(result => {
       if (!result.ok) this.logout();
     }).catch(e => {
@@ -181,7 +181,7 @@ const Auth = {
       }
       this.session = { employeeId: result.employeeId, name: result.name };
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(this.session));
-      this._showWelcomeThenEnter(this.session.name);
+      this._showWelcomeThenEnter(this.session.employeeId, this.session.name);
     } catch (e) {
       console.error('[Auth] 로그인 실패:', e);
       errEl.textContent = this._describeError(e);
@@ -235,7 +235,7 @@ const Auth = {
   // separate "시작하기" button, the toast itself is the transition.
   // Auth.init()'s silent session-restore path deliberately skips this and
   // goes straight to _showLoggedIn() (no flash on reload, per existing spec).
-  _showWelcomeThenEnter(name) {
+  _showWelcomeThenEnter(employeeId, name) {
     document.getElementById('login-form').style.display = 'none';
     const welcome = document.getElementById('login-welcome');
     document.getElementById('login-welcome-name').textContent = name;
@@ -243,13 +243,15 @@ const Auth = {
     setTimeout(() => {
       welcome.style.display = 'none';
       document.getElementById('login-form').style.display = '';
-      this._showLoggedIn(name);
+      this._showLoggedIn(employeeId, name);
     }, 1800);
   },
 
-  _showLoggedIn(name) {
+  // Top-bar badge shows "{employeeId} | {name}" — employeeId is the 사번
+  // the user logged in with, name is Firestore users/{employeeId}.name.
+  _showLoggedIn(employeeId, name) {
     document.getElementById('login-block').style.display = 'none';
-    document.getElementById('top-bar-user-name').textContent = name;
+    document.getElementById('top-bar-user-name').textContent = `${employeeId} | ${name}`;
     document.getElementById('top-bar-user').style.display = 'flex';
   }
 };
