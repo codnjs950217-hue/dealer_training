@@ -3497,8 +3497,38 @@ const Sims = {
       if (warnBanner) warnBanner.style.visibility = (colorChipCount >= 120 && !moneyChipUsed) ? 'visible' : 'hidden';
 
       zone.innerHTML = parts.length
-        ? `<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:18px;padding-top:.6rem">${parts.join('')}</div>`
+        ? `<div id="rpay-pz-inner" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:18px;padding-top:.6rem">${parts.join('')}</div>`
         : '<div class="rpay-hint-text">왼쪽 베팅구역 확인하고 칩스를 세팅하세요</div>';
+      if (parts.length) fitPayZone(zone);
+    }
+
+    // Shrinks #rpay-pz-inner (via transform: scale) so the chip-stack pile
+    // never needs zone's own scrollbar, no matter how many stacks/chunks
+    // pile up (160+, 320+ chips). The stacks' real painted height (tall,
+    // absolutely-positioned pyramids) is bigger than their laid-out box —
+    // that mismatch is exactly what used to overflow into a scrollbar — so
+    // this measures zone.scrollHeight (which *does* include that paint
+    // overflow) rather than the inner wrapper's own getBoundingClientRect.
+    // Stack layout/count/labels/logic are untouched; this only ever scales
+    // the whole pile down visually to fit the fixed-height pay zone.
+    function fitPayZone(zone) {
+      const inner = zone.querySelector('#rpay-pz-inner');
+      if (!inner) return;
+      inner.style.transform = '';
+      // Budget only the space actually available to #rpay-pz-inner — zone's
+      // own padding doesn't scale with it, so it has to come off availW/H
+      // first, not be lumped into the same ratio as the scalable content
+      // (that mismatch under-corrected the scale at small/tight viewports).
+      const cs = getComputedStyle(zone);
+      const availW = Math.max(0, zone.clientWidth  - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight));
+      const availH = Math.max(0, zone.clientHeight - parseFloat(cs.paddingTop)  - parseFloat(cs.paddingBottom));
+      const naturalW = inner.scrollWidth, naturalH = inner.scrollHeight;
+      if (naturalW <= availW && naturalH <= availH) return;
+      const scale = Math.max(0, Math.min(1, availW / naturalW, availH / naturalH));
+      if (scale > 0 && isFinite(scale)) {
+        inner.style.transform = `scale(${scale})`;
+        inner.style.transformOrigin = 'top center';
+      }
     }
 
     function showMistake(retry) {
@@ -3515,6 +3545,7 @@ const Sims = {
 
     let S = {};
     let hasStarted = false;
+    let pzResizeObserver = null;
     const $ = id => document.getElementById(id);
 
     return {
@@ -3536,6 +3567,17 @@ const Sims = {
         if ($('rpay-rounds')) $('rpay-rounds').textContent = String(keepRounds);
         hasStarted = false;
         this._setControlsVisible(false);
+
+        // Re-fit the chip pile (no HTML rebuild, just re-measure/re-scale)
+        // whenever the pay zone's own box size changes — e.g. an orientation
+        // flip mid-round with chips already placed. One observer per page
+        // visit; re-pointed at the freshly rendered zone each init().
+        if (pzResizeObserver) pzResizeObserver.disconnect();
+        const zoneEl = $('rpay-pay-zone');
+        if (zoneEl && typeof ResizeObserver !== 'undefined') {
+          pzResizeObserver = new ResizeObserver(() => fitPayZone(zoneEl));
+          pzResizeObserver.observe(zoneEl);
+        }
       },
 
       setDiff(level) {
