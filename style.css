@@ -1795,16 +1795,24 @@ body {
   flex: 1; min-height: 0; padding: clamp(.15rem,.3vh,.3rem) 0; overflow: visible;
   position: relative;
 }
-/* Pair-judgment quiz: floats in the gap between the win-quiz row and the
-   hands (.bac-field vertically centers its row, leaving empty space above
-   the cards) so it never displaces any existing element. The row mirrors
-   .bac-btn-cluster-quiz's own padding/gap/column-basis exactly (same
-   flex:1 side columns, same clamp(150px,26vw,220px) mid column), and each
-   button matches its main button's own width/height (var(--bf-md) font,
-   var(--tap-h) min-height, same padding), so the Pair row reads as a
-   direct second line of the same Banker/Tie/Player column above it. */
+/* Pair-judgment quiz: an absolutely-positioned overlay, a sibling of
+   .bac-btn-cluster-quiz (not inside it, so it never touches the win-quiz's
+   own containers), anchored at the exact same top as that cluster
+   (.baccarat-table's own top-padding clamp) and rebuilding its column
+   padding/gap/heights from the same CSS custom properties/clamp values
+   (var(--tap-h), .bac-special-col's gap, the side-bet sub-row heights)
+   via invisible spacers — so the Pair button lands exactly one
+   .bac-special-col gap below the real side-bet sub-row in every column,
+   at every viewport, without any hardcoded pixel guesses. Never shares a
+   DOM node with the win-quiz, so it can't be wiped by its mistake/clear
+   paths (see feedback_dont_reuse_existing_containers). */
 .bac-pair-quiz-anchor {
-  position: absolute; top: 0; left: 0; right: 0; z-index: 5;
+  position: absolute; z-index: 5; pointer-events: none;
+  top: clamp(.5rem,1vh,.9rem);
+  left: clamp(.6rem,1.2vw,1.2rem); right: clamp(.6rem,1.2vw,1.2rem);
+}
+.bac-pair-quiz-anchor .btn-bac-pair {
+  pointer-events: auto;
 }
 .bac-pair-quiz-row {
   display: flex; align-items: flex-start;
@@ -1812,18 +1820,32 @@ body {
   gap: clamp(.5rem,1.8vw,1.2rem);
 }
 .bac-pair-quiz-col {
-  flex: 1; display: flex;
+  flex: 1;
+  padding-top: clamp(.4rem,1.2vh,.8rem);
 }
+.bac-pair-quiz-col-banker { padding-left: clamp(1rem,3vw,1.8rem); }
+.bac-pair-quiz-col-player { padding-right: clamp(1rem,3vw,1.8rem); }
 .bac-pair-quiz-col-mid {
   flex: none; width: clamp(150px,26vw,220px);
+}
+.bac-pair-quiz-stack {
+  display: flex; flex-direction: column;
+  gap: clamp(.25rem,.6vh,.5rem);
+}
+.bac-pair-quiz-spacer-main,
+.bac-pair-quiz-spacer-sub {
+  height: var(--tap-h);
+}
+.bac-pair-quiz-spacer-sub-tall {
+  height: clamp(30px,5.5vh,42px);
 }
 .btn-bac-pair {
   background: linear-gradient(160deg, #0e4a6b 0%, #062232 100%);
   color: #7fd4f5;
   border: none;
   box-shadow: inset 0 1px 0 rgba(150,220,255,.12), 0 2px 8px rgba(20,120,180,.3);
-  padding: clamp(.45rem,1vh,.62rem) clamp(.75rem,1.5vw,1.1rem); border-radius: var(--r);
-  font-weight: 800; cursor: pointer; font-size: var(--bf-md); min-height: var(--tap-h);
+  padding: clamp(.32rem,.75vh,.46rem) clamp(.55rem,1.1vw,.8rem); border-radius: var(--r);
+  font-weight: 800; cursor: pointer; font-size: clamp(.68rem,1.5vw,.82rem); min-height: clamp(28px,3.8vh,36px);
   letter-spacing: .6px; text-shadow: 0 1px 6px rgba(90,200,255,.4);
   white-space: nowrap; transition: all .18s;
   width: 100%;

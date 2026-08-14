@@ -460,14 +460,32 @@ const Views = {
           <div class="bac-bclust-mid" id="bac-tie-btn"></div>
           <div class="bac-bclust-side" id="bac-p-btn-top"></div>
         </div>
-        <div class="bac-field">
-          <div class="bac-pair-quiz-anchor">
-            <div class="bac-pair-quiz-row">
-              <div class="bac-pair-quiz-col" id="bac-pair-b"></div>
-              <div class="bac-pair-quiz-col bac-pair-quiz-col-mid" id="bac-pair-mid"></div>
-              <div class="bac-pair-quiz-col" id="bac-pair-p"></div>
+        <div class="bac-pair-quiz-anchor">
+          <div class="bac-pair-quiz-row">
+            <div class="bac-pair-quiz-col bac-pair-quiz-col-banker">
+              <div class="bac-pair-quiz-stack">
+                <div class="bac-pair-quiz-spacer-main"></div>
+                <div class="bac-pair-quiz-spacer-sub"></div>
+                <div id="bac-pair-b"></div>
+              </div>
+            </div>
+            <div class="bac-pair-quiz-col bac-pair-quiz-col-mid">
+              <div class="bac-pair-quiz-stack">
+                <div class="bac-pair-quiz-spacer-main"></div>
+                <div class="bac-pair-quiz-spacer-sub bac-pair-quiz-spacer-sub-tall"></div>
+                <div id="bac-pair-mid"></div>
+              </div>
+            </div>
+            <div class="bac-pair-quiz-col bac-pair-quiz-col-player">
+              <div class="bac-pair-quiz-stack">
+                <div class="bac-pair-quiz-spacer-main"></div>
+                <div class="bac-pair-quiz-spacer-sub bac-pair-quiz-spacer-sub-tall"></div>
+                <div id="bac-pair-p"></div>
+              </div>
             </div>
           </div>
+        </div>
+        <div class="bac-field">
           <div class="bac-shoe-col">
             <div class="shoe-visual">
               <div class="shoe-label-text">SHOE</div>
