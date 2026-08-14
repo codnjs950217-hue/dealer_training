@@ -82,6 +82,24 @@
   font-size: .76rem; color: var(--lose);
   text-align: center; margin: 0;
 }
+.login-welcome {
+  align-items: center; justify-content: center;
+  padding: 2.2rem 2.4rem;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(201,168,76,.22);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5);
+  animation: loginWelcomePop .25s ease-out;
+}
+.login-welcome-text {
+  font-size: 1.15rem; font-weight: 700; color: #fff;
+  text-align: center; line-height: 1.5;
+}
+#login-welcome-name { color: var(--gold); }
+@keyframes loginWelcomePop {
+  from { opacity: 0; transform: scale(.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
 
 :root {
   --bg: #0a1628;

@@ -181,7 +181,7 @@ const Auth = {
       }
       this.session = { employeeId: result.employeeId, name: result.name };
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(this.session));
-      this._showLoggedIn(this.session.name);
+      this._showWelcomeThenEnter(this.session.name);
     } catch (e) {
       console.error('[Auth] 로그인 실패:', e);
       errEl.textContent = this._describeError(e);
@@ -224,8 +224,27 @@ const Auth = {
     const input = document.getElementById('login-emp-id');
     input.value = '';
     document.getElementById('login-error').style.display = 'none';
+    document.getElementById('login-welcome').style.display = 'none';
+    document.getElementById('login-form').style.display = '';
     document.getElementById('login-block').style.display = 'flex';
     input.focus();
+  },
+
+  // Fresh (non-restored) login only: swaps the form for a "안녕하세요,
+  // {name}님 👋" toast for ~1.8s, then reveals the app underneath — no
+  // separate "시작하기" button, the toast itself is the transition.
+  // Auth.init()'s silent session-restore path deliberately skips this and
+  // goes straight to _showLoggedIn() (no flash on reload, per existing spec).
+  _showWelcomeThenEnter(name) {
+    document.getElementById('login-form').style.display = 'none';
+    const welcome = document.getElementById('login-welcome');
+    document.getElementById('login-welcome-name').textContent = name;
+    welcome.style.display = 'flex';
+    setTimeout(() => {
+      welcome.style.display = 'none';
+      document.getElementById('login-form').style.display = '';
+      this._showLoggedIn(name);
+    }, 1800);
   },
 
   _showLoggedIn(name) {
