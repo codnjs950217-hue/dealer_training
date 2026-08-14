@@ -4501,26 +4501,36 @@ body {
   will-change: transform;
 }
 .thpr-card-pick .flip-front .card {
-  transition: filter .18s ease, box-shadow .18s ease;
+  transition: box-shadow .18s ease;
 }
-/* Hover feedback is brightness-only — no position nudge. A translateY(3px)
-   hover nudge used to live here, but since :hover can persist on a card
-   after settleCard() resets it (mouse resting there, or a stuck touch
-   :hover on tablets), it left cards visibly 1-3px off their baseline
-   whenever the pointer happened to still be over them. Removing the
-   position component guarantees every unselected/settled card sits at
-   exactly translateY(0) — the deliberate pick animation
+/* Hover/picked feedback is an inset box-shadow tint, not filter:brightness()
+   (which this used to be — see git history). filter forces the browser to
+   flatten this element's whole rendered subtree into one raster before
+   applying the effect — including the rank/corner-suit/center-suit layers
+   that are deliberately isolated onto their own compositor layers via
+   translateZ(0) (see the .card-corner comment above) — and re-flattens it
+   every single frame while the filter transitions. That reintroduces the
+   exact same sub-pixel text "shake" the translateZ(0) isolation was built
+   to prevent, just triggered by hovering/picking a card instead of the
+   flip's rotateY. Only visible on desktop, since a real mouse hover is what
+   fires :hover here (touch doesn't reliably sustain it) — a huge-spread
+   inset box-shadow gets the same "brighten the face" look without ever
+   touching child compositing, so it can't retrigger this. Hover feedback
+   also has no position nudge — a translateY(3px) hover nudge used to live
+   here, but since :hover can persist on a card after settleCard() resets
+   it (mouse resting there, or a stuck touch :hover on tablets), it left
+   cards visibly 1-3px off their baseline whenever the pointer happened to
+   still be over them. The deliberate pick animation
    (.thpr-card-picked-up/-down below) is the only thing that ever moves a
    card now. */
 .thpr-card-pick:hover .flip-front .card {
-  filter: brightness(1.14);
+  box-shadow: 2px 3px 14px rgba(0,0,0,.45), inset 0 0 0 999px rgba(255,255,255,.12);
 }
 /* Picked cards always glow gold; the direction they slide tells the trainee
    at a glance which side they pulled from — community up toward the board,
    hand cards down toward the seat — so a selection reads instantly. */
 .thpr-card-picked .flip-front .card {
-  box-shadow: 0 0 0 2px var(--gold), 0 4px 10px rgba(0,0,0,.45);
-  filter: brightness(1.16);
+  box-shadow: 0 0 0 2px var(--gold), 0 4px 10px rgba(0,0,0,.45), inset 0 0 0 999px rgba(255,255,255,.14);
 }
 .thpr-card-picked-up   { transform: translateY(-10px); }
 .thpr-card-picked-down { transform: translateY(10px); }
