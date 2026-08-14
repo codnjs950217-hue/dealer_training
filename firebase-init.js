@@ -4,7 +4,7 @@
 // build step — main.js itself stays a plain classic script and talks to
 // this file only through window.DealerAuth, set at the bottom.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { initializeFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCJjIW0ufpyKYLYpRPK7_t0xFuVnpFsoWk",
@@ -22,10 +22,21 @@ const firebaseConfig = {
 // for its full 8s timeout before showing a generic "can't reach server"
 // with no indication *why*. Capturing it means lookupEmployee() can throw
 // a specific, visible error immediately instead.
+//
+// initializeFirestore(..., { experimentalAutoDetectLongPolling: true })
+// instead of plain getFirestore() — Firestore's default transport is a
+// streaming WebChannel connection that some proxied/restrictive networks
+// (corporate firewalls, some containerized preview environments) block or
+// hang on, even though plain HTTPS requests (e.g. a REST GET) go through
+// fine. This makes the SDK probe and fall back to long-polling
+// automatically instead of hanging on the streaming connection. Safe
+// default — slightly more request overhead, no functional downside — left
+// on unconditionally rather than only after confirming streaming is
+// actually the problem.
 let db, initError = null;
 try {
   const app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
+  db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 } catch (e) {
   initError = e;
   console.error('[DealerAuth] Firebase 초기화 실패:', e);
