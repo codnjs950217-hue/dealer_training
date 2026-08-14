@@ -4002,6 +4002,14 @@ const Sims = {
       const $ = id => document.getElementById(id);
       let S = {};
       let _cdTimer = null;
+      // Pending FLOP/TURN/RIVER reveal setTimeouts — tracked so SKIP can
+      // cancel whatever's still queued and jump straight to the end of the
+      // reveal chain instead of racing it.
+      let _revealTimers = [];
+      function clearRevealTimers() {
+        _revealTimers.forEach(function(t) { clearTimeout(t); });
+        _revealTimers = [];
+      }
 
       // Fixed sample hand for reveal-flow testing
       const SAMPLE = {
@@ -4477,42 +4485,77 @@ const Sims = {
         }
 
         // Remove the START/NEXT HAND button outright (not just disable it) —
-        // it should vanish the instant the round starts, not linger greyed
-        // out through FLOP/TURN/RIVER/the dealer pick/player turns.
+        // it should vanish the instant the round starts. A SKIP button
+        // takes its place for the FLOP/TURN/RIVER reveal phase only —
+        // openDealerCards() below removes it again once that phase ends.
+        clearRevealTimers();
         var actionRow = $('thpr-action-row');
-        if (actionRow) actionRow.innerHTML = '';
+        if (actionRow) actionRow.innerHTML = '<button class="thpr-start-btn thpr-skip-btn" onclick="Sims.poker.thpRank.skipReveal()">⏩ SKIP</button>';
 
         // Reveal sequence: FLOP → TURN → RIVER → DEALER → PLAYER 5.
         // No countdown number/label shown between streets anymore — just a
         // fixed pause after each reveal, timed like a real dealer turning
         // cards rather than a 5-second on-screen clock. Order/animation
         // (reveal()'s .revealed flip) and everything past RIVER (dealer
-        // pick, PLAYER 5 quiz) are unchanged.
-        setTimeout(function() {
+        // pick, PLAYER 5 quiz) are unchanged. Each setTimeout's id is
+        // stashed in _revealTimers so skipReveal() can cancel whichever of
+        // these hasn't fired yet.
+        _revealTimers.push(setTimeout(function() {
           reveal('comm0'); reveal('comm1'); reveal('comm2');
-          setTimeout(function() {
+          _revealTimers.push(setTimeout(function() {
             reveal('comm3');
-            setTimeout(function() {
+            _revealTimers.push(setTimeout(function() {
               reveal('comm4');
-              setTimeout(function() {
-                // Dealer's cards open first; customers' hole cards stay face-down
-                // through the dealer's own discard-2 pick, and only flip once
-                // that's done — not simultaneously with the dealer's cards.
-                reveal('d0'); reveal('d1');
-                setTimeout(function() {
-                  beginDealerPick(function() {
-                    reveal('p5c0'); reveal('p5c1');
-                    var spot5 = $('thpr-spot-5');
-                    if (spot5) spot5.classList.add('thpr-active');
-                    S.activePlayer = 5;
-                    showAnswerBtns();
-                    S.phase = 'quiz';
-                  });
-                }, 900);
-              }, 1500); // River -> dealer cards
-            }, 1500); // Turn -> River
-          }, 1500); // Flop -> Turn
-        }, 400);
+              _revealTimers.push(setTimeout(function() {
+                openDealerCards();
+                _revealTimers.push(setTimeout(function() {
+                  beginDealerPick(afterDealerPick);
+                }, 900));
+              }, 1500)); // River -> dealer cards
+            }, 1500)); // Turn -> River
+          }, 1500)); // Flop -> Turn
+        }, 400));
+      }
+
+      // Shared tail of the reveal chain (both the normal timed path above
+      // and skipReveal() below end here) — dealer's own discard-2 pick,
+      // then PLAYER 5's turn once that's resolved.
+      function afterDealerPick() {
+        reveal('p5c0'); reveal('p5c1');
+        var spot5 = $('thpr-spot-5');
+        if (spot5) spot5.classList.add('thpr-active');
+        S.activePlayer = 5;
+        showAnswerBtns();
+        S.phase = 'quiz';
+      }
+      // Clears the SKIP button (its phase is over) and opens the dealer's
+      // own 2 cards — customers' hole cards stay face-down through the
+      // dealer's discard-2 pick and only flip once that's done, not
+      // simultaneously with the dealer's own cards.
+      function openDealerCards() {
+        var actionRow = $('thpr-action-row');
+        if (actionRow) actionRow.innerHTML = '';
+        reveal('d0'); reveal('d1');
+      }
+
+      // SKIP: only visible during the FLOP/TURN/RIVER reveal phase (see
+      // deal() above). Cancels whatever reveal setTimeout is still pending,
+      // reveals every community + dealer card immediately, and jumps
+      // straight into the discard-2 pick — skipping the normal path's
+      // 900ms pre-pick pause too, since that pause is part of the reveal
+      // *presentation* this button exists to skip, not part of the pick
+      // step itself. This is exactly "즉시 10초 카운트 시작":
+      // beginDealerPick() starts that countdown itself, immediately, once
+      // called here with no pause in front of it. Hand-evaluation,
+      // PAY/TIE/TAKE, and card-placement logic are all untouched — this
+      // only ever short-circuits the timing of reveal().
+      function skipReveal() {
+        if (S.phase !== 'dealing') return;
+        clearRevealTimers();
+        reveal('comm0'); reveal('comm1'); reveal('comm2');
+        reveal('comm3'); reveal('comm4');
+        openDealerCards();
+        beginDealerPick(afterDealerPick);
       }
 
       function answer(choice) {
@@ -4658,6 +4701,7 @@ const Sims = {
 
       function init(isRestart) {
         clearCd();
+        clearRevealTimers();
         var wasMidHand   = isRestart && S && S.phase && S.phase !== 'idle';
         var keepRounds   = isRestart && S ? S.rounds + (wasMidHand ? 1 : 0) : 0;
         var keepScore    = isRestart && S ? S.score    : 0;
@@ -4697,7 +4741,7 @@ const Sims = {
         var hm = $('thpr-hand-modal'); if (hm) hm.style.display = 'none';
       }
 
-      return { init, deal, answer, next, debugHand, showRankHelp, hideRankHelp, showHandExplain, hideHandExplain };
+      return { init, deal, answer, next, skipReveal, debugHand, showRankHelp, hideRankHelp, showHandExplain, hideHandExplain };
     }
 
     return {
