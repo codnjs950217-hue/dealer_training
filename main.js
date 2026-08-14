@@ -4509,9 +4509,9 @@ const Sims = {
                     S.phase = 'quiz';
                   });
                 }, 900);
-              }, 1200); // River -> dealer cards
-            }, 1200); // Turn -> River
-          }, 1200); // Flop -> Turn
+              }, 1500); // River -> dealer cards
+            }, 1500); // Turn -> River
+          }, 1500); // Flop -> Turn
         }, 400);
       }
 
