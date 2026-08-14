@@ -1398,6 +1398,15 @@ body {
   font-size: clamp(.48rem, .75vw, .6rem); font-weight: 900;
   color: var(--stk-fg); flex-shrink: 0;
 }
+/* 100K's near-black background (#212121) barely contrasts against the
+   tray/pay-zone's own dark background — its 34px box is identical to the
+   other three money chips, but the low-contrast edge makes it *read* as
+   smaller/fuzzier. Brightening just its border (not touched by the shared
+   rule above, which stays the same for the other three) fixes the
+   perceived-size mismatch without changing any actual dimensions. */
+.rpay-mc-dark {
+  border-color: rgba(255,255,255,.75);
+}
 
 /* +N label below each chip image */
 .rpay-tray-chip-lbl {
