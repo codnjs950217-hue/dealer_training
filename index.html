@@ -27,6 +27,18 @@
     </div>
   </div>
 
+  <!-- Login gate (사번 로그인) -->
+  <div id="login-block" aria-hidden="true">
+    <form class="login-content" id="login-form">
+      <div class="login-title">Casino Dealer<br><span class="gold">Training System</span></div>
+      <label class="login-label" for="login-emp-id">사번을 입력하세요</label>
+      <input id="login-emp-id" class="login-input" type="text" inputmode="numeric"
+             autocomplete="off" placeholder="사번" maxlength="20" />
+      <button type="submit" id="login-submit-btn" class="login-submit-btn">로그인</button>
+      <p id="login-error" class="login-error" style="display:none"></p>
+    </form>
+  </div>
+
   <!-- Top bar (always visible) -->
   <div class="top-bar">
     <button class="hamburger-btn" onclick="App.toggleSidebar()" aria-label="Menu">
@@ -56,6 +68,10 @@
         </span>
       </span>
       Casino Dealer <span class="gold">Training System</span>
+    </span>
+    <span class="top-bar-user" id="top-bar-user" style="display:none">
+      <span class="top-bar-user-name" id="top-bar-user-name"></span>
+      <button class="top-bar-logout-btn" id="logout-btn" onclick="Auth.logout()" aria-label="로그아웃">⏻</button>
     </span>
   </div>
 
@@ -101,7 +117,15 @@
   </div>
 
   <script src="/main.js"></script>
+  <script type="module" src="/firebase-init.js"></script>
   <script>
+    // Login gate (사번 조회 → users/{employeeId}.active === true)
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      Auth.login(document.getElementById('login-emp-id').value.trim());
+    });
+    Auth.init();
+
     // Service Worker registration
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

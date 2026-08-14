@@ -99,6 +99,101 @@ const App = {
   init() { this.navigate('home'); }
 };
 
+// ---- AUTH (사번 로그인, Firestore users/{employeeId}) ----
+// firebase-init.js (a separate <script type="module">, see index.html) does
+// the actual Firestore call and exposes window.DealerAuth.lookupEmployee —
+// module scripts always finish before DOMContentLoaded, so by the time
+// Auth.init() below normally runs it's already there; the 'dealerauth-ready'
+// event + waitForDealerAuth() below are only a fallback for the unusual
+// case Auth.login() gets called before that (e.g. a very fast first click).
+const AUTH_STORAGE_KEY = 'dealerAuthSession';
+
+function waitForDealerAuth(timeoutMs = 8000) {
+  if (window.DealerAuth) return Promise.resolve(window.DealerAuth);
+  return new Promise((resolve, reject) => {
+    const onReady = () => { clearTimeout(t); resolve(window.DealerAuth); };
+    const t = setTimeout(() => {
+      window.removeEventListener('dealerauth-ready', onReady);
+      reject(new Error('timeout'));
+    }, timeoutMs);
+    window.addEventListener('dealerauth-ready', onReady, { once: true });
+  });
+}
+
+const Auth = {
+  session: null,
+
+  init() {
+    const block = document.getElementById('login-block');
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) { block.style.display = 'flex'; return; }
+    try {
+      this.session = JSON.parse(raw);
+    } catch (e) {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      block.style.display = 'flex';
+      return;
+    }
+    // Trust the saved session immediately (no login flash on reload) —
+    // login state persists across reloads per spec. Still re-check active
+    // status in the background once Firestore is reachable, so an employee
+    // deactivated after they logged in gets signed out on their next visit
+    // instead of staying logged in forever.
+    this._showLoggedIn(this.session.name);
+    waitForDealerAuth().then(auth => auth.lookupEmployee(this.session.employeeId)).then(result => {
+      if (!result.ok) this.logout();
+    }).catch(() => { /* offline/unreachable — keep the existing session */ });
+  },
+
+  async login(employeeId) {
+    const errEl = document.getElementById('login-error');
+    const btn = document.getElementById('login-submit-btn');
+    errEl.style.display = 'none';
+    if (!employeeId) { errEl.textContent = '사번을 입력하세요.'; errEl.style.display = 'block'; return; }
+
+    btn.disabled = true;
+    const prevLabel = btn.textContent;
+    btn.textContent = '확인 중...';
+    try {
+      const auth = await waitForDealerAuth();
+      const result = await auth.lookupEmployee(employeeId);
+      if (!result.ok) {
+        errEl.textContent = result.reason === 'inactive'
+          ? '비활성화된 사번입니다. 관리자에게 문의하세요.'
+          : '등록되지 않은 사번입니다.';
+        errEl.style.display = 'block';
+        return;
+      }
+      this.session = { employeeId: result.employeeId, name: result.name };
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(this.session));
+      this._showLoggedIn(this.session.name);
+    } catch (e) {
+      errEl.textContent = '서버에 연결할 수 없습니다. 잠시 후 다시 시도하세요.';
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = prevLabel;
+    }
+  },
+
+  logout() {
+    this.session = null;
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    document.getElementById('top-bar-user').style.display = 'none';
+    const input = document.getElementById('login-emp-id');
+    input.value = '';
+    document.getElementById('login-error').style.display = 'none';
+    document.getElementById('login-block').style.display = 'flex';
+    input.focus();
+  },
+
+  _showLoggedIn(name) {
+    document.getElementById('login-block').style.display = 'none';
+    document.getElementById('top-bar-user-name').textContent = name;
+    document.getElementById('top-bar-user').style.display = 'flex';
+  }
+};
+
 // ---- GAME META ----
 
 const GAMES = {
