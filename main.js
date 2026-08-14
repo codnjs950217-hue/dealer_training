@@ -2465,6 +2465,7 @@ const Sims = {
         if (S.deck.length < 20) S.deck = createBacDeck();
         S.ph = []; S.bh = []; S.pThird = null; S.winner = null;
         S.pairPicked = { banker: false, player: false };
+        S.pairDone = false;
         disableDraw();
 
         $('bac-ph').innerHTML   = '';
@@ -2503,6 +2504,7 @@ const Sims = {
         const pPair = S.ph[0].rank === S.ph[1].rank;
         if (side === 'no-pair') {
           if (bPair || pPair) { showPairMistake(renderPairBtns); return; }
+          S.pairDone = true;
           clearPairBtns();
           return;
         }
@@ -2515,6 +2517,7 @@ const Sims = {
         }
         const done = (!bPair || S.pairPicked.banker) && (!pPair || S.pairPicked.player);
         if (done) {
+          S.pairDone = true;
           clearPairBtns();
         } else {
           renderPairBtns();
@@ -2522,6 +2525,7 @@ const Sims = {
       },
 
       quizInitial(choice) {
+        if (!S.pairDone) { showMistake(() => showInitialQuiz()); return; }
         const pp = pts(S.ph), bp = pts(S.bh);
         let correctChoice;
         if (pp >= 8 || bp >= 8) {
@@ -2549,6 +2553,7 @@ const Sims = {
       },
 
       quizBanker() {
+        if (!S.pairDone) { showMistake(() => showBankerDrawQuiz()); return; }
         const needsDraw = bankerRule(pts(S.bh), S.pThird);
         if (!needsDraw) { showMistake(() => showBankerDrawQuiz(), 'OVER DRAW'); return; }
         clearInlineBtns();
@@ -2557,12 +2562,20 @@ const Sims = {
       },
 
       quizSpecial(choice) {
+        if (!S.pairDone) { showMistake(() => showSpecialQuiz()); return; }
         if (choice === 'draw-player') {
           showMistake(() => showSpecialQuiz(), 'OVER DRAW');
         }
       },
 
       quizWinFull(label, source) {
+        if (!S.pairDone) {
+          const retry = source === 'initial' ? showInitialQuiz
+                      : source === 'banker'  ? showBankerDrawQuiz
+                      : showSpecialQuiz;
+          showMistake(retry);
+          return;
+        }
         const pp = pts(S.ph), bp = pts(S.bh);
         if (source === 'initial') {
           const needsDrawP = !(pp >= 8 || bp >= 8) && pp <= 5;
