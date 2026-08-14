@@ -117,7 +117,8 @@
   </div>
 
   <script src="/main.js"></script>
-  <script type="module" src="/firebase-init.js"></script>
+  <script type="module" src="/firebase-init.js"
+          onerror="console.error('[DealerAuth] firebase-init.js 로드 실패 (네트워크 차단/CDN 접근 불가 가능성)'); window.dispatchEvent(new Event('dealerauth-load-error'))"></script>
   <script>
     // Login gate (사번 조회 → users/{employeeId}.active === true)
     document.getElementById('login-form').addEventListener('submit', (e) => {

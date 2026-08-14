@@ -111,12 +111,23 @@ const AUTH_STORAGE_KEY = 'dealerAuthSession';
 function waitForDealerAuth(timeoutMs = 8000) {
   if (window.DealerAuth) return Promise.resolve(window.DealerAuth);
   return new Promise((resolve, reject) => {
-    const onReady = () => { clearTimeout(t); resolve(window.DealerAuth); };
-    const t = setTimeout(() => {
+    const onReady = () => { cleanup(); resolve(window.DealerAuth); };
+    // firebase-init.js's <script type="module"> has an inline onerror that
+    // fires this the instant the module fails to load (bad network/CDN
+    // blocked/syntax error) — much faster than waiting out the full
+    // timeout below for the same eventual failure.
+    const onLoadError = () => {
+      cleanup();
+      reject(new Error('firebase-init.js를 불러오지 못했습니다 (네트워크 또는 CDN 접근 문제로 추정)'));
+    };
+    const t = setTimeout(() => { cleanup(); reject(new Error('timeout')); }, timeoutMs);
+    function cleanup() {
+      clearTimeout(t);
       window.removeEventListener('dealerauth-ready', onReady);
-      reject(new Error('timeout'));
-    }, timeoutMs);
+      window.removeEventListener('dealerauth-load-error', onLoadError);
+    }
     window.addEventListener('dealerauth-ready', onReady, { once: true });
+    window.addEventListener('dealerauth-load-error', onLoadError, { once: true });
   });
 }
 
@@ -142,7 +153,11 @@ const Auth = {
     this._showLoggedIn(this.session.name);
     waitForDealerAuth().then(auth => auth.lookupEmployee(this.session.employeeId)).then(result => {
       if (!result.ok) this.logout();
-    }).catch(() => { /* offline/unreachable — keep the existing session */ });
+    }).catch(e => {
+      // Offline/unreachable — keep the existing session, but still log it
+      // so a silent background failure doesn't look like nothing happened.
+      console.error('[Auth] 세션 재확인 실패 (기존 로그인 유지):', e);
+    });
   },
 
   async login(employeeId) {
@@ -168,12 +183,38 @@ const Auth = {
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(this.session));
       this._showLoggedIn(this.session.name);
     } catch (e) {
-      errEl.textContent = '서버에 연결할 수 없습니다. 잠시 후 다시 시도하세요.';
+      console.error('[Auth] 로그인 실패:', e);
+      errEl.textContent = this._describeError(e);
       errEl.style.display = 'block';
     } finally {
       btn.disabled = false;
       btn.textContent = prevLabel;
     }
+  },
+
+  // Turns a raw JS/Firebase error into a specific, readable message instead
+  // of a generic "서버에 연결할 수 없습니다" that hides which of Firebase
+  // init / Firestore permissions / bad path / network-CORS actually failed.
+  // The raw error is always console.error'd above too.
+  _describeError(e) {
+    const msg = (e && e.message) || String(e);
+    if (msg === 'timeout') {
+      return 'Firebase 연결이 8초 내에 응답하지 않았습니다. (firebase-init.js가 로드됐는지 콘솔을 확인하세요)';
+    }
+    const code = e && e.code;
+    if (code === 'permission-denied') {
+      return `Firestore 권한 오류(permission-denied): 보안 규칙이 users 읽기를 막고 있습니다.`;
+    }
+    if (code === 'unavailable' || code === 'deadline-exceeded' || code === 'failed-precondition') {
+      return `Firestore에 연결할 수 없습니다 (${code}). 네트워크 상태를 확인하세요.`;
+    }
+    if (code === 'not-found') {
+      return `Firestore 조회 경로 오류(not-found): users 컬렉션/문서 경로를 확인하세요.`;
+    }
+    if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('CORS')) {
+      return `네트워크/CORS 오류로 Firebase에 연결하지 못했습니다: ${msg}`;
+    }
+    return `오류: ${msg}${code ? ` (${code})` : ''}`;
   },
 
   logout() {
