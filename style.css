@@ -2149,6 +2149,10 @@ body {
   background: linear-gradient(160deg, #156015 0%, #0a2e0a 100%);
   box-shadow: inset 0 1px 0 rgba(150,255,140,.16), 0 3px 14px rgba(40,170,40,.45);
 }
+.btn-bac-banker:disabled,
+.btn-bac-player:disabled {
+  opacity: .5; cursor: default; pointer-events: none;
+}
 .btn-bac-draw {
   background: rgba(255,255,255,.08);
   color: #ffffff;
