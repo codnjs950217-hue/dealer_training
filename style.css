@@ -1858,7 +1858,7 @@ body {
   gap: .3rem; flex-wrap: wrap; min-height: clamp(26px,5vh,40px);
 }
 .bac-bclust-mid {
-  width: clamp(140px,22vw,190px); flex-shrink: 0;
+  width: clamp(150px,26vw,220px); flex-shrink: 0;
   display: flex; justify-content: center; align-items: center;
   min-height: clamp(26px,5vh,40px); overflow: visible; position: relative;
 }
@@ -1870,7 +1870,7 @@ body {
 #bac-p-btn-top { padding-right: clamp(1rem, 3vw, 1.8rem); }
 
 .bac-btn-cluster-quiz .bac-bclust-mid {
-  min-height: clamp(44px,12vh,82px);
+  min-height: clamp(64px,17vh,120px);
   align-items: flex-start;
   padding-top: clamp(.4rem,1.2vh,.8rem);
 }

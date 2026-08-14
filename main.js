@@ -2185,6 +2185,10 @@ const Sims = {
         tie: `
           <div class="bac-special-col bac-special-col-mid">
             <button class="btn-bac-tie bac-inline-btn" onclick="Sims.baccarat.quizWinFull('tie','${source}')">TIE</button>
+            <div class="bac-sub-btn-row bac-sub-btn-row-mid">
+              <button class="btn-bac-super7 bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('super-big7','${source}')">SUPER BIG 7</button>
+              <button class="btn-bac-super7 bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('super-small7','${source}')">SUPER SMALL 7</button>
+            </div>
           </div>`,
         player: `
           <div class="bac-special-col">
@@ -2192,10 +2196,6 @@ const Sims = {
             <div class="bac-sub-btn-row">
               <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('player-big7','${source}')">BIG 7</button>
               <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('player-small7','${source}')">SMALL 7</button>
-            </div>
-            <div class="bac-sub-btn-row">
-              <button class="btn-bac-super7 bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('super-big7','${source}')">SUPER BIG 7</button>
-              <button class="btn-bac-super7 bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('super-small7','${source}')">SUPER SMALL 7</button>
             </div>
           </div>`,
       };
