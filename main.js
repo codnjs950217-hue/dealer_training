@@ -217,17 +217,25 @@ const Auth = {
     return `오류: ${msg}${code ? ` (${code})` : ''}`;
   },
 
+  // Logging out has to reset more than just the auth session — every game
+  // module (blackjack/baccarat/roulette/poker) keeps its own in-memory
+  // state and, in several cases (roulette pay's bet timer, Hold'em
+  // Ranking's countdown/reveal timers), its own running setInterval —
+  // and none of that goes away just from hiding the login overlay again.
+  // Previously logout() only did that (toggle #login-block visibility +
+  // clear localStorage), which is why re-logging in dropped the trainee
+  // right back into whatever game/screen/timer was active before — the
+  // underlying #app content, and every game's JS state, had never
+  // actually been touched. A full reload is the only way to guarantee
+  // *all* of that is gone (every game's closures/intervals/S object,
+  // regardless of which one was active) without hand-auditing and
+  // resetting each game module individually — after reload, App.init()
+  // always starts at Home (see the bottom of App.navigate()) and
+  // Auth.init() sees no saved session, so the login screen shows fresh.
   logout() {
-    this.session = null;
     localStorage.removeItem(AUTH_STORAGE_KEY);
-    document.getElementById('top-bar-user').style.display = 'none';
-    const input = document.getElementById('login-emp-id');
-    input.value = '';
-    document.getElementById('login-error').style.display = 'none';
-    document.getElementById('login-welcome').style.display = 'none';
-    document.getElementById('login-form').style.display = '';
-    document.getElementById('login-block').style.display = 'flex';
-    input.focus();
+    sessionStorage.clear();
+    window.location.reload();
   },
 
   // Fresh (non-restored) login only: swaps the form for a "안녕하세요,
