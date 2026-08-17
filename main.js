@@ -2262,7 +2262,7 @@ const Sims = {
 
     // Always enabled — its own state never hints at correctness (req. 2).
     function checkBtnHtml(source) {
-      return `<button class="bac-check-btn" onclick="Sims.baccarat.checkResult('${source}')">SUBMIT</button>`;
+      return `<button class="bac-check-btn" onclick="Sims.baccarat.checkResult('${source}')">RESULT</button>`;
     }
 
     // Re-paints just the winner/special buttons (not the DRAW slots, Pair
