@@ -1889,7 +1889,13 @@ body {
   overflow: visible; position: relative; gap: .35rem;
   padding-left: 24px;
 }
-.bac-bh-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; }
+/* min-width reserves space for the full 2-card hand even when 0 or 1
+   cards are actually dealt (START screen, mid-deal animation) — this
+   box is the last item in .bac-banker-zone's flex-end-packed row, so
+   without it, BANKER/PLAYER's label and third-slot (DRAW button/3rd
+   card) would shift horizontally as the hand-wrap's own content width
+   changed. .bac-ph-wrap already had this; .bac-bh-wrap was missing it. */
+.bac-bh-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; min-width: calc(var(--card-w-lg) * 2 + .35rem); }
 .bac-ph-wrap { flex-direction: row-reverse; justify-content: flex-start; flex-wrap: nowrap; gap: .35rem; min-width: calc(var(--card-w-lg) * 2 + .35rem); }
 
 .bac-field-divider {
@@ -1983,12 +1989,29 @@ body {
   width: var(--bac-win-w);
   gap: clamp(.1rem,.3vw,.2rem);
 }
+/* min-height (not just the populated button's own height) so the row
+   doesn't collapse during the moments BIG6/TIE/SMALL6/BIG7/SUPER7/
+   SMALL7 are cleared to empty and not yet repainted (e.g. mid-deal
+   animation, retry after a mistake) — without this, the whole card/
+   shoe area below would jump up and back down as the grid's own
+   height changes underneath it. */
 .bac-exp-row-3col > .bac-exp-cell {
   flex: 1 1 0;
+  min-height: var(--bac-capsule-h);
 }
 /* WIN's cell fixed to --bac-win-w so PLAYER WIN/BANKER WIN and the
-   BIG/TIE/SMALL rows below all line up on the same left/right edges. */
-.bac-exp-cell-win { width: var(--bac-win-w); }
+   BIG/TIE/SMALL rows below all line up on the same left/right edges.
+   min-height for the same reason as .bac-exp-row-3col above — WIN is
+   cleared to empty at the START screen, the result screen (replaced
+   by the win announcement, which floats separately via
+   .bac-win-over-divider so it doesn't add its own height here), and
+   during the deal animation, so its row must not collapse then. This
+   is the actual fix for "SHOE/cards/labels/divider/DRAW must never
+   move across game states": with every grid cell's height pinned
+   regardless of content, .bac-exp-grid's total height — and therefore
+   .bac-field's (flex:1) position below it — stays byte-identical
+   across the start/playing/result screens. */
+.bac-exp-cell-win { width: var(--bac-win-w); min-height: var(--bac-pair-d); }
 /* PLAYER WIN and BANKER WIN rows: WIN stays the row's only normal-flow
    child, so the row's own shrink-wrap width is exactly --bac-win-w —
    identical to .bac-exp-row-3col — and .bac-exp-grid's align-items:
@@ -2044,6 +2067,11 @@ body {
   display: flex; flex-direction: column; align-items: center;
   gap: clamp(.1rem,.24vh,.16rem);
   width: clamp(56px,12vw,80px);
+  /* Matches .bac-check-btn's own min-height below, so the stack
+     doesn't collapse while #bac-result is cleared to empty (deal
+     animation, etc.) — same reasoning as .bac-exp-cell-win/.bac-exp-
+     row-3col above. */
+  min-height: clamp(19px,2.6vh,24px);
 }
 .bac-check-corner-stack .bac-check-btn {
   width: 100%;
