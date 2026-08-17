@@ -1941,31 +1941,26 @@ body {
    CHECK isn't a real table position, so it alone stays in its own
    small corner control below the grid (.bac-check-corner /
    .bac-check-corner-stack below).
-   --bac-pair-d/--bac-win-w drive the actual felt shapes (oval WIN —
-   height tied to --bac-pair-d, round everything else) defined in
+   --bac-pair-circle-d/--bac-win-w drive the actual felt shapes (oval
+   WIN — height tied to --bac-pair-circle-d, same as PLAYER PAIR/
+   BANKER PAIR's own diameter, round everything else) defined in
    .bac-win-oval/.bac-felt-circle near the bottom of this file, after
    the shared console-button treatment so they win the cascade. */
 .bac-exp-grid {
-  /* PLAYER WIN/BANKER WIN's own oval height — bumped ~33% (15px->20px
-     floor) so the oval reads as thicker/more present, per spec, width
-     untouched (.bac-win-oval stays width:100% of its --bac-win-w
-     cell). Nothing else reads this var (PAIR/BIG/TIE/SMALL all moved
-     to their own vars below), so this only affects WIN. */
-  --bac-pair-d: clamp(20px, 2.8vh, 25px);
-  /* PLAYER PAIR/BANKER PAIR's own enlarged diameter, decoupled from
-     --bac-pair-d (which stays WIN's unchanged oval height) so PAIR
-     grows without also growing WIN. */
+  /* PLAYER PAIR/BANKER PAIR's diameter — also drives PLAYER WIN/
+     BANKER WIN's own oval height (see .bac-win-oval below) so the two
+     read as the same vertical thickness instead of WIN looking thin
+     next to PAIR. */
   --bac-pair-circle-d: clamp(26px, 7vh, 32px);
   /* BIG6/TIE/SMALL6/BIG7/SUPER7/SMALL7's enlarged capsule height —
-     also decoupled from --bac-pair-d for the same reason. */
+     decoupled from --bac-pair-circle-d so BIG/TIE/SMALL can size
+     independently of WIN/PAIR. */
   --bac-capsule-h: clamp(30px, 8vh, 38px);
   --bac-win-w: clamp(340px, 46vw, 460px);
-  /* Wide enough that a full-size PAIR circle, vertically centered
-     against its row's own (much shorter, WIN-height) box via
-     .bac-exp-attach, can't visually collide with the row above/below.
-     Reused as .bac-exp-pairwrap's own internal row gap too, so P
-     PAIR/B PAIR keep the exact same vertical spacing now that they're
-     nested one level deeper. */
+  /* Row-to-row breathing room between PLAYER WIN/BANKER WIN's own rows
+     and the BIG/TIE/SMALL rows below. Reused as .bac-exp-pairwrap's
+     own internal row gap too, so P PAIR/B PAIR keep the exact same
+     vertical spacing now that they're nested one level deeper. */
   --bac-row-gap: clamp(.7rem,2.4vh,1rem);
   display: flex; flex-direction: column; align-items: center;
   gap: var(--bac-row-gap);
@@ -2001,9 +1996,10 @@ body {
 }
 /* WIN's cell fixed to --bac-win-w so PLAYER WIN/BANKER WIN and the
    BIG/TIE/SMALL rows below all line up on the same left/right edges.
-   min-height for the same reason as .bac-exp-row-3col above — WIN is
-   cleared to empty at the START screen, the result screen (replaced
-   by the win announcement, which floats separately via
+   min-height (matching --bac-pair-circle-d, same as .bac-win-oval's
+   own height below) for the same reason as .bac-exp-row-3col above —
+   WIN is cleared to empty at the START screen, the result screen
+   (replaced by the win announcement, which floats separately via
    .bac-win-over-divider so it doesn't add its own height here), and
    during the deal animation, so its row must not collapse then. This
    is the actual fix for "SHOE/cards/labels/divider/DRAW must never
@@ -2011,7 +2007,7 @@ body {
    regardless of content, .bac-exp-grid's total height — and therefore
    .bac-field's (flex:1) position below it — stays byte-identical
    across the start/playing/result screens. */
-.bac-exp-cell-win { width: var(--bac-win-w); min-height: var(--bac-pair-d); }
+.bac-exp-cell-win { width: var(--bac-win-w); min-height: var(--bac-pair-circle-d); }
 /* PLAYER WIN and BANKER WIN rows: WIN stays the row's only normal-flow
    child, so the row's own shrink-wrap width is exactly --bac-win-w —
    identical to .bac-exp-row-3col — and .bac-exp-grid's align-items:
@@ -3574,6 +3570,13 @@ body {
 .bac-cta-btn {
   --btn-hi: 232,201,109; --btn-glow: 201,168,76;
   width: 100%;
+  /* Its container (.bac-exp-nopair-mid, shared with NO PAIR) is
+     vertically centered exactly between PLAYER WIN's and BANKER WIN's
+     rows — nudged up from that dead-center here so START/NEXT HAND
+     reads closer to PLAYER WIN's row instead of sitting equidistant.
+     position:relative/top (not transform) so it doesn't fight the
+     :hover/:active translateY press-feedback below. */
+  position: relative; top: -10px;
   background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 100%);
   color: #241a05;
   border: 1px solid rgba(var(--btn-hi), .5);
@@ -3919,14 +3922,15 @@ body {
    sizing and the console-button treatment) so these win regardless of
    source order elsewhere. Colors/gradients/borders from those earlier
    rules are untouched; only geometry changes. Sizes come from
-   --bac-win-w/--bac-pair-d/--bac-pair-circle-d/--bac-capsule-h, set on
+   --bac-win-w/--bac-pair-circle-d/--bac-capsule-h, set on
    .bac-exp-grid. */
 .bac-win-oval {
   width: 100% !important;
-  /* Height only (width stays 100% of --bac-win-w) — thicker/more
-     present oval, still reading as a long capsule since width is
-     still ~15-20x the height. */
-  height: var(--bac-pair-d) !important;
+  /* Height matches PAIR's own diameter (--bac-pair-circle-d) so WIN
+     doesn't read as thinner than P PAIR/B PAIR sitting right next to
+     it — width stays 100% of --bac-win-w, still reading as a long
+     capsule since width is still ~12-14x the height. */
+  height: var(--bac-pair-circle-d) !important;
   min-height: 0 !important;
   border-radius: 999px !important;
   padding: 0 clamp(.5rem,1.4vw,.9rem) !important;
@@ -3949,8 +3953,9 @@ body {
   white-space: normal; line-height: 1.05; text-align: center;
   letter-spacing: 0 !important;
 }
-/* BANKER/PLAYER PAIR — the round corner mark, enlarged via its own
-   --bac-pair-circle-d (not --bac-pair-d, so WIN's height is untouched). */
+/* BANKER/PLAYER PAIR — the round corner mark, sized via
+   --bac-pair-circle-d (also .bac-win-oval's own height above, so WIN
+   and PAIR read as the same thickness). */
 .bac-pair-circle {
   width: var(--bac-pair-circle-d) !important;
   height: var(--bac-pair-circle-d) !important;
@@ -3958,8 +3963,8 @@ body {
 }
 /* TIE/BIG6/SMALL6/BIG7/SUPER7/SMALL7 — each fills its 1/3 share of the
    row's own --bac-win-w width (set via flex:1 on .bac-exp-row-3col's
-   cells); height enlarged to --bac-capsule-h (shorter/rounder capsule
-   instead of the old thin sliver pinned to --bac-pair-d). */
+   cells); height set via its own --bac-capsule-h (short/round capsule,
+   sized independently of WIN/PAIR's --bac-pair-circle-d). */
 .bac-circle-btn {
   width: 100% !important;
   height: var(--bac-capsule-h) !important;
