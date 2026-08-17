@@ -1912,10 +1912,15 @@ body {
 }
 /* While the Pair judgment is pending (.bac-pair-phase, toggled by
    setPairPhaseFocus() in JS), dim the WIN/TIE/BIG6/SMALL6/BIG7/SMALL7/
-   SUPER BIG7/SUPER SMALL7 buttons instead of hiding them, so the trainee
-   still sees the full board but reads at a glance that this isn't the
-   active choice. pointer-events:none blocks both clicks and :hover. */
-.bac-pair-phase .bac-inline-btn {
+   SUPER BIG7/SUPER SMALL7/DRAW buttons instead of hiding them, so the
+   trainee still sees the full board but reads at a glance that this
+   isn't the active choice — only BANKER PAIR/NO PAIR/PLAYER PAIR
+   (.btn-bac-pair, untouched by this selector) stay clickable.
+   pointer-events:none blocks clicks, taps, and :hover alike; cursor
+   stays the plain system arrow (cursor:default), same as the other
+   dimmed buttons here — no special not-allowed/wait cursor added. */
+.bac-pair-phase .bac-inline-btn,
+.bac-pair-phase .btn-bac-draw {
   filter: brightness(.55) saturate(.75);
   pointer-events: none;
   cursor: default;
