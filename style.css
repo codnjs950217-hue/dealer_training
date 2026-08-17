@@ -1930,21 +1930,28 @@ body {
    their own small corner control below the grid (.bac-check-corner /
    .bac-check-corner-stack below), well clear of the felt-position rows
    so they can't be mistaken for a real betting box. Compact by design
-   (shrink button height, keep width, minimal row gaps) so the card/shoe
-   area still fits under it without scrolling in mobile landscape. */
+   (minimal row gaps) so the card/shoe area — unchanged size — still
+   fits under it without scrolling in mobile landscape.
+   --bac-win-h/--bac-circle-d/--bac-pair-d drive the actual felt shapes
+   (long oval WIN, round everything else) defined in .bac-win-oval/
+   .bac-felt-circle near the bottom of this file, after the shared
+   console-button treatment so they win the cascade. */
 .bac-exp-grid {
+  --bac-win-h: clamp(34px, 4.8vh, 44px);
+  --bac-circle-d: clamp(34px, 4.8vh, 44px);
+  --bac-pair-d: clamp(26px, 3.7vh, 34px);
   display: flex; flex-direction: column;
-  gap: clamp(.16rem,.4vh,.3rem);
-  padding: clamp(.25rem,.6vh,.4rem) clamp(.5rem,1.5vw,1rem) 0;
+  gap: clamp(.1rem,.28vh,.2rem);
+  padding: clamp(.16rem,.4vh,.28rem) clamp(.5rem,1.5vw,1rem) 0;
   flex-shrink: 0;
 }
 .bac-exp-row {
-  display: flex; align-items: stretch;
+  display: flex; align-items: center;
   gap: clamp(.3rem,.8vw,.6rem);
 }
 .bac-exp-cell {
   flex: 1; min-width: 0;
-  display: flex; flex-direction: column; justify-content: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 .bac-exp-cell > button { width: 100%; }
 /* WIN:PAIR width ratio mirrors the real table's big betting box next to
@@ -3817,6 +3824,42 @@ body {
     inset 0 2px 4px rgba(0,0,0,.35),
     inset 0 -1px 0 rgba(var(--btn-hi), .1),
     0 1px 2px rgba(0,0,0,.3);
+}
+
+/* ---- BACCARAT: REAL-TABLE FELT SHAPES ----
+   Overrides the rectangular/pill sizing above with the actual shapes a
+   real table has — placed last (after .btn-bac-special's !important
+   sizing and the console-button treatment) so these win regardless of
+   source order elsewhere. Colors/gradients/borders from those earlier
+   rules are untouched; only geometry changes. Sizes come from
+   --bac-win-h/--bac-circle-d/--bac-pair-d, set on .bac-exp-grid. */
+.bac-win-oval {
+  width: 100% !important;
+  height: var(--bac-win-h) !important;
+  min-height: 0 !important;
+  border-radius: 999px !important;
+}
+.bac-felt-circle {
+  min-height: 0 !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+  display: flex; align-items: center; justify-content: center;
+  white-space: normal; line-height: 1.05; text-align: center;
+  letter-spacing: 0 !important;
+}
+/* BANKER/PLAYER PAIR — the small round corner mark, ~78% of WIN's height. */
+.bac-pair-circle {
+  width: var(--bac-pair-d) !important;
+  height: var(--bac-pair-d) !important;
+  font-size: clamp(.42rem,1vh,.54rem) !important;
+}
+/* TIE/BIG6/SMALL6/BIG7/SUPER7/SMALL7 — the equal-size numbered/TIE
+   betting circles, all the same diameter regardless of column. */
+.bac-circle-btn {
+  width: var(--bac-circle-d) !important;
+  height: var(--bac-circle-d) !important;
+  font-size: clamp(.48rem,1.15vh,.62rem) !important;
 }
 
 /* ============================================================
