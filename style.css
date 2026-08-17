@@ -1720,10 +1720,18 @@ body {
 }
 
 /* Shoe column on the far left — floats over bac-field, not in flow */
+/* width:auto (not a fixed clamp) so the column sizes to whichever
+   child is wider — SUBMIT's own .bac-check-corner-stack (~70-100px)
+   is wider than .shoe-visual (~36-54px), and align-items:center still
+   centers the narrower shoe graphic within that. Adding SUBMIT as a
+   second stacked child here (instead of it living in its own row
+   elsewhere) is what pushes SHOE itself up: top:50%/translateY(-50%)
+   centers the whole [shoe, SUBMIT] column as one unit, so SHOE's own
+   position shifts up automatically to make room for SUBMIT below it. */
 .bac-shoe-col {
   position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 1;
   display: flex; flex-direction: column; align-items: center;
-  gap: clamp(.3rem,.6vh,.7rem); width: clamp(42px,8vw,64px);
+  gap: clamp(.3rem,.6vh,.7rem); width: auto;
 }
 
 .shoe-visual {
@@ -1938,9 +1946,9 @@ body {
    are generous (not shrunk to near-zero) so the grid's own content
    height fills the space above the cards instead of leaving it blank —
    button height/size is untouched, only the space between rows grew.
-   CHECK isn't a real table position, so it alone stays in its own
-   small corner control below the grid (.bac-check-corner /
-   .bac-check-corner-stack below).
+   SUBMIT isn't a real table position, so it doesn't get a row here at
+   all — it lives under SHOE instead (.bac-check-corner-stack, nested
+   in .bac-shoe-col).
    --bac-pair-circle-d/--bac-win-w drive the actual felt shapes (oval
    WIN — height tied to --bac-pair-circle-d, same as PLAYER PAIR/
    BANKER PAIR's own diameter, round everything else) defined in
@@ -2080,19 +2088,15 @@ body {
   top: calc(2 * var(--bac-pair-circle-d) + 3 * var(--bac-row-gap) + 2 * var(--bac-capsule-h));
   transform: translate(-50%, -100%);
 }
-/* SUBMIT (.bac-check-btn) isn't a real table position, so it sits
-   outside the felt-position grid entirely, in its own corner strip
-   between the grid and the cards — but it's the answer-submission
-   action, so unlike a real table position it's sized/styled to be the
-   single most eye-catching control on screen (see .bac-check-btn's
-   own bold treatment below), not played down. Still in normal flow
-   (not position:absolute) so nothing can float over the card/shoe/
-   DRAW-button area below. */
-.bac-check-corner {
-  display: flex; justify-content: flex-end;
-  padding: clamp(.1rem,.3vh,.2rem) clamp(.5rem,1.5vw,1rem) 0;
-  flex-shrink: 0;
-}
+/* SUBMIT (.bac-check-btn) isn't a real table position, so it doesn't
+   get a slot in the felt-position grid — it lives right under SHOE
+   instead (a second stacked child of .bac-shoe-col, see the template
+   comment there and main.js), still in normal flow within that column
+   (not its own position:absolute) so it can't float over the
+   card/DRAW-button area. It's the answer-submission action, so unlike
+   a real table position it's sized/styled to be the single most
+   eye-catching control on screen (see .bac-check-btn's own bold
+   treatment further down), not played down. */
 .bac-check-corner-stack {
   display: flex; flex-direction: column; align-items: center;
   gap: clamp(.1rem,.24vh,.16rem);

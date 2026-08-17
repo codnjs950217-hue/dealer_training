@@ -499,19 +499,20 @@ const Views = {
             <div class="bac-exp-cell" id="bac-exp-small7"></div>
           </div>
         </div>
-        <!-- CHECK isn't a real table position, so it lives outside the
-             recognition grid entirely, in its own small corner control
-             below it. -->
-        <div class="bac-check-corner">
-          <div class="bac-check-corner-stack">
-            <div id="bac-result"></div>
-          </div>
-        </div>
         <div class="bac-field">
+          <!-- SUBMIT lives right under SHOE, sharing .bac-shoe-col's own
+               centered flex column — adding it as a second stacked child
+               nudges the whole [shoe, SUBMIT] group up together (still
+               centered as one unit via .bac-shoe-col's top:50%), so SHOE
+               itself moves up just enough to make room, no separate
+               positioning math needed. */
           <div class="bac-shoe-col">
             <div class="shoe-visual">
               <div class="shoe-label-text">SHOE</div>
               <div class="shoe-card-slot"></div>
+            </div>
+            <div class="bac-check-corner-stack">
+              <div id="bac-result"></div>
             </div>
           </div>
           <div class="bac-banker-zone">
