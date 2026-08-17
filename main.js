@@ -456,43 +456,49 @@ const Views = {
           <span>Mistake: <strong id="bac-mistakes">0</strong></span>
         </div>
         <!-- EXPERIMENTAL layout (real-table-felt reference), compact
-             variant: PLAYER WIN alone, then P PAIR/B PAIR flanking an
-             invisible spacer the same width as WIN (so they sit just
-             outside its left/right edges), then SMALL6/TIE/BIG6 and
-             SMALL7/SUPER7/BIG7 rows stretched to exactly WIN's width,
-             then BANKER WIN alone. Same target ids as before
-             (bac-b-btn-top, bac-pair-b, bac-tie-btn, ...) so none of the
-             judging/rendering logic changed — only which slot each
-             button's HTML lands in. -->
+             variant: PLAYER WIN and BANKER WIN each stay solo in their
+             row's normal flow (so they center to exactly the same
+             left/right edges as the BIG6/TIE/SMALL6 and BIG7/SUPER7/
+             SMALL7 rows below, all width-locked to --bac-win-w) while
+             PLAYER PAIR, and BANKER PAIR+NO PAIR, are pinned via
+             .bac-exp-attach to WIN's own right edge — reading as
+             "attached" without shifting WIN's centered position. Same
+             target ids as before (bac-b-btn-top, bac-pair-b,
+             bac-tie-btn, bac-pair-mid, ...) so none of the judging/
+             rendering logic changed — only which slot each button's
+             HTML lands in. CHECK (bac-result) keeps its own minimal
+             out-of-the-way corner spot below the grid, now alone since
+             NO PAIR moved up next to BANKER PAIR. -->
         <div class="bac-exp-grid">
-          <div class="bac-exp-row">
+          <div class="bac-exp-row bac-exp-row-anchor">
             <div class="bac-exp-cell bac-exp-cell-win" id="bac-p-btn-top"></div>
+            <div class="bac-exp-attach">
+              <div class="bac-exp-cell" id="bac-pair-p"></div>
+            </div>
           </div>
-          <div class="bac-exp-row">
-            <div class="bac-exp-cell" id="bac-pair-p"></div>
-            <div class="bac-exp-cell bac-exp-spacer"></div>
-            <div class="bac-exp-cell" id="bac-pair-b"></div>
-          </div>
-          <div class="bac-exp-row bac-exp-row-3col">
-            <div class="bac-exp-cell" id="bac-exp-small6"></div>
-            <div class="bac-exp-cell" id="bac-tie-btn"></div>
-            <div class="bac-exp-cell" id="bac-exp-big6"></div>
-          </div>
-          <div class="bac-exp-row bac-exp-row-3col">
-            <div class="bac-exp-cell" id="bac-exp-small7"></div>
-            <div class="bac-exp-cell" id="bac-exp-super7"></div>
-            <div class="bac-exp-cell" id="bac-exp-big7"></div>
-          </div>
-          <div class="bac-exp-row">
+          <div class="bac-exp-row bac-exp-row-anchor">
             <div class="bac-exp-cell bac-exp-cell-win" id="bac-b-btn-top"></div>
+            <div class="bac-exp-attach">
+              <div class="bac-exp-cell" id="bac-pair-b"></div>
+              <div class="bac-exp-cell" id="bac-pair-mid"></div>
+            </div>
+          </div>
+          <div class="bac-exp-row bac-exp-row-3col">
+            <div class="bac-exp-cell" id="bac-exp-big6"></div>
+            <div class="bac-exp-cell" id="bac-tie-btn"></div>
+            <div class="bac-exp-cell" id="bac-exp-small6"></div>
+          </div>
+          <div class="bac-exp-row bac-exp-row-3col">
+            <div class="bac-exp-cell" id="bac-exp-big7"></div>
+            <div class="bac-exp-cell" id="bac-exp-super7"></div>
+            <div class="bac-exp-cell" id="bac-exp-small7"></div>
           </div>
         </div>
-        <!-- NO PAIR and CHECK aren't real table positions, so both live
-             outside the recognition grid entirely, stacked and centered
-             in their own small corner control below it. -->
+        <!-- CHECK isn't a real table position, so it lives outside the
+             recognition grid entirely, in its own small corner control
+             below it. -->
         <div class="bac-check-corner">
           <div class="bac-check-corner-stack">
-            <div id="bac-pair-mid"></div>
             <div id="bac-result"></div>
           </div>
         </div>

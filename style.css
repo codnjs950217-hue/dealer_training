@@ -1798,13 +1798,16 @@ body {
   flex: 1; min-height: 0; padding: clamp(.15rem,.3vh,.3rem) 0; overflow: visible;
   position: relative;
   /* Nudges the whole Shoe+cards group (BANKER/PLAYER labels + hands +
-     DRAW buttons nested inside it) down, opening clear air between the
-     button grid above and this zone. A margin (not padding) so it shifts
-     .bac-field's own box on screen — .bac-shoe-col's top:50% is relative
-     to that box, so the shoe moves down together with the in-flow card
-     zones instead of drifting apart. Card size is untouched — only this
-     gap grows/shrinks with the button grid's own height. */
-  margin-top: clamp(.7rem, 3vh, 1.6rem);
+     DRAW buttons nested inside it) down, opening a hairline of air
+     between the button grid above and this zone. A margin (not
+     padding) so it shifts .bac-field's own box on screen —
+     .bac-shoe-col's top:50% is relative to that box, so the shoe moves
+     down together with the in-flow card zones instead of drifting
+     apart. Card size is untouched — kept small now that the button
+     grid's own row gaps (not this margin) fill the space above the
+     cards, so the result buttons read down to right before this zone
+     starts instead of leaving it blank. */
+  margin-top: clamp(.15rem, .5vh, .35rem);
 }
 .btn-bac-pair {
   --btn-hi: 150,220,255; --btn-glow: 20,120,180;
@@ -1921,25 +1924,26 @@ body {
 .bac-newgame-btn:hover { background: rgba(255,255,255,.14); color: #fff; border-color: rgba(255,255,255,.35); }
 
 /* ---- BACCARAT: EXPERIMENTAL REAL-TABLE-LAYOUT GRID ----
-   Usability-test layout referencing an actual baccarat felt, compact
-   variant: SMALL7/SUPER7/BIG7 and SMALL6/TIE/BIG6 circle rows, then
-   PLAYER PAIR/PLAYER WIN/BANKER PAIR sharing a row, then BANKER WIN
-   alone — everything shrunk to content size and centered (no more
-   stretched flex:1 cells) so the grid's real footprint is small enough
-   to leave most of the screen to the cards. NO PAIR and CHECK aren't
-   real table positions, so neither gets a row here — both stay stacked
-   in their own small corner control below the grid (.bac-check-corner /
+   Usability-test layout referencing an actual baccarat felt: PLAYER
+   WIN+PLAYER PAIR share a row (PAIR at WIN's right end), BANKER
+   WIN+BANKER PAIR+NO PAIR share the row below (same right-end
+   relationship, NO PAIR reading off PAIR), then BIG6/TIE/SMALL6 and
+   BIG7/SUPER7/SMALL7 rows stretched to exactly WIN's width. Row gaps
+   are generous (not shrunk to near-zero) so the grid's own content
+   height fills the space above the cards instead of leaving it blank —
+   button height/size is untouched, only the space between rows grew.
+   CHECK isn't a real table position, so it alone stays in its own
+   small corner control below the grid (.bac-check-corner /
    .bac-check-corner-stack below).
-   --bac-circle-d/--bac-pair-d/--bac-win-w drive the actual felt shapes
-   (oval WIN — height tied to --bac-pair-d, round everything else)
-   defined in .bac-win-oval/.bac-felt-circle near the bottom of this
-   file, after the shared console-button treatment so they win the
-   cascade. */
+   --bac-pair-d/--bac-win-w drive the actual felt shapes (oval WIN —
+   height tied to --bac-pair-d, round everything else) defined in
+   .bac-win-oval/.bac-felt-circle near the bottom of this file, after
+   the shared console-button treatment so they win the cascade. */
 .bac-exp-grid {
   --bac-pair-d: clamp(15px, 2.1vh, 19px);
   --bac-win-w: clamp(340px, 46vw, 460px);
   display: flex; flex-direction: column; align-items: center;
-  gap: clamp(.05rem,.15vh,.1rem);
+  gap: clamp(.3rem,1.1vh,.55rem);
   padding: clamp(.04rem,.12vh,.08rem) clamp(.5rem,1.5vw,1rem) 0;
   flex-shrink: 0;
 }
@@ -1952,7 +1956,7 @@ body {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 .bac-exp-cell > button { width: 100%; }
-/* SMALL6/TIE/BIG6 and SMALL7/SUPER7/BIG7: row is pinned to exactly
+/* BIG6/TIE/SMALL6 and BIG7/SUPER7/SMALL7: row is pinned to exactly
    --bac-win-w (same left/right edges as PLAYER WIN/BANKER WIN) and its
    3 cells share that width equally via flex:1, so the row's total
    footprint always matches WIN exactly regardless of viewport. */
@@ -1963,18 +1967,28 @@ body {
 .bac-exp-row-3col > .bac-exp-cell {
   flex: 1 1 0;
 }
-/* WIN's cell fixed to --bac-win-w so PLAYER WIN/BANKER WIN (each alone
-   in its own row) and the SMALL/TIE/BIG rows below all line up on the
-   same left/right edges. */
+/* WIN's cell fixed to --bac-win-w so PLAYER WIN/BANKER WIN and the
+   BIG/TIE/SMALL rows below all line up on the same left/right edges. */
 .bac-exp-cell-win { width: var(--bac-win-w); }
-/* Invisible placeholder the same width as WIN, sat between P PAIR and
-   B PAIR so they land just outside WIN's left/right edges instead of
-   drifting toward the row's own center. */
-.bac-exp-spacer { width: var(--bac-win-w); flex: none; }
+/* PLAYER WIN and BANKER WIN rows: WIN stays the row's only normal-flow
+   child, so the row's own shrink-wrap width is exactly --bac-win-w —
+   identical to .bac-exp-row-3col — and .bac-exp-grid's align-items:
+   center puts it on the exact same left/right edges as BIG6/TIE/
+   SMALL6 and BIG7/SUPER7/SMALL7. PLAYER PAIR (and BANKER
+   PAIR+NO PAIR) are pulled out of flow and pinned to WIN's own right
+   edge via .bac-exp-attach below, so they read as "attached to WIN's
+   right end" without shifting WIN's centered position or widening the
+   row box that .bac-exp-grid centers. */
+.bac-exp-row-anchor { position: relative; }
+.bac-exp-attach {
+  position: absolute; left: 100%; top: 50%; transform: translateY(-50%);
+  margin-left: clamp(.3rem,.8vw,.6rem);
+  display: flex; align-items: center; gap: clamp(.3rem,.8vw,.6rem);
+  white-space: nowrap;
+}
 /* NO PAIR isn't its own box on a real table (just the absence of a Pair
-   bet) — kept clickable but visibly secondary to BANKER/PLAYER PAIR.
-   Same font-size/padding/min-height as before; only its container
-   changed (now .bac-check-corner-stack, matching CHECK's width). */
+   bet) — kept clickable but visibly secondary to BANKER/PLAYER PAIR,
+   sitting right next to BANKER PAIR at the same row height. */
 .bac-nopair-mini {
   width: 100%;
   font-size: clamp(.44rem,1vw,.54rem) !important;
@@ -1983,14 +1997,14 @@ body {
   letter-spacing: .3px !important;
   opacity: .8;
 }
-/* NO PAIR + CHECK sit outside the felt-position grid entirely, stacked
-   and centered in their own thin corner strip between the grid and the
-   cards — small and out of the way, but still in normal flow (not
-   position:absolute) so nothing can float over the card/shoe/DRAW-
-   button area below. */
+/* CHECK isn't a real table position, so it sits outside the felt-
+   position grid entirely, centered in its own thin corner strip
+   between the grid and the cards — small and out of the way, but
+   still in normal flow (not position:absolute) so nothing can float
+   over the card/shoe/DRAW-button area below. */
 .bac-check-corner {
   display: flex; justify-content: flex-end;
-  padding: clamp(.06rem,.18vh,.12rem) clamp(.5rem,1.5vw,1rem) 0;
+  padding: clamp(.1rem,.3vh,.2rem) clamp(.5rem,1.5vw,1rem) 0;
   flex-shrink: 0;
 }
 .bac-check-corner-stack {
