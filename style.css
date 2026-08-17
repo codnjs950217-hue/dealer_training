@@ -1800,7 +1800,7 @@ body {
      A margin (not padding) so it shifts .bac-field's own box on screen —
      .bac-shoe-col's top:50% is relative to that box, so the shoe moves
      down together with the in-flow card zones instead of drifting apart. */
-  margin-top: clamp(.8rem, 4vh, 2.2rem);
+  margin-top: clamp(1.4rem, 6vh, 3.2rem);
 }
 /* Pair-judgment quiz: an absolutely-positioned overlay, a sibling of
    .bac-btn-cluster-quiz (not inside it, so it never touches the win-quiz's
@@ -1843,15 +1843,15 @@ body {
    this stays independent of BANKER/PLAYER DRAW, which didn't grow) — see
    .btn-bac-banker/.btn-bac-tie/.btn-bac-player's new min-height. */
 .bac-pair-quiz-spacer-main {
-  height: clamp(46px, 6.5vh, 58px);
+  height: clamp(55px, 7.8vh, 70px);
 }
 /* Mirrors the sub-row special buttons' new unified height above — now the
    same for all three columns, since BIG 6/SMALL 6's row grew to match. */
 .bac-pair-quiz-spacer-sub {
-  height: clamp(38px, 7vh, 52px);
+  height: clamp(46px, 8.4vh, 62px);
 }
 .bac-pair-quiz-spacer-sub-tall {
-  height: clamp(38px,7vh,52px);
+  height: clamp(46px,8.4vh,62px);
 }
 .btn-bac-pair {
   background: linear-gradient(160deg, #0e4a6b 0%, #062232 100%);
@@ -1859,7 +1859,7 @@ body {
   border: none;
   box-shadow: inset 0 1px 0 rgba(150,220,255,.12), 0 2px 8px rgba(20,120,180,.3);
   padding: clamp(.32rem,.75vh,.46rem) clamp(.55rem,1.1vw,.8rem); border-radius: var(--r);
-  font-weight: 800; cursor: pointer; font-size: clamp(.68rem,1.5vw,.82rem); min-height: clamp(36px,6vh,48px);
+  font-weight: 800; cursor: pointer; font-size: clamp(.68rem,1.5vw,.82rem); min-height: clamp(43px,7.2vh,58px);
   letter-spacing: .6px; text-shadow: 0 1px 6px rgba(90,200,255,.4);
   white-space: nowrap; transition: all .18s;
   width: 100%;
@@ -1955,7 +1955,7 @@ body {
   margin-top: clamp(1.2rem,3.5vh,3rem);
 }
 .bac-btn-cluster-quiz {
-  height: clamp(125px,28vh,190px); overflow: visible;
+  height: clamp(145px,32vh,222px); overflow: visible;
   align-items: stretch;
   padding: 0 clamp(.6rem,2vw,2rem);
   gap: clamp(.5rem,1.8vw,1.2rem);
@@ -1970,14 +1970,14 @@ body {
   min-height: clamp(26px,5vh,40px); overflow: visible; position: relative;
 }
 .bac-btn-cluster-quiz .bac-bclust-side {
-  min-height: clamp(84px,20vh,146px); align-items: flex-start;
+  min-height: clamp(100px,23vh,168px); align-items: flex-start;
   padding-top: clamp(.4rem,1.2vh,.8rem);
 }
 #bac-b-btn-top { padding-left: clamp(1rem, 3vw, 1.8rem); }
 #bac-p-btn-top { padding-right: clamp(1rem, 3vw, 1.8rem); }
 
 .bac-btn-cluster-quiz .bac-bclust-mid {
-  min-height: clamp(84px,20vh,146px);
+  min-height: clamp(100px,23vh,168px);
   align-items: flex-start;
   padding-top: clamp(.4rem,1.2vh,.8rem);
 }
@@ -2275,7 +2275,7 @@ body {
    min-height grows. Deliberately excludes .btn-bac-draw (BANKER/PLAYER
    DRAW), which keeps var(--tap-h)'s original size. */
 .btn-bac-banker, .btn-bac-tie, .btn-bac-player {
-  min-height: clamp(46px, 6.5vh, 58px);
+  min-height: clamp(55px, 7.8vh, 70px);
 }
 .bac-draw-slot-btn {
   width: 100%; height: var(--card-w-lg);
@@ -3536,7 +3536,7 @@ body {
 .bac-sub-btn-row .btn-bac-super7.btn-bac-special {
   font-size: clamp(.72rem,1.95vh,.9rem) !important;
   padding: clamp(.22rem,.58vh,.4rem) clamp(.12rem,.3vw,.22rem) !important;
-  min-height: clamp(38px,7vh,52px) !important;
+  min-height: clamp(46px,8.4vh,62px) !important;
   line-height: 1.15;
 }
 .bac-pair-btn {
