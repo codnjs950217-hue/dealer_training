@@ -2028,10 +2028,16 @@ body {
 
 .bac-win-announce {
   display: block; text-align: center;
-  font-size: clamp(1.7rem,5.5vh,3rem); font-weight: 900;
+  font-size: clamp(1.9rem,6.2vh,3.4rem); font-weight: 900;
   letter-spacing: clamp(4px,.9vw,9px);
   white-space: nowrap; line-height: 1.18;
   background: none; border: none; padding: 0;
+  /* The only result "effect" now — a quiet fade-in, no flash/scale/glow. */
+  animation: bacResultFadeIn .5s ease-out;
+}
+@keyframes bacResultFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 .bac-win-over-divider {
   position: absolute; left: 50%; transform: translateX(-50%);
@@ -2039,7 +2045,7 @@ body {
   top: clamp(.5rem, 1.8vh, 1.1rem);
 }
 .bac-win-sub {
-  font-size: clamp(1.7rem,5.5vh,3rem); font-weight: 900;
+  font-size: clamp(1.9rem,6.2vh,3.4rem); font-weight: 900;
   letter-spacing: clamp(4px,.9vw,9px);
   background: none; border: none;
 }
@@ -2090,44 +2096,6 @@ body {
 .bac-ann-btn.ann-player,
 .bac-ann-btn.ann-tie    { color: rgba(255,255,255,.88); text-shadow: none; }
 .bac-ann-btn:hover { opacity: .6; }
-
-/* ---- BACCARAT: WINNER FLASH ---- */
-
-.bac-winner-flash {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  pointer-events: none; z-index: 40; border-radius: 18px;
-  opacity: 0;
-  will-change: opacity, transform;
-}
-.bac-winner-flash-text {
-  font-size: clamp(2.2rem, 7vw, 4.5rem);
-  font-weight: 900; letter-spacing: clamp(5px, 1.2vw, 10px);
-  text-align: center; line-height: 1.2;
-  background: none; border: none;
-}
-.bac-winner-flash-text.banker-win {
-  color: #e8c96a;
-  text-shadow: 0 0 22px rgba(201,168,76,.9), 0 2px 8px rgba(0,0,0,.95);
-}
-.bac-winner-flash-text.player-win {
-  color: #f05555;
-  text-shadow: 0 0 22px rgba(221,24,24,.9), 0 2px 8px rgba(0,0,0,.95);
-}
-.bac-winner-flash-text.tie-win {
-  color: #7de87a;
-  text-shadow: 0 0 22px rgba(110,200,100,.9), 0 2px 8px rgba(0,0,0,.95);
-}
-@keyframes bwfIn {
-  from { opacity: 0; transform: scale(.75); }
-  to   { opacity: 1; transform: scale(1); }
-}
-@keyframes bwfOut {
-  from { opacity: 1; transform: scale(1); }
-  to   { opacity: 0; transform: scale(1.04); }
-}
-.bac-winner-flash.bac-wf-in  { animation: bwfIn  .4s ease-out forwards; }
-.bac-winner-flash.bac-wf-out { animation: bwfOut .7s ease-in  forwards; }
 
 /* ---- BACCARAT: THIRD-CARD SIDEWAYS WRAPPER ---- */
 

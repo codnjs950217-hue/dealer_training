@@ -509,7 +509,6 @@ const Views = {
           <div class="bac-bclust-mid"><div class="result-badge" id="bac-result"></div></div>
           <div class="bac-bclust-side" id="bac-p-btn-bot"></div>
         </div>
-        <div class="bac-winner-flash" id="bac-winner-flash"></div>
         <button class="bac-next-hand-btn" id="bac-next-btn" style="display:none" onclick="Sims.baccarat.deal()">Next Hand ›</button>
         <div class="bac-start-bar" id="bac-start-bar">
           <button class="bac-start-top-btn" id="bac-draw-btn" onclick="Sims.baccarat.deal()">START</button>
@@ -2341,20 +2340,6 @@ const Sims = {
       return { lines, color };
     }
 
-    function showWinnerFlash(side) {
-      const el = $('bac-winner-flash');
-      if (!el) return;
-      const { lines } = getSpecialLabel(side);
-      const cls = side === 'banker' ? 'banker-win' : side === 'player' ? 'player-win' : 'tie-win';
-      el.innerHTML = `<div class="bac-winner-flash-text ${cls}">${lines.join('<br>')}</div>`;
-      el.className = 'bac-winner-flash bac-wf-in';
-      const dur = lines.length > 1 ? 3200 : 2000;
-      setTimeout(() => {
-        el.classList.replace('bac-wf-in', 'bac-wf-out');
-        setTimeout(() => { el.className = 'bac-winner-flash'; }, 700);
-      }, dur);
-    }
-
     function doPlayerDraw(onDone) {
       addCard(S.ph, 'bac-ph3', () => {
         S.pThird = S.ph[S.ph.length - 1];
@@ -2372,7 +2357,6 @@ const Sims = {
       S.rounds++;
       $('bac-score').textContent = S.score;
       $('bac-rounds').textContent = S.rounds;
-      showWinnerFlash(side);
       enableDraw();
       msg('');
       const cls = side === 'banker' ? 'banker-win' : side === 'player' ? 'player-win' : 'tie-win';
@@ -2469,8 +2453,6 @@ const Sims = {
         clearInlineBtns();
         clearPairBtns();
         setPairPhaseFocus(false);
-
-        const wf = $('bac-winner-flash'); if (wf) { wf.className = 'bac-winner-flash'; wf.innerHTML = ''; }
 
         S.bets = generateBets();
         renderBets();
