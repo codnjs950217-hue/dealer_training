@@ -2116,7 +2116,7 @@ const Sims = {
     function setBtn(id, html) { const e = $(id); if (e) e.innerHTML = html; }
 
     function clearInlineBtns() {
-      ['bac-b-btn-top','bac-b-btn-bot','bac-p-btn-top','bac-p-btn-bot','bac-tie-btn'].forEach(id => {
+      ['bac-b-btn-top','bac-b-btn-bot','bac-p-btn-top','bac-p-btn-bot','bac-tie-btn','bac-result'].forEach(id => {
         const e = $(id); if (e) e.innerHTML = '';
       });
       actions('');
@@ -2193,33 +2193,55 @@ const Sims = {
       }).join('');
     }
 
+    // Winner/special buttons no longer judge on click — they just toggle
+    // a pick (S.resultPicks) on and off; CHECK is what actually submits.
+    // .bac-result-picked marks the currently-picked button(s) so the
+    // trainee can see their selection before committing.
     function winBtns(source) {
+      const wp = S.resultPicks.winner, sp = S.resultPicks.special;
+      const w = (label) => label === wp ? ' bac-result-picked' : '';
+      const s = (label) => label === sp ? ' bac-result-picked' : '';
       return {
         banker: `
           <div class="bac-special-col">
-            <button class="btn-bac-banker bac-inline-btn" onclick="Sims.baccarat.quizWinFull('banker-win','${source}')">BANKER WIN</button>
+            <button class="btn-bac-banker bac-inline-btn${w('banker-win')}" onclick="Sims.baccarat.toggleWinnerPick('banker-win','${source}')">BANKER WIN</button>
             <div class="bac-sub-btn-row">
-              <button class="btn-bac-banker bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('banker-big6','${source}')">BIG 6</button>
-              <button class="btn-bac-banker bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('banker-small6','${source}')">SMALL 6</button>
+              <button class="btn-bac-banker bac-inline-btn btn-bac-special${s('banker-big6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-big6','${source}')">BIG 6</button>
+              <button class="btn-bac-banker bac-inline-btn btn-bac-special${s('banker-small6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-small6','${source}')">SMALL 6</button>
             </div>
           </div>`,
         tie: `
           <div class="bac-special-col bac-special-col-mid">
-            <button class="btn-bac-tie bac-inline-btn" onclick="Sims.baccarat.quizWinFull('tie','${source}')">TIE</button>
+            <button class="btn-bac-tie bac-inline-btn${w('tie')}" onclick="Sims.baccarat.toggleWinnerPick('tie','${source}')">TIE</button>
             <div class="bac-sub-btn-row bac-sub-btn-row-mid">
-              <button class="btn-bac-super7 bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('super-big7','${source}')">SUPER BIG 7</button>
-              <button class="btn-bac-super7 bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('super-small7','${source}')">SUPER SMALL 7</button>
+              <button class="btn-bac-super7 bac-inline-btn btn-bac-special${s('super-big7')}" onclick="Sims.baccarat.toggleSpecialPick('super-big7','${source}')">SUPER BIG 7</button>
+              <button class="btn-bac-super7 bac-inline-btn btn-bac-special${s('super-small7')}" onclick="Sims.baccarat.toggleSpecialPick('super-small7','${source}')">SUPER SMALL 7</button>
             </div>
           </div>`,
         player: `
           <div class="bac-special-col">
-            <button class="btn-bac-player bac-inline-btn" onclick="Sims.baccarat.quizWinFull('player-win','${source}')">PLAYER WIN</button>
+            <button class="btn-bac-player bac-inline-btn${w('player-win')}" onclick="Sims.baccarat.toggleWinnerPick('player-win','${source}')">PLAYER WIN</button>
             <div class="bac-sub-btn-row">
-              <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('player-big7','${source}')">BIG 7</button>
-              <button class="btn-bac-player bac-inline-btn btn-bac-special" onclick="Sims.baccarat.quizWinFull('player-small7','${source}')">SMALL 7</button>
+              <button class="btn-bac-player bac-inline-btn btn-bac-special${s('player-big7')}" onclick="Sims.baccarat.toggleSpecialPick('player-big7','${source}')">BIG 7</button>
+              <button class="btn-bac-player bac-inline-btn btn-bac-special${s('player-small7')}" onclick="Sims.baccarat.toggleSpecialPick('player-small7','${source}')">SMALL 7</button>
             </div>
           </div>`,
       };
+    }
+
+    // Always enabled — its own state never hints at correctness (req. 2).
+    function checkBtnHtml(source) {
+      return `<button class="bac-check-btn" onclick="Sims.baccarat.checkResult('${source}')">CHECK</button>`;
+    }
+
+    // Re-paints just the WIN/TIE/PLAYER WIN + special buttons (not the
+    // DRAW slots or CHECK itself) after a toggle, so a pick's highlight
+    // shows up immediately without touching anything else on screen.
+    function refreshResultBtns(source) {
+      const b = winBtns(source);
+      setBtn('bac-b-btn-top', b.banker);
+      setBtn('bac-tie-btn', b.tie);
+      setBtn('bac-p-btn-top', b.player);
     }
 
     function clearPairBtns() {
@@ -2287,6 +2309,7 @@ const Sims = {
       setBtn('bac-tie-btn', b.tie);
       setBtn('bac-p-btn-top', b.player);
       setBtn('bac-p-btn-bot', '');
+      setBtn('bac-result', checkBtnHtml('initial'));
       setBtn('bac-bh3', `<button class="btn-bac-draw bac-draw-slot-btn" onclick="Sims.baccarat.quizInitial('draw-banker')">BANKER<br>DRAW</button>`);
       setBtn('bac-ph3', `<button class="btn-bac-draw bac-draw-slot-btn" onclick="Sims.baccarat.quizInitial('draw-player')">PLAYER<br>DRAW</button>`);
       msg('Choose action:');
@@ -2303,6 +2326,7 @@ const Sims = {
       setBtn('bac-tie-btn', b.tie);
       setBtn('bac-p-btn-top', b.player);
       setBtn('bac-p-btn-bot', '');
+      setBtn('bac-result', checkBtnHtml('special'));
       // Banker drew a 3rd card because Player stood (Player still has only 2 cards):
       // keep the PLAYER DRAW option visible so an over-draw attempt can still be caught.
       if (S.ph.length === 2) {
@@ -2322,6 +2346,7 @@ const Sims = {
       setBtn('bac-tie-btn', b.tie);
       setBtn('bac-p-btn-top', b.player);
       setBtn('bac-p-btn-bot', '');
+      setBtn('bac-result', checkBtnHtml('banker'));
       setBtn('bac-bh3', `<button class="btn-bac-draw bac-draw-slot-btn" onclick="Sims.baccarat.quizBanker('draw-banker')">BANKER<br>DRAW</button>`);
       msg(`Player drew ${S.pThird.rank}${S.pThird.suit}. Banker action?`);
     }
@@ -2445,6 +2470,7 @@ const Sims = {
         S.ph = []; S.bh = []; S.pThird = null; S.winner = null;
         S.pairPicked = { banker: false, player: false, none: false };
         S.pairDone = false;
+        S.resultPicks = { winner: null, special: null };
         disableDraw();
 
         $('bac-ph').innerHTML   = '';
@@ -2531,6 +2557,9 @@ const Sims = {
         // Draw's starting — hide the Pair row the same way the other
         // quiz buttons just were, so nothing lingers mid-animation.
         clearPairBtns();
+        // Any un-submitted winner/special picks from this stage don't
+        // carry over to the next quiz screen.
+        S.resultPicks = { winner: null, special: null };
         const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
         const ph3 = $('bac-ph3'); if (ph3) ph3.innerHTML = '';
         if (choice === 'draw-player') {
@@ -2548,6 +2577,9 @@ const Sims = {
         // Draw's starting — hide the Pair row the same way the other
         // quiz buttons just were, so nothing lingers mid-animation.
         clearPairBtns();
+        // Any un-submitted winner/special picks from this stage don't
+        // carry over to the next quiz screen.
+        S.resultPicks = { winner: null, special: null };
         const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
         doBankerDraw(() => showSpecialQuiz());
       },
@@ -2559,7 +2591,27 @@ const Sims = {
         }
       },
 
-      quizWinFull(label, source) {
+      // Selecting a WIN/TIE/PLAYER WIN or a special (BIG6/.../SUPER SMALL7)
+      // button no longer judges anything by itself — it just toggles that
+      // pick on/off (radio-style within its own group) and repaints the
+      // row so the current selection is visible. CHECK is the only thing
+      // that submits (see checkResult() below).
+      toggleWinnerPick(label, source) {
+        S.resultPicks.winner = S.resultPicks.winner === label ? null : label;
+        refreshResultBtns(source);
+      },
+
+      toggleSpecialPick(label, source) {
+        S.resultPicks.special = S.resultPicks.special === label ? null : label;
+        refreshResultBtns(source);
+      },
+
+      // CHECK is always enabled and never hints at correctness — pressing
+      // it with nothing (or the wrong thing) selected is just a MISTAKE,
+      // same as before. The correctness computation itself (needsDraw
+      // checks, the `correct` label logic) is untouched from the old
+      // quizWinFull(); only how an answer gets submitted changed.
+      checkResult(source) {
         if (!S.pairDone) {
           const retry = source === 'initial' ? showInitialQuiz
                       : source === 'banker'  ? showBankerDrawQuiz
@@ -2591,7 +2643,24 @@ const Sims = {
         const showQuiz = source === 'initial' ? showInitialQuiz
                        : source === 'banker'  ? showBankerDrawQuiz
                        : showSpecialQuiz;
-        const isCorrect = label === correct;
+        // The correct combination the trainee must have selected:
+        // - plain tie/banker-win/player-win: just that winner, no special.
+        // - banker-small6/banker-big6/player-small7/player-big7: BOTH the
+        //   base winner AND the specific special (dealers need to catch
+        //   the bonus condition, not just the winner).
+        // - super-big7/super-small7: the special alone is enough — it
+        //   already fully identifies the outcome, so the winner pick is
+        //   optional (but if given, must be the correct 'player-win').
+        const { winner: uw, special: us } = S.resultPicks;
+        let isCorrect;
+        if (correct === 'tie' || correct === 'banker-win' || correct === 'player-win') {
+          isCorrect = uw === correct && us === null;
+        } else if (correct === 'super-big7' || correct === 'super-small7') {
+          isCorrect = us === correct && (uw === null || uw === 'player-win');
+        } else {
+          const baseWinner = correct.startsWith('banker') ? 'banker-win' : 'player-win';
+          isCorrect = uw === baseWinner && us === correct;
+        }
         if (!isCorrect) { showMistake(showQuiz); return; }
         clearInlineBtns();
         if (source === 'initial') {

@@ -3570,6 +3570,37 @@ body {
   white-space: nowrap;
 }
 
+/* ---- BACCARAT: RESULT SUBMISSION (CHECK) ----
+   WIN/TIE/PLAYER WIN and the special buttons only toggle a pick now —
+   CHECK is what submits. It's always enabled (never hints at whether
+   the current picks are right) and sits in the bottom-mid slot
+   (#bac-result), a teal identity distinct from every win-color button
+   and from the gold START/NEXT HAND CTA. */
+.bac-check-btn {
+  --btn-hi: 150,235,225; --btn-glow: 30,150,140;
+  width: 100%;
+  background: linear-gradient(180deg, #1e6b63 0%, #0c332e 100%);
+  color: #d8fff9;
+  border-radius: var(--r);
+  padding: clamp(.32rem,.75vh,.46rem) clamp(.55rem,1.1vw,.8rem);
+  font-weight: 800; cursor: pointer; font-size: clamp(.72rem,1.6vw,.88rem);
+  letter-spacing: 1px;
+  min-height: clamp(43px,7.2vh,58px);
+  text-shadow: 0 1px 5px rgba(78,205,196,.35);
+  white-space: nowrap;
+}
+/* Marks the currently-picked winner/special button(s) so the trainee can
+   see their selection before committing with CHECK. Not a disabled/dim
+   state — these stay fully clickable (toggle off by clicking again). */
+.bac-inline-btn.bac-result-picked {
+  border-color: rgba(var(--btn-hi), .9);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--btn-hi), .3),
+    inset 0 -2px 3px rgba(0,0,0,.22),
+    0 0 0 2px rgba(var(--btn-hi), .5),
+    0 2px 8px rgba(var(--btn-glow), .45);
+}
+
 /* ============================================================
    POKER SIMULATIONS
    ============================================================ */
@@ -3752,8 +3783,10 @@ body {
    identity) and the gradient/text colors; this is the one place their
    depth/interaction states live, placed last so it wins the cascade
    over those rules. DRAW uses a neutral white/black --btn-hi/--btn-glow
-   so it stays a charcoal panel instead of picking up a hue glow. */
-.btn-bac-player, .btn-bac-banker, .btn-bac-tie, .btn-bac-super7, .btn-bac-pair, .btn-bac-draw {
+   so it stays a charcoal panel instead of picking up a hue glow.
+   CHECK (.bac-check-btn) shares the same treatment with its own teal
+   identity, and is always enabled — no :disabled state to speak of. */
+.btn-bac-player, .btn-bac-banker, .btn-bac-tie, .btn-bac-super7, .btn-bac-pair, .btn-bac-draw, .bac-check-btn {
   border: 1px solid rgba(var(--btn-hi), .3);
   box-shadow:
     inset 0 1px 0 rgba(var(--btn-hi), .16),
@@ -3763,7 +3796,7 @@ body {
   transition: filter .15s ease, transform .12s ease, box-shadow .15s ease, border-color .15s ease;
 }
 .btn-bac-player:hover, .btn-bac-banker:hover, .btn-bac-tie:hover,
-.btn-bac-super7:hover, .btn-bac-pair:hover, .btn-bac-draw:hover {
+.btn-bac-super7:hover, .btn-bac-pair:hover, .btn-bac-draw:hover, .bac-check-btn:hover {
   filter: brightness(1.07);
   transform: translateY(-1px);
   border-color: rgba(var(--btn-hi), .45);
@@ -3774,7 +3807,7 @@ body {
     0 3px 14px rgba(var(--btn-glow), .45);
 }
 .btn-bac-player:active, .btn-bac-banker:active, .btn-bac-tie:active,
-.btn-bac-super7:active, .btn-bac-pair:active, .btn-bac-draw:active {
+.btn-bac-super7:active, .btn-bac-pair:active, .btn-bac-draw:active, .bac-check-btn:active {
   filter: brightness(.95);
   transform: translateY(1px);
   box-shadow:
