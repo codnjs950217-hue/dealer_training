@@ -2178,15 +2178,6 @@ body {
 
 /* ---- BACCARAT: WIN HEADER + ANNOUNCE ---- */
 
-.bac-win-announce {
-  display: block; text-align: center;
-  font-size: clamp(1.9rem,6.2vh,3.4rem); font-weight: 900;
-  letter-spacing: clamp(4px,.9vw,9px);
-  white-space: nowrap; line-height: 1.18;
-  background: none; border: none; padding: 0;
-  /* The only result "effect" now — a quiet fade-in, no flash/scale/glow. */
-  animation: bacResultFadeIn .5s ease-out;
-}
 @keyframes bacResultFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -2200,37 +2191,54 @@ body {
      there's empty felt to move into without covering anything. */
   top: clamp(1.3rem, 4vh, 2.4rem);
 }
-.bac-win-sub {
-  font-size: clamp(1.9rem,6.2vh,3.4rem); font-weight: 900;
-  letter-spacing: clamp(4px,.9vw,9px);
-  background: none; border: none;
+/* Result banner — replaces the old giant gradient-clip-text announcement.
+   Reuses each WIN button's own background gradient/text color (banker
+   gold/brown, player red/wine, tie green — same values as .btn-bac-
+   banker/.btn-bac-player/.btn-bac-tie) so it reads as "the same result,
+   restated," not a new visual language. Deliberately NOT button-shaped
+   though, so it can't be mistaken for a clickable control: width hugs
+   its own text (no width:100%/--bac-win-w like the real WIN oval),
+   noticeably shorter padding, a hairline border instead of a thick one,
+   and a single flat neutral drop shadow instead of the buttons' colored
+   glow — plain solid-color text, no text-shadow/gradient-clip/drop-
+   shadow-on-text. Same quiet fade-in as before, nothing else animated. */
+.bac-result-banner {
+  display: inline-flex; align-items: baseline; justify-content: center;
+  gap: clamp(.4rem,1vw,.7rem);
+  padding: clamp(.32rem,.85vh,.5rem) clamp(1rem,2.6vw,1.7rem);
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(0,0,0,.35);
+  animation: bacResultFadeIn .4s ease-out;
 }
-
-/* Premium gradient text — banker gold */
-.bac-win-announce.banker-win,
-.bac-win-sub.banker-win {
-  background: linear-gradient(170deg, #ffe988 0%, #d4a84c 48%, #8c6414 100%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 1px 4px rgba(0,0,0,.8));
+.bac-result-banner-main {
+  font-size: clamp(.92rem,2.5vh,1.3rem);
+  font-weight: 800;
+  letter-spacing: 1px;
 }
-/* Premium gradient text — player red */
-.bac-win-announce.player-win,
-.bac-win-sub.player-win {
-  background: linear-gradient(170deg, #ff8888 0%, #dd1818 48%, #7a0000 100%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 1px 4px rgba(0,0,0,.8));
+.bac-result-banner-sub {
+  font-size: clamp(.66rem,1.75vh,.88rem);
+  font-weight: 700;
+  letter-spacing: .5px;
+  opacity: .8;
+  padding-left: clamp(.4rem,1vw,.7rem);
+  border-left: 1px solid rgba(255,255,255,.25);
 }
-/* Premium gradient text — tie green */
-.bac-win-announce.tie-win,
-.bac-win-sub.tie-win {
-  background: linear-gradient(170deg, #b8f8a0 0%, #6ec864 48%, #2c6e18 100%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 1px 4px rgba(0,0,0,.8));
+.bac-result-banner.banker-win {
+  background: linear-gradient(180deg, #543008 0%, #2c1602 100%);
+  color: #e8c96a;
+  border: 1px solid rgba(255,220,120,.4);
 }
-.bac-win-sep { color: rgba(255,255,255,.35); font-size: 1.2rem; }
+.bac-result-banner.player-win {
+  background: linear-gradient(180deg, #5a0e1c 0%, #2e0610 100%);
+  color: #ff8080;
+  border: 1px solid rgba(255,150,150,.4);
+}
+.bac-result-banner.tie-win {
+  background: linear-gradient(180deg, #0f4f0f 0%, #072407 100%);
+  color: #7de87a;
+  border: 1px solid rgba(150,255,140,.4);
+}
 
 /* announce quiz: no-box text options with dividers */
 .bac-announce-row {

@@ -2411,7 +2411,7 @@ const Sims = {
       const cls = side === 'banker' ? 'banker-win' : side === 'player' ? 'player-win' : 'tie-win';
       const { lines } = getSpecialLabel(side);
       const [main, sub] = lines;
-      const html = `<div class="bac-win-announce bac-win-over-divider ${cls}">${main}${sub ? `<br><span class="bac-win-sub ${cls}">${sub}</span>` : ''}</div>`;
+      const html = `<div class="bac-result-banner bac-win-over-divider ${cls}"><span class="bac-result-banner-main">${main}</span>${sub ? `<span class="bac-result-banner-sub">${sub}</span>` : ''}</div>`;
       setBtn('bac-b-btn-top', '');
       setBtn('bac-p-btn-top', '');
       setBtn('bac-tie-btn', html);
