@@ -2280,6 +2280,16 @@ const Sims = {
       setBtn('bac-pair-p', '');
     }
 
+    // Purely visual: dims/disables the WIN/TIE/BIG6/etc quiz buttons while
+    // the Pair judgment is pending, so the trainee's attention stays on
+    // BANKER PAIR / NO PAIR / PLAYER PAIR. Doesn't touch S.pairDone or any
+    // click-handling logic — those buttons already reject early clicks on
+    // their own (see quizInitial/quizSpecial/quizBanker's pairDone guard).
+    function setPairPhaseFocus(active) {
+      const tbl = document.querySelector('.baccarat-table');
+      if (tbl) tbl.classList.toggle('bac-pair-phase', active);
+    }
+
     function renderPairBtns() {
       const bLocked = S.pairPicked.banker;
       const pLocked = S.pairPicked.player;
@@ -2289,6 +2299,7 @@ const Sims = {
     }
 
     function showPairQuiz() {
+      setPairPhaseFocus(true);
       renderPairBtns();
     }
 
@@ -2489,6 +2500,7 @@ const Sims = {
         if (pp) pp.style.display = 'none';
         clearInlineBtns();
         clearPairBtns();
+        setPairPhaseFocus(false);
 
         const wf = $('bac-winner-flash'); if (wf) { wf.className = 'bac-winner-flash'; wf.innerHTML = ''; }
 
@@ -2517,6 +2529,7 @@ const Sims = {
           if (bPair || pPair) { showPairMistake(renderPairBtns); return; }
           S.pairDone = true;
           clearPairBtns();
+          setPairPhaseFocus(false);
           return;
         }
         if (side === 'banker-pair') {
@@ -2530,6 +2543,7 @@ const Sims = {
         if (done) {
           S.pairDone = true;
           clearPairBtns();
+          setPairPhaseFocus(false);
         } else {
           renderPairBtns();
         }
