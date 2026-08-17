@@ -1827,6 +1827,28 @@ body {
   white-space: nowrap;
   width: 100%;
 }
+/* B PAIR / P PAIR recolored to match their own side's family (same
+   --btn-hi/--btn-glow/background/color/text-shadow as .btn-bac-banker/
+   .btn-bac-player) instead of the plain blue every Pair button used to
+   share — scoped by container id (#bac-pair-b/#bac-pair-p always hold
+   exactly B PAIR/P PAIR, see main.js) rather than a new class, so no
+   markup/logic changes were needed. NO PAIR (#bac-pair-mid) keeps the
+   original blue .btn-bac-pair identity untouched. Size/shape/padding and
+   every state below (:disabled, .bac-pair-selected, the pulse) all still
+   come from .btn-bac-pair and its own --btn-hi/--btn-glow, so they pick
+   up the new colors automatically without being redefined here. */
+#bac-pair-b .btn-bac-pair {
+  --btn-hi: 255,220,120; --btn-glow: 160,110,20;
+  background: linear-gradient(180deg, #543008 0%, #2c1602 100%);
+  color: #e8c96a;
+  text-shadow: 0 1px 6px rgba(220,170,50,.4);
+}
+#bac-pair-p .btn-bac-pair {
+  --btn-hi: 255,150,150; --btn-glow: 180,30,30;
+  background: linear-gradient(180deg, #5a0e1c 0%, #2e0610 100%);
+  color: #ff8080;
+  text-shadow: 0 1px 6px rgba(255,80,80,.4);
+}
 .btn-bac-pair:disabled {
   opacity: .5; cursor: default; pointer-events: none;
   animation: none;
@@ -1844,7 +1866,9 @@ body {
     0 2px 3px rgba(0,0,0,.35),
     0 0 8px 1px rgba(var(--btn-glow), .5);
 }
-/* Subtle pulse + blue glow while a Pair judgment is still pending on this
+/* Subtle pulse + glow (each button's own --btn-hi/--btn-glow, so B PAIR/
+   P PAIR now pulse gold/red instead of the old hardcoded blue — see the
+   recolor rules above) while a Pair judgment is still pending on this
    button — draws the eye to the choice without a jarring blink. Stops the
    instant the button is picked/locked (:disabled, see above) or the whole
    quiz clears (the button itself is removed from the DOM). Paused on
@@ -1860,15 +1884,15 @@ body {
 @keyframes bacPairPulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: inset 0 1px 0 rgba(150,220,255,.16), inset 0 -2px 3px rgba(0,0,0,.28),
-      0 2px 3px rgba(0,0,0,.35), 0 2px 10px rgba(20,120,180,.35),
-      0 0 0 rgba(90,190,255,0);
+    box-shadow: inset 0 1px 0 rgba(var(--btn-hi),.16), inset 0 -2px 3px rgba(0,0,0,.28),
+      0 2px 3px rgba(0,0,0,.35), 0 2px 10px rgba(var(--btn-glow),.35),
+      0 0 0 rgba(var(--btn-hi),0);
   }
   50% {
     transform: scale(1.05);
-    box-shadow: inset 0 1px 0 rgba(150,220,255,.16), inset 0 -2px 3px rgba(0,0,0,.28),
-      0 2px 3px rgba(0,0,0,.35), 0 2px 10px rgba(20,120,180,.35),
-      0 0 9px 2px rgba(90,190,255,.5);
+    box-shadow: inset 0 1px 0 rgba(var(--btn-hi),.16), inset 0 -2px 3px rgba(0,0,0,.28),
+      0 2px 3px rgba(0,0,0,.35), 0 2px 10px rgba(var(--btn-glow),.35),
+      0 0 9px 2px rgba(var(--btn-hi),.5);
   }
 }
 /* While the Pair judgment is pending (.bac-pair-phase, toggled by
