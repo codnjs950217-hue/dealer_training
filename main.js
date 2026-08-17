@@ -509,7 +509,6 @@ const Views = {
           <div class="bac-bclust-mid"><div class="result-badge" id="bac-result"></div></div>
           <div class="bac-bclust-side" id="bac-p-btn-bot"></div>
         </div>
-        <button class="bac-next-hand-btn" id="bac-next-btn" style="display:none" onclick="Sims.baccarat.deal()">Next Hand ›</button>
         <div class="bac-start-bar" id="bac-start-bar">
           <button class="bac-start-top-btn" id="bac-draw-btn" onclick="Sims.baccarat.deal()">START</button>
         </div>
@@ -2076,15 +2075,19 @@ const Sims = {
     const actions = h => { const e = $('bac-actions'); if (e) e.innerHTML = h; };
     const showStartBar = () => {
       const bar = $('bac-start-bar'); if (bar) bar.style.display = '';
-      const nxt = $('bac-next-btn');  if (nxt) nxt.style.display = 'none';
     };
+    // Hand's over: the Pair judgment area isn't needed anymore, so its
+    // center (NO PAIR) slot hosts the NEXT HAND trigger instead — same
+    // centered spot, right under the result text. The banker/player Pair
+    // slots are cleared so the whole row reads as just this one button.
     const showNextBtn = () => {
       const bar = $('bac-start-bar'); if (bar) bar.style.display = 'none';
-      const nxt = $('bac-next-btn');  if (nxt) nxt.style.display = '';
+      setBtn('bac-pair-b', '');
+      setBtn('bac-pair-p', '');
+      setBtn('bac-pair-mid', '<button class="bac-next-hand-btn" onclick="Sims.baccarat.deal()">NEXT HAND</button>');
     };
     const hideAllCtrl = () => {
       const bar = $('bac-start-bar'); if (bar) bar.style.display = 'none';
-      const nxt = $('bac-next-btn');  if (nxt) nxt.style.display = 'none';
     };
     const enableDraw  = () => { S.rounds === 0 ? showStartBar() : showNextBtn(); };
     const disableDraw = () => { hideAllCtrl(); };
@@ -2250,11 +2253,12 @@ const Sims = {
     }
 
     // Once the Pair judgment is fully answered, keep all three buttons
-    // visible (not cleared) so the trainee can see what they picked for
-    // the rest of the hand — the button(s) actually picked stay at full
+    // visible (not cleared) so the trainee can see what they picked while
+    // the hand plays out — the button(s) actually picked stay at full
     // brightness (.bac-pair-selected overrides the shared :disabled dim),
     // the rest fall back to the normal disabled look (~50% opacity, no
-    // hover/click). Only deal() resets this, on Next Hand/new game.
+    // hover/click). Once the hand ends, showNextBtn() replaces this row
+    // with the NEXT HAND button; deal() clears it for the new hand.
     function renderPairBtnsFinal() {
       const p = S.pairPicked;
       const btn = (label, selected) =>
@@ -2366,9 +2370,8 @@ const Sims = {
       setBtn('bac-b-btn-top', '');
       setBtn('bac-p-btn-top', '');
       setBtn('bac-tie-btn', html);
-      // Leave the Pair buttons as renderPairBtnsFinal() left them — the
-      // trainee's pick should stay visible through the pay panel, not
-      // disappear the moment the hand's winner is announced.
+      // enableDraw() above already swapped the Pair row for the NEXT HAND
+      // button (see showNextBtn()) now that the hand is over.
     }
 
     function buildPayPanel() {

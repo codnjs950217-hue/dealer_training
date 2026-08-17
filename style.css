@@ -1820,7 +1820,8 @@ body {
   top: clamp(.5rem,1vh,.9rem);
   left: clamp(.6rem,1.2vw,1.2rem); right: clamp(.6rem,1.2vw,1.2rem);
 }
-.bac-pair-quiz-anchor .btn-bac-pair {
+.bac-pair-quiz-anchor .btn-bac-pair,
+.bac-pair-quiz-anchor .bac-next-hand-btn {
   pointer-events: auto;
 }
 .bac-pair-quiz-row {
@@ -3448,19 +3449,20 @@ body {
 .bac-start-top-btn:hover:not(:disabled) { background: var(--gold-light); transform: translateY(-1px); }
 .bac-start-top-btn:disabled { cursor: default; }
 
+/* Lives in the Pair-quiz-anchor's centered mid slot once the hand ends
+   (see showNextBtn() in main.js) — same centered spot right under the
+   result text, instead of its own bottom-right corner placement. */
 .bac-next-hand-btn {
-  position: absolute;
-  bottom: clamp(8px,1.8vh,14px); right: clamp(8px,1.5vw,14px);
-  z-index: 10;
+  width: 100%;
   background: rgba(201,168,76,.1);
   border: 1px solid rgba(201,168,76,.45);
   color: var(--gold);
   border-radius: 50px;
-  padding: clamp(.5rem,1.4vh,.8rem) clamp(1.5rem,3.8vw,2.4rem);
+  padding: clamp(.5rem,1.4vh,.8rem) clamp(.6rem,1.5vw,1rem);
   font-size: clamp(.85rem,2.1vh,1rem);
   font-weight: 800; letter-spacing: 2px;
   cursor: pointer;
-  min-height: clamp(40px,6.5vh,52px);
+  min-height: clamp(43px,7.2vh,58px);
   display: flex; align-items: center; justify-content: center;
   transition: background .15s, border-color .15s, transform .1s;
 }
