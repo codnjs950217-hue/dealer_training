@@ -1794,13 +1794,15 @@ body {
   display: flex; align-items: center;
   flex: 1; min-height: 0; padding: clamp(.15rem,.3vh,.3rem) 0; overflow: visible;
   position: relative;
-  /* Nudges the whole Shoe+cards group (and the BANKER/PLAYER DRAW buttons
-     nested inside it) down and closer to vertical center, so mobile
-     landscape leaves more thumb room around the button rows above/below.
-     A margin (not padding) so it shifts .bac-field's own box on screen —
-     .bac-shoe-col's top:50% is relative to that box, so the shoe moves
-     down together with the in-flow card zones instead of drifting apart. */
-  margin-top: clamp(1.4rem, 6vh, 3.2rem);
+  /* Nudges the whole Shoe+cards group (BANKER/PLAYER labels + hands +
+     DRAW buttons nested inside it) down, opening clear air between the
+     Pair-quiz-anchor overlay above and this zone. A margin (not padding)
+     so it shifts .bac-field's own box on screen — .bac-shoe-col's top:50%
+     is relative to that box, so the shoe moves down together with the
+     in-flow card zones instead of drifting apart. Pair buttons themselves
+     don't move (they're the separate, absolutely-positioned anchor above,
+     unaffected by this), and card size is untouched — only this gap grows. */
+  margin-top: clamp(3rem, 13vh, 6rem);
 }
 /* Pair-judgment quiz: an absolutely-positioned overlay, a sibling of
    .bac-btn-cluster-quiz (not inside it, so it never touches the win-quiz's
