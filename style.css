@@ -1936,7 +1936,6 @@ body {
    file, after the shared console-button treatment so they win the
    cascade. */
 .bac-exp-grid {
-  --bac-circle-d: clamp(16px, 2.3vh, 21px);
   --bac-pair-d: clamp(15px, 2.1vh, 19px);
   --bac-win-w: clamp(340px, 46vw, 460px);
   display: flex; flex-direction: column; align-items: center;
@@ -1953,17 +1952,25 @@ body {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 .bac-exp-cell > button { width: 100%; }
-/* SMALL7/SUPER7/BIG7 and SMALL6/TIE/BIG6: cells shrink to the circle's
-   own size and the row centers them as a tight cluster. */
+/* SMALL6/TIE/BIG6 and SMALL7/SUPER7/BIG7: row is pinned to exactly
+   --bac-win-w (same left/right edges as PLAYER WIN/BANKER WIN) and its
+   3 cells share that width equally via flex:1, so the row's total
+   footprint always matches WIN exactly regardless of viewport. */
 .bac-exp-row-3col {
-  gap: clamp(.15rem,.4vw,.3rem);
+  width: var(--bac-win-w);
+  gap: clamp(.1rem,.3vw,.2rem);
 }
-/* PLAYER PAIR/PLAYER WIN/BANKER PAIR share a row, WIN's cell fixed to
-   --bac-win-w (~50-60% of the previous full-width oval) so PAIR reads
-   as sitting right against it, not off in its own wide column. BANKER
-   WIN gets the same fixed width alone in the row below, for the same
-   footprint as PLAYER WIN. */
+.bac-exp-row-3col > .bac-exp-cell {
+  flex: 1 1 0;
+}
+/* WIN's cell fixed to --bac-win-w so PLAYER WIN/BANKER WIN (each alone
+   in its own row) and the SMALL/TIE/BIG rows below all line up on the
+   same left/right edges. */
 .bac-exp-cell-win { width: var(--bac-win-w); }
+/* Invisible placeholder the same width as WIN, sat between P PAIR and
+   B PAIR so they land just outside WIN's left/right edges instead of
+   drifting toward the row's own center. */
+.bac-exp-spacer { width: var(--bac-win-w); flex: none; }
 /* NO PAIR isn't its own box on a real table (just the absence of a Pair
    bet) — kept clickable but visibly secondary to BANKER/PLAYER PAIR.
    Same font-size/padding/min-height as before; only its container
@@ -3837,7 +3844,7 @@ body {
    sizing and the console-button treatment) so these win regardless of
    source order elsewhere. Colors/gradients/borders from those earlier
    rules are untouched; only geometry changes. Sizes come from
-   --bac-win-w/--bac-circle-d/--bac-pair-d, set on .bac-exp-grid. */
+   --bac-win-w/--bac-pair-d, set on .bac-exp-grid. */
 .bac-win-oval {
   width: 100% !important;
   /* Height tied directly to PAIR's own diameter, per spec — WIN reads
@@ -3864,11 +3871,14 @@ body {
   height: var(--bac-pair-d) !important;
   font-size: clamp(.4rem,.9vh,.5rem) !important;
 }
-/* TIE/BIG6/SMALL6/BIG7/SUPER7/SMALL7 — the equal-size numbered/TIE
-   betting circles, all the same diameter regardless of column. */
+/* TIE/BIG6/SMALL6/BIG7/SUPER7/SMALL7 — each fills its 1/3 share of the
+   row's own --bac-win-w width (set via flex:1 on .bac-exp-row-3col's
+   cells), so 3 of them together span exactly PLAYER/BANKER WIN's
+   width; only the height stays pinned to --bac-pair-d for a slim,
+   tightly-stacked row. */
 .bac-circle-btn {
-  width: var(--bac-circle-d) !important;
-  height: var(--bac-circle-d) !important;
+  width: 100% !important;
+  height: var(--bac-pair-d) !important;
   font-size: clamp(.38rem,.9vh,.48rem) !important;
 }
 
