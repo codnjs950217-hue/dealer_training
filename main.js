@@ -2514,7 +2514,11 @@ const Sims = {
           correctChoice = 'win';
         }
         if (choice !== correctChoice) {
-          const isOverDraw = choice.startsWith('draw-');
+          // OVER DRAW only fits when nobody actually needed a third card
+          // (correctChoice === 'win') and the trainee tried to draw anyway.
+          // Picking the wrong side's DRAW when a draw genuinely was owed
+          // (just to the other hand) is a rule mistake, not an over-draw.
+          const isOverDraw = choice.startsWith('draw-') && correctChoice === 'win';
           showMistake(() => showInitialQuiz(), isOverDraw ? 'OVER DRAW' : 'MISTAKE!');
           return;
         }
