@@ -2293,6 +2293,10 @@ const Sims = {
     }
 
     function showSpecialQuiz() {
+      // Draw's done — bring the Pair row back the same way the win/draw
+      // buttons below are being restored, showing the trainee's earlier
+      // pick again (renderPairBtnsFinal(), not a fresh pending judgment).
+      renderPairBtnsFinal();
       const b = winBtns('special');
       setBtn('bac-b-btn-top', b.banker);
       setBtn('bac-b-btn-bot', '');
@@ -2308,6 +2312,10 @@ const Sims = {
     }
 
     function showBankerDrawQuiz() {
+      // Draw's done — bring the Pair row back the same way the win/draw
+      // buttons below are being restored, showing the trainee's earlier
+      // pick again (renderPairBtnsFinal(), not a fresh pending judgment).
+      renderPairBtnsFinal();
       const b = winBtns('banker');
       setBtn('bac-b-btn-top', b.banker);
       setBtn('bac-b-btn-bot', '');
@@ -2520,6 +2528,9 @@ const Sims = {
           return;
         }
         clearInlineBtns();
+        // Draw's starting — hide the Pair row the same way the other
+        // quiz buttons just were, so nothing lingers mid-animation.
+        clearPairBtns();
         const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
         const ph3 = $('bac-ph3'); if (ph3) ph3.innerHTML = '';
         if (choice === 'draw-player') {
@@ -2534,6 +2545,9 @@ const Sims = {
         const needsDraw = bankerRule(pts(S.bh), S.pThird);
         if (!needsDraw) { showMistake(() => showBankerDrawQuiz(), 'OVER DRAW'); return; }
         clearInlineBtns();
+        // Draw's starting — hide the Pair row the same way the other
+        // quiz buttons just were, so nothing lingers mid-animation.
+        clearPairBtns();
         const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
         doBankerDraw(() => showSpecialQuiz());
       },
