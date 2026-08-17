@@ -509,9 +509,6 @@ const Views = {
           <div class="bac-bclust-mid"><div class="result-badge" id="bac-result"></div></div>
           <div class="bac-bclust-side" id="bac-p-btn-bot"></div>
         </div>
-        <div class="bac-start-bar" id="bac-start-bar">
-          <button class="bac-start-top-btn" id="bac-draw-btn" onclick="Sims.baccarat.deal()">START</button>
-        </div>
       </div>
       <div class="bac-pay-panel" id="bac-pay-panel" style="display:none"></div>
     </div>`,
@@ -2073,22 +2070,19 @@ const Sims = {
     const $ = id => document.getElementById(id);
     const msg     = t => { const e = $('bac-msg'); if (e) { e.textContent = t; e.style.color = ''; } };
     const actions = h => { const e = $('bac-actions'); if (e) e.innerHTML = h; };
-    const showStartBar = () => {
-      const bar = $('bac-start-bar'); if (bar) bar.style.display = '';
-    };
-    // Hand's over: the Pair judgment area isn't needed anymore, so its
-    // center (NO PAIR) slot hosts the NEXT HAND trigger instead — same
-    // centered spot, right under the result text. The banker/player Pair
-    // slots are cleared so the whole row reads as just this one button.
-    const showNextBtn = () => {
-      const bar = $('bac-start-bar'); if (bar) bar.style.display = 'none';
+    // START (before the first hand) and NEXT HAND (after every hand after
+    // that) share one spot and one look — the Pair judgment area's
+    // centered mid (NO PAIR) slot, right under the result text. Only the
+    // label differs. The banker/player Pair slots are cleared alongside
+    // it so the whole row reads as just this one button.
+    const showCtaBtn = (label) => {
       setBtn('bac-pair-b', '');
       setBtn('bac-pair-p', '');
-      setBtn('bac-pair-mid', '<button class="bac-next-hand-btn" onclick="Sims.baccarat.deal()">NEXT HAND</button>');
+      setBtn('bac-pair-mid', `<button class="bac-cta-btn" onclick="Sims.baccarat.deal()">${label}</button>`);
     };
-    const hideAllCtrl = () => {
-      const bar = $('bac-start-bar'); if (bar) bar.style.display = 'none';
-    };
+    const showStartBar = () => showCtaBtn('START');
+    const showNextBtn  = () => showCtaBtn('NEXT HAND');
+    const hideAllCtrl  = () => { setBtn('bac-pair-mid', ''); };
     const enableDraw  = () => { S.rounds === 0 ? showStartBar() : showNextBtn(); };
     const disableDraw = () => { hideAllCtrl(); };
 

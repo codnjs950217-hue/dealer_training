@@ -1821,7 +1821,7 @@ body {
   left: clamp(.6rem,1.2vw,1.2rem); right: clamp(.6rem,1.2vw,1.2rem);
 }
 .bac-pair-quiz-anchor .btn-bac-pair,
-.bac-pair-quiz-anchor .bac-next-hand-btn {
+.bac-pair-quiz-anchor .bac-cta-btn {
   pointer-events: auto;
 }
 .bac-pair-quiz-row {
@@ -3428,55 +3428,53 @@ body {
 .comm-undo-btn:hover  { background: rgba(60,80,160,.65); color: #fff; }
 .comm-undo-btn:active { transform: scale(.95); }
 
-/* ---- BACCARAT: START BAR (top center) ---- */
-.bac-start-bar {
-  position: absolute;
-  top: 22%; left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-  display: flex; justify-content: center;
-  padding: 0; margin: 0; border: none;
-}
-.bac-start-top-btn {
-  background: var(--gold);
-  color: #0a1628;
-  border: none;
-  border-radius: var(--r);
-  padding: .48rem 2.4rem;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  letter-spacing: .5px;
-  text-align: center;
-  transition: all .2s;
-  box-shadow: 0 2px 10px rgba(201,168,76,.35);
-}
-.bac-start-top-btn:hover:not(:disabled) { background: var(--gold-light); transform: translateY(-1px); }
-.bac-start-top-btn:disabled { cursor: default; }
-
-/* Lives in the Pair-quiz-anchor's centered mid slot once the hand ends
-   (see showNextBtn() in main.js) — same centered spot right under the
-   result text, instead of its own bottom-right corner placement. */
-.bac-next-hand-btn {
+/* ---- BACCARAT: START / NEXT HAND (unified CTA) ----
+   One button, one spot, one design — START (before the first hand) and
+   NEXT HAND (after every hand after that) are the same .bac-cta-btn,
+   only the label text differs (see showCtaBtn() in main.js). Both live
+   in the Pair-quiz-anchor's centered mid (NO PAIR) slot, right under the
+   result text, instead of START's old top:22% placement or NEXT HAND's
+   old bottom-right corner. A restrained gold ETG-console look: a weak
+   gold-to-gold gradient (both stops already the app's --gold/--gold-light,
+   no new hues), a soft top highlight, a gentle contact shadow, --r's
+   normal corner radius (not a full pill) — no neon, no heavy glow. */
+.bac-cta-btn {
+  --btn-hi: 232,201,109; --btn-glow: 201,168,76;
   width: 100%;
-  background: rgba(201,168,76,.1);
-  border: 1px solid rgba(201,168,76,.45);
-  color: var(--gold);
-  border-radius: 50px;
+  background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 100%);
+  color: #241a05;
+  border: 1px solid rgba(var(--btn-hi), .5);
+  border-radius: var(--r);
   padding: clamp(.5rem,1.4vh,.8rem) clamp(.6rem,1.5vw,1rem);
-  font-size: clamp(.85rem,2.1vh,1rem);
-  font-weight: 800; letter-spacing: 2px;
+  font-size: clamp(.9rem,2.2vh,1.05rem);
+  font-weight: 800; letter-spacing: 1.5px;
   cursor: pointer;
   min-height: clamp(43px,7.2vh,58px);
   display: flex; align-items: center; justify-content: center;
-  transition: background .15s, border-color .15s, transform .1s;
+  box-shadow:
+    inset 0 1px 0 rgba(255,245,215,.55),
+    inset 0 -2px 3px rgba(0,0,0,.16),
+    0 2px 4px rgba(0,0,0,.3),
+    0 2px 8px rgba(var(--btn-glow), .3);
+  transition: filter .15s ease, transform .12s ease, box-shadow .15s ease, border-color .15s ease;
 }
-.bac-next-hand-btn:hover {
-  background: rgba(201,168,76,.2);
-  border-color: rgba(201,168,76,.7);
+.bac-cta-btn:hover {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+  border-color: rgba(var(--btn-hi), .7);
+  box-shadow:
+    inset 0 1px 0 rgba(255,245,215,.6),
+    inset 0 -2px 3px rgba(0,0,0,.14),
+    0 4px 9px rgba(0,0,0,.32),
+    0 3px 11px rgba(var(--btn-glow), .38);
 }
-.bac-next-hand-btn:active {
-  transform: scale(.96);
+.bac-cta-btn:active {
+  filter: brightness(.96);
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,.22),
+    inset 0 -1px 0 rgba(255,245,215,.2),
+    0 1px 2px rgba(0,0,0,.25);
 }
 
 /* ---- BACCARAT: SPECIAL-OUTCOME QUIZ BUTTONS ---- */
