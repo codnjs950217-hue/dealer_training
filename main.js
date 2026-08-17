@@ -2226,54 +2226,6 @@ const Sims = {
       };
     }
 
-    function showPairNotif() {
-      const pp = pts(S.ph), bp = pts(S.bh);
-      if (pp >= 8 || bp >= 8 || (pp >= 6 && bp >= 6)) return;
-      const pPair = S.ph[0].rank === S.ph[1].rank;
-      const bPair = S.bh[0].rank === S.bh[1].rank;
-      const tbl = document.querySelector('.baccarat-table');
-      if (!tbl) return;
-
-      if (!pPair && !bPair) return;
-      function spawnSideNoPair(side) {
-        const anchorId = side === 'player' ? 'bac-ph' : 'bac-bh';
-        const anchor = document.getElementById(anchorId);
-        const label = side === 'player' ? 'Player No Pair' : 'Banker No Pair';
-        const textColor = side === 'player' ? '#ff6060' : '#ffd700';
-        const el = document.createElement('div');
-        el.className = 'bac-side-no-pair-notif';
-        el.innerHTML = `
-          <div class="bac-pnp-text" style="color:${textColor}">${label}</div>
-          <svg class="bac-pnp-svg${side === 'banker' ? ' bac-pnp-svg-flip' : ''}" viewBox="0 0 115 56" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="18" cy="32" r="13" fill="#c9a84c" stroke="#fff" stroke-width="1.5"/>
-            <circle cx="18" cy="32" r="9" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="1"/>
-            <text x="18" y="36" text-anchor="middle" fill="#111" font-size="6.5" font-weight="bold">PP</text>
-            <line x1="35" y1="32" x2="50" y2="32" stroke="#ff6060" stroke-width="2.2" stroke-linecap="round"/>
-            <polygon points="50,27.5 59,32 50,36.5" fill="#ff6060"/>
-            <rect x="61" y="26" width="35" height="17" rx="5.5" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
-            <rect x="58" y="28" width="5" height="11" rx="2.5" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8" transform="rotate(-30, 60.5, 34)"/>
-            <rect x="64" y="14" width="5.5" height="15" rx="2.8" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
-            <rect x="71.5" y="12" width="5.5" height="17" rx="2.8" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
-            <rect x="79" y="14" width="5.5" height="15" rx="2.8" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
-            <rect x="86.5" y="16" width="4.5" height="13" rx="2.2" fill="#f5c5a0" stroke="#d4956a" stroke-width=".8"/>
-            <line x1="60" y1="29" x2="51" y2="29" stroke="rgba(255,255,255,.45)" stroke-width="1.5" stroke-dasharray="3,2"/>
-            <line x1="60" y1="35" x2="50" y2="35" stroke="rgba(255,255,255,.45)" stroke-width="1.5" stroke-dasharray="3,2"/>
-          </svg>
-          <div class="bac-pnp-take-text">Losing Pair bet Take</div>
-          `;
-        if (anchor) {
-          const tr = tbl.getBoundingClientRect();
-          const ar = anchor.getBoundingClientRect();
-          el.style.top  = (ar.bottom - tr.top + 10) + 'px';
-          el.style.left = (ar.left - tr.left + ar.width / 2) + 'px';
-        }
-        tbl.appendChild(el);
-        setTimeout(() => el.remove(), 4500);
-      }
-      if (bPair && !pPair) spawnSideNoPair('player');
-      if (pPair && !bPair) spawnSideNoPair('banker');
-    }
-
     function clearPairBtns() {
       setBtn('bac-pair-b', '');
       setBtn('bac-pair-mid', '');
@@ -2317,7 +2269,6 @@ const Sims = {
     }
 
     function showInitialQuiz() {
-      showPairNotif();
       const b = winBtns('initial');
       setBtn('bac-b-btn-top', b.banker);
       setBtn('bac-b-btn-bot', '');
