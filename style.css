@@ -1949,11 +1949,15 @@ body {
      also decoupled from --bac-pair-d for the same reason. */
   --bac-capsule-h: clamp(30px, 8vh, 38px);
   --bac-win-w: clamp(340px, 46vw, 460px);
-  display: flex; flex-direction: column; align-items: center;
   /* Wide enough that a full-size PAIR circle, vertically centered
      against its row's own (much shorter, WIN-height) box via
-     .bac-exp-attach, can't visually collide with the row above/below. */
-  gap: clamp(.7rem,2.4vh,1rem);
+     .bac-exp-attach, can't visually collide with the row above/below.
+     Reused as .bac-exp-pairwrap's own internal row gap too, so P
+     PAIR/B PAIR keep the exact same vertical spacing now that they're
+     nested one level deeper. */
+  --bac-row-gap: clamp(.7rem,2.4vh,1rem);
+  display: flex; flex-direction: column; align-items: center;
+  gap: var(--bac-row-gap);
   padding: clamp(.04rem,.12vh,.08rem) clamp(.5rem,1.5vw,1rem) 0;
   flex-shrink: 0;
 }
@@ -1996,16 +2000,30 @@ body {
   display: flex; align-items: center; gap: clamp(.3rem,.8vw,.6rem);
   white-space: nowrap;
 }
-/* NO PAIR isn't its own box on a real table (just the absence of a Pair
-   bet) — kept clickable but visibly secondary to BANKER/PLAYER PAIR,
-   sitting right next to BANKER PAIR at the same row height. */
-.bac-nopair-mini {
-  width: 100%;
-  font-size: clamp(.44rem,1vw,.54rem) !important;
-  padding: clamp(.05rem,.14vh,.1rem) clamp(.3rem,.6vw,.45rem) !important;
-  min-height: clamp(13px,1.8vh,16px) !important;
-  letter-spacing: .3px !important;
-  opacity: .8;
+/* Wraps the PLAYER WIN/PLAYER PAIR row and BANKER WIN/BANKER PAIR row
+   together so NO PAIR (a real absolute-positioned sibling of both, not
+   nested inside either) can be centered vertically across the pair —
+   top:50% here lands exactly at the midpoint between P PAIR's own
+   center and B PAIR's own center (the two rows share the same height,
+   so the wrap's own vertical midpoint always equals that midpoint,
+   regardless of viewport). display:flex/column + the same --bac-row-
+   gap .bac-exp-grid uses keeps P PAIR/B PAIR's own spacing identical
+   to before now that they're nested one level deeper. */
+.bac-exp-pairwrap {
+  position: relative;
+  display: flex; flex-direction: column;
+  gap: var(--bac-row-gap);
+}
+/* NO PAIR sits further right than P PAIR/B PAIR (past their own
+   right edge, by the same gap they themselves sit past WIN's right
+   edge) so it reads as connecting the two — same shape/size as PAIR
+   now (.bac-felt-circle .bac-pair-circle, set in main.js), only the
+   position is special-cased here. */
+.bac-exp-nopair-mid {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + clamp(.3rem,.8vw,.6rem) + var(--bac-pair-circle-d) + clamp(.3rem,.8vw,.6rem));
+  transform: translateY(-50%);
 }
 /* CHECK isn't a real table position, so it sits outside the felt-
    position grid entirely, centered in its own thin corner strip
