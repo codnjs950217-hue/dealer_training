@@ -456,11 +456,11 @@ const Views = {
           <span>Mistake: <strong id="bac-mistakes">0</strong></span>
         </div>
         <!-- EXPERIMENTAL layout (real-table-felt reference): WIN and PAIR
-             share a row per side; BIG6/TIE(+NO PAIR)/SMALL6 and
-             BIG7/SUPER7/SMALL7 form their own rows below. Same target
-             ids as before (bac-b-btn-top, bac-pair-b, bac-tie-btn, ...)
-             so none of the judging/rendering logic changed — only which
-             slot each button's HTML lands in. -->
+             share a row per side; BIG6/TIE/SMALL6 and BIG7/SUPER7/SMALL7
+             form their own rows below. Same target ids as before
+             (bac-b-btn-top, bac-pair-b, bac-tie-btn, ...) so none of the
+             judging/rendering logic changed — only which slot each
+             button's HTML lands in. -->
         <div class="bac-exp-grid">
           <div class="bac-exp-row bac-exp-row-2col">
             <div class="bac-exp-cell bac-exp-cell-wide" id="bac-p-btn-top"></div>
@@ -472,10 +472,7 @@ const Views = {
           </div>
           <div class="bac-exp-row bac-exp-row-3col">
             <div class="bac-exp-cell" id="bac-exp-big6"></div>
-            <div class="bac-exp-cell bac-exp-cell-stack">
-              <div id="bac-tie-btn"></div>
-              <div id="bac-pair-mid"></div>
-            </div>
+            <div class="bac-exp-cell" id="bac-tie-btn"></div>
             <div class="bac-exp-cell" id="bac-exp-small6"></div>
           </div>
           <div class="bac-exp-row bac-exp-row-3col">
@@ -484,10 +481,15 @@ const Views = {
             <div class="bac-exp-cell" id="bac-exp-small7"></div>
           </div>
         </div>
-        <!-- CHECK isn't part of the real table, so it lives outside the
-             recognition grid entirely — a small floating corner control,
-             not a fifth row competing with the felt-position rows above. -->
-        <div class="bac-check-corner" id="bac-result"></div>
+        <!-- NO PAIR and CHECK aren't real table positions, so both live
+             outside the recognition grid entirely, stacked and centered
+             in their own small corner control below it. -->
+        <div class="bac-check-corner">
+          <div class="bac-check-corner-stack">
+            <div id="bac-pair-mid"></div>
+            <div id="bac-result"></div>
+          </div>
+        </div>
         <div class="bac-field">
           <div class="bac-shoe-col">
             <div class="shoe-visual">

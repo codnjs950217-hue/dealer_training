@@ -1925,13 +1925,13 @@ body {
    recognition is the point, so only what exists on a real table gets a
    row: WIN and PAIR share a row per side (PAIR narrower, like the small
    corner box on a real felt), then BIG6/TIE/SMALL6 and BIG7/SUPER7/
-   SMALL7 below. NO PAIR and CHECK aren't real table positions, so they
-   don't get rows here — NO PAIR is a tiny button tucked under TIE
-   (.bac-nopair-mini below) and CHECK floats in its own corner
-   (.bac-check-corner below), out of the recognition grid entirely.
-   Compact by design (shrink button height, keep width, minimal row
-   gaps) so the card/shoe area still fits under it without scrolling in
-   mobile landscape. */
+   SMALL7 below. NO PAIR and CHECK aren't real table positions, so
+   neither gets a row here — both are stacked together, centered, in
+   their own small corner control below the grid (.bac-check-corner /
+   .bac-check-corner-stack below), well clear of the felt-position rows
+   so they can't be mistaken for a real betting box. Compact by design
+   (shrink button height, keep width, minimal row gaps) so the card/shoe
+   area still fits under it without scrolling in mobile landscape. */
 .bac-exp-grid {
   display: flex; flex-direction: column;
   gap: clamp(.16rem,.4vh,.3rem);
@@ -1958,26 +1958,33 @@ body {
 }
 /* NO PAIR isn't its own box on a real table (just the absence of a Pair
    bet) — kept clickable but visibly secondary to BANKER/PLAYER PAIR.
-   Also used by the CTA slot (START/NEXT HAND, .bac-cta-btn) when it
-   shares this cell — untouched here since the class doesn't apply to it. */
+   Same font-size/padding/min-height as before; only its container
+   changed (now .bac-check-corner-stack, matching CHECK's width). */
 .bac-nopair-mini {
+  width: 100%;
   font-size: clamp(.5rem,1.1vw,.6rem) !important;
   padding: clamp(.08rem,.2vh,.14rem) clamp(.3rem,.6vw,.45rem) !important;
   min-height: clamp(16px,2.2vh,20px) !important;
   letter-spacing: .3px !important;
   opacity: .8;
 }
-/* CHECK sits outside the felt-position grid entirely, in its own thin
-   right-aligned strip between the grid and the cards — small and out of
-   the way, but still in normal flow (not position:absolute) so it can
-   never float over the card/shoe/DRAW-button area below it. */
+/* NO PAIR + CHECK sit outside the felt-position grid entirely, stacked
+   and centered in their own thin corner strip between the grid and the
+   cards — small and out of the way, but still in normal flow (not
+   position:absolute) so nothing can float over the card/shoe/DRAW-
+   button area below. */
 .bac-check-corner {
   display: flex; justify-content: flex-end;
   padding: clamp(.1rem,.3vh,.2rem) clamp(.5rem,1.5vw,1rem) 0;
   flex-shrink: 0;
 }
-.bac-check-corner .bac-check-btn {
+.bac-check-corner-stack {
+  display: flex; flex-direction: column; align-items: center;
+  gap: clamp(.14rem,.3vh,.22rem);
   width: clamp(64px,14vw,92px);
+}
+.bac-check-corner-stack .bac-check-btn {
+  width: 100%;
   font-size: clamp(.58rem,1.3vw,.7rem);
   min-height: clamp(24px,3.2vh,30px);
   padding: clamp(.14rem,.35vh,.22rem) clamp(.4rem,.8vw,.6rem);
