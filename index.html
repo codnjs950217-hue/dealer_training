@@ -61,7 +61,10 @@
         <polyline points="9 22 9 13 15 13 15 22"/>
       </svg>
     </button>
-    <span class="top-bar-title" id="top-bar-title" style="display:none">
+    <span class="top-bar-title" id="top-bar-title" style="display:none"
+          role="button" tabindex="0" aria-label="Home"
+          onclick="App.navigate('home')"
+          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();App.navigate('home');}">
       <span class="top-bar-card-icon">
         <span class="top-bar-hero-cards">
           <div class="hcard red" style="transform:rotate(-18deg) translate(-6px,8px)">

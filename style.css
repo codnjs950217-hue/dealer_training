@@ -173,6 +173,13 @@ body {
   font-size: clamp(.62rem,1.4vw,.8rem); font-weight: 900; color: #fff;
   letter-spacing: .3px; user-select: none;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  /* Clickable: navigates Home, same as the home-btn icon. */
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.top-bar-title:hover,
+.top-bar-title:focus-visible {
+  opacity: .75;
 }
 .top-bar-title .gold { color: var(--gold); }
 .top-bar-user {
