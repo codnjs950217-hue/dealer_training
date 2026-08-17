@@ -455,35 +455,35 @@ const Views = {
           <span>Score: <strong id="bac-score">0</strong></span>
           <span>Mistake: <strong id="bac-mistakes">0</strong></span>
         </div>
-        <div class="bac-btn-cluster bac-btn-cluster-quiz">
-          <div class="bac-bclust-side" id="bac-b-btn-top"></div>
-          <div class="bac-bclust-mid" id="bac-tie-btn"></div>
-          <div class="bac-bclust-side" id="bac-p-btn-top"></div>
-        </div>
-        <div class="bac-pair-quiz-anchor">
-          <div class="bac-pair-quiz-row">
-            <div class="bac-pair-quiz-col bac-pair-quiz-col-banker">
-              <div class="bac-pair-quiz-stack">
-                <div class="bac-pair-quiz-spacer-main"></div>
-                <div class="bac-pair-quiz-spacer-sub"></div>
-                <div id="bac-pair-b"></div>
-              </div>
-            </div>
-            <div class="bac-pair-quiz-col bac-pair-quiz-col-mid">
-              <div class="bac-pair-quiz-stack">
-                <div class="bac-pair-quiz-spacer-main"></div>
-                <div class="bac-pair-quiz-spacer-sub bac-pair-quiz-spacer-sub-tall"></div>
-                <div id="bac-pair-mid"></div>
-              </div>
-            </div>
-            <div class="bac-pair-quiz-col bac-pair-quiz-col-player">
-              <div class="bac-pair-quiz-stack">
-                <div class="bac-pair-quiz-spacer-main"></div>
-                <div class="bac-pair-quiz-spacer-sub bac-pair-quiz-spacer-sub-tall"></div>
-                <div id="bac-pair-p"></div>
-              </div>
-            </div>
+        <!-- EXPERIMENTAL layout (real-table-felt reference): WIN and PAIR
+             share a row per side; BIG6/TIE(+NO PAIR)/SMALL6 and
+             BIG7/SUPER7/SMALL7 form their own rows below. Same target
+             ids as before (bac-b-btn-top, bac-pair-b, bac-tie-btn, ...)
+             so none of the judging/rendering logic changed — only which
+             slot each button's HTML lands in. -->
+        <div class="bac-exp-grid">
+          <div class="bac-exp-row bac-exp-row-2col">
+            <div class="bac-exp-cell bac-exp-cell-wide" id="bac-p-btn-top"></div>
+            <div class="bac-exp-cell bac-exp-cell-narrow" id="bac-pair-p"></div>
           </div>
+          <div class="bac-exp-row bac-exp-row-2col">
+            <div class="bac-exp-cell bac-exp-cell-wide" id="bac-b-btn-top"></div>
+            <div class="bac-exp-cell bac-exp-cell-narrow" id="bac-pair-b"></div>
+          </div>
+          <div class="bac-exp-row bac-exp-row-3col">
+            <div class="bac-exp-cell" id="bac-exp-big6"></div>
+            <div class="bac-exp-cell bac-exp-cell-stack">
+              <div id="bac-tie-btn"></div>
+              <div id="bac-pair-mid"></div>
+            </div>
+            <div class="bac-exp-cell" id="bac-exp-small6"></div>
+          </div>
+          <div class="bac-exp-row bac-exp-row-3col">
+            <div class="bac-exp-cell" id="bac-exp-big7"></div>
+            <div class="bac-exp-cell bac-exp-cell-stack" id="bac-exp-super7"></div>
+            <div class="bac-exp-cell" id="bac-exp-small7"></div>
+          </div>
+          <div class="bac-exp-row bac-exp-row-check" id="bac-result"></div>
         </div>
         <div class="bac-field">
           <div class="bac-shoe-col">
@@ -503,11 +503,6 @@ const Views = {
             <div class="bac-hand-wrap bac-ph-wrap" id="bac-ph"></div>
             <div class="bac-third-slot" id="bac-ph3"></div>
           </div>
-        </div>
-        <div class="bac-btn-cluster">
-          <div class="bac-bclust-side" id="bac-b-btn-bot"></div>
-          <div class="bac-bclust-mid"><div class="result-badge" id="bac-result"></div></div>
-          <div class="bac-bclust-side" id="bac-p-btn-bot"></div>
         </div>
       </div>
       <div class="bac-pay-panel" id="bac-pay-panel" style="display:none"></div>
@@ -2116,7 +2111,8 @@ const Sims = {
     function setBtn(id, html) { const e = $(id); if (e) e.innerHTML = html; }
 
     function clearInlineBtns() {
-      ['bac-b-btn-top','bac-b-btn-bot','bac-p-btn-top','bac-p-btn-bot','bac-tie-btn','bac-result'].forEach(id => {
+      ['bac-b-btn-top','bac-p-btn-top','bac-tie-btn','bac-result',
+       'bac-exp-big6','bac-exp-small6','bac-exp-big7','bac-exp-small7','bac-exp-super7'].forEach(id => {
         const e = $(id); if (e) e.innerHTML = '';
       });
       actions('');
@@ -2197,36 +2193,40 @@ const Sims = {
     // a pick (S.resultPicks) on and off; CHECK is what actually submits.
     // .bac-result-picked marks the currently-picked button(s) so the
     // trainee can see their selection before committing.
+    // Each button is now its own standalone piece (no more paired
+    // sub-rows) since the experimental layout scatters BIG6/SMALL6/BIG7/
+    // SMALL7 into their own grid cells instead of stacking them under
+    // their WIN button.
     function winBtns(source) {
       const wp = S.resultPicks.winner, sp = S.resultPicks.special;
       const w = (label) => label === wp ? ' bac-result-picked' : '';
       const s = (label) => label === sp ? ' bac-result-picked' : '';
       return {
-        banker: `
-          <div class="bac-special-col">
-            <button class="btn-bac-banker bac-inline-btn${w('banker-win')}" onclick="Sims.baccarat.toggleWinnerPick('banker-win','${source}')">BANKER WIN</button>
-            <div class="bac-sub-btn-row">
-              <button class="btn-bac-banker bac-inline-btn btn-bac-special${s('banker-big6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-big6','${source}')">BIG 6</button>
-              <button class="btn-bac-banker bac-inline-btn btn-bac-special${s('banker-small6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-small6','${source}')">SMALL 6</button>
-            </div>
-          </div>`,
-        tie: `
-          <div class="bac-special-col bac-special-col-mid">
-            <button class="btn-bac-tie bac-inline-btn${w('tie')}" onclick="Sims.baccarat.toggleWinnerPick('tie','${source}')">TIE</button>
-            <div class="bac-sub-btn-row bac-sub-btn-row-mid">
-              <button class="btn-bac-super7 bac-inline-btn btn-bac-special${s('super-big7')}" onclick="Sims.baccarat.toggleSpecialPick('super-big7','${source}')">SUPER BIG 7</button>
-              <button class="btn-bac-super7 bac-inline-btn btn-bac-special${s('super-small7')}" onclick="Sims.baccarat.toggleSpecialPick('super-small7','${source}')">SUPER SMALL 7</button>
-            </div>
-          </div>`,
-        player: `
-          <div class="bac-special-col">
-            <button class="btn-bac-player bac-inline-btn${w('player-win')}" onclick="Sims.baccarat.toggleWinnerPick('player-win','${source}')">PLAYER WIN</button>
-            <div class="bac-sub-btn-row">
-              <button class="btn-bac-player bac-inline-btn btn-bac-special${s('player-big7')}" onclick="Sims.baccarat.toggleSpecialPick('player-big7','${source}')">BIG 7</button>
-              <button class="btn-bac-player bac-inline-btn btn-bac-special${s('player-small7')}" onclick="Sims.baccarat.toggleSpecialPick('player-small7','${source}')">SMALL 7</button>
-            </div>
-          </div>`,
+        bankerWin:    `<button class="btn-bac-banker bac-inline-btn${w('banker-win')}" onclick="Sims.baccarat.toggleWinnerPick('banker-win','${source}')">BANKER WIN</button>`,
+        bankerBig6:   `<button class="btn-bac-banker bac-inline-btn btn-bac-special${s('banker-big6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-big6','${source}')">BIG 6</button>`,
+        bankerSmall6: `<button class="btn-bac-banker bac-inline-btn btn-bac-special${s('banker-small6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-small6','${source}')">SMALL 6</button>`,
+        tie:          `<button class="btn-bac-tie bac-inline-btn${w('tie')}" onclick="Sims.baccarat.toggleWinnerPick('tie','${source}')">TIE</button>`,
+        superBig7:    `<button class="btn-bac-super7 bac-inline-btn btn-bac-special${s('super-big7')}" onclick="Sims.baccarat.toggleSpecialPick('super-big7','${source}')">SUPER BIG 7</button>`,
+        superSmall7:  `<button class="btn-bac-super7 bac-inline-btn btn-bac-special${s('super-small7')}" onclick="Sims.baccarat.toggleSpecialPick('super-small7','${source}')">SUPER SMALL 7</button>`,
+        playerWin:    `<button class="btn-bac-player bac-inline-btn${w('player-win')}" onclick="Sims.baccarat.toggleWinnerPick('player-win','${source}')">PLAYER WIN</button>`,
+        playerBig7:   `<button class="btn-bac-player bac-inline-btn btn-bac-special${s('player-big7')}" onclick="Sims.baccarat.toggleSpecialPick('player-big7','${source}')">BIG 7</button>`,
+        playerSmall7: `<button class="btn-bac-player bac-inline-btn btn-bac-special${s('player-small7')}" onclick="Sims.baccarat.toggleSpecialPick('player-small7','${source}')">SMALL 7</button>`,
       };
+    }
+
+    // Paints all 9 winner/special buttons into the experimental grid's
+    // individual cells. Shared by the initial render (show*Quiz) and by
+    // refreshResultBtns() (re-painted after every toggle).
+    function paintResultGrid(source) {
+      const b = winBtns(source);
+      setBtn('bac-p-btn-top', b.playerWin);
+      setBtn('bac-b-btn-top', b.bankerWin);
+      setBtn('bac-tie-btn', b.tie);
+      setBtn('bac-exp-big6', b.bankerBig6);
+      setBtn('bac-exp-small6', b.bankerSmall6);
+      setBtn('bac-exp-big7', b.playerBig7);
+      setBtn('bac-exp-small7', b.playerSmall7);
+      setBtn('bac-exp-super7', b.superBig7 + b.superSmall7);
     }
 
     // Always enabled — its own state never hints at correctness (req. 2).
@@ -2234,14 +2234,11 @@ const Sims = {
       return `<button class="bac-check-btn" onclick="Sims.baccarat.checkResult('${source}')">CHECK</button>`;
     }
 
-    // Re-paints just the WIN/TIE/PLAYER WIN + special buttons (not the
-    // DRAW slots or CHECK itself) after a toggle, so a pick's highlight
-    // shows up immediately without touching anything else on screen.
+    // Re-paints just the winner/special buttons (not the DRAW slots, Pair
+    // row, or CHECK itself) after a toggle, so a pick's highlight shows
+    // up immediately without touching anything else on screen.
     function refreshResultBtns(source) {
-      const b = winBtns(source);
-      setBtn('bac-b-btn-top', b.banker);
-      setBtn('bac-tie-btn', b.tie);
-      setBtn('bac-p-btn-top', b.player);
+      paintResultGrid(source);
     }
 
     function clearPairBtns() {
@@ -2303,12 +2300,7 @@ const Sims = {
     }
 
     function showInitialQuiz() {
-      const b = winBtns('initial');
-      setBtn('bac-b-btn-top', b.banker);
-      setBtn('bac-b-btn-bot', '');
-      setBtn('bac-tie-btn', b.tie);
-      setBtn('bac-p-btn-top', b.player);
-      setBtn('bac-p-btn-bot', '');
+      paintResultGrid('initial');
       setBtn('bac-result', checkBtnHtml('initial'));
       setBtn('bac-bh3', `<button class="btn-bac-draw bac-draw-slot-btn" onclick="Sims.baccarat.quizInitial('draw-banker')">BANKER<br>DRAW</button>`);
       setBtn('bac-ph3', `<button class="btn-bac-draw bac-draw-slot-btn" onclick="Sims.baccarat.quizInitial('draw-player')">PLAYER<br>DRAW</button>`);
@@ -2320,12 +2312,7 @@ const Sims = {
       // buttons below are being restored, showing the trainee's earlier
       // pick again (renderPairBtnsFinal(), not a fresh pending judgment).
       renderPairBtnsFinal();
-      const b = winBtns('special');
-      setBtn('bac-b-btn-top', b.banker);
-      setBtn('bac-b-btn-bot', '');
-      setBtn('bac-tie-btn', b.tie);
-      setBtn('bac-p-btn-top', b.player);
-      setBtn('bac-p-btn-bot', '');
+      paintResultGrid('special');
       setBtn('bac-result', checkBtnHtml('special'));
       // Banker drew a 3rd card because Player stood (Player still has only 2 cards):
       // keep the PLAYER DRAW option visible so an over-draw attempt can still be caught.
@@ -2340,12 +2327,7 @@ const Sims = {
       // buttons below are being restored, showing the trainee's earlier
       // pick again (renderPairBtnsFinal(), not a fresh pending judgment).
       renderPairBtnsFinal();
-      const b = winBtns('banker');
-      setBtn('bac-b-btn-top', b.banker);
-      setBtn('bac-b-btn-bot', '');
-      setBtn('bac-tie-btn', b.tie);
-      setBtn('bac-p-btn-top', b.player);
-      setBtn('bac-p-btn-bot', '');
+      paintResultGrid('banker');
       setBtn('bac-result', checkBtnHtml('banker'));
       setBtn('bac-bh3', `<button class="btn-bac-draw bac-draw-slot-btn" onclick="Sims.baccarat.quizBanker('draw-banker')">BANKER<br>DRAW</button>`);
       msg(`Player drew ${S.pThird.rank}${S.pThird.suit}. Banker action?`);
@@ -2478,7 +2460,6 @@ const Sims = {
         const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
         const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
         $('bac-result').textContent = '';
-        $('bac-result').className   = 'result-badge';
         const pp = $('bac-pay-panel');
         if (pp) pp.style.display = 'none';
         clearInlineBtns();
