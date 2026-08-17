@@ -2112,23 +2112,6 @@ body {
   top: calc(2 * var(--bac-pair-circle-d) + 3 * var(--bac-row-gap) + 2 * var(--bac-capsule-h));
   transform: translate(-50%, -100%);
 }
-/* NEXT HAND (not START — see .bac-cta-next, only added by showNextBtn())
-   sits directly under the result banner instead of at START's own
-   pre-first-hand spot above. top's calc converts the banner's own
-   top+height+gap (all in .baccarat-table's coordinate space, via the
-   --bac-banner-* vars defined there) into this element's coordinate
-   space, which is relative to .bac-exp-pairwrap instead — subtracting
-   pairwrap's own offset from the table (the table's padding-top plus
-   .bac-exp-grid's own, literal-matched to those rules' own values since
-   neither is a custom property elsewhere). translate's Y is 0 (not
-   -100%, unlike START above) since top now already IS the button's own
-   top edge, not a bottom-anchor line — it grows downward from the
-   banner, reading as one continuous group. */
-.bac-exp-nopair-mid:has(.bac-cta-next) {
-  left: 50%;
-  top: calc(var(--bac-banner-top) + var(--bac-banner-h) + var(--bac-banner-gap) - clamp(.5rem,1vh,.9rem) - clamp(.04rem,.12vh,.08rem));
-  transform: translate(-50%, 0);
-}
 /* SUBMIT (.bac-check-btn) isn't a real table position, so it doesn't
    get a slot in the felt-position grid — it lives right under SHOE
    instead (a second stacked child of .bac-shoe-col, see the template
@@ -2199,22 +2182,16 @@ body {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-/* Single source of truth for the result banner's own position/size, so
-   the NEXT HAND button below (a totally different positioning context —
-   see .bac-exp-nopair-mid:has(.bac-cta-btn) further down) can place
-   itself directly beneath the banner via the same numbers instead of
-   guessing a fixed offset that would drift out of sync if the banner's
-   size ever changes again. --bac-banner-h approximates the rendered
-   pill height from its own font-size/padding (line-height 1.15 * the
-   main label's font-size, the tallest of its two lines, + top/bottom
-   padding) — close enough for "a natural gap below it," not meant to
-   be pixel-exact. */
+/* Result banner's own position/size, shared via custom properties so
+   .bac-result-banner's padding/font-size below stay in sync with
+   .bac-win-over-divider's top offset. NEXT HAND deliberately does NOT
+   read these — it shares START's own unrelated position (see
+   .bac-exp-nopair-mid:has(.bac-cta-btn)), unchanged regardless of the
+   banner's size. */
 .baccarat-table {
   --bac-banner-top: clamp(1.3rem, 4vh, 2.4rem);
   --bac-banner-font: clamp(2.1rem, 5.75vh, 3rem);
   --bac-banner-pad-y: clamp(.65rem, 1.7vh, 1rem);
-  --bac-banner-h: calc(var(--bac-banner-font) * 1.15 + var(--bac-banner-pad-y) * 2);
-  --bac-banner-gap: clamp(.6rem, 1.6vh, .9rem);
 }
 .bac-win-over-divider {
   position: absolute; left: 50%; transform: translateX(-50%);

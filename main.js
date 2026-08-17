@@ -2093,16 +2093,13 @@ const Sims = {
     // centered mid (NO PAIR) slot, right under the result text. Only the
     // label differs. The banker/player Pair slots are cleared alongside
     // it so the whole row reads as just this one button.
-    const showCtaBtn = (label, extraCls = '') => {
+    const showCtaBtn = (label) => {
       setBtn('bac-pair-b', '');
       setBtn('bac-pair-p', '');
-      setBtn('bac-pair-mid', `<button class="bac-cta-btn${extraCls}" onclick="Sims.baccarat.deal()">${label}</button>`);
+      setBtn('bac-pair-mid', `<button class="bac-cta-btn" onclick="Sims.baccarat.deal()">${label}</button>`);
     };
     const showStartBar = () => showCtaBtn('START');
-    // NEXT HAND (not START) gets its own class — it sits under the result
-    // banner (.bac-cta-next in CSS), a different spot than START's own
-    // pre-first-hand position, which stays exactly as before.
-    const showNextBtn  = () => showCtaBtn('NEXT HAND', ' bac-cta-next');
+    const showNextBtn  = () => showCtaBtn('NEXT HAND');
     const hideAllCtrl  = () => { setBtn('bac-pair-mid', ''); };
     const enableDraw  = () => { S.rounds === 0 ? showStartBar() : showNextBtn(); };
     const disableDraw = () => { hideAllCtrl(); };
