@@ -2059,6 +2059,27 @@ body {
   left: calc(100% + clamp(.3rem,.8vw,.6rem) + var(--bac-pair-circle-d) + clamp(.3rem,.8vw,.6rem));
   transform: translateY(-50%);
 }
+/* START/NEXT HAND (.bac-cta-btn) share this same slot/id with NO PAIR
+   (see showCtaBtn() in main.js) but need a completely different spot
+   — centered over .bac-field-divider, sitting just above it — so this
+   overrides the container's position specifically when it's holding
+   the CTA button, leaving NO PAIR's own position (the rule above)
+   untouched. left:50%/translateX(-50%) here lands on
+   .bac-exp-pairwrap's own horizontal center, which is also
+   .bac-exp-grid's center (pairwrap's width == --bac-win-w, so its
+   midpoint is exactly gridWidth/2 too) — matching .bac-field-
+   divider's centered position since .bac-field-divider is what
+   .bac-field also horizontally centers. top's calc reaches from
+   pairwrap's own top down past the rest of the grid (its own 2 WIN
+   rows + BIG6/TIE/SMALL6 + BIG7/SUPER7/SMALL7, all 3 --bac-row-gaps
+   between them) to the grid's bottom edge; translateY(-100%) bottom-
+   aligns the button there so it sits entirely above that line instead
+   of straddling it. */
+.bac-exp-nopair-mid:has(.bac-cta-btn) {
+  left: 50%;
+  top: calc(2 * var(--bac-pair-circle-d) + 3 * var(--bac-row-gap) + 2 * var(--bac-capsule-h));
+  transform: translate(-50%, -100%);
+}
 /* CHECK isn't a real table position, so it sits outside the felt-
    position grid entirely, centered in its own thin corner strip
    between the grid and the cards — small and out of the way, but
@@ -3572,21 +3593,16 @@ body {
    One button, one spot, one design — START (before the first hand) and
    NEXT HAND (after every hand after that) are the same .bac-cta-btn,
    only the label text differs (see showCtaBtn() in main.js). Both live
-   in the experimental grid's centered mid (NO PAIR) slot, right under
-   TIE. A restrained gold ETG-console look: a weak gold-to-gold gradient
-   (both stops already the app's --gold/--gold-light, no new hues), a
-   soft top highlight, a gentle contact shadow, --r's normal corner
-   radius (not a full pill) — no neon, no heavy glow. */
+   in the experimental grid's centered mid (NO PAIR) slot, positioned
+   via .bac-exp-nopair-mid:has(.bac-cta-btn) above — centered over
+   .bac-field-divider, sitting just above it. A restrained gold ETG-
+   console look: a weak gold-to-gold gradient (both stops already the
+   app's --gold/--gold-light, no new hues), a soft top highlight, a
+   gentle contact shadow, --r's normal corner radius (not a full pill)
+   — no neon, no heavy glow. */
 .bac-cta-btn {
   --btn-hi: 232,201,109; --btn-glow: 201,168,76;
   width: 100%;
-  /* Its container (.bac-exp-nopair-mid, shared with NO PAIR) is
-     vertically centered exactly between PLAYER WIN's and BANKER WIN's
-     rows — nudged up from that dead-center here so START/NEXT HAND
-     reads closer to PLAYER WIN's row instead of sitting equidistant.
-     position:relative/top (not transform) so it doesn't fight the
-     :hover/:active translateY press-feedback below. */
-  position: relative; top: -10px;
   background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 100%);
   color: #241a05;
   border: 1px solid rgba(var(--btn-hi), .5);
