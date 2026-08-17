@@ -1854,19 +1854,14 @@ body {
   height: clamp(46px,8.4vh,62px);
 }
 .btn-bac-pair {
-  background: linear-gradient(160deg, #0e4a6b 0%, #062232 100%);
+  --btn-hi: 150,220,255; --btn-glow: 20,120,180;
+  background: linear-gradient(180deg, #0e4a6b 0%, #062232 100%);
   color: #7fd4f5;
-  border: none;
-  box-shadow: inset 0 1px 0 rgba(150,220,255,.12), 0 2px 8px rgba(20,120,180,.3);
   padding: clamp(.32rem,.75vh,.46rem) clamp(.55rem,1.1vw,.8rem); border-radius: var(--r);
   font-weight: 800; cursor: pointer; font-size: clamp(.68rem,1.5vw,.82rem); min-height: clamp(43px,7.2vh,58px);
   letter-spacing: .6px; text-shadow: 0 1px 6px rgba(90,200,255,.4);
-  white-space: nowrap; transition: all .18s;
+  white-space: nowrap;
   width: 100%;
-}
-.btn-bac-pair:hover {
-  background: linear-gradient(160deg, #12587f 0%, #082a3f 100%);
-  box-shadow: inset 0 1px 0 rgba(150,220,255,.18), 0 3px 12px rgba(30,150,210,.4);
 }
 .btn-bac-pair:disabled {
   opacity: .5; cursor: default; pointer-events: none;
@@ -1875,19 +1870,27 @@ body {
 /* Subtle pulse + blue glow while a Pair judgment is still pending on this
    button — draws the eye to the choice without a jarring blink. Stops the
    instant the button is picked/locked (:disabled, see above) or the whole
-   quiz clears (the button itself is removed from the DOM). */
+   quiz clears (the button itself is removed from the DOM). Paused on
+   hover/press so the console-button lift/depress feedback below (which
+   also animates box-shadow/transform) is actually visible in the moment. */
 .btn-bac-pair:not(:disabled) {
   animation: bacPairPulse 1.35s ease-in-out infinite;
+}
+.btn-bac-pair:hover:not(:disabled),
+.btn-bac-pair:active:not(:disabled) {
+  animation-play-state: paused;
 }
 @keyframes bacPairPulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: inset 0 1px 0 rgba(150,220,255,.12), 0 2px 8px rgba(20,120,180,.3),
+    box-shadow: inset 0 1px 0 rgba(150,220,255,.16), inset 0 -2px 3px rgba(0,0,0,.28),
+      0 2px 3px rgba(0,0,0,.35), 0 2px 10px rgba(20,120,180,.35),
       0 0 0 rgba(90,190,255,0);
   }
   50% {
     transform: scale(1.05);
-    box-shadow: inset 0 1px 0 rgba(150,220,255,.12), 0 2px 8px rgba(20,120,180,.3),
+    box-shadow: inset 0 1px 0 rgba(150,220,255,.16), inset 0 -2px 3px rgba(0,0,0,.28),
+      0 2px 3px rgba(0,0,0,.35), 0 2px 10px rgba(20,120,180,.35),
       0 0 9px 2px rgba(90,190,255,.5);
   }
 }
@@ -2215,46 +2218,31 @@ body {
 /* ---- BACCARAT: WIN / DRAW QUIZ BUTTONS ---- */
 
 .btn-bac-player {
-  background: linear-gradient(160deg, #5a0e1c 0%, #2e0610 100%);
+  --btn-hi: 255,150,150; --btn-glow: 180,30,30;
+  background: linear-gradient(180deg, #5a0e1c 0%, #2e0610 100%);
   color: #ff8080;
-  border: none;
-  box-shadow: inset 0 1px 0 rgba(255,150,150,.12), 0 2px 10px rgba(180,30,30,.35);
   padding: clamp(.45rem,1vh,.62rem) clamp(.75rem,1.5vw,1.1rem); border-radius: var(--r);
   font-weight: 800; cursor: pointer; font-size: var(--bf-md); min-height: var(--tap-h);
   letter-spacing: .6px; text-shadow: 0 1px 6px rgba(255,80,80,.4);
-  transition: all .18s; white-space: nowrap;
-}
-.btn-bac-player:hover {
-  background: linear-gradient(160deg, #6e1222 0%, #3d0814 100%);
-  box-shadow: inset 0 1px 0 rgba(255,150,150,.18), 0 3px 14px rgba(200,40,40,.45);
+  white-space: nowrap;
 }
 .btn-bac-banker {
-  background: linear-gradient(160deg, #543008 0%, #2c1602 100%);
+  --btn-hi: 255,220,120; --btn-glow: 160,110,20;
+  background: linear-gradient(180deg, #543008 0%, #2c1602 100%);
   color: #e8c96a;
-  border: none;
-  box-shadow: inset 0 1px 0 rgba(255,220,120,.12), 0 2px 10px rgba(160,110,20,.35);
   padding: clamp(.45rem,1vh,.62rem) clamp(.75rem,1.5vw,1.1rem); border-radius: var(--r);
   font-weight: 800; cursor: pointer; font-size: var(--bf-md); min-height: var(--tap-h);
   letter-spacing: .6px; text-shadow: 0 1px 6px rgba(220,170,50,.4);
-  transition: all .18s; white-space: nowrap;
-}
-.btn-bac-banker:hover {
-  background: linear-gradient(160deg, #643a0c 0%, #381c04 100%);
-  box-shadow: inset 0 1px 0 rgba(255,220,120,.18), 0 3px 14px rgba(180,130,30,.45);
+  white-space: nowrap;
 }
 .btn-bac-tie {
-  background: linear-gradient(160deg, #0f4f0f 0%, #072407 100%);
+  --btn-hi: 150,255,140; --btn-glow: 30,140,30;
+  background: linear-gradient(180deg, #0f4f0f 0%, #072407 100%);
   color: #7de87a;
-  border: none;
-  box-shadow: inset 0 1px 0 rgba(150,255,140,.1), 0 2px 10px rgba(30,140,30,.35);
   padding: clamp(.45rem,1vh,.62rem) clamp(.75rem,1.5vw,1.1rem); border-radius: var(--r);
   font-weight: 800; cursor: pointer; font-size: var(--bf-md); min-height: var(--tap-h);
   letter-spacing: .6px; text-shadow: 0 1px 6px rgba(80,210,80,.4);
-  transition: all .18s; white-space: nowrap;
-}
-.btn-bac-tie:hover {
-  background: linear-gradient(160deg, #156015 0%, #0a2e0a 100%);
-  box-shadow: inset 0 1px 0 rgba(150,255,140,.16), 0 3px 14px rgba(40,170,40,.45);
+  white-space: nowrap;
 }
 /* Charcoal status-panel look (not translucent-white-over-felt, which read
    as green) so BANKER/PLAYER DRAW reads as its own display, not part of
@@ -3580,15 +3568,14 @@ body {
   animation: pairTakeFade 2.8s ease-out forwards;
 }
 .btn-bac-super7 {
-  background: linear-gradient(160deg, #28205a 0%, #12103a 100%);
+  --btn-hi: 200,180,255; --btn-glow: 100,70,200;
+  background: linear-gradient(180deg, #28205a 0%, #12103a 100%);
   color: #c8b8ff;
-  border: none;
-  box-shadow: inset 0 1px 0 rgba(200,180,255,.1), 0 2px 10px rgba(100,70,200,.3);
   padding: .38rem .75rem; border-radius: var(--r);
   font-weight: 800; cursor: pointer; font-size: .75rem;
   letter-spacing: .5px; text-shadow: 0 1px 5px rgba(160,120,255,.4);
   min-height: var(--tap-h);
-  transition: all .18s; white-space: nowrap;
+  white-space: nowrap;
 }
 
 /* ============================================================
@@ -3763,9 +3750,43 @@ body {
   box-shadow: 0 7px 30px rgba(201,168,76,.72);
 }
 .pk-start-btn:disabled { opacity: .4; cursor: default; }
-.btn-bac-super7:hover {
-  background: linear-gradient(160deg, #342870 0%, #1a1648 100%);
-  box-shadow: inset 0 1px 0 rgba(200,180,255,.16), 0 3px 14px rgba(120,90,220,.4);
+
+/* ---- BACCARAT: QUIZ-BUTTON CONSOLE-BUTTON TREATMENT ----
+   Shared border/shadow/hover/active for the WIN/TIE/BIG6/SMALL6/BIG7/
+   SMALL7/SUPER-BIG7/SUPER-SMALL7/Pair buttons — a digital-console feel
+   (soft top highlight, faint bottom shading, a real border, a neutral
+   contact shadow) without a gaudy 3D bevel or neon glow. Each family's
+   own rule above only sets --btn-hi/--btn-glow (its color identity) and
+   the gradient/text colors; this is the one place their depth/interaction
+   states live, placed last so it wins the cascade over those rules. */
+.btn-bac-player, .btn-bac-banker, .btn-bac-tie, .btn-bac-super7, .btn-bac-pair {
+  border: 1px solid rgba(var(--btn-hi), .3);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--btn-hi), .16),
+    inset 0 -2px 3px rgba(0,0,0,.28),
+    0 2px 3px rgba(0,0,0,.35),
+    0 2px 10px rgba(var(--btn-glow), .35);
+  transition: filter .15s ease, transform .12s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.btn-bac-player:hover, .btn-bac-banker:hover, .btn-bac-tie:hover,
+.btn-bac-super7:hover, .btn-bac-pair:hover {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+  border-color: rgba(var(--btn-hi), .45);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--btn-hi), .22),
+    inset 0 -2px 3px rgba(0,0,0,.25),
+    0 4px 8px rgba(0,0,0,.4),
+    0 3px 14px rgba(var(--btn-glow), .45);
+}
+.btn-bac-player:active, .btn-bac-banker:active, .btn-bac-tie:active,
+.btn-bac-super7:active, .btn-bac-pair:active {
+  filter: brightness(.95);
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,.35),
+    inset 0 -1px 0 rgba(var(--btn-hi), .1),
+    0 1px 2px rgba(0,0,0,.3);
 }
 
 /* ============================================================
