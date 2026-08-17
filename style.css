@@ -1869,6 +1869,19 @@ body {
   opacity: .5; cursor: default; pointer-events: none;
   animation: none;
 }
+/* Final Pair-judgment state (renderPairBtnsFinal() in main.js): the
+   button(s) the trainee actually picked stay at full brightness with a
+   soft static highlight instead of falling back to the :disabled dim
+   above, so what was picked stays legible for the rest of the hand. */
+.btn-bac-pair.bac-pair-selected:disabled {
+  opacity: 1;
+  border-color: rgba(var(--btn-hi), .55);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--btn-hi), .22),
+    inset 0 -2px 3px rgba(0,0,0,.28),
+    0 2px 3px rgba(0,0,0,.35),
+    0 0 8px 1px rgba(var(--btn-glow), .5);
+}
 /* Subtle pulse + blue glow while a Pair judgment is still pending on this
    button — draws the eye to the choice without a jarring blink. Stops the
    instant the button is picked/locked (:disabled, see above) or the whole

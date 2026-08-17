@@ -2250,6 +2250,21 @@ const Sims = {
       setBtn('bac-pair-p', `<button class="btn-bac-pair"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">PLAYER PAIR</button>`);
     }
 
+    // Once the Pair judgment is fully answered, keep all three buttons
+    // visible (not cleared) so the trainee can see what they picked for
+    // the rest of the hand — the button(s) actually picked stay at full
+    // brightness (.bac-pair-selected overrides the shared :disabled dim),
+    // the rest fall back to the normal disabled look (~50% opacity, no
+    // hover/click). Only deal() resets this, on Next Hand/new game.
+    function renderPairBtnsFinal() {
+      const p = S.pairPicked;
+      const btn = (label, selected) =>
+        `<button class="btn-bac-pair${selected ? ' bac-pair-selected' : ''}" disabled>${label}</button>`;
+      setBtn('bac-pair-b', btn('BANKER PAIR', p.banker));
+      setBtn('bac-pair-mid', btn('NO PAIR', p.none));
+      setBtn('bac-pair-p', btn('PLAYER PAIR', p.player));
+    }
+
     function showPairQuiz() {
       setPairPhaseFocus(true);
       renderPairBtns();
@@ -2367,7 +2382,9 @@ const Sims = {
       setBtn('bac-b-btn-top', '');
       setBtn('bac-p-btn-top', '');
       setBtn('bac-tie-btn', html);
-      clearPairBtns();
+      // Leave the Pair buttons as renderPairBtnsFinal() left them — the
+      // trainee's pick should stay visible through the pay panel, not
+      // disappear the moment the hand's winner is announced.
     }
 
     function buildPayPanel() {
@@ -2437,7 +2454,7 @@ const Sims = {
       deal() {
         if (S.deck.length < 20) S.deck = createBacDeck();
         S.ph = []; S.bh = []; S.pThird = null; S.winner = null;
-        S.pairPicked = { banker: false, player: false };
+        S.pairPicked = { banker: false, player: false, none: false };
         S.pairDone = false;
         disableDraw();
 
@@ -2479,7 +2496,8 @@ const Sims = {
         if (side === 'no-pair') {
           if (bPair || pPair) { showPairMistake(renderPairBtns); return; }
           S.pairDone = true;
-          clearPairBtns();
+          S.pairPicked.none = true;
+          renderPairBtnsFinal();
           setPairPhaseFocus(false);
           return;
         }
@@ -2493,7 +2511,7 @@ const Sims = {
         const done = (!bPair || S.pairPicked.banker) && (!pPair || S.pairPicked.player);
         if (done) {
           S.pairDone = true;
-          clearPairBtns();
+          renderPairBtnsFinal();
           setPairPhaseFocus(false);
         } else {
           renderPairBtns();
