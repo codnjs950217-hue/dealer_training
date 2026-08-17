@@ -4504,6 +4504,17 @@ body {
   font-size: clamp(.68rem, 1.5vw, .82rem);
 }
 
+/* SKIP button — secondary action during the reveal phase, visually
+   distinct (blue) from the gold START/NEXT HAND button it replaces */
+.thpr-skip-btn {
+  background: #2f7de1; color: #0a1628;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: .35em;
+  box-shadow: 0 2px 12px rgba(47,125,225,.38);
+}
+.thpr-skip-btn:hover:not(:disabled) { background: #4a90f0; }
+.thpr-skip-icon { flex: none; color: #0a1628; }
+
 /* PAY / TAKE / TIE answer buttons */
 .thpr-pay-btn {
   background: #0a2d1c; color: #4ecdc4;

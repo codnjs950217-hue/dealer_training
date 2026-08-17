@@ -4589,7 +4589,7 @@ const Sims = {
         // openDealerCards() below removes it again once that phase ends.
         clearRevealTimers();
         var actionRow = $('thpr-action-row');
-        if (actionRow) actionRow.innerHTML = '<button class="thpr-start-btn thpr-skip-btn" onclick="Sims.poker.thpRank.skipReveal()">⏩ SKIP</button>';
+        if (actionRow) actionRow.innerHTML = '<button class="thpr-start-btn thpr-skip-btn" onclick="Sims.poker.thpRank.skipReveal()"><svg class="thpr-skip-icon" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path d="M2 5v14l9-7-9-7z" fill="currentColor"/><path d="M12 5v14l9-7-9-7z" fill="currentColor"/></svg>SKIP</button>';
 
         // Reveal sequence: FLOP → TURN → RIVER → DEALER → PLAYER 5.
         // No countdown number/label shown between streets anymore — just a
