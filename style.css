@@ -2246,20 +2246,17 @@ body {
 }
 /* Charcoal status-panel look (not translucent-white-over-felt, which read
    as green) so BANKER/PLAYER DRAW reads as its own display, not part of
-   the table felt. */
+   the table felt. Same console-button depth treatment as the other quiz
+   buttons below (border/shadow/hover/active), just with a neutral
+   charcoal identity instead of a saturated hue. */
 .btn-bac-draw {
-  background: #1a1a1a;
+  --btn-hi: 255,255,255; --btn-glow: 0,0,0;
+  background: linear-gradient(180deg, #242424 0%, #141414 100%);
   color: #ffffff;
-  border: 1px solid #333333;
-  box-shadow: 0 2px 8px rgba(0,0,0,.35);
   padding: clamp(.45rem,1vh,.62rem) clamp(.75rem,1.5vw,1.1rem); border-radius: var(--r);
   font-weight: 700; cursor: pointer; font-size: var(--bf-md); min-height: var(--tap-h);
   letter-spacing: .4px;
-  transition: all .18s; white-space: nowrap;
-}
-.btn-bac-draw:hover {
-  background: #242424;
-  border-color: #454545;
+  white-space: nowrap;
 }
 /* Taller touch target for the main WIN/TIE quiz buttons on mobile
    landscape — width untouched (padding-inline/font unchanged), only
@@ -3753,13 +3750,15 @@ body {
 
 /* ---- BACCARAT: QUIZ-BUTTON CONSOLE-BUTTON TREATMENT ----
    Shared border/shadow/hover/active for the WIN/TIE/BIG6/SMALL6/BIG7/
-   SMALL7/SUPER-BIG7/SUPER-SMALL7/Pair buttons — a digital-console feel
-   (soft top highlight, faint bottom shading, a real border, a neutral
-   contact shadow) without a gaudy 3D bevel or neon glow. Each family's
-   own rule above only sets --btn-hi/--btn-glow (its color identity) and
-   the gradient/text colors; this is the one place their depth/interaction
-   states live, placed last so it wins the cascade over those rules. */
-.btn-bac-player, .btn-bac-banker, .btn-bac-tie, .btn-bac-super7, .btn-bac-pair {
+   SMALL7/SUPER-BIG7/SUPER-SMALL7/Pair/DRAW buttons — a digital-console
+   feel (soft top highlight, faint bottom shading, a real border, a
+   neutral contact shadow) without a gaudy 3D bevel or neon glow. Each
+   family's own rule above only sets --btn-hi/--btn-glow (its color
+   identity) and the gradient/text colors; this is the one place their
+   depth/interaction states live, placed last so it wins the cascade
+   over those rules. DRAW uses a neutral white/black --btn-hi/--btn-glow
+   so it stays a charcoal panel instead of picking up a hue glow. */
+.btn-bac-player, .btn-bac-banker, .btn-bac-tie, .btn-bac-super7, .btn-bac-pair, .btn-bac-draw {
   border: 1px solid rgba(var(--btn-hi), .3);
   box-shadow:
     inset 0 1px 0 rgba(var(--btn-hi), .16),
@@ -3769,7 +3768,7 @@ body {
   transition: filter .15s ease, transform .12s ease, box-shadow .15s ease, border-color .15s ease;
 }
 .btn-bac-player:hover, .btn-bac-banker:hover, .btn-bac-tie:hover,
-.btn-bac-super7:hover, .btn-bac-pair:hover {
+.btn-bac-super7:hover, .btn-bac-pair:hover, .btn-bac-draw:hover {
   filter: brightness(1.07);
   transform: translateY(-1px);
   border-color: rgba(var(--btn-hi), .45);
@@ -3780,7 +3779,7 @@ body {
     0 3px 14px rgba(var(--btn-glow), .45);
 }
 .btn-bac-player:active, .btn-bac-banker:active, .btn-bac-tie:active,
-.btn-bac-super7:active, .btn-bac-pair:active {
+.btn-bac-super7:active, .btn-bac-pair:active, .btn-bac-draw:active {
   filter: brightness(.95);
   transform: translateY(1px);
   box-shadow:
