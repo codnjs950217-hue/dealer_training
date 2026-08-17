@@ -483,8 +483,11 @@ const Views = {
             <div class="bac-exp-cell bac-exp-cell-stack" id="bac-exp-super7"></div>
             <div class="bac-exp-cell" id="bac-exp-small7"></div>
           </div>
-          <div class="bac-exp-row bac-exp-row-check" id="bac-result"></div>
         </div>
+        <!-- CHECK isn't part of the real table, so it lives outside the
+             recognition grid entirely — a small floating corner control,
+             not a fifth row competing with the felt-position rows above. -->
+        <div class="bac-check-corner" id="bac-result"></div>
         <div class="bac-field">
           <div class="bac-shoe-col">
             <div class="shoe-visual">
@@ -2261,7 +2264,11 @@ const Sims = {
       const bLocked = S.pairPicked.banker;
       const pLocked = S.pairPicked.player;
       setBtn('bac-pair-b', `<button class="btn-bac-pair"${bLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('banker-pair')">BANKER PAIR</button>`);
-      setBtn('bac-pair-mid', `<button class="btn-bac-pair" onclick="Sims.baccarat.quizPair('no-pair')">NO PAIR</button>`);
+      // .bac-nopair-mini: NO PAIR doesn't exist as its own box on a real
+      // table (it's just the absence of a Pair bet), so it's kept small/
+      // tucked under TIE instead of matching BANKER/PLAYER PAIR's size —
+      // still fully clickable, just visually de-emphasized.
+      setBtn('bac-pair-mid', `<button class="btn-bac-pair bac-nopair-mini" onclick="Sims.baccarat.quizPair('no-pair')">NO PAIR</button>`);
       setBtn('bac-pair-p', `<button class="btn-bac-pair"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">PLAYER PAIR</button>`);
     }
 
@@ -2274,10 +2281,10 @@ const Sims = {
     // with the NEXT HAND button; deal() clears it for the new hand.
     function renderPairBtnsFinal() {
       const p = S.pairPicked;
-      const btn = (label, selected) =>
-        `<button class="btn-bac-pair${selected ? ' bac-pair-selected' : ''}" disabled>${label}</button>`;
+      const btn = (label, selected, extraCls) =>
+        `<button class="btn-bac-pair${selected ? ' bac-pair-selected' : ''}${extraCls ? ' ' + extraCls : ''}" disabled>${label}</button>`;
       setBtn('bac-pair-b', btn('BANKER PAIR', p.banker));
-      setBtn('bac-pair-mid', btn('NO PAIR', p.none));
+      setBtn('bac-pair-mid', btn('NO PAIR', p.none, 'bac-nopair-mini'));
       setBtn('bac-pair-p', btn('PLAYER PAIR', p.player));
     }
 

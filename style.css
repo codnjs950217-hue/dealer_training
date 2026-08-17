@@ -1804,14 +1804,14 @@ body {
      to that box, so the shoe moves down together with the in-flow card
      zones instead of drifting apart. Card size is untouched — only this
      gap grows/shrinks with the button grid's own height. */
-  margin-top: clamp(1.2rem, 5vh, 2.6rem);
+  margin-top: clamp(1.6rem, 6.5vh, 3.4rem);
 }
 .btn-bac-pair {
   --btn-hi: 150,220,255; --btn-glow: 20,120,180;
   background: linear-gradient(180deg, #0e4a6b 0%, #062232 100%);
   color: #7fd4f5;
-  padding: clamp(.24rem,.55vh,.34rem) clamp(.55rem,1.1vw,.8rem); border-radius: var(--r);
-  font-weight: 800; cursor: pointer; font-size: clamp(.64rem,1.4vw,.78rem); min-height: clamp(30px,4.2vh,38px);
+  padding: clamp(.18rem,.42vh,.26rem) clamp(.55rem,1.1vw,.8rem); border-radius: var(--r);
+  font-weight: 800; cursor: pointer; font-size: clamp(.6rem,1.3vw,.74rem); min-height: clamp(26px,3.6vh,32px);
   letter-spacing: .6px; text-shadow: 0 1px 6px rgba(90,200,255,.4);
   white-space: nowrap;
   width: 100%;
@@ -1921,16 +1921,21 @@ body {
 .bac-newgame-btn:hover { background: rgba(255,255,255,.14); color: #fff; border-color: rgba(255,255,255,.35); }
 
 /* ---- BACCARAT: EXPERIMENTAL REAL-TABLE-LAYOUT GRID ----
-   Usability-test layout referencing an actual baccarat felt: WIN and
-   PAIR share a row per side (PAIR narrower, like the small corner box
-   on a real table), then BIG6/TIE(+NO PAIR)/SMALL6 and BIG7/SUPER7/
-   SMALL7 rows below, then CHECK. Compact by design (req: shrink button
-   height, keep width) so the card/shoe area still fits under it without
-   scrolling in mobile landscape. */
+   Usability-test layout referencing an actual baccarat felt — position
+   recognition is the point, so only what exists on a real table gets a
+   row: WIN and PAIR share a row per side (PAIR narrower, like the small
+   corner box on a real felt), then BIG6/TIE/SMALL6 and BIG7/SUPER7/
+   SMALL7 below. NO PAIR and CHECK aren't real table positions, so they
+   don't get rows here — NO PAIR is a tiny button tucked under TIE
+   (.bac-nopair-mini below) and CHECK floats in its own corner
+   (.bac-check-corner below), out of the recognition grid entirely.
+   Compact by design (shrink button height, keep width, minimal row
+   gaps) so the card/shoe area still fits under it without scrolling in
+   mobile landscape. */
 .bac-exp-grid {
   display: flex; flex-direction: column;
-  gap: clamp(.28rem,.7vh,.5rem);
-  padding: clamp(.3rem,.8vh,.55rem) clamp(.5rem,1.5vw,1rem) 0;
+  gap: clamp(.16rem,.4vh,.3rem);
+  padding: clamp(.25rem,.6vh,.4rem) clamp(.5rem,1.5vw,1rem) 0;
   flex-shrink: 0;
 }
 .bac-exp-row {
@@ -1949,13 +1954,35 @@ body {
 .bac-exp-row-2col .bac-exp-cell-narrow { flex: 1; }
 .bac-exp-cell-stack {
   display: flex; flex-direction: column;
-  gap: clamp(.22rem,.5vh,.35rem);
+  gap: clamp(.14rem,.3vh,.22rem);
 }
-.bac-exp-row-check {
-  display: flex; justify-content: center;
-  padding: 0 clamp(1.4rem,10vw,4rem);
+/* NO PAIR isn't its own box on a real table (just the absence of a Pair
+   bet) — kept clickable but visibly secondary to BANKER/PLAYER PAIR.
+   Also used by the CTA slot (START/NEXT HAND, .bac-cta-btn) when it
+   shares this cell — untouched here since the class doesn't apply to it. */
+.bac-nopair-mini {
+  font-size: clamp(.5rem,1.1vw,.6rem) !important;
+  padding: clamp(.08rem,.2vh,.14rem) clamp(.3rem,.6vw,.45rem) !important;
+  min-height: clamp(16px,2.2vh,20px) !important;
+  letter-spacing: .3px !important;
+  opacity: .8;
 }
-.bac-exp-row-check > button { width: 100%; }
+/* CHECK sits outside the felt-position grid entirely, in its own thin
+   right-aligned strip between the grid and the cards — small and out of
+   the way, but still in normal flow (not position:absolute) so it can
+   never float over the card/shoe/DRAW-button area below it. */
+.bac-check-corner {
+  display: flex; justify-content: flex-end;
+  padding: clamp(.1rem,.3vh,.2rem) clamp(.5rem,1.5vw,1rem) 0;
+  flex-shrink: 0;
+}
+.bac-check-corner .bac-check-btn {
+  width: clamp(64px,14vw,92px);
+  font-size: clamp(.58rem,1.3vw,.7rem);
+  min-height: clamp(24px,3.2vh,30px);
+  padding: clamp(.14rem,.35vh,.22rem) clamp(.4rem,.8vw,.6rem);
+  letter-spacing: .5px;
+}
 
 .bac-shoe-spacer {
   width: clamp(42px,8vw,64px); flex-shrink: 0;
@@ -2198,7 +2225,7 @@ body {
    scrolling — width untouched (padding-inline/font unchanged). Excludes
    .btn-bac-draw (BANKER/PLAYER DRAW), which keeps var(--tap-h)'s size. */
 .btn-bac-banker, .btn-bac-tie, .btn-bac-player {
-  min-height: clamp(34px, 4.6vh, 42px);
+  min-height: clamp(30px, 4vh, 37px);
 }
 .bac-draw-slot-btn {
   width: 100%; height: var(--card-w-lg);
@@ -3426,10 +3453,10 @@ body {
    Standalone now (each sits in its own .bac-exp-cell, no more paired
    sub-rows) — sizing only, shrunk for the experimental compact layout. */
 .btn-bac-special {
-  font-size: clamp(.68rem,1.8vh,.84rem) !important;
-  padding: clamp(.16rem,.4vh,.3rem) clamp(.25rem,.7vw,.5rem) !important;
-  min-height: clamp(30px,4.4vh,40px) !important;
-  line-height: 1.15;
+  font-size: clamp(.64rem,1.65vh,.78rem) !important;
+  padding: clamp(.12rem,.32vh,.24rem) clamp(.25rem,.7vw,.5rem) !important;
+  min-height: clamp(26px,3.8vh,34px) !important;
+  line-height: 1.1;
 }
 .bac-pair-btn {
   font-size: .68rem !important;
