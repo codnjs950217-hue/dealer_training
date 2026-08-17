@@ -3807,19 +3807,39 @@ body {
    without the row turning into a different palette. Scoped to
    .bac-inline-btn specifically so it can never apply to
    BANKER/NO/PLAYER PAIR (.btn-bac-pair), DRAW (.btn-bac-draw), or RESULT
-   (.bac-check-btn) — none of those carry the .bac-inline-btn class. */
+   (.bac-check-btn) — none of those carry the .bac-inline-btn class.
+   A thin border/ring is the weakest possible signal on the tiny BIG6/
+   TIE/SMALL6/BIG7/SUPER7/SMALL7 circles (as small as ~30px on a short
+   landscape phone, e.g. iPhone mini) — a 1-2px line at that scale reads
+   as noise, not "selected", especially at real device pixel density.
+   So on top of the border/glow, this also washes the whole face with a
+   translucent tint (`inset 0 0 0 999px`, a solid-fill inset that isn't
+   bounded by any blur radius so it fully covers the button regardless
+   of its size) — a big-area brightness/color difference is legible at
+   any button size, not just at WIN-oval scale. Border width itself
+   stays 1px (unchanged from the unpicked state) rather than growing, so
+   toggling a pick never nudges the button's box (box-sizing:border-box
+   would still absorb it, but the ring/wash approach avoids even that
+   question) — position/size stay exactly as before. */
 .bac-inline-btn.bac-result-picked {
-  filter: brightness(1.16);
+  filter: brightness(1.3);
   border-color: rgba(var(--btn-hi), 1);
+  /* outline is a second, fully crisp ring — never blurred/anti-aliased
+     the way a box-shadow spread can look at real device pixel ratios —
+     sitting just outside the box-shadow ring below so the two read as
+     one bold band instead of one thin line. */
+  outline: 2px solid rgba(var(--btn-hi), 1);
+  outline-offset: 1px;
   box-shadow:
-    inset 0 1px 0 rgba(var(--btn-hi), .4),
+    inset 0 0 0 999px rgba(var(--btn-hi), .38),
+    inset 0 1px 0 rgba(var(--btn-hi), .6),
     inset 0 -2px 3px rgba(0,0,0,.22),
-    0 0 0 2px rgba(var(--btn-hi), .7),
-    0 0 16px 3px rgba(var(--btn-glow), .55),
+    0 0 0 3px rgba(var(--btn-hi), .95),
+    0 0 18px 4px rgba(var(--btn-glow), .75),
     0 2px 8px rgba(var(--btn-glow), .4);
 }
 .bac-inline-btn.bac-result-picked:hover {
-  filter: brightness(1.22);
+  filter: brightness(1.36);
 }
 
 /* ============================================================
