@@ -477,7 +477,7 @@ const Views = {
           </div>
           <div class="bac-exp-row bac-exp-row-3col">
             <div class="bac-exp-cell" id="bac-exp-big7"></div>
-            <div class="bac-exp-cell bac-exp-cell-stack" id="bac-exp-super7"></div>
+            <div class="bac-exp-cell" id="bac-exp-super7"></div>
             <div class="bac-exp-cell" id="bac-exp-small7"></div>
           </div>
         </div>
@@ -2040,8 +2040,8 @@ const Sims = {
       { init: [['7','♥'],['J','♦'],['A','♠'],['3','♣']], extra: ['K','♦'] },  // pp=7 stand, bp=4→draw K→4
       { init: [['3','♣'],['4','♦'],['2','♥'],['2','♠']], extra: ['J','♣'] },  // pp=7 stand, bp=4→draw J→4
       { init: [['5','♦'],['2','♣'],['A','♥'],['3','♠']], extra: ['K','♣'] },  // pp=7 stand, bp=4→draw K→4
-      { init: [['7','♦'],['K','♠'],['6','♣'],['Q','♥']], extra: null },       // pp=7, bp=6 both stand → super-small7
-      { init: [['7','♣'],['J','♥'],['6','♦'],['10','♠']], extra: null },      // pp=7, bp=6 both stand → super-small7
+      { init: [['7','♦'],['K','♠'],['6','♣'],['Q','♥']], extra: null },       // pp=7, bp=6 both stand → SUPER 7, 4 cards, 30:1
+      { init: [['7','♣'],['J','♥'],['6','♦'],['10','♠']], extra: null },      // pp=7, bp=6 both stand → SUPER 7, 4 cards, 30:1
     ];
     const BSCEN_B6 = [
       { init: [['A','♠'],['2','♥'],['3','♣'],['3','♦']], extra: ['J','♠'] },  // pp=3→J(0)=3, bp=6 stand
@@ -2049,8 +2049,8 @@ const Sims = {
       { init: [['3','♠'],['A','♥'],['2','♣'],['4','♦']], extra: ['Q','♦'] },  // pp=4→Q(0)=4, bp=6 stand
       { init: [['2','♣'],['2','♦'],['3','♥'],['3','♠']], extra: ['10','♣'] }, // pp=4→10(0)=4, bp=6 stand
       { init: [['A','♣'],['4','♦'],['2','♥'],['4','♠']], extra: ['J','♦'] },  // pp=5→J(0)=5, bp=6 stand
-      { init: [['3','♣'],['A','♥'],['6','♦'],['Q','♠']], extra: ['3','♠'] },  // pp=4→3=7(BIG), bp=6 stand → super-big7
-      { init: [['A','♣'],['2','♥'],['6','♠'],['J','♣']], extra: ['4','♦'] },  // pp=3→4=7(BIG), bp=6 stand → super-big7
+      { init: [['3','♣'],['A','♥'],['6','♦'],['Q','♠']], extra: ['3','♠'] },  // pp=4→3=7, bp=6 stand → SUPER 7, 5 cards, 40:1
+      { init: [['A','♣'],['2','♥'],['6','♠'],['J','♣']], extra: ['4','♦'] },  // pp=3→4=7, bp=6 stand → SUPER 7, 5 cards, 40:1
     ];
 
     function pushForcedScenario() {
@@ -2206,13 +2206,17 @@ const Sims = {
       const wp = S.resultPicks.winner, sp = S.resultPicks.special;
       const w = (label) => label === wp ? ' bac-result-picked' : '';
       const s = (label) => label === sp ? ' bac-result-picked' : '';
+      // SUPER 7 is one result, not a BIG/SMALL choice — clicking it opens
+      // the payout popup (pickSuper7()) instead of toggling directly; the
+      // chosen ratio (S.resultPicks.superPayout) shows as a subtitle once set.
+      const super7Sub = sp === 'super7' && S.resultPicks.superPayout
+        ? ` <span class="bac-super7-payout-tag">(${S.resultPicks.superPayout})</span>` : '';
       return {
         bankerWin:    `<button class="btn-bac-banker bac-inline-btn${w('banker-win')}" onclick="Sims.baccarat.toggleWinnerPick('banker-win','${source}')">BANKER WIN</button>`,
         bankerBig6:   `<button class="btn-bac-banker bac-inline-btn btn-bac-special${s('banker-big6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-big6','${source}')">BIG 6</button>`,
         bankerSmall6: `<button class="btn-bac-banker bac-inline-btn btn-bac-special${s('banker-small6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-small6','${source}')">SMALL 6</button>`,
         tie:          `<button class="btn-bac-tie bac-inline-btn${w('tie')}" onclick="Sims.baccarat.toggleWinnerPick('tie','${source}')">TIE</button>`,
-        superBig7:    `<button class="btn-bac-super7 bac-inline-btn btn-bac-special${s('super-big7')}" onclick="Sims.baccarat.toggleSpecialPick('super-big7','${source}')">SUPER BIG 7</button>`,
-        superSmall7:  `<button class="btn-bac-super7 bac-inline-btn btn-bac-special${s('super-small7')}" onclick="Sims.baccarat.toggleSpecialPick('super-small7','${source}')">SUPER SMALL 7</button>`,
+        super7:       `<button class="btn-bac-super7 bac-inline-btn btn-bac-special${s('super7')}" onclick="Sims.baccarat.pickSuper7('${source}')">SUPER 7${super7Sub}</button>`,
         playerWin:    `<button class="btn-bac-player bac-inline-btn${w('player-win')}" onclick="Sims.baccarat.toggleWinnerPick('player-win','${source}')">PLAYER WIN</button>`,
         playerBig7:   `<button class="btn-bac-player bac-inline-btn btn-bac-special${s('player-big7')}" onclick="Sims.baccarat.toggleSpecialPick('player-big7','${source}')">BIG 7</button>`,
         playerSmall7: `<button class="btn-bac-player bac-inline-btn btn-bac-special${s('player-small7')}" onclick="Sims.baccarat.toggleSpecialPick('player-small7','${source}')">SMALL 7</button>`,
@@ -2231,7 +2235,7 @@ const Sims = {
       setBtn('bac-exp-small6', b.bankerSmall6);
       setBtn('bac-exp-big7', b.playerBig7);
       setBtn('bac-exp-small7', b.playerSmall7);
-      setBtn('bac-exp-super7', b.superBig7 + b.superSmall7);
+      setBtn('bac-exp-super7', b.super7);
     }
 
     // Always enabled — its own state never hints at correctness (req. 2).
@@ -2355,8 +2359,9 @@ const Sims = {
       }
       // player win
       const lines = ['PLAYER WIN'];
-      if (pp === 7 && bp === 6 && S.ph.length === 3)      lines.push('SUPER BIG 7');
-      else if (pp === 7 && bp === 6 && S.ph.length === 2) lines.push('SUPER SMALL 7');
+      if (pp === 7 && bp === 6) {
+        lines.push('SUPER 7' + (S.resultPicks.superPayout ? ` (${S.resultPicks.superPayout})` : ''));
+      }
       else if (pp === 7 && S.ph.length === 2)             lines.push('SMALL 7');
       else if (pp === 7 && S.ph.length === 3)             lines.push('BIG 7');
       return { lines, color };
@@ -2461,7 +2466,8 @@ const Sims = {
         S.ph = []; S.bh = []; S.pThird = null; S.winner = null;
         S.pairPicked = { banker: false, player: false, none: false };
         S.pairDone = false;
-        S.resultPicks = { winner: null, special: null };
+        S.resultPicks = { winner: null, special: null, superPayout: null };
+        this.closeSuperPayoutPopup();
         disableDraw();
 
         $('bac-ph').innerHTML   = '';
@@ -2549,7 +2555,7 @@ const Sims = {
         clearPairBtns();
         // Any un-submitted winner/special picks from this stage don't
         // carry over to the next quiz screen.
-        S.resultPicks = { winner: null, special: null };
+        S.resultPicks = { winner: null, special: null, superPayout: null };
         const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
         const ph3 = $('bac-ph3'); if (ph3) ph3.innerHTML = '';
         if (choice === 'draw-player') {
@@ -2569,7 +2575,7 @@ const Sims = {
         clearPairBtns();
         // Any un-submitted winner/special picks from this stage don't
         // carry over to the next quiz screen.
-        S.resultPicks = { winner: null, special: null };
+        S.resultPicks = { winner: null, special: null, superPayout: null };
         const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
         doBankerDraw(() => showSpecialQuiz());
       },
@@ -2594,6 +2600,56 @@ const Sims = {
       toggleSpecialPick(label, source) {
         S.resultPicks.special = S.resultPicks.special === label ? null : label;
         refreshResultBtns(source);
+      },
+
+      // SUPER 7 is a single result, not a BIG/SMALL choice — clicking it
+      // opens a small payout popup instead of toggling directly. Picking
+      // a ratio sets special='super7' + the chosen payout together and
+      // closes the popup; CLOSE/선택 해제 leave the pick as it was before
+      // (or clear it, respectively) without judging anything.
+      pickSuper7(source) {
+        const tbl = document.querySelector('.baccarat-table');
+        if (!tbl) return;
+        this.closeSuperPayoutPopup();
+        const current = S.resultPicks.special === 'super7' ? S.resultPicks.superPayout : null;
+        const ratioBtn = (ratio) =>
+          `<button class="super7-payout-btn${current === ratio ? ' bac-result-picked' : ''}" onclick="Sims.baccarat.chooseSuperPayout('${ratio}','${source}')">${ratio}</button>`;
+        const ov = document.createElement('div');
+        ov.className = 'super7-payout-overlay';
+        ov.id = 'super7-payout-overlay';
+        ov.innerHTML = `
+          <div class="super7-payout-card">
+            <div class="super7-payout-title">SUPER 7 PAYOUT</div>
+            <div class="super7-payout-row">
+              ${ratioBtn('30:1')}
+              ${ratioBtn('40:1')}
+              ${ratioBtn('100:1')}
+            </div>
+            <div class="super7-payout-footer">
+              <button class="super7-payout-clear" onclick="Sims.baccarat.clearSuperPick('${source}')">선택 해제</button>
+              <button class="super7-payout-close" onclick="Sims.baccarat.closeSuperPayoutPopup()">닫기</button>
+            </div>
+          </div>`;
+        tbl.appendChild(ov);
+      },
+
+      chooseSuperPayout(ratio, source) {
+        S.resultPicks.special = 'super7';
+        S.resultPicks.superPayout = ratio;
+        this.closeSuperPayoutPopup();
+        refreshResultBtns(source);
+      },
+
+      clearSuperPick(source) {
+        if (S.resultPicks.special === 'super7') S.resultPicks.special = null;
+        S.resultPicks.superPayout = null;
+        this.closeSuperPayoutPopup();
+        refreshResultBtns(source);
+      },
+
+      closeSuperPayoutPopup() {
+        const ov = document.getElementById('super7-payout-overlay');
+        if (ov) ov.remove();
       },
 
       // CHECK is always enabled and never hints at correctness — pressing
@@ -2624,11 +2680,10 @@ const Sims = {
           else if (bp === 6 && S.bh.length === 3) correct = 'banker-big6';
           else                                     correct = 'banker-win';
         } else {
-          if (pp === 7 && bp === 6 && S.ph.length === 3)      correct = 'super-big7';
-          else if (pp === 7 && bp === 6 && S.ph.length === 2) correct = 'super-small7';
-          else if (pp === 7 && S.ph.length === 2)             correct = 'player-small7';
-          else if (pp === 7 && S.ph.length === 3)             correct = 'player-big7';
-          else                                    correct = 'player-win';
+          if (pp === 7 && bp === 6)               correct = 'super7';
+          else if (pp === 7 && S.ph.length === 2)  correct = 'player-small7';
+          else if (pp === 7 && S.ph.length === 3)  correct = 'player-big7';
+          else                                     correct = 'player-win';
         }
         const showQuiz = source === 'initial' ? showInitialQuiz
                        : source === 'banker'  ? showBankerDrawQuiz
@@ -2638,15 +2693,18 @@ const Sims = {
         // - banker-small6/banker-big6/player-small7/player-big7: BOTH the
         //   base winner AND the specific special (dealers need to catch
         //   the bonus condition, not just the winner).
-        // - super-big7/super-small7: the special alone is enough — it
-        //   already fully identifies the outcome, so the winner pick is
-        //   optional (but if given, must be the correct 'player-win').
+        // - super7: the special alone is enough (winner pick optional,
+        //   but must be 'player-win' if given) — plus the payout ratio
+        //   must match the total card count: 4→30:1, 5→40:1, 6→100:1.
         const { winner: uw, special: us } = S.resultPicks;
         let isCorrect;
         if (correct === 'tie' || correct === 'banker-win' || correct === 'player-win') {
           isCorrect = uw === correct && us === null;
-        } else if (correct === 'super-big7' || correct === 'super-small7') {
-          isCorrect = us === correct && (uw === null || uw === 'player-win');
+        } else if (correct === 'super7') {
+          const totalCards = S.bh.length + S.ph.length;
+          const correctPayout = totalCards === 4 ? '30:1' : totalCards === 5 ? '40:1' : '100:1';
+          isCorrect = us === 'super7' && S.resultPicks.superPayout === correctPayout
+                    && (uw === null || uw === 'player-win');
         } else {
           const baseWinner = correct.startsWith('banker') ? 'banker-win' : 'player-win';
           isCorrect = uw === baseWinner && us === correct;

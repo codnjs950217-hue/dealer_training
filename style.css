@@ -1952,10 +1952,6 @@ body {
    much row space each cell claims. */
 .bac-exp-row-2col .bac-exp-cell-wide   { flex: 2.4; }
 .bac-exp-row-2col .bac-exp-cell-narrow { flex: 1; }
-.bac-exp-cell-stack {
-  display: flex; flex-direction: column;
-  gap: clamp(.14rem,.3vh,.22rem);
-}
 /* NO PAIR isn't its own box on a real table (just the absence of a Pair
    bet) — kept clickable but visibly secondary to BANKER/PLAYER PAIR.
    Same font-size/padding/min-height as before; only its container
@@ -2611,6 +2607,70 @@ body {
   color: #ff8c00;
   text-shadow: 0 0 40px rgba(255,140,0,.9), 0 2px 8px rgba(0,0,0,.8);
 }
+
+/* SUPER 7 payout tag on the button itself, once a ratio's been chosen. */
+.bac-super7-payout-tag {
+  font-size: .8em; font-weight: 700; opacity: .8;
+}
+
+/* SUPER 7 payout popup — a simple mobile-landscape modal (short, ratio
+   buttons in one row) shown when SUPER 7 is picked. Choosing a ratio,
+   clearing, or closing only updates S.resultPicks — nothing here judges
+   anything; CHECK (checkResult()) is still the only thing that submits. */
+.super7-payout-overlay {
+  position: absolute; inset: -3px;
+  background: rgba(0,0,0,.72);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 55; border-radius: 21px;
+}
+.super7-payout-card {
+  background: linear-gradient(160deg, #1c1030 0%, #0d081c 100%);
+  border: 1px solid rgba(200,184,255,.35);
+  border-radius: var(--r);
+  padding: clamp(.55rem,1.8vh,.9rem) clamp(.8rem,2.5vw,1.4rem);
+  display: flex; flex-direction: column; align-items: center;
+  gap: clamp(.35rem,.9vh,.6rem);
+  max-width: min(92%, 420px);
+  box-shadow: 0 8px 30px rgba(0,0,0,.6);
+}
+.super7-payout-title {
+  font-size: clamp(.8rem,2vh,1rem); font-weight: 900;
+  letter-spacing: 1.5px; color: #c8b8ff;
+  text-shadow: 0 1px 5px rgba(160,120,255,.4);
+}
+.super7-payout-row {
+  display: flex; gap: clamp(.4rem,1vw,.7rem);
+}
+.super7-payout-btn {
+  --btn-hi: 200,180,255; --btn-glow: 100,70,200;
+  background: linear-gradient(180deg, #28205a 0%, #12103a 100%);
+  color: #c8b8ff;
+  border: 1px solid rgba(var(--btn-hi), .3);
+  border-radius: var(--r);
+  padding: clamp(.36rem,.9vh,.55rem) clamp(.6rem,1.8vw,1rem);
+  font-weight: 800; font-size: clamp(.74rem,1.8vh,.9rem);
+  cursor: pointer;
+  min-width: clamp(52px,11vw,72px);
+}
+.super7-payout-btn.bac-result-picked {
+  border-color: rgba(var(--btn-hi), .9);
+  box-shadow: 0 0 0 2px rgba(var(--btn-hi), .5), 0 2px 8px rgba(var(--btn-glow), .45);
+}
+.super7-payout-footer {
+  display: flex; gap: clamp(.4rem,1vw,.7rem);
+  margin-top: clamp(.05rem,.2vh,.15rem);
+}
+.super7-payout-clear,
+.super7-payout-close {
+  background: none; border: 1px solid rgba(255,255,255,.25);
+  color: rgba(255,255,255,.65);
+  border-radius: var(--r);
+  padding: clamp(.2rem,.55vh,.3rem) clamp(.5rem,1.4vw,.8rem);
+  font-size: clamp(.6rem,1.4vh,.7rem); font-weight: 700;
+  cursor: pointer;
+}
+.super7-payout-clear:hover,
+.super7-payout-close:hover { color: #fff; border-color: rgba(255,255,255,.5); }
 
 /* NEXT HAND overlay */
 .next-hand-overlay {
