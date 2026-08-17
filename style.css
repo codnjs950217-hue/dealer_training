@@ -2112,6 +2112,23 @@ body {
   top: calc(2 * var(--bac-pair-circle-d) + 3 * var(--bac-row-gap) + 2 * var(--bac-capsule-h));
   transform: translate(-50%, -100%);
 }
+/* NEXT HAND (not START — see .bac-cta-next, only added by showNextBtn())
+   sits directly under the result banner instead of at START's own
+   pre-first-hand spot above. top's calc converts the banner's own
+   top+height+gap (all in .baccarat-table's coordinate space, via the
+   --bac-banner-* vars defined there) into this element's coordinate
+   space, which is relative to .bac-exp-pairwrap instead — subtracting
+   pairwrap's own offset from the table (the table's padding-top plus
+   .bac-exp-grid's own, literal-matched to those rules' own values since
+   neither is a custom property elsewhere). translate's Y is 0 (not
+   -100%, unlike START above) since top now already IS the button's own
+   top edge, not a bottom-anchor line — it grows downward from the
+   banner, reading as one continuous group. */
+.bac-exp-nopair-mid:has(.bac-cta-next) {
+  left: 50%;
+  top: calc(var(--bac-banner-top) + var(--bac-banner-h) + var(--bac-banner-gap) - clamp(.5rem,1vh,.9rem) - clamp(.04rem,.12vh,.08rem));
+  transform: translate(-50%, 0);
+}
 /* SUBMIT (.bac-check-btn) isn't a real table position, so it doesn't
    get a slot in the felt-position grid — it lives right under SHOE
    instead (a second stacked child of .bac-shoe-col, see the template
@@ -2182,14 +2199,27 @@ body {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+/* Single source of truth for the result banner's own position/size, so
+   the NEXT HAND button below (a totally different positioning context —
+   see .bac-exp-nopair-mid:has(.bac-cta-btn) further down) can place
+   itself directly beneath the banner via the same numbers instead of
+   guessing a fixed offset that would drift out of sync if the banner's
+   size ever changes again. --bac-banner-h approximates the rendered
+   pill height from its own font-size/padding (line-height 1.15 * the
+   main label's font-size, the tallest of its two lines, + top/bottom
+   padding) — close enough for "a natural gap below it," not meant to
+   be pixel-exact. */
+.baccarat-table {
+  --bac-banner-top: clamp(1.3rem, 4vh, 2.4rem);
+  --bac-banner-font: clamp(2.1rem, 5.75vh, 3rem);
+  --bac-banner-pad-y: clamp(.65rem, 1.7vh, 1rem);
+  --bac-banner-h: calc(var(--bac-banner-font) * 1.15 + var(--bac-banner-pad-y) * 2);
+  --bac-banner-gap: clamp(.6rem, 1.6vh, .9rem);
+}
 .bac-win-over-divider {
   position: absolute; left: 50%; transform: translateX(-50%);
   white-space: nowrap;
-  /* Nudged down a bit from the table's top edge (was clamp(.5rem,1.8vh,
-     1.1rem)) — the whole button grid above it is cleared before this
-     renders (see clearInlineBtns() in announceWinner()'s caller), so
-     there's empty felt to move into without covering anything. */
-  top: clamp(1.3rem, 4vh, 2.4rem);
+  top: var(--bac-banner-top);
 }
 /* Result banner — replaces the old giant gradient-clip-text announcement.
    Reuses each WIN button's own background gradient/text color (banker
@@ -2197,47 +2227,50 @@ body {
    banker/.btn-bac-player/.btn-bac-tie) so it reads as "the same result,
    restated," not a new visual language. Deliberately NOT button-shaped
    though, so it can't be mistaken for a clickable control: width hugs
-   its own text (no width:100%/--bac-win-w like the real WIN oval),
-   noticeably shorter padding, a hairline border instead of a thick one,
-   and a single flat neutral drop shadow instead of the buttons' colored
-   glow — plain solid-color text, no text-shadow/gradient-clip/drop-
-   shadow-on-text. Same quiet fade-in as before, nothing else animated. */
+   its own text (no width:100%/--bac-win-w like the real WIN oval), a
+   hairline border instead of a thick one, and a single flat neutral
+   drop shadow instead of the buttons' colored glow — plain solid-color
+   text, no text-shadow/gradient-clip/drop-shadow-on-text. Sized to read
+   as the first thing on the result screen (big relative to the old
+   version) without out-scaling the cards themselves — main label tops
+   out at 3rem vs. the cards' own ~2.7rem corner rank text at most
+   viewports. Same quiet fade-in as before, nothing else animated. */
 .bac-result-banner {
   display: inline-flex; align-items: baseline; justify-content: center;
-  gap: clamp(.4rem,1vw,.7rem);
-  padding: clamp(.32rem,.85vh,.5rem) clamp(1rem,2.6vw,1.7rem);
+  gap: clamp(.9rem,2.3vw,1.6rem);
+  padding: var(--bac-banner-pad-y) clamp(2.3rem,6vw,3.9rem);
   border-radius: 999px;
   white-space: nowrap;
-  box-shadow: 0 2px 10px rgba(0,0,0,.35);
+  box-shadow: 0 3px 14px rgba(0,0,0,.4);
   animation: bacResultFadeIn .4s ease-out;
 }
 .bac-result-banner-main {
-  font-size: clamp(.92rem,2.5vh,1.3rem);
+  font-size: var(--bac-banner-font);
   font-weight: 800;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
 }
 .bac-result-banner-sub {
-  font-size: clamp(.66rem,1.75vh,.88rem);
+  font-size: clamp(1.3rem,3.5vh,1.75rem);
   font-weight: 700;
-  letter-spacing: .5px;
+  letter-spacing: .8px;
   opacity: .8;
-  padding-left: clamp(.4rem,1vw,.7rem);
-  border-left: 1px solid rgba(255,255,255,.25);
+  padding-left: clamp(.9rem,2.3vw,1.6rem);
+  border-left: 2px solid rgba(255,255,255,.25);
 }
 .bac-result-banner.banker-win {
   background: linear-gradient(180deg, #543008 0%, #2c1602 100%);
   color: #e8c96a;
-  border: 1px solid rgba(255,220,120,.4);
+  border: 2px solid rgba(255,220,120,.4);
 }
 .bac-result-banner.player-win {
   background: linear-gradient(180deg, #5a0e1c 0%, #2e0610 100%);
   color: #ff8080;
-  border: 1px solid rgba(255,150,150,.4);
+  border: 2px solid rgba(255,150,150,.4);
 }
 .bac-result-banner.tie-win {
   background: linear-gradient(180deg, #0f4f0f 0%, #072407 100%);
   color: #7de87a;
-  border: 1px solid rgba(150,255,140,.4);
+  border: 2px solid rgba(150,255,140,.4);
 }
 
 /* announce quiz: no-box text options with dividers */
