@@ -2100,7 +2100,21 @@ body {
 .bac-check-corner-stack {
   display: flex; flex-direction: column; align-items: center;
   gap: clamp(.1rem,.24vh,.16rem);
-  width: clamp(70px,15vw,100px);
+  /* Narrower ceiling than before (was 100px) so this column — the widest
+     child of .bac-shoe-col, and so what actually determines how far right
+     SHOE/SUBMIT reach — leaves more breathing room before BANKER DRAW and
+     the banker hand on short landscape phones, without touching
+     .bac-banker-zone's own flex sizing (that would grow it at
+     .bac-player-zone's expense — flex:1 vs flex:1 stop being an even split
+     the moment one side's min-content, padding included, grows past its
+     own half of the shrunk row).
+     min(10vw,16vh) instead of a plain vw value: BANKER's cards/DRAW slot
+     (sized off --card-h-lg/--card-w-lg, both vh-driven) push further left
+     — eating into this same gap — on any taller viewport, regardless of
+     width, so this needs to shrink with vh too, not just vw, to keep a
+     margin on tall-and-narrow landscape screens (e.g. 812x430) and not
+     just wide-and-short ones (e.g. 932x375). */
+  width: clamp(48px,min(10vw,16vh),76px);
   /* Matches .bac-check-btn's own min-height below, so the stack
      doesn't collapse while #bac-result is cleared to empty (deal
      animation, etc.) — same reasoning as .bac-exp-cell-win/.bac-exp-
