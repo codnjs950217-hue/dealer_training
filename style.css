@@ -1937,12 +1937,12 @@ body {
    .bac-felt-circle near the bottom of this file, after the shared
    console-button treatment so they win the cascade. */
 .bac-exp-grid {
-  --bac-win-h: clamp(34px, 4.8vh, 44px);
-  --bac-circle-d: clamp(46px, 6.4vh, 58px);
-  --bac-pair-d: clamp(42px, 5.9vh, 54px);
+  --bac-win-h: clamp(24px, 3.2vh, 30px);
+  --bac-circle-d: clamp(50px, 7.2vh, 66px);
+  --bac-pair-d: clamp(44px, 6.4vh, 58px);
   display: flex; flex-direction: column;
-  gap: clamp(.06rem,.18vh,.12rem);
-  padding: clamp(.1rem,.28vh,.18rem) clamp(.5rem,1.5vw,1rem) 0;
+  gap: clamp(.15rem,.4vh,.28rem);
+  padding: clamp(.06rem,.18vh,.12rem) clamp(.5rem,1.5vw,1rem) 0;
   flex-shrink: 0;
 }
 .bac-exp-row {
@@ -1954,19 +1954,22 @@ body {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 .bac-exp-cell > button { width: 100%; }
-/* WIN:PAIR width ratio mirrors the real table's big betting box next to
-   the small pair corner — button width itself is unchanged, just how
-   much row space each cell claims. */
-.bac-exp-row-2col .bac-exp-cell-wide   { flex: 2.4; }
-.bac-exp-row-2col .bac-exp-cell-narrow { flex: 1; }
-/* BIG6/TIE/SMALL6 and BIG7/SUPER7/SMALL7 are pulled in to roughly
-   PLAYER/BANKER WIN's own width (~2.4/3.4 of the row) instead of
-   spreading across the full felt — a tight cluster of 3 big circles
-   reads closer to the real table than 3 small circles with huge gaps. */
+/* WIN fills whatever's left after PAIR's own (fixed, circular) width —
+   PAIR sits immediately beside the oval instead of centered in its own
+   wide flex:1 cell, so it doesn't read as floating far away from WIN. */
+.bac-exp-row-2col .bac-exp-cell-wide   { flex: 1 1 auto; }
+.bac-exp-row-2col .bac-exp-cell-narrow { flex: none; width: auto; }
+/* BIG6/TIE/SMALL6 and BIG7/SUPER7/SMALL7: cells shrink to the circle's
+   own size (not stretched thirds) and the row centers them as a tight
+   cluster — the row's rendered width is then literally "3 circles + 2
+   small gaps", which is what actually needs to approximate PLAYER WIN's
+   oval width, not just the invisible row container around them. */
 .bac-exp-row-3col {
-  width: 74%;
-  margin: 0 auto;
-  gap: clamp(.2rem,.5vw,.4rem);
+  justify-content: center;
+  gap: clamp(.15rem,.4vw,.3rem);
+}
+.bac-exp-row-3col .bac-exp-cell {
+  flex: none; width: auto;
 }
 /* NO PAIR isn't its own box on a real table (just the absence of a Pair
    bet) — kept clickable but visibly secondary to BANKER/PLAYER PAIR.
