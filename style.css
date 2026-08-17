@@ -2080,11 +2080,14 @@ body {
   top: calc(2 * var(--bac-pair-circle-d) + 3 * var(--bac-row-gap) + 2 * var(--bac-capsule-h));
   transform: translate(-50%, -100%);
 }
-/* CHECK isn't a real table position, so it sits outside the felt-
-   position grid entirely, centered in its own thin corner strip
-   between the grid and the cards — small and out of the way, but
-   still in normal flow (not position:absolute) so nothing can float
-   over the card/shoe/DRAW-button area below. */
+/* SUBMIT (.bac-check-btn) isn't a real table position, so it sits
+   outside the felt-position grid entirely, in its own corner strip
+   between the grid and the cards — but it's the answer-submission
+   action, so unlike a real table position it's sized/styled to be the
+   single most eye-catching control on screen (see .bac-check-btn's
+   own bold treatment below), not played down. Still in normal flow
+   (not position:absolute) so nothing can float over the card/shoe/
+   DRAW-button area below. */
 .bac-check-corner {
   display: flex; justify-content: flex-end;
   padding: clamp(.1rem,.3vh,.2rem) clamp(.5rem,1.5vw,1rem) 0;
@@ -2093,18 +2096,22 @@ body {
 .bac-check-corner-stack {
   display: flex; flex-direction: column; align-items: center;
   gap: clamp(.1rem,.24vh,.16rem);
-  width: clamp(56px,12vw,80px);
+  width: clamp(70px,15vw,100px);
   /* Matches .bac-check-btn's own min-height below, so the stack
      doesn't collapse while #bac-result is cleared to empty (deal
      animation, etc.) — same reasoning as .bac-exp-cell-win/.bac-exp-
      row-3col above. */
-  min-height: clamp(19px,2.6vh,24px);
+  min-height: clamp(24px,3.25vh,30px);
 }
+/* ~25% bigger than the plain-CHECK sizing this replaced (19-24px ->
+   24-30px min-height), per spec — most of "most eye-catching button on
+   screen" comes from .bac-check-btn's own bold color/border/glow
+   below, not sheer size. */
 .bac-check-corner-stack .bac-check-btn {
   width: 100%;
-  font-size: clamp(.52rem,1.15vw,.62rem);
-  min-height: clamp(19px,2.6vh,24px);
-  padding: clamp(.1rem,.26vh,.16rem) clamp(.4rem,.8vw,.6rem);
+  font-size: clamp(.65rem,1.44vw,.78rem);
+  min-height: clamp(24px,3.25vh,30px);
+  padding: clamp(.13rem,.33vh,.2rem) clamp(.5rem,1vw,.75rem);
   letter-spacing: .5px;
 }
 
@@ -3696,24 +3703,53 @@ body {
   white-space: nowrap;
 }
 
-/* ---- BACCARAT: RESULT SUBMISSION (CHECK) ----
+/* ---- BACCARAT: RESULT SUBMISSION (SUBMIT) ----
    WIN/TIE/PLAYER WIN and the special buttons only toggle a pick now —
-   CHECK is what submits. It's always enabled (never hints at whether
-   the current picks are right) and sits in the bottom-mid slot
-   (#bac-result), a teal identity distinct from every win-color button
-   and from the gold START/NEXT HAND CTA. */
+   SUBMIT (.bac-check-btn, sized via .bac-check-corner-stack .bac-
+   check-btn above) is what actually submits. Always enabled (never
+   hints at whether the current picks are right). Deliberately the
+   single most eye-catching control on screen — brighter/bolder than
+   even the gold START/NEXT HAND CTA — so "this is the submit action"
+   reads instantly: a vivid saturated cyan-teal (its color identity,
+   just turned way up from the old muted dark teal), a thick bright
+   border, and a soft glow. Given its own dedicated :hover/:active
+   below instead of sharing the plain console-button treatment the
+   WIN/PAIR/DRAW buttons use (see the shared block further down), so
+   it never reads as "just another pick" among the result buttons. */
 .bac-check-btn {
-  --btn-hi: 150,235,225; --btn-glow: 30,150,140;
-  width: 100%;
-  background: linear-gradient(180deg, #1e6b63 0%, #0c332e 100%);
-  color: #d8fff9;
+  --btn-hi: 210,255,250; --btn-glow: 45,235,215;
+  background: linear-gradient(180deg, #7dfff2 0%, #22d6c2 55%, #0f9a8c 100%);
+  color: #04211d;
+  border: 2px solid #a6fff2;
   border-radius: var(--r);
-  padding: clamp(.26rem,.6vh,.36rem) clamp(.55rem,1.1vw,.8rem);
-  font-weight: 800; cursor: pointer; font-size: clamp(.68rem,1.5vw,.82rem);
-  letter-spacing: 1px;
-  min-height: clamp(32px,4.4vh,40px);
-  text-shadow: 0 1px 5px rgba(78,205,196,.35);
+  font-weight: 900; cursor: pointer;
+  letter-spacing: 1.5px;
+  text-shadow: 0 1px 2px rgba(255,255,255,.35);
   white-space: nowrap;
+  box-shadow:
+    0 0 0 1px rgba(10,60,55,.4),
+    0 2px 4px rgba(0,0,0,.35),
+    0 0 14px 2px rgba(45,235,215,.55),
+    0 0 28px 6px rgba(45,235,215,.28);
+  transition: filter .15s ease, transform .12s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.bac-check-btn:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+  border-color: #d4fffa;
+  box-shadow:
+    0 0 0 1px rgba(10,60,55,.4),
+    0 4px 8px rgba(0,0,0,.4),
+    0 0 20px 3px rgba(45,235,215,.7),
+    0 0 38px 10px rgba(45,235,215,.4);
+}
+.bac-check-btn:active {
+  filter: brightness(.96);
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 2px 5px rgba(0,0,0,.3),
+    0 0 0 1px rgba(10,60,55,.4),
+    0 0 10px 1px rgba(45,235,215,.4);
 }
 /* Marks the currently-picked winner/special button(s) so the trainee can
    see their selection before committing with CHECK. Not a disabled/dim
@@ -3910,9 +3946,10 @@ body {
    depth/interaction states live, placed last so it wins the cascade
    over those rules. DRAW uses a neutral white/black --btn-hi/--btn-glow
    so it stays a charcoal panel instead of picking up a hue glow.
-   CHECK (.bac-check-btn) shares the same treatment with its own teal
-   identity, and is always enabled — no :disabled state to speak of. */
-.btn-bac-player, .btn-bac-banker, .btn-bac-tie, .btn-bac-super7, .btn-bac-pair, .btn-bac-draw, .bac-check-btn {
+   SUBMIT (.bac-check-btn) no longer shares this — it has its own
+   bolder, glowing treatment (see "RESULT SUBMISSION" above) so it
+   reads as the standout submit action instead of just another pick. */
+.btn-bac-player, .btn-bac-banker, .btn-bac-tie, .btn-bac-super7, .btn-bac-pair, .btn-bac-draw {
   border: 1px solid rgba(var(--btn-hi), .3);
   box-shadow:
     inset 0 1px 0 rgba(var(--btn-hi), .16),
@@ -3922,7 +3959,7 @@ body {
   transition: filter .15s ease, transform .12s ease, box-shadow .15s ease, border-color .15s ease;
 }
 .btn-bac-player:hover, .btn-bac-banker:hover, .btn-bac-tie:hover,
-.btn-bac-super7:hover, .btn-bac-pair:hover, .btn-bac-draw:hover, .bac-check-btn:hover {
+.btn-bac-super7:hover, .btn-bac-pair:hover, .btn-bac-draw:hover {
   filter: brightness(1.07);
   transform: translateY(-1px);
   border-color: rgba(var(--btn-hi), .45);
@@ -3933,7 +3970,7 @@ body {
     0 3px 14px rgba(var(--btn-glow), .45);
 }
 .btn-bac-player:active, .btn-bac-banker:active, .btn-bac-tie:active,
-.btn-bac-super7:active, .btn-bac-pair:active, .btn-bac-draw:active, .bac-check-btn:active {
+.btn-bac-super7:active, .btn-bac-pair:active, .btn-bac-draw:active {
   filter: brightness(.95);
   transform: translateY(1px);
   box-shadow:
