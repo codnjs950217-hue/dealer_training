@@ -2213,10 +2213,10 @@ body {
    out at 3rem vs. the cards' own ~2.7rem corner rank text at most
    viewports. Same quiet fade-in as before, nothing else animated. */
 .bac-result-banner {
-  display: inline-flex; align-items: baseline; justify-content: center;
-  gap: clamp(.9rem,2.3vw,1.6rem);
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: clamp(.15rem,.5vh,.3rem);
   padding: var(--bac-banner-pad-y) clamp(2.3rem,6vw,3.9rem);
-  border-radius: 999px;
+  border-radius: clamp(1.1rem,2.8vh,1.6rem);
   white-space: nowrap;
   box-shadow: 0 3px 14px rgba(0,0,0,.4);
   animation: bacResultFadeIn .4s ease-out;
@@ -2226,13 +2226,13 @@ body {
   font-weight: 800;
   letter-spacing: 1.5px;
 }
+/* Stacked directly under the main label now (own line, not an inline
+   "BANKER WIN | BIG 6" divider) — no border-left needed anymore. */
 .bac-result-banner-sub {
   font-size: clamp(1.3rem,3.5vh,1.75rem);
   font-weight: 700;
   letter-spacing: .8px;
   opacity: .8;
-  padding-left: clamp(.9rem,2.3vw,1.6rem);
-  border-left: 2px solid rgba(255,255,255,.25);
 }
 .bac-result-banner.banker-win {
   background: linear-gradient(180deg, #543008 0%, #2c1602 100%);
