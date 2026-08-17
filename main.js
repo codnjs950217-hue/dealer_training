@@ -456,30 +456,30 @@ const Views = {
           <span>Mistake: <strong id="bac-mistakes">0</strong></span>
         </div>
         <!-- EXPERIMENTAL layout (real-table-felt reference), compact
-             variant: SMALL7/SUPER7/BIG7 and SMALL6/TIE/BIG6 circle rows
-             on top, then PLAYER PAIR/PLAYER WIN/BANKER PAIR sharing a
-             row, then BANKER WIN alone below. Same target ids as before
+             variant: PLAYER WIN+PLAYER PAIR and BANKER WIN+BANKER PAIR
+             share a row each on top, then SMALL6/TIE/BIG6 and SMALL7/
+             SUPER7/BIG7 circle rows below. Same target ids as before
              (bac-b-btn-top, bac-pair-b, bac-tie-btn, ...) so none of the
              judging/rendering logic changed — only which slot each
              button's HTML lands in. -->
         <div class="bac-exp-grid">
-          <div class="bac-exp-row bac-exp-row-3col">
-            <div class="bac-exp-cell" id="bac-exp-small7"></div>
-            <div class="bac-exp-cell" id="bac-exp-super7"></div>
-            <div class="bac-exp-cell" id="bac-exp-big7"></div>
+          <div class="bac-exp-row bac-exp-row-2col">
+            <div class="bac-exp-cell bac-exp-cell-win" id="bac-p-btn-top"></div>
+            <div class="bac-exp-cell" id="bac-pair-p"></div>
+          </div>
+          <div class="bac-exp-row bac-exp-row-2col">
+            <div class="bac-exp-cell bac-exp-cell-win" id="bac-b-btn-top"></div>
+            <div class="bac-exp-cell" id="bac-pair-b"></div>
           </div>
           <div class="bac-exp-row bac-exp-row-3col">
             <div class="bac-exp-cell" id="bac-exp-small6"></div>
             <div class="bac-exp-cell" id="bac-tie-btn"></div>
             <div class="bac-exp-cell" id="bac-exp-big6"></div>
           </div>
-          <div class="bac-exp-row bac-exp-row-pwin">
-            <div class="bac-exp-cell" id="bac-pair-p"></div>
-            <div class="bac-exp-cell bac-exp-cell-win" id="bac-p-btn-top"></div>
-            <div class="bac-exp-cell" id="bac-pair-b"></div>
-          </div>
-          <div class="bac-exp-row bac-exp-row-bwin">
-            <div class="bac-exp-cell bac-exp-cell-win" id="bac-b-btn-top"></div>
+          <div class="bac-exp-row bac-exp-row-3col">
+            <div class="bac-exp-cell" id="bac-exp-small7"></div>
+            <div class="bac-exp-cell" id="bac-exp-super7"></div>
+            <div class="bac-exp-cell" id="bac-exp-big7"></div>
           </div>
         </div>
         <!-- NO PAIR and CHECK aren't real table positions, so both live
