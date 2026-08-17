@@ -455,30 +455,31 @@ const Views = {
           <span>Score: <strong id="bac-score">0</strong></span>
           <span>Mistake: <strong id="bac-mistakes">0</strong></span>
         </div>
-        <!-- EXPERIMENTAL layout (real-table-felt reference): WIN and PAIR
-             share a row per side; BIG6/TIE/SMALL6 and BIG7/SUPER7/SMALL7
-             form their own rows below. Same target ids as before
+        <!-- EXPERIMENTAL layout (real-table-felt reference), compact
+             variant: SMALL7/SUPER7/BIG7 and SMALL6/TIE/BIG6 circle rows
+             on top, then PLAYER PAIR/PLAYER WIN/BANKER PAIR sharing a
+             row, then BANKER WIN alone below. Same target ids as before
              (bac-b-btn-top, bac-pair-b, bac-tie-btn, ...) so none of the
              judging/rendering logic changed — only which slot each
              button's HTML lands in. -->
         <div class="bac-exp-grid">
-          <div class="bac-exp-row bac-exp-row-2col">
-            <div class="bac-exp-cell bac-exp-cell-wide" id="bac-p-btn-top"></div>
-            <div class="bac-exp-cell bac-exp-cell-narrow" id="bac-pair-p"></div>
-          </div>
-          <div class="bac-exp-row bac-exp-row-2col">
-            <div class="bac-exp-cell bac-exp-cell-wide" id="bac-b-btn-top"></div>
-            <div class="bac-exp-cell bac-exp-cell-narrow" id="bac-pair-b"></div>
-          </div>
           <div class="bac-exp-row bac-exp-row-3col">
-            <div class="bac-exp-cell" id="bac-exp-big6"></div>
-            <div class="bac-exp-cell" id="bac-tie-btn"></div>
-            <div class="bac-exp-cell" id="bac-exp-small6"></div>
-          </div>
-          <div class="bac-exp-row bac-exp-row-3col">
-            <div class="bac-exp-cell" id="bac-exp-big7"></div>
-            <div class="bac-exp-cell" id="bac-exp-super7"></div>
             <div class="bac-exp-cell" id="bac-exp-small7"></div>
+            <div class="bac-exp-cell" id="bac-exp-super7"></div>
+            <div class="bac-exp-cell" id="bac-exp-big7"></div>
+          </div>
+          <div class="bac-exp-row bac-exp-row-3col">
+            <div class="bac-exp-cell" id="bac-exp-small6"></div>
+            <div class="bac-exp-cell" id="bac-tie-btn"></div>
+            <div class="bac-exp-cell" id="bac-exp-big6"></div>
+          </div>
+          <div class="bac-exp-row bac-exp-row-pwin">
+            <div class="bac-exp-cell" id="bac-pair-p"></div>
+            <div class="bac-exp-cell bac-exp-cell-win" id="bac-p-btn-top"></div>
+            <div class="bac-exp-cell" id="bac-pair-b"></div>
+          </div>
+          <div class="bac-exp-row bac-exp-row-bwin">
+            <div class="bac-exp-cell bac-exp-cell-win" id="bac-b-btn-top"></div>
           </div>
         </div>
         <!-- NO PAIR and CHECK aren't real table positions, so both live
@@ -2276,9 +2277,9 @@ const Sims = {
       // .bac-pair-circle: the small round corner-mark shape on a real
       // table. .bac-nopair-mini stays its own small non-circular control
       // (see below) since NO PAIR isn't a real table position at all.
-      setBtn('bac-pair-b', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle"${bLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('banker-pair')">BANKER PAIR</button>`);
+      setBtn('bac-pair-b', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle"${bLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('banker-pair')">B PAIR</button>`);
       setBtn('bac-pair-mid', `<button class="btn-bac-pair bac-nopair-mini" onclick="Sims.baccarat.quizPair('no-pair')">NO PAIR</button>`);
-      setBtn('bac-pair-p', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">PLAYER PAIR</button>`);
+      setBtn('bac-pair-p', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">P PAIR</button>`);
     }
 
     // Once the Pair judgment is fully answered, keep all three buttons
@@ -2292,9 +2293,9 @@ const Sims = {
       const p = S.pairPicked;
       const btn = (label, selected, extraCls) =>
         `<button class="btn-bac-pair${selected ? ' bac-pair-selected' : ''}${extraCls ? ' ' + extraCls : ''}" disabled>${label}</button>`;
-      setBtn('bac-pair-b', btn('BANKER PAIR', p.banker, 'bac-felt-circle bac-pair-circle'));
+      setBtn('bac-pair-b', btn('B PAIR', p.banker, 'bac-felt-circle bac-pair-circle'));
       setBtn('bac-pair-mid', btn('NO PAIR', p.none, 'bac-nopair-mini'));
-      setBtn('bac-pair-p', btn('PLAYER PAIR', p.player, 'bac-felt-circle bac-pair-circle'));
+      setBtn('bac-pair-p', btn('P PAIR', p.player, 'bac-felt-circle bac-pair-circle'));
     }
 
     function showPairQuiz() {

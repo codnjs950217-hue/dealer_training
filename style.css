@@ -1921,65 +1921,58 @@ body {
 .bac-newgame-btn:hover { background: rgba(255,255,255,.14); color: #fff; border-color: rgba(255,255,255,.35); }
 
 /* ---- BACCARAT: EXPERIMENTAL REAL-TABLE-LAYOUT GRID ----
-   Usability-test layout referencing an actual baccarat felt — position
-   recognition is the point, so only what exists on a real table gets a
-   row: WIN and PAIR share a row per side (PAIR narrower, like the small
-   corner box on a real felt), then BIG6/TIE/SMALL6 and BIG7/SUPER7/
-   SMALL7 below. NO PAIR and CHECK aren't real table positions, so
-   neither gets a row here — both are stacked together, centered, in
-   their own small corner control below the grid (.bac-check-corner /
-   .bac-check-corner-stack below), well clear of the felt-position rows
-   so they can't be mistaken for a real betting box. Compact by design
-   (minimal row gaps) so the card/shoe area — unchanged size — still
-   fits under it without scrolling in mobile landscape.
-   --bac-win-h/--bac-circle-d/--bac-pair-d drive the actual felt shapes
-   (long oval WIN, round everything else) defined in .bac-win-oval/
-   .bac-felt-circle near the bottom of this file, after the shared
-   console-button treatment so they win the cascade. */
+   Usability-test layout referencing an actual baccarat felt, compact
+   variant: SMALL7/SUPER7/BIG7 and SMALL6/TIE/BIG6 circle rows, then
+   PLAYER PAIR/PLAYER WIN/BANKER PAIR sharing a row, then BANKER WIN
+   alone — everything shrunk to content size and centered (no more
+   stretched flex:1 cells) so the grid's real footprint is small enough
+   to leave most of the screen to the cards. NO PAIR and CHECK aren't
+   real table positions, so neither gets a row here — both stay stacked
+   in their own small corner control below the grid (.bac-check-corner /
+   .bac-check-corner-stack below).
+   --bac-circle-d/--bac-pair-d/--bac-win-w drive the actual felt shapes
+   (oval WIN — height tied to --bac-pair-d, round everything else)
+   defined in .bac-win-oval/.bac-felt-circle near the bottom of this
+   file, after the shared console-button treatment so they win the
+   cascade. */
 .bac-exp-grid {
-  --bac-win-h: clamp(24px, 3.2vh, 30px);
-  --bac-circle-d: clamp(50px, 7.2vh, 66px);
-  --bac-pair-d: clamp(44px, 6.4vh, 58px);
-  display: flex; flex-direction: column;
-  gap: clamp(.15rem,.4vh,.28rem);
-  padding: clamp(.06rem,.18vh,.12rem) clamp(.5rem,1.5vw,1rem) 0;
+  --bac-circle-d: clamp(16px, 2.3vh, 21px);
+  --bac-pair-d: clamp(15px, 2.1vh, 19px);
+  --bac-win-w: clamp(340px, 46vw, 460px);
+  display: flex; flex-direction: column; align-items: center;
+  gap: clamp(.05rem,.15vh,.1rem);
+  padding: clamp(.04rem,.12vh,.08rem) clamp(.5rem,1.5vw,1rem) 0;
   flex-shrink: 0;
 }
 .bac-exp-row {
-  display: flex; align-items: center;
+  display: flex; align-items: center; justify-content: center;
   gap: clamp(.3rem,.8vw,.6rem);
 }
 .bac-exp-cell {
-  flex: 1; min-width: 0;
+  flex: none; min-width: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 .bac-exp-cell > button { width: 100%; }
-/* WIN fills whatever's left after PAIR's own (fixed, circular) width —
-   PAIR sits immediately beside the oval instead of centered in its own
-   wide flex:1 cell, so it doesn't read as floating far away from WIN. */
-.bac-exp-row-2col .bac-exp-cell-wide   { flex: 1 1 auto; }
-.bac-exp-row-2col .bac-exp-cell-narrow { flex: none; width: auto; }
-/* BIG6/TIE/SMALL6 and BIG7/SUPER7/SMALL7: cells shrink to the circle's
-   own size (not stretched thirds) and the row centers them as a tight
-   cluster — the row's rendered width is then literally "3 circles + 2
-   small gaps", which is what actually needs to approximate PLAYER WIN's
-   oval width, not just the invisible row container around them. */
+/* SMALL7/SUPER7/BIG7 and SMALL6/TIE/BIG6: cells shrink to the circle's
+   own size and the row centers them as a tight cluster. */
 .bac-exp-row-3col {
-  justify-content: center;
   gap: clamp(.15rem,.4vw,.3rem);
 }
-.bac-exp-row-3col .bac-exp-cell {
-  flex: none; width: auto;
-}
+/* PLAYER PAIR/PLAYER WIN/BANKER PAIR share a row, WIN's cell fixed to
+   --bac-win-w (~50-60% of the previous full-width oval) so PAIR reads
+   as sitting right against it, not off in its own wide column. BANKER
+   WIN gets the same fixed width alone in the row below, for the same
+   footprint as PLAYER WIN. */
+.bac-exp-cell-win { width: var(--bac-win-w); }
 /* NO PAIR isn't its own box on a real table (just the absence of a Pair
    bet) — kept clickable but visibly secondary to BANKER/PLAYER PAIR.
    Same font-size/padding/min-height as before; only its container
    changed (now .bac-check-corner-stack, matching CHECK's width). */
 .bac-nopair-mini {
   width: 100%;
-  font-size: clamp(.5rem,1.1vw,.6rem) !important;
-  padding: clamp(.08rem,.2vh,.14rem) clamp(.3rem,.6vw,.45rem) !important;
-  min-height: clamp(16px,2.2vh,20px) !important;
+  font-size: clamp(.44rem,1vw,.54rem) !important;
+  padding: clamp(.05rem,.14vh,.1rem) clamp(.3rem,.6vw,.45rem) !important;
+  min-height: clamp(13px,1.8vh,16px) !important;
   letter-spacing: .3px !important;
   opacity: .8;
 }
@@ -1990,19 +1983,19 @@ body {
    button area below. */
 .bac-check-corner {
   display: flex; justify-content: flex-end;
-  padding: clamp(.1rem,.3vh,.2rem) clamp(.5rem,1.5vw,1rem) 0;
+  padding: clamp(.06rem,.18vh,.12rem) clamp(.5rem,1.5vw,1rem) 0;
   flex-shrink: 0;
 }
 .bac-check-corner-stack {
   display: flex; flex-direction: column; align-items: center;
-  gap: clamp(.14rem,.3vh,.22rem);
-  width: clamp(64px,14vw,92px);
+  gap: clamp(.1rem,.24vh,.16rem);
+  width: clamp(56px,12vw,80px);
 }
 .bac-check-corner-stack .bac-check-btn {
   width: 100%;
-  font-size: clamp(.58rem,1.3vw,.7rem);
-  min-height: clamp(24px,3.2vh,30px);
-  padding: clamp(.14rem,.35vh,.22rem) clamp(.4rem,.8vw,.6rem);
+  font-size: clamp(.52rem,1.15vw,.62rem);
+  min-height: clamp(19px,2.6vh,24px);
+  padding: clamp(.1rem,.26vh,.16rem) clamp(.4rem,.8vw,.6rem);
   letter-spacing: .5px;
 }
 
@@ -3844,12 +3837,17 @@ body {
    sizing and the console-button treatment) so these win regardless of
    source order elsewhere. Colors/gradients/borders from those earlier
    rules are untouched; only geometry changes. Sizes come from
-   --bac-win-h/--bac-circle-d/--bac-pair-d, set on .bac-exp-grid. */
+   --bac-win-w/--bac-circle-d/--bac-pair-d, set on .bac-exp-grid. */
 .bac-win-oval {
   width: 100% !important;
-  height: var(--bac-win-h) !important;
+  /* Height tied directly to PAIR's own diameter, per spec — WIN reads
+     as compact/circle-scale tall, wide/oval rather than tall. */
+  height: var(--bac-pair-d) !important;
   min-height: 0 !important;
   border-radius: 999px !important;
+  padding: 0 clamp(.5rem,1.4vw,.9rem) !important;
+  font-size: clamp(.56rem,1.3vh,.7rem) !important;
+  display: flex; align-items: center; justify-content: center;
 }
 .bac-felt-circle {
   min-height: 0 !important;
@@ -3860,18 +3858,18 @@ body {
   white-space: normal; line-height: 1.05; text-align: center;
   letter-spacing: 0 !important;
 }
-/* BANKER/PLAYER PAIR — the small round corner mark, ~78% of WIN's height. */
+/* BANKER/PLAYER PAIR — the small round corner mark. */
 .bac-pair-circle {
   width: var(--bac-pair-d) !important;
   height: var(--bac-pair-d) !important;
-  font-size: clamp(.42rem,1vh,.54rem) !important;
+  font-size: clamp(.4rem,.9vh,.5rem) !important;
 }
 /* TIE/BIG6/SMALL6/BIG7/SUPER7/SMALL7 — the equal-size numbered/TIE
    betting circles, all the same diameter regardless of column. */
 .bac-circle-btn {
   width: var(--bac-circle-d) !important;
   height: var(--bac-circle-d) !important;
-  font-size: clamp(.48rem,1.15vh,.62rem) !important;
+  font-size: clamp(.38rem,.9vh,.48rem) !important;
 }
 
 /* ============================================================
