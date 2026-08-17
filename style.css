@@ -1941,9 +1941,19 @@ body {
    the shared console-button treatment so they win the cascade. */
 .bac-exp-grid {
   --bac-pair-d: clamp(15px, 2.1vh, 19px);
+  /* PLAYER PAIR/BANKER PAIR's own enlarged diameter, decoupled from
+     --bac-pair-d (which stays WIN's unchanged oval height) so PAIR
+     grows without also growing WIN. */
+  --bac-pair-circle-d: clamp(26px, 7vh, 32px);
+  /* BIG6/TIE/SMALL6/BIG7/SUPER7/SMALL7's enlarged capsule height —
+     also decoupled from --bac-pair-d for the same reason. */
+  --bac-capsule-h: clamp(30px, 8vh, 38px);
   --bac-win-w: clamp(340px, 46vw, 460px);
   display: flex; flex-direction: column; align-items: center;
-  gap: clamp(.3rem,1.1vh,.55rem);
+  /* Wide enough that a full-size PAIR circle, vertically centered
+     against its row's own (much shorter, WIN-height) box via
+     .bac-exp-attach, can't visually collide with the row above/below. */
+  gap: clamp(.7rem,2.4vh,1rem);
   padding: clamp(.04rem,.12vh,.08rem) clamp(.5rem,1.5vw,1rem) 0;
   flex-shrink: 0;
 }
@@ -3858,11 +3868,14 @@ body {
    sizing and the console-button treatment) so these win regardless of
    source order elsewhere. Colors/gradients/borders from those earlier
    rules are untouched; only geometry changes. Sizes come from
-   --bac-win-w/--bac-pair-d, set on .bac-exp-grid. */
+   --bac-win-w/--bac-pair-d/--bac-pair-circle-d/--bac-capsule-h, set on
+   .bac-exp-grid. */
 .bac-win-oval {
   width: 100% !important;
-  /* Height tied directly to PAIR's own diameter, per spec — WIN reads
-     as compact/circle-scale tall, wide/oval rather than tall. */
+  /* Height tied directly to PAIR's original diameter, per spec — WIN
+     reads as compact/circle-scale tall, wide/oval rather than tall.
+     Unchanged even though PAIR itself grew (--bac-pair-circle-d) —
+     only PAIR/BIG/TIE/SMALL were asked to enlarge, not WIN. */
   height: var(--bac-pair-d) !important;
   min-height: 0 !important;
   border-radius: 999px !important;
@@ -3870,30 +3883,37 @@ body {
   font-size: clamp(.56rem,1.3vh,.7rem) !important;
   display: flex; align-items: center; justify-content: center;
 }
+/* border-radius:999px (always half the box's own height) instead of a
+   50%-per-axis ellipse — on a wide, short box 50% draws a pointed
+   "rugby ball" (radius shrinks with width), while 999px always caps at
+   height/2 so the ends stay fully round: a capsule/pill, not a lens.
+   On the near-square PAIR circle both approaches already looked
+   identical (still a plain circle), so this is a pure shape fix for
+   the wide BIG/TIE/SMALL/SUPER buttons with no visible PAIR change. */
 .bac-felt-circle {
   min-height: 0 !important;
-  border-radius: 50% !important;
+  border-radius: 999px !important;
   padding: 0 !important;
   margin: 0 auto !important;
   display: flex; align-items: center; justify-content: center;
   white-space: normal; line-height: 1.05; text-align: center;
   letter-spacing: 0 !important;
 }
-/* BANKER/PLAYER PAIR — the small round corner mark. */
+/* BANKER/PLAYER PAIR — the round corner mark, enlarged via its own
+   --bac-pair-circle-d (not --bac-pair-d, so WIN's height is untouched). */
 .bac-pair-circle {
-  width: var(--bac-pair-d) !important;
-  height: var(--bac-pair-d) !important;
-  font-size: clamp(.4rem,.9vh,.5rem) !important;
+  width: var(--bac-pair-circle-d) !important;
+  height: var(--bac-pair-circle-d) !important;
+  font-size: clamp(.5rem,1.4vh,.64rem) !important;
 }
 /* TIE/BIG6/SMALL6/BIG7/SUPER7/SMALL7 — each fills its 1/3 share of the
    row's own --bac-win-w width (set via flex:1 on .bac-exp-row-3col's
-   cells), so 3 of them together span exactly PLAYER/BANKER WIN's
-   width; only the height stays pinned to --bac-pair-d for a slim,
-   tightly-stacked row. */
+   cells); height enlarged to --bac-capsule-h (shorter/rounder capsule
+   instead of the old thin sliver pinned to --bac-pair-d). */
 .bac-circle-btn {
   width: 100% !important;
-  height: var(--bac-pair-d) !important;
-  font-size: clamp(.38rem,.9vh,.48rem) !important;
+  height: var(--bac-capsule-h) !important;
+  font-size: clamp(.5rem,1.3vh,.62rem) !important;
 }
 
 /* ============================================================
