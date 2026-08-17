@@ -2194,7 +2194,11 @@ body {
 .bac-win-over-divider {
   position: absolute; left: 50%; transform: translateX(-50%);
   white-space: nowrap;
-  top: clamp(.5rem, 1.8vh, 1.1rem);
+  /* Nudged down a bit from the table's top edge (was clamp(.5rem,1.8vh,
+     1.1rem)) — the whole button grid above it is cleared before this
+     renders (see clearInlineBtns() in announceWinner()'s caller), so
+     there's empty felt to move into without covering anything. */
+  top: clamp(1.3rem, 4vh, 2.4rem);
 }
 .bac-win-sub {
   font-size: clamp(1.9rem,6.2vh,3.4rem); font-weight: 900;
