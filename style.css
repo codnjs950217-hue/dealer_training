@@ -1950,9 +1950,17 @@ body {
   /* PLAYER PAIR/BANKER PAIR's diameter — also drives PLAYER WIN/
      BANKER WIN's own oval height (see .bac-win-oval below) so the two
      read as the same vertical thickness instead of WIN looking thin
-     next to PAIR. */
-  --bac-pair-circle-d: clamp(26px, 7vh, 32px);
-  /* BIG6/TIE/SMALL6/BIG7/SUPER7/SMALL7's enlarged capsule height —
+     next to PAIR. Grown further here, funded by shrinking
+     --bac-row-gap below by roughly the same total amount (3 gaps in
+     the vertical stack vs. 2 rows of this height), so the grid's
+     overall height — and therefore .bac-field's position — stays
+     about the same; the card area doesn't move, the freed space from
+     tighter gaps goes into WIN/PAIR instead. Since WIN's row height
+     now always equals PAIR's own diameter exactly, there's no
+     collision margin to preserve either, so the gap was free to shrink
+     as far as "still visually a row gap, not touching". */
+  --bac-pair-circle-d: clamp(34px, 9.2vh, 40px);
+  /* BIG6/TIE/SMALL6/BIG7/SUPER7/SMALL7's capsule height — unchanged,
      decoupled from --bac-pair-circle-d so BIG/TIE/SMALL can size
      independently of WIN/PAIR. */
   --bac-capsule-h: clamp(30px, 8vh, 38px);
@@ -1960,8 +1968,10 @@ body {
   /* Row-to-row breathing room between PLAYER WIN/BANKER WIN's own rows
      and the BIG/TIE/SMALL rows below. Reused as .bac-exp-pairwrap's
      own internal row gap too, so P PAIR/B PAIR keep the exact same
-     vertical spacing now that they're nested one level deeper. */
-  --bac-row-gap: clamp(.7rem,2.4vh,1rem);
+     vertical spacing now that they're nested one level deeper.
+     Shrunk (from clamp(.7rem,2.4vh,1rem)) to fund the extra WIN/PAIR
+     height above and pull the whole grid into one tight cluster. */
+  --bac-row-gap: clamp(.35rem,1.2vh,.5rem);
   display: flex; flex-direction: column; align-items: center;
   gap: var(--bac-row-gap);
   padding: clamp(.04rem,.12vh,.08rem) clamp(.5rem,1.5vw,1rem) 0;
