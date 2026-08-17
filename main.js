@@ -505,7 +505,7 @@ const Views = {
                nudges the whole [shoe, SUBMIT] group up together (still
                centered as one unit via .bac-shoe-col's top:50%), so SHOE
                itself moves up just enough to make room, no separate
-               positioning math needed. */
+               positioning math needed. -->
           <div class="bac-shoe-col">
             <div class="shoe-visual">
               <div class="shoe-label-text">SHOE</div>
