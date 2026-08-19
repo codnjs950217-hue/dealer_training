@@ -1847,8 +1847,8 @@ body {
 }
 /* Final Pair-judgment state (renderPairBtnsFinal() in main.js): the
    button(s) the trainee actually picked stay at full brightness (not
-   the :disabled dim above). SCALE+LIFT+CHECKMARK, not border/color —
-   see .bac-inline-btn.bac-result-picked below for the full design
+   the :disabled dim above). SCALE+LIFT, not border/color — see
+   .bac-inline-btn.bac-result-picked below for the full design
    history and current rationale (this mirrors it exactly; kept as a
    separate rule only because :disabled needs to be in the selector). */
 .btn-bac-pair.bac-pair-selected:disabled {
@@ -3853,17 +3853,17 @@ body {
    the trainee can see their selection before committing with RESULT. Not
    a disabled/dim state — these stay fully clickable (toggle off by
    clicking again).
-   SCALE+LIFT+CHECKMARK — fifth revision. History: (1) border/outline/
-   glow-only; (2) pressed-DOWN with a dark inset shadow + darkened fill,
-   rejected as too heavy/neon; (3) floated UP for pure elevation,
-   rejected as backwards for something just pressed; (4) sunk back DOWN
-   with a soft inset shadow + a brightness lift, which read correctly as
-   "pressed" but was reported as still not reliably distinguishable
-   across different phones/screens — a color/shadow-only signal is too
-   subtle at real device brightness/contrast; (5) THIS version — drops
-   color as a signal ENTIRELY (no filter, no darkening, no inset shadow
-   that shades the fill — background reads identical to idle) and
-   instead uses unmistakable geometry + an explicit icon:
+   SCALE+LIFT — sixth revision. History: (1) border/outline/glow-only;
+   (2) pressed-DOWN with a dark inset shadow + darkened fill, rejected
+   as too heavy/neon; (3) floated UP for pure elevation, rejected as
+   backwards for something just pressed; (4) sunk back DOWN with a soft
+   inset shadow + a brightness lift, which read correctly as "pressed"
+   but was reported as still not reliably distinguishable across
+   different phones/screens; (5) added a small white/green ✓ badge at
+   the top-left corner on top of the scale+lift — rejected on sight
+   ("너무 별로야", didn't like the look), removed; (6) THIS version —
+   scale+lift+shadow+highlight only, no badge, no color/brightness
+   signal:
      - transform scales the button up ~4.5% and lifts it a couple px —
        a clearly bigger, clearly higher target, not just a shade
        different
@@ -3875,16 +3875,11 @@ body {
        for a touch more shine on the raised surface
      - border gets only the same mild --btn-hi opacity bump prior
        designs used — thin, 1px, never thickened
-     - a small white circular badge with a green ✓ is added via
-       ::before at the button's top-left corner (see the shared rule
-       below) — an explicit, unambiguous, device-independent "selected"
-       indicator that doesn't depend on shade/contrast perception at
-       all, which is what device-to-device inconsistency actually
-       needs.
    If tiny-circle (BIG6/TIE/SMALL6/BIG7/SUPER7/SMALL7, ~30px) legibility
-   is ever a problem again, tune the ✓ badge size/shadow strength — do
-   NOT reintroduce a fill-darkening/brightening filter or a thick/neon
-   border, both repeatedly rejected across every prior revision. */
+   is ever a problem again, tune the scale amount/shadow strength — do
+   NOT reintroduce a fill-darkening/brightening filter, a thick/neon
+   border, or a checkmark/icon badge — all explicitly rejected across
+   prior revisions. */
 .bac-inline-btn.bac-result-picked {
   position: relative;
   transform: scale(1.045) translateY(-2px);
@@ -3894,27 +3889,6 @@ body {
     0 8px 16px rgba(0,0,0,.5),
     0 3px 6px rgba(0,0,0,.35);
   z-index: 2;
-}
-/* Shared checkmark badge for both picked states above — a small white
-   circle + green ✓ floating at the button's top-left corner, the same
-   regardless of the button's own color family so it reads identically
-   everywhere (banker red, player blue, gold BIG6, purple SUPER7, ...).
-   Deliberately NOT tinted to --btn-hi — a universal, unambiguous
-   "selected" icon rather than another color signal. */
-.bac-inline-btn.bac-result-picked::before,
-.btn-bac-pair.bac-pair-selected:disabled::before {
-  content: "✓";
-  position: absolute;
-  left: -5px; top: -5px;
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: #ffffff;
-  color: #178a43;
-  font-size: 9px; font-weight: 900; line-height: 1;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,.6), 0 0 0 1.5px rgba(0,0,0,.25);
-  z-index: 3;
-  pointer-events: none;
 }
 
 /* ============================================================
