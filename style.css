@@ -2141,27 +2141,22 @@ body {
    eye-catching control on screen (see .bac-check-btn's own bold
    treatment further down), not played down. */
 .bac-check-corner-stack {
-  position: absolute; right: 0; top: 50%; transform: translateY(-50%); z-index: 1;
+  /* right: a small explicit inset, not a flush 0 — guarantees a real
+     safe-area margin from the table's own green border regardless of
+     rounding/content quirks in .bac-field, instead of relying on
+     right:0 landing exactly on the padding edge with zero slack. */
+  position: absolute; right: clamp(.2rem,.5vw,.4rem); top: 50%; transform: translateY(-50%); z-index: 1;
   display: flex; flex-direction: column; align-items: center;
   gap: clamp(.1rem,.24vh,.16rem);
-  /* Narrower ceiling than a plain vw value so this column leaves
-     breathing room before PLAYER DRAW and the player hand on short
-     landscape phones, without touching .bac-player-zone's own flex
-     sizing (that would grow it at .bac-banker-zone's expense — flex:1
-     vs flex:1 stop being an even split the moment one side's
-     min-content, padding included, grows past its own half of the
-     shrunk row).
-     min(10vw,16vh) instead of a plain vw value: PLAYER's cards/DRAW
-     slot (sized off --card-h-lg/--card-w-lg, both vh-driven) push
-     further right on any taller viewport, regardless of width, so this
-     needs to shrink with vh too, not just vw, to keep a margin on
-     tall-and-narrow landscape screens (e.g. 812x430) and not just
-     wide-and-short ones (e.g. 932x375). */
-  width: clamp(48px,min(10vw,16vh),76px);
-  /* Matches .bac-check-btn's own min-height below, so the stack
-     doesn't collapse while #bac-result is cleared to empty (deal
-     animation, etc.) — same reasoning as .bac-exp-cell-win/.bac-exp-
-     row-3col above. */
+  /* No fixed width (was clamp(48px,min(10vw,16vh),76px)) — that box was
+     sized for the old "RESULT" label and was too narrow for "CONFIRM"
+     (a longer word) at .bac-check-btn's own white-space:nowrap, so the
+     text overflowed past the button's own edge and past the table's
+     border on small screens. The stack now sizes to its child button's
+     own natural content width instead (see width:auto below), which
+     can never overflow itself regardless of label text/viewport/font
+     metrics. */
+  width: max-content;
   min-height: clamp(24px,3.25vh,30px);
 }
 /* ~25% bigger than the plain-CHECK sizing this replaced (19-24px ->
@@ -2169,7 +2164,12 @@ body {
    screen" comes from .bac-check-btn's own bold color/border/glow
    below, not sheer size. */
 .bac-check-corner-stack .bac-check-btn {
-  width: 100%;
+  /* width:100% removed (was forcing the button into the old fixed-width
+     stack above, see that rule's comment) — the button now sizes to
+     its own text + padding (shrink-to-fit, a plain button's default),
+     which is what actually prevents "CONFIRM" from overflowing instead
+     of guessing a fixed pixel width that fits every viewport/label. */
+  width: auto;
   font-size: clamp(.65rem,1.44vw,.78rem);
   min-height: clamp(24px,3.25vh,30px);
   padding: clamp(.13rem,.33vh,.2rem) clamp(.5rem,1vw,.75rem);
