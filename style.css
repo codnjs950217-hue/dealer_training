@@ -1846,24 +1846,21 @@ body {
   animation: none;
 }
 /* Final Pair-judgment state (renderPairBtnsFinal() in main.js): the
-   button(s) the trainee actually picked stay at full brightness (not the
-   :disabled dim above) and read as gently SUNK IN — nudged down a couple
-   px with a soft top-down inset shadow and a slight brightness lift so
-   the pick is legible at a glance — instead of a thick bright ring or
-   floating up (an "elevated" version briefly existed here but got
-   called out as backwards: a picked/pressed button has to sink, not
-   rise). Mirrors .bac-inline-btn.bac-result-picked below; see that
-   rule's comment for the full history. */
+   button(s) the trainee actually picked stay at full brightness (not
+   the :disabled dim above). SCALE+LIFT+CHECKMARK, not border/color —
+   see .bac-inline-btn.bac-result-picked below for the full design
+   history and current rationale (this mirrors it exactly; kept as a
+   separate rule only because :disabled needs to be in the selector). */
 .btn-bac-pair.bac-pair-selected:disabled {
   opacity: 1;
-  transform: translateY(2px);
-  filter: brightness(1.14);
+  position: relative;
+  transform: scale(1.045) translateY(-2px);
   border-color: rgba(var(--btn-hi), .5);
   box-shadow:
-    inset 0 2px 4px rgba(0,0,0,.35),
-    inset 0 1px 0 rgba(255,255,255,.15),
-    0 1px 2px rgba(0,0,0,.3),
-    0 2px 6px rgba(var(--btn-glow), .3);
+    inset 0 1px 0 rgba(255,255,255,.6),
+    0 8px 16px rgba(0,0,0,.5),
+    0 3px 6px rgba(0,0,0,.35);
+  z-index: 2;
 }
 /* Subtle pulse + glow (each button's own --btn-hi/--btn-glow, so B PAIR/
    P PAIR now pulse gold/red instead of the old hardcoded blue — see the
@@ -3856,48 +3853,68 @@ body {
    the trainee can see their selection before committing with RESULT. Not
    a disabled/dim state — these stay fully clickable (toggle off by
    clicking again).
-   SUNK-IN, RESTRAINED ETG LOOK — fourth revision. History: (1)
-   originally border/outline/glow-only, no fill/brightness change; (2)
-   physically-pressed-DOWN with a heavy dark inset shadow + darkened
-   fill, rejected on sight as too heavy/neon (thick bright ring, pink
-   outline glow, darkened fill all called out as unwanted); (3) reworked
-   to float UP instead, on the theory that "selected" just needed an
-   elevation difference — but floating up is backwards for something
-   that was just pressed, so that direction got called out too; (4) THIS
-   version — keeps design (3)'s restraint (button's own color untouched,
-   no brightness/darken filter, no thick border, no wide blurred glow
-   ring, no outline) but corrects the direction: it nudges down like an
-   actually-pressed key, with a soft top-down inset shadow for depth and
-   a correspondingly smaller/tighter outer shadow (a button sitting
-   lower casts less of a raised drop shadow than the idle/floating
-   state) —
-     - transform nudges the button down a couple px
-     - a moderate top-down inset shadow reads as the surface receding,
-       paired with a faint inset highlight just below it (the socket's
-       near rim catching a little light) — NOT the heavy multi-directional
-       socket shading of design (2)
-     - the outer shadow shrinks relative to idle, consistent with sitting
-       lower/closer to the felt
-     - the border only gets a mild opacity bump on the button's own
-       --btn-hi tint — thin, same 1px weight as idle, not thickened
-     - filter:brightness gets a small lift (not the darkening design
-       (2) used) — confirmed-good addition: the sunk-in shadow alone
-       read correctly as "pressed" but didn't stand out enough at a
-       glance to tell which button was picked, so a slight brighten on
-       top of the shadow/lift is what actually makes the pick legible
+   SCALE+LIFT+CHECKMARK — fifth revision. History: (1) border/outline/
+   glow-only; (2) pressed-DOWN with a dark inset shadow + darkened fill,
+   rejected as too heavy/neon; (3) floated UP for pure elevation,
+   rejected as backwards for something just pressed; (4) sunk back DOWN
+   with a soft inset shadow + a brightness lift, which read correctly as
+   "pressed" but was reported as still not reliably distinguishable
+   across different phones/screens — a color/shadow-only signal is too
+   subtle at real device brightness/contrast; (5) THIS version — drops
+   color as a signal ENTIRELY (no filter, no darkening, no inset shadow
+   that shades the fill — background reads identical to idle) and
+   instead uses unmistakable geometry + an explicit icon:
+     - transform scales the button up ~4.5% and lifts it a couple px —
+       a clearly bigger, clearly higher target, not just a shade
+       different
+     - the outer drop shadow is strong and neutral black (no
+       --btn-glow color tint — a colored shadow reads as "neon") so it
+       reads as physically closer to the viewer, consistent with the
+       lift
+     - the inset top highlight brightens (plain white, not tinted)
+       for a touch more shine on the raised surface
+     - border gets only the same mild --btn-hi opacity bump prior
+       designs used — thin, 1px, never thickened
+     - a small white circular badge with a green ✓ is added via
+       ::before at the button's top-left corner (see the shared rule
+       below) — an explicit, unambiguous, device-independent "selected"
+       indicator that doesn't depend on shade/contrast perception at
+       all, which is what device-to-device inconsistency actually
+       needs.
    If tiny-circle (BIG6/TIE/SMALL6/BIG7/SUPER7/SMALL7, ~30px) legibility
-   ever becomes a problem again, fix it by nudging shadow strength or
-   this brightness amount, NOT by bringing back a thick ring/outline or
-   a darkened fill — both still rejected. */
+   is ever a problem again, tune the ✓ badge size/shadow strength — do
+   NOT reintroduce a fill-darkening/brightening filter or a thick/neon
+   border, both repeatedly rejected across every prior revision. */
 .bac-inline-btn.bac-result-picked {
-  transform: translateY(2px);
-  filter: brightness(1.14);
+  position: relative;
+  transform: scale(1.045) translateY(-2px);
   border-color: rgba(var(--btn-hi), .5);
   box-shadow:
-    inset 0 2px 4px rgba(0,0,0,.35),
-    inset 0 1px 0 rgba(255,255,255,.15),
-    0 1px 2px rgba(0,0,0,.3),
-    0 2px 6px rgba(var(--btn-glow), .3);
+    inset 0 1px 0 rgba(255,255,255,.6),
+    0 8px 16px rgba(0,0,0,.5),
+    0 3px 6px rgba(0,0,0,.35);
+  z-index: 2;
+}
+/* Shared checkmark badge for both picked states above — a small white
+   circle + green ✓ floating at the button's top-left corner, the same
+   regardless of the button's own color family so it reads identically
+   everywhere (banker red, player blue, gold BIG6, purple SUPER7, ...).
+   Deliberately NOT tinted to --btn-hi — a universal, unambiguous
+   "selected" icon rather than another color signal. */
+.bac-inline-btn.bac-result-picked::before,
+.btn-bac-pair.bac-pair-selected:disabled::before {
+  content: "✓";
+  position: absolute;
+  left: -5px; top: -5px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #178a43;
+  font-size: 9px; font-weight: 900; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,.6), 0 0 0 1.5px rgba(0,0,0,.25);
+  z-index: 3;
+  pointer-events: none;
 }
 
 /* ============================================================
