@@ -3774,53 +3774,59 @@ body {
   white-space: nowrap;
 }
 
-/* ---- BACCARAT: RESULT SUBMISSION (SUBMIT) ----
+/* ---- BACCARAT: RESULT SUBMISSION (RESULT) ----
    WIN/TIE/PLAYER WIN and the special buttons only toggle a pick now —
-   SUBMIT (.bac-check-btn, sized via .bac-check-corner-stack .bac-
+   RESULT (.bac-check-btn, sized via .bac-check-corner-stack .bac-
    check-btn above) is what actually submits. Always enabled (never
-   hints at whether the current picks are right). Deliberately the
-   single most eye-catching control on screen — brighter/bolder than
-   even the gold START/NEXT HAND CTA — so "this is the submit action"
-   reads instantly: a vivid saturated cyan-teal (its color identity,
-   just turned way up from the old muted dark teal), a thick bright
-   border, and a soft glow. Given its own dedicated :hover/:active
-   below instead of sharing the plain console-button treatment the
-   WIN/PAIR/DRAW buttons use (see the shared block further down), so
-   it never reads as "just another pick" among the result buttons. */
+   hints at whether the current picks are right).
+   REVISION: used to be a vivid neon cyan-teal, deliberately the single
+   most eye-catching thing on screen — explicitly reversed per feedback
+   that the mint neon clashed with the rest of the (gold/felt-toned)
+   table. Recolored to a deep antique-gold metal plaque instead: a
+   3-stop gradient (lighter top, darkening toward the bottom — a raised
+   metal surface lit from above), a thin gold border (not the old thick
+   2px ring), a soft top highlight, restrained contact shadow, no wide
+   blurred glow. Deliberately its own darker/deeper gold than
+   START/NEXT HAND's brighter --gold/--gold-light CTA gradient
+   (.bac-cta-btn above) — RESULT reads as a quieter "check/lookup"
+   action, not a call-to-action, so it needed to be visually calmer
+   than START/NEXT HAND, not louder. Still given its own dedicated
+   :hover/:active (not the shared WIN/PAIR/DRAW console-button block)
+   so its exact metal-plaque shading stays intact. */
 .bac-check-btn {
-  --btn-hi: 210,255,250; --btn-glow: 45,235,215;
-  background: linear-gradient(180deg, #7dfff2 0%, #22d6c2 55%, #0f9a8c 100%);
-  color: #04211d;
-  border: 2px solid #a6fff2;
+  --btn-hi: 230,195,106; --btn-glow: 184,134,11;
+  background: linear-gradient(180deg, #D9B45A 0%, #B8860B 55%, #7A5A12 100%);
+  color: #FFF3C4;
+  border: 1px solid #E6C36A;
   border-radius: var(--r);
   font-weight: 900; cursor: pointer;
   letter-spacing: 1.5px;
-  text-shadow: 0 1px 2px rgba(255,255,255,.35);
+  text-shadow: 0 1px 2px rgba(0,0,0,.45);
   white-space: nowrap;
   box-shadow:
-    0 0 0 1px rgba(10,60,55,.4),
+    inset 0 1px 0 rgba(255,243,196,.5),
+    inset 0 -2px 3px rgba(0,0,0,.25),
     0 2px 4px rgba(0,0,0,.35),
-    0 0 14px 2px rgba(45,235,215,.55),
-    0 0 28px 6px rgba(45,235,215,.28);
+    0 2px 6px rgba(122,90,18,.35);
   transition: filter .15s ease, transform .12s ease, box-shadow .15s ease, border-color .15s ease;
 }
 .bac-check-btn:hover {
-  filter: brightness(1.12);
+  filter: brightness(1.06);
   transform: translateY(-1px);
-  border-color: #d4fffa;
+  border-color: #f0d488;
   box-shadow:
-    0 0 0 1px rgba(10,60,55,.4),
+    inset 0 1px 0 rgba(255,243,196,.6),
+    inset 0 -2px 3px rgba(0,0,0,.22),
     0 4px 8px rgba(0,0,0,.4),
-    0 0 20px 3px rgba(45,235,215,.7),
-    0 0 38px 10px rgba(45,235,215,.4);
+    0 3px 9px rgba(122,90,18,.4);
 }
 .bac-check-btn:active {
-  filter: brightness(.96);
+  filter: brightness(.94);
   transform: translateY(1px);
   box-shadow:
-    inset 0 2px 5px rgba(0,0,0,.3),
-    0 0 0 1px rgba(10,60,55,.4),
-    0 0 10px 1px rgba(45,235,215,.4);
+    inset 0 2px 5px rgba(0,0,0,.35),
+    inset 0 -1px 0 rgba(255,243,196,.2),
+    0 1px 2px rgba(0,0,0,.3);
 }
 /* Marks the currently-picked winner/special button(s) — PLAYER WIN/BANKER
    WIN/BIG6/TIE/SMALL6/BIG7/SUPER7/SMALL7, i.e. every .bac-inline-btn — so
