@@ -2126,43 +2126,45 @@ body {
   transform: translate(-50%, -100%);
 }
 /* CONFIRM (.bac-check-btn) isn't a real table position, so it doesn't
-   get a slot in the felt-position grid. Sits after PLAYER DRAW's own
-   slot (bac-ph3) as the LAST real flex child of .bac-field — so it
-   always reads as next to PLAYER DRAW.
-   REVISION: this used to float via position:absolute; right:<small
-   inset> — a fixed-coordinate approach that doesn't know how wide
-   .bac-player-zone's own content actually renders, so on a narrow
-   device (reported: iPhone 13 mini landscape, 812×375) CONFIRM's
-   floating box could land on top of PLAYER DRAW's slot instead of
-   beside it. Fixed by making CONFIRM a genuine in-flow flex item of
-   .bac-field instead of a floating absolute box: flexbox itself then
-   guarantees CONFIRM and .bac-player-zone's content can never overlap
-   (they're siblings on the same main axis, and .bac-banker-zone/
-   .bac-player-zone are flex:1 — shrinkable — so they automatically
-   give up exactly the space CONFIRM's own fixed width needs, the same
-   way they already coexist with .bac-field-divider's fixed width).
-   flex-shrink:0 so CONFIRM itself never gets squeezed smaller than its
-   own (PLAYER-DRAW-matched) size; margin-left is the guaranteed
-   minimum gap from PLAYER DRAW's content, not a right-edge inset. */
+   get a slot in the felt-position grid.
+   POSITION HISTORY: (1) stacked under SHOE inside .bac-shoe-col (far
+   left); (2) position:absolute floating over .bac-field's right edge,
+   which on narrow devices (iPhone 13 mini landscape, 812×375) could
+   land on top of PLAYER DRAW's slot instead of beside it; (3) made a
+   real flex child of .bac-field (after .bac-player-zone) so flexbox
+   guaranteed no overlap with PLAYER DRAW — but this reserved genuine
+   extra HORIZONTAL space in the row, which squeezed .bac-banker-zone/
+   .bac-player-zone (both flex:1) and visibly shifted the whole
+   banker/player CARD AREA sideways — an even worse regression than
+   the overlap it fixed. (4) THIS version — .bac-ph3-col (see the
+   template in main.js) stacks CONFIRM directly ABOVE bac-ph3 (PLAYER
+   DRAW's own slot) in normal vertical flow, using the empty space that
+   already exists there. .bac-ph3-col's own width is just bac-ph3's
+   existing width (var(--card-h-lg)) — CONFIRM adds height to
+   .bac-player-zone, not width, so .bac-player-zone's total footprint
+   is back to exactly what it was before CONFIRM existed anywhere in
+   this row: the card area doesn't move. */
+.bac-ph3-col {
+  display: flex; flex-direction: column; align-items: center;
+  gap: clamp(.15rem,.4vh,.3rem);
+}
 .bac-check-corner-stack {
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  margin-left: clamp(.3rem,.8vw,.6rem);
+  width: 100%;
 }
 /* #bac-result (the plain <div> setBtn() writes into, see main.js) has
    no size of its own — it's an auto-sized wrapper — so the button's
-   width/height are set directly here in absolute terms (--card-h-lg/
-   --card-w-lg) rather than as 100%, which can't resolve against an
-   auto-sized ancestor. Matches PLAYER DRAW's own footprint exactly —
-   same vars .bac-third-slot/.bac-draw-slot-btn use — per explicit
-   request that CONFIRM read as the same size as the DRAW button it
-   sits next to. This box is generously bigger than "CONFIRM" needs,
-   which also keeps the earlier overflow bug (text wider than a
-   too-narrow fixed box) from ever recurring. */
+   width/height are set directly here rather than as a percentage,
+   which can't resolve against an auto-sized ancestor. Width matches
+   bac-ph3's own width (var(--card-h-lg)) so CONFIRM lines up flush
+   with PLAYER DRAW below it; height is back to the original compact
+   size (not PLAYER-DRAW-matched anymore — stacking a full card-tall
+   CONFIRM above an already card-tall bac-ph3 made the column too
+   tall). */
 .bac-check-corner-stack .bac-check-btn {
   width: var(--card-h-lg);
-  height: var(--card-w-lg);
-  font-size: .78rem;
+  height: clamp(24px,3.25vh,30px);
+  font-size: clamp(.65rem,1.44vw,.78rem);
   letter-spacing: .5px;
 }
 

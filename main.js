@@ -515,21 +515,29 @@ const Views = {
           <div class="bac-player-zone">
             <div class="bac-zone-lbl bac-lbl-player">PLAYER</div>
             <div class="bac-hand-wrap bac-ph-wrap" id="bac-ph"></div>
-            <div class="bac-third-slot" id="bac-ph3"></div>
-          </div>
-          <!-- CONFIRM is a genuine in-flow flex child of .bac-field (NOT
-               position:absolute — that let it float on top of PLAYER
-               DRAW's own slot on narrow devices like iPhone 13 mini
-               landscape, since a floating box doesn't reserve real
-               space) placed right after .bac-player-zone so it always
-               sits just past PLAYER DRAW, with flexbox itself
-               guaranteeing no overlap. Used to live stacked under SHOE
-               instead (.bac-check-corner-stack nested in .bac-shoe-col)
-               — moved out per earlier explicit request to sit next to
-               PLAYER DRAW; see .bac-check-corner-stack in style.css for
-               the overlap-fix details. -->
-          <div class="bac-check-corner-stack">
-            <div id="bac-result"></div>
+            <!-- CONFIRM stacks in the empty space directly ABOVE PLAYER
+                 DRAW's own slot (bac-ph3), in real normal flow (not
+                 position:absolute) — .bac-ph3-col's own width is just
+                 bac-ph3's existing width (var(--card-h-lg)), so this adds
+                 height, not width, to .bac-player-zone. That's the fix:
+                 an earlier version made CONFIRM its own flex sibling of
+                 .bac-field (to the right of PLAYER DRAW), which reserved
+                 extra HORIZONTAL space and squeezed/shifted the whole
+                 banker/player card area sideways. Stacking it above
+                 bac-ph3 instead keeps .bac-player-zone's total width
+                 exactly what it was before CONFIRM existed — the card
+                 area doesn't move. CONFIRM is still its own sibling DOM
+                 node (not nested inside bac-ph3 itself), because bac-ph3
+                 gets its innerHTML replaced wholesale on every redraw
+                 (DRAW button -> dealt card, see setBtn()/addCard() in
+                 main.js) — nesting CONFIRM inside it would get it wiped
+                 out on every repaint. -->
+            <div class="bac-ph3-col">
+              <div class="bac-check-corner-stack">
+                <div id="bac-result"></div>
+              </div>
+              <div class="bac-third-slot" id="bac-ph3"></div>
+            </div>
           </div>
         </div>
       </div>
