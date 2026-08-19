@@ -1847,20 +1847,18 @@ body {
 }
 /* Final Pair-judgment state (renderPairBtnsFinal() in main.js): the
    button(s) the trainee actually picked stay at full brightness (not
-   the :disabled dim above). SCALE+LIFT, not border/color — see
+   the :disabled dim above). PRESSED-IN, not border/color — see
    .bac-inline-btn.bac-result-picked below for the full design
    history and current rationale (this mirrors it exactly; kept as a
    separate rule only because :disabled needs to be in the selector). */
 .btn-bac-pair.bac-pair-selected:disabled {
   opacity: 1;
-  position: relative;
-  transform: scale(1.045) translateY(-2px);
-  border-color: rgba(var(--btn-hi), .5);
+  transform: translateY(2px);
+  border-color: rgba(var(--btn-hi), .4);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.6),
-    0 8px 16px rgba(0,0,0,.5),
-    0 3px 6px rgba(0,0,0,.35);
-  z-index: 2;
+    inset 0 4px 7px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 1px 1px rgba(0,0,0,.25);
 }
 /* Subtle pulse + glow (each button's own --btn-hi/--btn-glow, so B PAIR/
    P PAIR now pulse gold/red instead of the old hardcoded blue — see the
@@ -3859,42 +3857,38 @@ body {
    the trainee can see their selection before committing with RESULT. Not
    a disabled/dim state — these stay fully clickable (toggle off by
    clicking again).
-   SCALE+LIFT — sixth revision. History: (1) border/outline/glow-only;
-   (2) pressed-DOWN with a dark inset shadow + darkened fill, rejected
-   as too heavy/neon; (3) floated UP for pure elevation, rejected as
-   backwards for something just pressed; (4) sunk back DOWN with a soft
-   inset shadow + a brightness lift, which read correctly as "pressed"
-   but was reported as still not reliably distinguishable across
-   different phones/screens; (5) added a small white/green ✓ badge at
-   the top-left corner on top of the scale+lift — rejected on sight
-   ("너무 별로야", didn't like the look), removed; (6) THIS version —
-   scale+lift+shadow+highlight only, no badge, no color/brightness
-   signal:
-     - transform scales the button up ~4.5% and lifts it a couple px —
-       a clearly bigger, clearly higher target, not just a shade
-       different
-     - the outer drop shadow is strong and neutral black (no
-       --btn-glow color tint — a colored shadow reads as "neon") so it
-       reads as physically closer to the viewer, consistent with the
-       lift
-     - the inset top highlight brightens (plain white, not tinted)
-       for a touch more shine on the raised surface
-     - border gets only the same mild --btn-hi opacity bump prior
-       designs used — thin, 1px, never thickened
-   If tiny-circle (BIG6/TIE/SMALL6/BIG7/SUPER7/SMALL7, ~30px) legibility
-   is ever a problem again, tune the scale amount/shadow strength — do
-   NOT reintroduce a fill-darkening/brightening filter, a thick/neon
-   border, or a checkmark/icon badge — all explicitly rejected across
-   prior revisions. */
+   PRESSED-IN — seventh revision. History: (1) border/outline/glow-only;
+   (2) pressed-DOWN with a heavy dark inset shadow + darkened fill,
+   rejected as too heavy/neon; (3) floated UP for pure elevation,
+   rejected as backwards for something just pressed; (4) sunk back DOWN
+   with a soft inset shadow + a brightness lift, which read correctly
+   as "pressed" but was reported as still not reliably distinguishable
+   across different phones/screens; (5) SCALED up ~4.5% + lifted UP
+   instead, dropping color as a signal entirely — a deliberate pivot
+   away from "pressed" toward pure elevation, on the theory that size
+   is a more device-independent signal than shading; (6) added a small
+   white/green ✓ badge on top of (5) — rejected on sight, removed;
+   (7) THIS version — a fresh explicit request to go back to a genuine
+   PRESSED metaphor (not elevated/floating), done more deliberately
+   than attempt (2)/(4): nudges down 1-2px, a real top-down inset
+   shadow reads as the surface receding, the outer drop shadow shrinks
+   to near nothing (a recessed button casts far less shadow than a
+   raised one), the top highlight is reduced to a bare sliver (a
+   receding surface catches little light from above), and — per
+   explicit instruction this round — NO scale, NO badge, NO thick
+   border, NO neon, NO color/brightness change. Button's own fill color
+   is completely untouched; only shadow/position signal "pressed".
+   If legibility across devices is ever raised again, tune the inset
+   shadow's strength/spread first — do NOT reach for a brightness
+   filter, a badge, or a thick/neon border; all explicitly rejected at
+   least once already. */
 .bac-inline-btn.bac-result-picked {
-  position: relative;
-  transform: scale(1.045) translateY(-2px);
-  border-color: rgba(var(--btn-hi), .5);
+  transform: translateY(2px);
+  border-color: rgba(var(--btn-hi), .4);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.6),
-    0 8px 16px rgba(0,0,0,.5),
-    0 3px 6px rgba(0,0,0,.35);
-  z-index: 2;
+    inset 0 4px 7px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 1px 1px rgba(0,0,0,.25);
 }
 
 /* ============================================================
