@@ -1856,15 +1856,16 @@ body {
 /* Final Pair-judgment state (renderPairBtnsFinal() in main.js): the
    button(s) the trainee actually picked stay at full brightness (not the
    :disabled dim above) and read as gently SUNK IN — nudged down a couple
-   px with a soft top-down inset shadow — instead of a thick bright ring
-   or floating up (an "elevated" version briefly existed here but got
+   px with a soft top-down inset shadow and a slight brightness lift so
+   the pick is legible at a glance — instead of a thick bright ring or
+   floating up (an "elevated" version briefly existed here but got
    called out as backwards: a picked/pressed button has to sink, not
-   rise). Own color identity (background/text) is untouched, no
-   filter:brightness darkening. Mirrors .bac-inline-btn.bac-result-picked
-   below; see that rule's comment for the full history. */
+   rise). Mirrors .bac-inline-btn.bac-result-picked below; see that
+   rule's comment for the full history. */
 .btn-bac-pair.bac-pair-selected:disabled {
   opacity: 1;
   transform: translateY(2px);
+  filter: brightness(1.14);
   border-color: rgba(var(--btn-hi), .5);
   box-shadow:
     inset 0 2px 4px rgba(0,0,0,.35),
@@ -3850,12 +3851,18 @@ body {
        lower/closer to the felt
      - the border only gets a mild opacity bump on the button's own
        --btn-hi tint — thin, same 1px weight as idle, not thickened
+     - filter:brightness gets a small lift (not the darkening design
+       (2) used) — confirmed-good addition: the sunk-in shadow alone
+       read correctly as "pressed" but didn't stand out enough at a
+       glance to tell which button was picked, so a slight brighten on
+       top of the shadow/lift is what actually makes the pick legible
    If tiny-circle (BIG6/TIE/SMALL6/BIG7/SUPER7/SMALL7, ~30px) legibility
-   ever becomes a problem again, fix it by nudging shadow strength, NOT
-   by bringing back a thick ring/outline or a heavy darkened fill — both
-   were explicitly rejected. */
+   ever becomes a problem again, fix it by nudging shadow strength or
+   this brightness amount, NOT by bringing back a thick ring/outline or
+   a darkened fill — both still rejected. */
 .bac-inline-btn.bac-result-picked {
   transform: translateY(2px);
+  filter: brightness(1.14);
   border-color: rgba(var(--btn-hi), .5);
   box-shadow:
     inset 0 2px 4px rgba(0,0,0,.35),
