@@ -2146,33 +2146,22 @@ body {
      rounding/content quirks in .bac-field, instead of relying on
      right:0 landing exactly on the padding edge with zero slack. */
   position: absolute; right: clamp(.2rem,.5vw,.4rem); top: 50%; transform: translateY(-50%); z-index: 1;
-  display: flex; flex-direction: column; align-items: center;
-  gap: clamp(.1rem,.24vh,.16rem);
-  /* No fixed width (was clamp(48px,min(10vw,16vh),76px)) — that box was
-     sized for the old "RESULT" label and was too narrow for "CONFIRM"
-     (a longer word) at .bac-check-btn's own white-space:nowrap, so the
-     text overflowed past the button's own edge and past the table's
-     border on small screens. The stack now sizes to its child button's
-     own natural content width instead (see width:auto below), which
-     can never overflow itself regardless of label text/viewport/font
-     metrics. */
-  width: max-content;
-  min-height: clamp(24px,3.25vh,30px);
+  display: flex; align-items: center; justify-content: center;
 }
-/* ~25% bigger than the plain-CHECK sizing this replaced (19-24px ->
-   24-30px min-height), per spec — most of "most eye-catching button on
-   screen" comes from .bac-check-btn's own bold color/border/glow
-   below, not sheer size. */
+/* #bac-result (the plain <div> setBtn() writes into, see main.js) has
+   no size of its own — it's an auto-sized wrapper — so the button's
+   width/height are set directly here in absolute terms (--card-h-lg/
+   --card-w-lg) rather than as 100%, which can't resolve against an
+   auto-sized ancestor. Matches PLAYER DRAW's own footprint exactly —
+   same vars .bac-third-slot/.bac-draw-slot-btn use — per explicit
+   request that CONFIRM read as the same size as the DRAW button it
+   sits next to. This box is generously bigger than "CONFIRM" needs,
+   which also keeps the earlier overflow bug (text wider than a
+   too-narrow fixed box) from ever recurring. */
 .bac-check-corner-stack .bac-check-btn {
-  /* width:100% removed (was forcing the button into the old fixed-width
-     stack above, see that rule's comment) — the button now sizes to
-     its own text + padding (shrink-to-fit, a plain button's default),
-     which is what actually prevents "CONFIRM" from overflowing instead
-     of guessing a fixed pixel width that fits every viewport/label. */
-  width: auto;
-  font-size: clamp(.65rem,1.44vw,.78rem);
-  min-height: clamp(24px,3.25vh,30px);
-  padding: clamp(.13rem,.33vh,.2rem) clamp(.5rem,1vw,.75rem);
+  width: var(--card-h-lg);
+  height: var(--card-w-lg);
+  font-size: .78rem;
   letter-spacing: .5px;
 }
 
