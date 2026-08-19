@@ -1855,18 +1855,14 @@ body {
 }
 /* Final Pair-judgment state (renderPairBtnsFinal() in main.js): the
    button(s) the trainee actually picked stay at full brightness (not
-   the :disabled dim above). PRESSED-IN, not border/color — see
+   the :disabled dim above). THICK BORDER, not depth/shadow — see
    .bac-inline-btn.bac-result-picked below for the full design
    history and current rationale (this mirrors it exactly; kept as a
    separate rule only because :disabled needs to be in the selector). */
 .btn-bac-pair.bac-pair-selected:disabled {
   opacity: 1;
-  transform: translateY(2px);
-  border-color: rgba(var(--btn-hi), .4);
-  box-shadow:
-    inset 0 4px 7px rgba(0,0,0,.5),
-    inset 0 1px 0 rgba(255,255,255,.08),
-    0 1px 1px rgba(0,0,0,.25);
+  border: 3px solid #FFE9B0;
+  box-shadow: 0 1px 2px rgba(0,0,0,.25);
 }
 /* Subtle pulse + glow (each button's own --btn-hi/--btn-glow, so B PAIR/
    P PAIR now pulse gold/red instead of the old hardcoded blue — see the
@@ -3895,38 +3891,41 @@ body {
    the trainee can see their selection before committing with RESULT. Not
    a disabled/dim state — these stay fully clickable (toggle off by
    clicking again).
-   PRESSED-IN — seventh revision. History: (1) border/outline/glow-only;
-   (2) pressed-DOWN with a heavy dark inset shadow + darkened fill,
-   rejected as too heavy/neon; (3) floated UP for pure elevation,
-   rejected as backwards for something just pressed; (4) sunk back DOWN
-   with a soft inset shadow + a brightness lift, which read correctly
-   as "pressed" but was reported as still not reliably distinguishable
-   across different phones/screens; (5) SCALED up ~4.5% + lifted UP
-   instead, dropping color as a signal entirely — a deliberate pivot
-   away from "pressed" toward pure elevation, on the theory that size
-   is a more device-independent signal than shading; (6) added a small
-   white/green ✓ badge on top of (5) — rejected on sight, removed;
-   (7) THIS version — a fresh explicit request to go back to a genuine
-   PRESSED metaphor (not elevated/floating), done more deliberately
-   than attempt (2)/(4): nudges down 1-2px, a real top-down inset
-   shadow reads as the surface receding, the outer drop shadow shrinks
-   to near nothing (a recessed button casts far less shadow than a
-   raised one), the top highlight is reduced to a bare sliver (a
-   receding surface catches little light from above), and — per
-   explicit instruction this round — NO scale, NO badge, NO thick
-   border, NO neon, NO color/brightness change. Button's own fill color
-   is completely untouched; only shadow/position signal "pressed".
-   If legibility across devices is ever raised again, tune the inset
-   shadow's strength/spread first — do NOT reach for a brightness
-   filter, a badge, or a thick/neon border; all explicitly rejected at
-   least once already. */
+   THICK BORDER — eighth revision. History: (1) border/outline/glow-
+   only (thin); (2) pressed-DOWN with a heavy dark inset shadow +
+   darkened fill, rejected as too heavy/neon; (3) floated UP for pure
+   elevation, rejected as backwards for something just pressed; (4)
+   sunk back DOWN with a soft inset shadow + a brightness lift, read
+   correctly as "pressed" but reported as not reliably distinguishable
+   across phones; (5) SCALED up ~4.5% + lifted UP, dropping color as a
+   signal entirely; (6) added a ✓ badge on top of (5) — rejected on
+   sight, removed; (7) pressed-in again (nudge down + inset shadow, no
+   scale/badge/color-change) — a fresh direct request; (8) THIS
+   version — depth/shadow-based signals (both pressed-in and elevated)
+   were reported as still too subtle to read reliably on mobile.
+   Explicit pivot back to design (1)'s original idea (border emphasis)
+   but done properly this time:
+     - border THICKENS from the idle 1px to 3px (net +2px) — a
+       obviously different edge weight, not just a color/opacity tint
+     - border color is a fixed bright gold/ivory (#FFE9B0), NOT tied to
+       the button's own --btn-hi — a hardcoded universal color so it
+       never comes out looking pink/reddish on the banker-red or
+       player-red button families (explicitly called out as unwanted)
+       and reads identically on every button regardless of its own hue
+     - NO glow/neon: no wide blurred colored box-shadow ring
+     - shadow is minimized to a single faint ambient contact shadow,
+       not a design element
+     - NO scale, NO translateY, NO filter/brightness/darkening — the
+       button's own fill color and size are completely untouched;
+       thickness + color of the border alone carry the "selected"
+       signal now
+   If legibility is ever raised again, tune the border's thickness/
+   color brightness first — depth/shadow/elevation approaches (2)-(7)
+   were all tried and explicitly moved away from; don't reintroduce
+   them as the primary signal. */
 .bac-inline-btn.bac-result-picked {
-  transform: translateY(2px);
-  border-color: rgba(var(--btn-hi), .4);
-  box-shadow:
-    inset 0 4px 7px rgba(0,0,0,.5),
-    inset 0 1px 0 rgba(255,255,255,.08),
-    0 1px 1px rgba(0,0,0,.25);
+  border: 3px solid #FFE9B0;
+  box-shadow: 0 1px 2px rgba(0,0,0,.25);
 }
 
 /* ============================================================
