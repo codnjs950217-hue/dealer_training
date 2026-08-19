@@ -1855,26 +1855,22 @@ body {
 }
 /* Final Pair-judgment state (renderPairBtnsFinal() in main.js): the
    button(s) the trainee actually picked stay at full brightness (not the
-   :disabled dim above) but read as physically PRESSED IN — deep inset
-   shadow, darkened fill, the top highlight all but gone (a recessed
-   surface catches no top-edge light) — instead of merely a brighter
-   border, so what was picked stays unmistakable for the rest of the
-   hand. Mirrors .bac-inline-btn.bac-result-picked below; see that rule's
-   comment for the full rationale (this used to be border/glow-only too,
-   deliberately no fill/brightness change — explicitly reversed per later
-   feedback asking for a real "pushed ETG button" feel). */
+   :disabled dim above) and read as gently ELEVATED — lifted a couple px,
+   a stronger ambient drop shadow, a brighter top-edge sheen — instead of
+   a thick bright ring or a darkened/pressed-in fill. Own color identity
+   (background/text) is untouched, no filter:brightness darkening at
+   all. Mirrors .bac-inline-btn.bac-result-picked below; see that rule's
+   comment for the full history (this went border-glow-only → pressed-in
+   → this elevated treatment, each superseded by later feedback). */
 .btn-bac-pair.bac-pair-selected:disabled {
   opacity: 1;
-  transform: translateY(2px);
-  filter: brightness(.76) saturate(1.1);
-  border-color: rgba(var(--btn-hi), .7);
+  transform: translateY(-3px);
+  border-color: rgba(var(--btn-hi), .55);
   box-shadow:
-    inset 0 5px 9px rgba(0,0,0,.6),
-    inset 0 -1px 0 rgba(var(--btn-hi), .08),
-    inset 2px 0 4px rgba(0,0,0,.25),
-    inset -2px 0 4px rgba(0,0,0,.25),
-    0 0 0 2px rgba(var(--btn-hi), .55),
-    0 0 8px 1px rgba(var(--btn-glow), .5);
+    inset 0 1px 0 rgba(255,255,255,.4),
+    inset 0 -2px 3px rgba(0,0,0,.22),
+    0 8px 16px rgba(0,0,0,.5),
+    0 3px 9px rgba(var(--btn-glow), .4);
 }
 /* Subtle pulse + glow (each button's own --btn-hi/--btn-glow, so B PAIR/
    P PAIR now pulse gold/red instead of the old hardcoded blue — see the
@@ -3830,44 +3826,37 @@ body {
    the trainee can see their selection before committing with RESULT. Not
    a disabled/dim state — these stay fully clickable (toggle off by
    clicking again).
-   PHYSICALLY-PRESSED ETG-BUTTON LOOK (revision — an earlier version of
-   this rule was deliberately border/outline/glow-only, explicitly
-   rejecting any fill/brightness change on the grounds that a thin ring
-   was the only signal that scaled down to the ~30px BIG6/TIE/SMALL6/
-   BIG7/SUPER7/SMALL7 circles. Superseded by later feedback: a bright
-   edge alone read as "highlighted", not "pressed" — an electronic-table-
-   game button needs to visibly sink into the console when selected):
-     - transform pushes the whole button down, like a key bottoming out
-     - filter:brightness darkens the fill a shade deeper than idle/hover
-       (interior color identity is intentionally no longer untouched)
-     - the inset shadow set is heavy and comes from the TOP, the
-       direction a real recessed button would be shadowed from an
-       overhead light, with light inset shading on the left/right walls
-       for a socketed look
-     - the old top inset HIGHLIGHT (1px, bright) is now only a hairline
-       — an inset-into-the-console surface shouldn't catch a highlight
-       from above like a raised one does
-     - the outer glow ring shrinks — a pressed button sits lower, so it
-       casts less of a raised drop-shadow/glow than the floating idle
-       state
-   The outline (crisp, follows border-radius, never blur-softened the
-   way a box-shadow ring can look at real device pixel ratios) is kept
-   for legibility at the tiny circle sizes, just toned down since the
-   inset shadow + darkened fill now carry most of the "selected"
-   signal. */
+   ELEVATED, RESTRAINED ETG LOOK — third revision. History: (1) originally
+   border/outline/glow-only, deliberately no fill/brightness change; (2)
+   changed to a physically-pressed-in look (dark inset shadow, darkened
+   fill, translateY down) per a request for a "pushed button" feel; (3)
+   THIS version — that pressed look was rejected on sight as too heavy/
+   neon (thick bright ring, pink outline glow, darkened fill all called
+   out as unwanted). Current explicit direction: keep the button's own
+   color basically untouched (no brightness/darken filter, no thick
+   border, no wide blurred glow ring, no outline), and signal "selected"
+   purely through ELEVATION difference —
+     - transform lifts the button up a few px (opposite of the old
+       pressed-down version) — floats rather than sinks
+     - the outer drop shadow grows softer/larger and darker, like the
+       button is casting more shadow because it sits higher above the
+       felt
+     - the top inset highlight brightens into a plain white sheen (not
+       tinted to --btn-hi) for a light gloss instead of a colored glow
+     - the border only gets a mild opacity bump on the button's own
+       --btn-hi tint — thin, same 1px weight as idle, not thickened
+   If tiny-circle (BIG6/TIE/SMALL6/BIG7/SUPER7/SMALL7, ~30px) legibility
+   ever becomes a problem again, fix it by nudging shadow/lift strength,
+   NOT by bringing back a thick ring/outline or a darkened fill — both
+   were explicitly rejected. */
 .bac-inline-btn.bac-result-picked {
-  transform: translateY(2px);
-  filter: brightness(.78) saturate(1.12);
-  border-color: rgba(var(--btn-hi), 1);
-  outline: 2px solid rgba(var(--btn-hi), .85);
-  outline-offset: 1px;
+  transform: translateY(-3px);
+  border-color: rgba(var(--btn-hi), .55);
   box-shadow:
-    inset 0 6px 10px rgba(0,0,0,.65),
-    inset 0 1px 0 rgba(var(--btn-hi), .1),
-    inset 3px 0 5px rgba(0,0,0,.3),
-    inset -3px 0 5px rgba(0,0,0,.3),
-    0 0 0 3px rgba(var(--btn-hi), .85),
-    0 0 10px 2px rgba(var(--btn-glow), .55);
+    inset 0 1px 0 rgba(255,255,255,.4),
+    inset 0 -2px 3px rgba(0,0,0,.22),
+    0 8px 16px rgba(0,0,0,.5),
+    0 3px 9px rgba(var(--btn-glow), .4);
 }
 
 /* ============================================================
