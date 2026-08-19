@@ -2807,9 +2807,14 @@ body {
   text-shadow: 0 0 40px rgba(255,140,0,.9), 0 2px 8px rgba(0,0,0,.8);
 }
 
-/* SUPER 7 payout tag on the button itself, once a ratio's been chosen. */
+/* SUPER 7 payout tag on the button itself, once a ratio's been chosen —
+   a third stacked line under .bac-circle-num/.bac-circle-label (see
+   those below), so it needs to be the smallest of the three tiers, not
+   a relative .8em off the button's own already-small base size. */
 .bac-super7-payout-tag {
-  font-size: .8em; font-weight: 700; opacity: .8;
+  display: block;
+  font-size: .5em; font-weight: 700; opacity: .8;
+  line-height: 1; margin-top: .15em;
 }
 
 /* SUPER 7 payout popup — a simple mobile-landscape modal (short, ratio
@@ -4147,9 +4152,30 @@ body {
   border-radius: 999px !important;
   padding: 0 !important;
   margin: 0 auto !important;
-  display: flex; align-items: center; justify-content: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
   white-space: normal; line-height: 1.05; text-align: center;
   letter-spacing: 0 !important;
+}
+/* BIG6/SMALL6/BIG7/SMALL7/SUPER7/TIE inner text stack (see circleInner()
+   in main.js) — a big central number/TIE, a smaller BIG/SMALL/SUPER
+   label under it, and (SUPER7 only) an even smaller payout-ratio tag
+   under that. Sizes are relative (em) to .bac-circle-btn's own
+   clamp()'d font-size, so they still scale with the button/viewport —
+   only the size RATIO between the three tiers is new. Purely a text
+   layout change: the button's own shape/size/color are untouched. */
+.bac-circle-num {
+  display: block;
+  font-size: 1.55em;
+  font-weight: 900;
+  line-height: 1;
+}
+.bac-circle-label {
+  display: block;
+  font-size: .72em;
+  font-weight: 700;
+  letter-spacing: .5px;
+  line-height: 1.1;
+  margin-top: .12em;
 }
 /* BANKER/PLAYER PAIR — the round corner mark, sized via
    --bac-pair-circle-d (also .bac-win-oval's own height above, so WIN

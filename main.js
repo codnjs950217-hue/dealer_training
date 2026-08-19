@@ -2220,28 +2220,37 @@ const Sims = {
     // sub-rows) since the experimental layout scatters BIG6/SMALL6/BIG7/
     // SMALL7 into their own grid cells instead of stacking them under
     // their WIN button.
+    // BIG6/SMALL6/BIG7/SMALL7/SUPER7's inner text stack: a big central
+    // number (6 or 7) with a smaller BIG/SMALL/SUPER label under it,
+    // instead of one plain "BIG 6"-style string — purely a text-layout
+    // change, no effect on the button's own shape/size/color (those all
+    // still come from .bac-felt-circle/.bac-circle-btn + the button's
+    // own color-family class, untouched here).
+    const circleInner = (num, label) =>
+      `<span class="bac-circle-num">${num}</span><span class="bac-circle-label">${label}</span>`;
     function winBtns(source) {
       const wp = S.resultPicks.winner, sp = S.resultPicks.special;
       const w = (label) => label === wp ? ' bac-result-picked' : '';
       const s = (label) => label === sp ? ' bac-result-picked' : '';
       // SUPER 7 is one result, not a BIG/SMALL choice — clicking it opens
       // the payout popup (pickSuper7()) instead of toggling directly; the
-      // chosen ratio (S.resultPicks.superPayout) shows as a subtitle once set.
+      // chosen ratio (S.resultPicks.superPayout) shows as a third, smallest
+      // line under the SUPER label once set.
       const super7Sub = sp === 'super7' && S.resultPicks.superPayout
-        ? ` <span class="bac-super7-payout-tag">(${S.resultPicks.superPayout})</span>` : '';
+        ? `<span class="bac-super7-payout-tag">(${S.resultPicks.superPayout})</span>` : '';
       // Shape hooks only (see .bac-win-oval/.bac-felt-circle in CSS) — no
       // change to onclick handlers or judging logic. WIN buttons render as
       // a long oval (the biggest shape on the felt); TIE/BIG/SMALL/SUPER7
       // all render as equal-size circles, matching a real table's layout.
       return {
         bankerWin:    `<button class="btn-bac-banker bac-inline-btn bac-win-oval${w('banker-win')}" onclick="Sims.baccarat.toggleWinnerPick('banker-win','${source}')">BANKER WIN</button>`,
-        bankerBig6:   `<button class="btn-bac-banker bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('banker-big6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-big6','${source}')">BIG 6</button>`,
-        bankerSmall6: `<button class="btn-bac-banker bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('banker-small6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-small6','${source}')">SMALL 6</button>`,
-        tie:          `<button class="btn-bac-tie bac-inline-btn bac-felt-circle bac-circle-btn${w('tie')}" onclick="Sims.baccarat.toggleWinnerPick('tie','${source}')">TIE</button>`,
-        super7:       `<button class="btn-bac-super7 bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('super7')}" onclick="Sims.baccarat.pickSuper7('${source}')">SUPER 7${super7Sub}</button>`,
+        bankerBig6:   `<button class="btn-bac-banker bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('banker-big6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-big6','${source}')">${circleInner('6','BIG')}</button>`,
+        bankerSmall6: `<button class="btn-bac-banker bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('banker-small6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-small6','${source}')">${circleInner('6','SMALL')}</button>`,
+        tie:          `<button class="btn-bac-tie bac-inline-btn bac-felt-circle bac-circle-btn${w('tie')}" onclick="Sims.baccarat.toggleWinnerPick('tie','${source}')"><span class="bac-circle-num">TIE</span></button>`,
+        super7:       `<button class="btn-bac-super7 bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('super7')}" onclick="Sims.baccarat.pickSuper7('${source}')">${circleInner('7','SUPER')}${super7Sub}</button>`,
         playerWin:    `<button class="btn-bac-player bac-inline-btn bac-win-oval${w('player-win')}" onclick="Sims.baccarat.toggleWinnerPick('player-win','${source}')">PLAYER WIN</button>`,
-        playerBig7:   `<button class="btn-bac-player bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('player-big7')}" onclick="Sims.baccarat.toggleSpecialPick('player-big7','${source}')">BIG 7</button>`,
-        playerSmall7: `<button class="btn-bac-player bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('player-small7')}" onclick="Sims.baccarat.toggleSpecialPick('player-small7','${source}')">SMALL 7</button>`,
+        playerBig7:   `<button class="btn-bac-player bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('player-big7')}" onclick="Sims.baccarat.toggleSpecialPick('player-big7','${source}')">${circleInner('7','BIG')}</button>`,
+        playerSmall7: `<button class="btn-bac-player bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('player-small7')}" onclick="Sims.baccarat.toggleSpecialPick('player-small7','${source}')">${circleInner('7','SMALL')}</button>`,
       };
     }
 
