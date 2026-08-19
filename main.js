@@ -500,10 +500,29 @@ const Views = {
           </div>
         </div>
         <div class="bac-field">
+          <!-- CONFIRM lives right under SHOE, sharing .bac-shoe-col's own
+               centered flex column — adding it as a second stacked child
+               nudges the whole [shoe, CONFIRM] group up together (still
+               centered as one unit via .bac-shoe-col's top:50%), so SHOE
+               itself moves up just enough to make room, no separate
+               positioning math needed. This is deliberately back to
+               CONFIRM's ORIGINAL spot: two later attempts (a flex
+               sibling of .bac-field next to PLAYER DRAW, then a wrapper
+               stacking it above bac-ph3) each ended up moving/squeezing
+               something else in this row that was explicitly required
+               to stay put — .bac-shoe-col is fully isolated
+               (position:absolute, opposite side of the table from
+               PLAYER/BANKER DRAW entirely) so nothing here can ever
+               affect .bac-banker-zone/.bac-player-zone/PLAYER DRAW's
+               position again. See .bac-check-corner-stack in style.css
+               for the (already proven, previously verified) sizing. -->
           <div class="bac-shoe-col">
             <div class="shoe-visual">
               <div class="shoe-label-text">SHOE</div>
               <div class="shoe-card-slot"></div>
+            </div>
+            <div class="bac-check-corner-stack">
+              <div id="bac-result"></div>
             </div>
           </div>
           <div class="bac-banker-zone">
@@ -515,29 +534,7 @@ const Views = {
           <div class="bac-player-zone">
             <div class="bac-zone-lbl bac-lbl-player">PLAYER</div>
             <div class="bac-hand-wrap bac-ph-wrap" id="bac-ph"></div>
-            <!-- CONFIRM stacks in the empty space directly ABOVE PLAYER
-                 DRAW's own slot (bac-ph3), in real normal flow (not
-                 position:absolute) — .bac-ph3-col's own width is just
-                 bac-ph3's existing width (var(--card-h-lg)), so this adds
-                 height, not width, to .bac-player-zone. That's the fix:
-                 an earlier version made CONFIRM its own flex sibling of
-                 .bac-field (to the right of PLAYER DRAW), which reserved
-                 extra HORIZONTAL space and squeezed/shifted the whole
-                 banker/player card area sideways. Stacking it above
-                 bac-ph3 instead keeps .bac-player-zone's total width
-                 exactly what it was before CONFIRM existed — the card
-                 area doesn't move. CONFIRM is still its own sibling DOM
-                 node (not nested inside bac-ph3 itself), because bac-ph3
-                 gets its innerHTML replaced wholesale on every redraw
-                 (DRAW button -> dealt card, see setBtn()/addCard() in
-                 main.js) — nesting CONFIRM inside it would get it wiped
-                 out on every repaint. -->
-            <div class="bac-ph3-col">
-              <div class="bac-check-corner-stack">
-                <div id="bac-result"></div>
-              </div>
-              <div class="bac-third-slot" id="bac-ph3"></div>
-            </div>
+            <div class="bac-third-slot" id="bac-ph3"></div>
           </div>
         </div>
       </div>
