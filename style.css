@@ -2128,22 +2128,28 @@ body {
   transform: translate(-50%, -100%);
 }
 /* CONFIRM (.bac-check-btn) isn't a real table position, so it doesn't
-   get a slot in the felt-position grid. Floats over .bac-field's own
-   right edge — mirroring .bac-shoe-col's left:0 float — positioned
-   after PLAYER DRAW's own slot (bac-ph3) in the template so it always
-   reads as sitting just to PLAYER DRAW's right. Moved out of
-   .bac-shoe-col (where it used to live stacked under SHOE) per
-   explicit request. It's the answer-submission action, so unlike a
-   real table position it's sized/styled to be the single most
-   eye-catching control on screen (see .bac-check-btn's own bold
-   treatment further down), not played down. */
+   get a slot in the felt-position grid. Sits after PLAYER DRAW's own
+   slot (bac-ph3) as the LAST real flex child of .bac-field — so it
+   always reads as next to PLAYER DRAW.
+   REVISION: this used to float via position:absolute; right:<small
+   inset> — a fixed-coordinate approach that doesn't know how wide
+   .bac-player-zone's own content actually renders, so on a narrow
+   device (reported: iPhone 13 mini landscape, 812×375) CONFIRM's
+   floating box could land on top of PLAYER DRAW's slot instead of
+   beside it. Fixed by making CONFIRM a genuine in-flow flex item of
+   .bac-field instead of a floating absolute box: flexbox itself then
+   guarantees CONFIRM and .bac-player-zone's content can never overlap
+   (they're siblings on the same main axis, and .bac-banker-zone/
+   .bac-player-zone are flex:1 — shrinkable — so they automatically
+   give up exactly the space CONFIRM's own fixed width needs, the same
+   way they already coexist with .bac-field-divider's fixed width).
+   flex-shrink:0 so CONFIRM itself never gets squeezed smaller than its
+   own (PLAYER-DRAW-matched) size; margin-left is the guaranteed
+   minimum gap from PLAYER DRAW's content, not a right-edge inset. */
 .bac-check-corner-stack {
-  /* right: a small explicit inset, not a flush 0 — guarantees a real
-     safe-area margin from the table's own green border regardless of
-     rounding/content quirks in .bac-field, instead of relying on
-     right:0 landing exactly on the padding edge with zero slack. */
-  position: absolute; right: clamp(.2rem,.5vw,.4rem); top: 50%; transform: translateY(-50%); z-index: 1;
   display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-left: clamp(.3rem,.8vw,.6rem);
 }
 /* #bac-result (the plain <div> setBtn() writes into, see main.js) has
    no size of its own — it's an auto-sized wrapper — so the button's
