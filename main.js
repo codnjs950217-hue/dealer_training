@@ -2625,20 +2625,31 @@ const Sims = {
       },
 
       // SUPER 7 is a single result, not a BIG/SMALL choice — clicking it
-      // opens a small payout popup instead of toggling directly. Picking
-      // a ratio sets special='super7' + the chosen payout together and
-      // closes the popup; CLOSE/선택 해제 leave the pick as it was before
-      // (or clear it, respectively) without judging anything.
+      // opens a small payout popup instead of toggling directly. Picking a
+      // ratio only STAGES it (S.super7Staged) and re-renders the popup with
+      // that ratio highlighted — it doesn't touch S.resultPicks or close
+      // the popup. Only 선택완료 (confirmSuperPayout) commits the staged
+      // ratio into S.resultPicks.special/superPayout and closes; 닫기
+      // (closeSuperPayoutPopup) discards the staged ratio and closes
+      // without touching S.resultPicks. This two-step stage-then-confirm
+      // flow replaced the old immediate-commit-on-click behavior.
       pickSuper7(source) {
         const tbl = document.querySelector('.baccarat-table');
         if (!tbl) return;
         this.closeSuperPayoutPopup();
-        const current = S.resultPicks.special === 'super7' ? S.resultPicks.superPayout : null;
-        const ratioBtn = (ratio) =>
-          `<button class="super7-payout-btn${current === ratio ? ' bac-result-picked' : ''}" onclick="Sims.baccarat.chooseSuperPayout('${ratio}','${source}')">${ratio}</button>`;
+        S.super7Staged = S.resultPicks.special === 'super7' ? S.resultPicks.superPayout : null;
         const ov = document.createElement('div');
         ov.className = 'super7-payout-overlay';
         ov.id = 'super7-payout-overlay';
+        tbl.appendChild(ov);
+        this.renderSuper7Popup(source);
+      },
+
+      renderSuper7Popup(source) {
+        const ov = document.getElementById('super7-payout-overlay');
+        if (!ov) return;
+        const ratioBtn = (ratio) =>
+          `<button class="super7-payout-btn${S.super7Staged === ratio ? ' bac-result-picked' : ''}" onclick="Sims.baccarat.stageSuperPayout('${ratio}','${source}')">${ratio}</button>`;
         ov.innerHTML = `
           <div class="super7-payout-card">
             <div class="super7-payout-title">SUPER 7 PAYOUT</div>
@@ -2648,23 +2659,21 @@ const Sims = {
               ${ratioBtn('100:1')}
             </div>
             <div class="super7-payout-footer">
-              <button class="super7-payout-clear" onclick="Sims.baccarat.clearSuperPick('${source}')">선택 해제</button>
+              <button class="super7-payout-confirm"${S.super7Staged ? '' : ' disabled'} onclick="Sims.baccarat.confirmSuperPayout('${source}')">선택완료</button>
               <button class="super7-payout-close" onclick="Sims.baccarat.closeSuperPayoutPopup()">닫기</button>
             </div>
           </div>`;
-        tbl.appendChild(ov);
       },
 
-      chooseSuperPayout(ratio, source) {
+      stageSuperPayout(ratio, source) {
+        S.super7Staged = ratio;
+        this.renderSuper7Popup(source);
+      },
+
+      confirmSuperPayout(source) {
+        if (!S.super7Staged) return;
         S.resultPicks.special = 'super7';
-        S.resultPicks.superPayout = ratio;
-        this.closeSuperPayoutPopup();
-        refreshResultBtns(source);
-      },
-
-      clearSuperPick(source) {
-        if (S.resultPicks.special === 'super7') S.resultPicks.special = null;
-        S.resultPicks.superPayout = null;
+        S.resultPicks.superPayout = S.super7Staged;
         this.closeSuperPayoutPopup();
         refreshResultBtns(source);
       },
@@ -2672,6 +2681,7 @@ const Sims = {
       closeSuperPayoutPopup() {
         const ov = document.getElementById('super7-payout-overlay');
         if (ov) ov.remove();
+        S.super7Staged = null;
       },
 
       // CHECK is always enabled and never hints at correctness — pressing

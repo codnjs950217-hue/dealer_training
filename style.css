@@ -2813,9 +2813,11 @@ body {
 }
 
 /* SUPER 7 payout popup — a simple mobile-landscape modal (short, ratio
-   buttons in one row) shown when SUPER 7 is picked. Choosing a ratio,
-   clearing, or closing only updates S.resultPicks — nothing here judges
-   anything; CHECK (checkResult()) is still the only thing that submits. */
+   buttons in one row) shown when SUPER 7 is picked. Tapping a ratio only
+   stages it (highlighted, popup stays open) — it doesn't touch
+   S.resultPicks until 선택완료 is pressed; 닫기 discards the staged pick.
+   RESULT (checkResult()) is still the only thing that submits the whole
+   hand's picks. */
 .super7-payout-overlay {
   position: absolute; inset: -3px;
   background: rgba(0,0,0,.72);
@@ -2859,7 +2861,27 @@ body {
   display: flex; gap: clamp(.4rem,1vw,.7rem);
   margin-top: clamp(.05rem,.2vh,.15rem);
 }
-.super7-payout-clear,
+/* 선택완료 (confirmSuperPayout in main.js) commits the staged ratio and
+   closes; styled as the affirmative action (filled, popup's own purple
+   accent) so it reads as distinct from 닫기's plain neutral outline.
+   Disabled until a ratio is staged (S.super7Staged set) — nothing to
+   confirm yet. */
+.super7-payout-confirm {
+  background: linear-gradient(180deg, #8f7aff 0%, #5b3fd9 100%);
+  border: 1px solid rgba(200,180,255,.6);
+  color: #fff;
+  border-radius: var(--r);
+  padding: clamp(.2rem,.55vh,.3rem) clamp(.5rem,1.4vw,.8rem);
+  font-size: clamp(.6rem,1.4vh,.7rem); font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(100,70,200,.4);
+  transition: filter .15s ease;
+}
+.super7-payout-confirm:hover:not(:disabled) { filter: brightness(1.1); }
+.super7-payout-confirm:disabled {
+  opacity: .45; cursor: default; box-shadow: none;
+  background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2); color: rgba(255,255,255,.4);
+}
 .super7-payout-close {
   background: none; border: 1px solid rgba(255,255,255,.25);
   color: rgba(255,255,255,.65);
@@ -2868,7 +2890,6 @@ body {
   font-size: clamp(.6rem,1.4vh,.7rem); font-weight: 700;
   cursor: pointer;
 }
-.super7-payout-clear:hover,
 .super7-payout-close:hover { color: #fff; border-color: rgba(255,255,255,.5); }
 
 /* NEXT HAND overlay */
