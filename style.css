@@ -1720,18 +1720,10 @@ body {
 }
 
 /* Shoe column on the far left — floats over bac-field, not in flow */
-/* width:auto (not a fixed clamp) so the column sizes to whichever
-   child is wider — SUBMIT's own .bac-check-corner-stack (~70-100px)
-   is wider than .shoe-visual (~36-54px), and align-items:center still
-   centers the narrower shoe graphic within that. Adding SUBMIT as a
-   second stacked child here (instead of it living in its own row
-   elsewhere) is what pushes SHOE itself up: top:50%/translateY(-50%)
-   centers the whole [shoe, SUBMIT] column as one unit, so SHOE's own
-   position shifts up automatically to make room for SUBMIT below it. */
 .bac-shoe-col {
   position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 1;
   display: flex; flex-direction: column; align-items: center;
-  gap: clamp(.3rem,.6vh,.7rem); width: auto;
+  width: auto;
 }
 
 .shoe-visual {
@@ -1995,9 +1987,9 @@ body {
    are generous (not shrunk to near-zero) so the grid's own content
    height fills the space above the cards instead of leaving it blank —
    button height/size is untouched, only the space between rows grew.
-   SUBMIT isn't a real table position, so it doesn't get a row here at
-   all — it lives under SHOE instead (.bac-check-corner-stack, nested
-   in .bac-shoe-col).
+   CONFIRM isn't a real table position, so it doesn't get a row here at
+   all — it floats over .bac-field's own right edge instead
+   (.bac-check-corner-stack), next to PLAYER DRAW.
    --bac-pair-circle-d/--bac-win-w drive the actual felt shapes (oval
    WIN — height tied to --bac-pair-circle-d, same as PLAYER PAIR/
    BANKER PAIR's own diameter, round everything else) defined in
@@ -2138,32 +2130,33 @@ body {
   top: calc(2 * var(--bac-pair-circle-d) + 3 * var(--bac-row-gap) + 2 * var(--bac-capsule-h));
   transform: translate(-50%, -100%);
 }
-/* SUBMIT (.bac-check-btn) isn't a real table position, so it doesn't
-   get a slot in the felt-position grid — it lives right under SHOE
-   instead (a second stacked child of .bac-shoe-col, see the template
-   comment there and main.js), still in normal flow within that column
-   (not its own position:absolute) so it can't float over the
-   card/DRAW-button area. It's the answer-submission action, so unlike
-   a real table position it's sized/styled to be the single most
+/* CONFIRM (.bac-check-btn) isn't a real table position, so it doesn't
+   get a slot in the felt-position grid. Floats over .bac-field's own
+   right edge — mirroring .bac-shoe-col's left:0 float — positioned
+   after PLAYER DRAW's own slot (bac-ph3) in the template so it always
+   reads as sitting just to PLAYER DRAW's right. Moved out of
+   .bac-shoe-col (where it used to live stacked under SHOE) per
+   explicit request. It's the answer-submission action, so unlike a
+   real table position it's sized/styled to be the single most
    eye-catching control on screen (see .bac-check-btn's own bold
    treatment further down), not played down. */
 .bac-check-corner-stack {
+  position: absolute; right: 0; top: 50%; transform: translateY(-50%); z-index: 1;
   display: flex; flex-direction: column; align-items: center;
   gap: clamp(.1rem,.24vh,.16rem);
-  /* Narrower ceiling than before (was 100px) so this column — the widest
-     child of .bac-shoe-col, and so what actually determines how far right
-     SHOE/SUBMIT reach — leaves more breathing room before BANKER DRAW and
-     the banker hand on short landscape phones, without touching
-     .bac-banker-zone's own flex sizing (that would grow it at
-     .bac-player-zone's expense — flex:1 vs flex:1 stop being an even split
-     the moment one side's min-content, padding included, grows past its
-     own half of the shrunk row).
-     min(10vw,16vh) instead of a plain vw value: BANKER's cards/DRAW slot
-     (sized off --card-h-lg/--card-w-lg, both vh-driven) push further left
-     — eating into this same gap — on any taller viewport, regardless of
-     width, so this needs to shrink with vh too, not just vw, to keep a
-     margin on tall-and-narrow landscape screens (e.g. 812x430) and not
-     just wide-and-short ones (e.g. 932x375). */
+  /* Narrower ceiling than a plain vw value so this column leaves
+     breathing room before PLAYER DRAW and the player hand on short
+     landscape phones, without touching .bac-player-zone's own flex
+     sizing (that would grow it at .bac-banker-zone's expense — flex:1
+     vs flex:1 stop being an even split the moment one side's
+     min-content, padding included, grows past its own half of the
+     shrunk row).
+     min(10vw,16vh) instead of a plain vw value: PLAYER's cards/DRAW
+     slot (sized off --card-h-lg/--card-w-lg, both vh-driven) push
+     further right on any taller viewport, regardless of width, so this
+     needs to shrink with vh too, not just vw, to keep a margin on
+     tall-and-narrow landscape screens (e.g. 812x430) and not just
+     wide-and-short ones (e.g. 932x375). */
   width: clamp(48px,min(10vw,16vh),76px);
   /* Matches .bac-check-btn's own min-height below, so the stack
      doesn't collapse while #bac-result is cleared to empty (deal
@@ -3819,58 +3812,54 @@ body {
   white-space: nowrap;
 }
 
-/* ---- BACCARAT: RESULT SUBMISSION (RESULT) ----
+/* ---- BACCARAT: RESULT SUBMISSION (now labeled CONFIRM) ----
    WIN/TIE/PLAYER WIN and the special buttons only toggle a pick now —
-   RESULT (.bac-check-btn, sized via .bac-check-corner-stack .bac-
-   check-btn above) is what actually submits. Always enabled (never
-   hints at whether the current picks are right).
-   REVISION: used to be a vivid neon cyan-teal, deliberately the single
-   most eye-catching thing on screen — explicitly reversed per feedback
-   that the mint neon clashed with the rest of the (gold/felt-toned)
-   table. Recolored to a deep antique-gold metal plaque instead: a
-   3-stop gradient (lighter top, darkening toward the bottom — a raised
-   metal surface lit from above), a thin gold border (not the old thick
-   2px ring), a soft top highlight, restrained contact shadow, no wide
-   blurred glow. Deliberately its own darker/deeper gold than
-   START/NEXT HAND's brighter --gold/--gold-light CTA gradient
-   (.bac-cta-btn above) — RESULT reads as a quieter "check/lookup"
-   action, not a call-to-action, so it needed to be visually calmer
-   than START/NEXT HAND, not louder. Still given its own dedicated
-   :hover/:active (not the shared WIN/PAIR/DRAW console-button block)
-   so its exact metal-plaque shading stays intact. */
+   CONFIRM (.bac-check-btn, class name kept from its old "RESULT"
+   label — sized via .bac-check-corner-stack .bac-check-btn above) is
+   what actually submits. Always enabled (never hints at whether the
+   current picks are right).
+   Color history: vivid neon cyan-teal originally → deep antique-gold
+   metal plaque (clashed less with the felt, but needed to read as
+   calmer than START/NEXT HAND's own gold CTA) → THIS: blue, per
+   explicit request. Kept the same restrained metal-plaque structure
+   (3-stop gradient lit from above, thin border, soft top highlight, no
+   wide blurred glow) just recolored, rather than reintroducing the old
+   neon treatment. Still given its own dedicated :hover/:active (not
+   the shared WIN/PAIR/DRAW console-button block) so this shading stays
+   intact. */
 .bac-check-btn {
-  --btn-hi: 230,195,106; --btn-glow: 184,134,11;
-  background: linear-gradient(180deg, #D9B45A 0%, #B8860B 55%, #7A5A12 100%);
-  color: #FFF3C4;
-  border: 1px solid #E6C36A;
+  --btn-hi: 150,195,255; --btn-glow: 40,100,210;
+  background: linear-gradient(180deg, #4A86E8 0%, #2A5FC4 55%, #163A7A 100%);
+  color: #EAF3FF;
+  border: 1px solid #8FC0FF;
   border-radius: var(--r);
   font-weight: 900; cursor: pointer;
   letter-spacing: 1.5px;
   text-shadow: 0 1px 2px rgba(0,0,0,.45);
   white-space: nowrap;
   box-shadow:
-    inset 0 1px 0 rgba(255,243,196,.5),
+    inset 0 1px 0 rgba(234,243,255,.5),
     inset 0 -2px 3px rgba(0,0,0,.25),
     0 2px 4px rgba(0,0,0,.35),
-    0 2px 6px rgba(122,90,18,.35);
+    0 2px 6px rgba(20,60,150,.4);
   transition: filter .15s ease, transform .12s ease, box-shadow .15s ease, border-color .15s ease;
 }
 .bac-check-btn:hover {
-  filter: brightness(1.06);
+  filter: brightness(1.08);
   transform: translateY(-1px);
-  border-color: #f0d488;
+  border-color: #b6d8ff;
   box-shadow:
-    inset 0 1px 0 rgba(255,243,196,.6),
+    inset 0 1px 0 rgba(234,243,255,.6),
     inset 0 -2px 3px rgba(0,0,0,.22),
     0 4px 8px rgba(0,0,0,.4),
-    0 3px 9px rgba(122,90,18,.4);
+    0 3px 9px rgba(20,60,150,.45);
 }
 .bac-check-btn:active {
   filter: brightness(.94);
   transform: translateY(1px);
   box-shadow:
     inset 0 2px 5px rgba(0,0,0,.35),
-    inset 0 -1px 0 rgba(255,243,196,.2),
+    inset 0 -1px 0 rgba(234,243,255,.2),
     0 1px 2px rgba(0,0,0,.3);
 }
 /* Marks the currently-picked winner/special button(s) — PLAYER WIN/BANKER
@@ -4105,9 +4094,9 @@ body {
    depth/interaction states live, placed last so it wins the cascade
    over those rules. DRAW uses a neutral white/black --btn-hi/--btn-glow
    so it stays a charcoal panel instead of picking up a hue glow.
-   SUBMIT (.bac-check-btn) no longer shares this — it has its own
-   bolder, glowing treatment (see "RESULT SUBMISSION" above) so it
-   reads as the standout submit action instead of just another pick. */
+   CONFIRM (.bac-check-btn) no longer shares this — it has its own
+   bolder treatment (see "RESULT SUBMISSION" above) so it reads as the
+   standout submit action instead of just another pick. */
 .btn-bac-player, .btn-bac-banker, .btn-bac-tie, .btn-bac-super7, .btn-bac-pair, .btn-bac-draw {
   border: 1px solid rgba(var(--btn-hi), .3);
   box-shadow:

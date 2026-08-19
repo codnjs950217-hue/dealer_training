@@ -500,19 +500,10 @@ const Views = {
           </div>
         </div>
         <div class="bac-field">
-          <!-- SUBMIT lives right under SHOE, sharing .bac-shoe-col's own
-               centered flex column — adding it as a second stacked child
-               nudges the whole [shoe, SUBMIT] group up together (still
-               centered as one unit via .bac-shoe-col's top:50%), so SHOE
-               itself moves up just enough to make room, no separate
-               positioning math needed. -->
           <div class="bac-shoe-col">
             <div class="shoe-visual">
               <div class="shoe-label-text">SHOE</div>
               <div class="shoe-card-slot"></div>
-            </div>
-            <div class="bac-check-corner-stack">
-              <div id="bac-result"></div>
             </div>
           </div>
           <div class="bac-banker-zone">
@@ -525,6 +516,18 @@ const Views = {
             <div class="bac-zone-lbl bac-lbl-player">PLAYER</div>
             <div class="bac-hand-wrap bac-ph-wrap" id="bac-ph"></div>
             <div class="bac-third-slot" id="bac-ph3"></div>
+          </div>
+          <!-- CONFIRM floats over .bac-field's own right edge, mirroring
+               .bac-shoe-col's left:0 floating column — placed after
+               PLAYER DRAW's own slot (bac-ph3, the last in-flow item in
+               .bac-player-zone) so it always reads as sitting just to
+               PLAYER DRAW's right, at .bac-field's own vertical center,
+               regardless of what's currently inside bac-ph3. Used to
+               live stacked under SHOE instead (.bac-check-corner-stack
+               was nested in .bac-shoe-col) — moved out per explicit
+               request to sit next to PLAYER DRAW. -->
+          <div class="bac-check-corner-stack">
+            <div id="bac-result"></div>
           </div>
         </div>
       </div>
@@ -2278,8 +2281,10 @@ const Sims = {
     }
 
     // Always enabled — its own state never hints at correctness (req. 2).
+    // Labeled CONFIRM (was RESULT) — class name/onclick/checkResult()
+    // logic untouched, this is a label + color change only.
     function checkBtnHtml(source) {
-      return `<button class="bac-check-btn" onclick="Sims.baccarat.checkResult('${source}')">RESULT</button>`;
+      return `<button class="bac-check-btn" onclick="Sims.baccarat.checkResult('${source}')">CONFIRM</button>`;
     }
 
     // Re-paints just the winner/special buttons (not the DRAW slots, Pair
