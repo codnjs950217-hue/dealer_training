@@ -4137,7 +4137,11 @@ body {
   min-height: 0 !important;
   border-radius: 999px !important;
   padding: 0 clamp(.5rem,1.4vw,.9rem) !important;
-  font-size: clamp(.56rem,1.3vh,.7rem) !important;
+  /* Bumped up from clamp(.56rem,1.3vh,.7rem) — PLAYER WIN/BANKER WIN's
+     text read too small next to the rest of the felt. The oval's own
+     height (--bac-pair-circle-d) has plenty of headroom for a single
+     line at this size. */
+  font-size: clamp(.72rem,1.7vh,.92rem) !important;
   display: flex; align-items: center; justify-content: center;
 }
 /* border-radius:999px (always half the box's own height) instead of a
@@ -4176,6 +4180,15 @@ body {
   letter-spacing: .5px;
   line-height: 1.1;
   margin-top: .12em;
+}
+/* B PAIR/P PAIR inner text stack (see pairInner() in main.js) — two
+   lines, deliberately the SAME font-size/weight (both just inherit
+   .bac-pair-circle's own font-size below, no em up/down-scaling like
+   .bac-circle-num/.bac-circle-label above) so neither the letter nor
+   "PAIR" reads as emphasized over the other. */
+.bac-pair-line {
+  display: block;
+  line-height: 1.15;
 }
 /* BANKER/PLAYER PAIR — the round corner mark, sized via
    --bac-pair-circle-d (also .bac-win-oval's own height above, so WIN
