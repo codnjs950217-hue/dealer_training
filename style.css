@@ -1918,6 +1918,24 @@ body {
   cursor: default;
   transition: filter .15s;
 }
+/* While a third-card draw animation is running (.bac-draw-phase,
+   toggled by setDrawPhaseFocus() in JS, from quizInitial()/
+   quizBanker() just before doPlayerDraw()/doBankerDraw()), dim EVERY
+   result control — WIN/TIE/BIG6/SMALL6/BIG7/SUPER7/SMALL7
+   (.bac-inline-btn), BANKER PAIR/NO PAIR/PLAYER PAIR (.btn-bac-pair),
+   and RESULT (.bac-check-btn) — instead of emptying them out. Same
+   dim-not-hide treatment as .bac-pair-phase above, just covering the
+   Pair row and RESULT too: nothing in the button area is ever removed
+   from the DOM mid-animation, so its size/position can't shift and
+   nothing blinks away and back — only the card moves. */
+.bac-draw-phase .bac-inline-btn,
+.bac-draw-phase .btn-bac-pair,
+.bac-draw-phase .bac-check-btn {
+  filter: brightness(.55) saturate(.75);
+  pointer-events: none;
+  cursor: default;
+  transition: filter .15s;
+}
 .bac-banker-zone {
   flex: 1; display: flex; justify-content: flex-end; align-items: center;
   overflow: visible; position: relative; gap: .35rem;

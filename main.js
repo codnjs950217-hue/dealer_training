@@ -2305,6 +2305,20 @@ const Sims = {
       if (tbl) tbl.classList.toggle('bac-pair-phase', active);
     }
 
+    // Purely visual, same pattern as setPairPhaseFocus() above: dims/
+    // disables every result button (WIN/TIE/BIG6/etc, the Pair row, and
+    // RESULT) while a third-card draw animation is running, instead of
+    // the old clearInlineBtns()/clearPairBtns() approach of emptying
+    // them out. Buttons stay exactly where/how big they were — only a
+    // dim filter + pointer-events:none — so the layout never shifts,
+    // nothing blinks away and back, and nothing gets repositioned while
+    // the card animates in. Turned back off once the post-draw quiz
+    // screen (showBankerDrawQuiz()/showSpecialQuiz()) repaints.
+    function setDrawPhaseFocus(active) {
+      const tbl = document.querySelector('.baccarat-table');
+      if (tbl) tbl.classList.toggle('bac-draw-phase', active);
+    }
+
     function renderPairBtns() {
       const bLocked = S.pairPicked.banker;
       const pLocked = S.pairPicked.player;
@@ -2588,19 +2602,20 @@ const Sims = {
           showMistake(() => showInitialQuiz(), isOverDraw ? 'OVER DRAW' : 'MISTAKE!');
           return;
         }
-        clearInlineBtns();
-        // Draw's starting — hide the Pair row the same way the other
-        // quiz buttons just were, so nothing lingers mid-animation.
-        clearPairBtns();
         // Any un-submitted winner/special picks from this stage don't
-        // carry over to the next quiz screen.
+        // carry over to the next quiz screen — repaint (still 'initial'
+        // source, the only one live right now) so the reset shows up
+        // instead of a stale highlight, then dim everything for the
+        // draw instead of clearing it away (see setDrawPhaseFocus()).
         S.resultPicks = { winner: null, special: null, superPayout: null };
+        paintResultGrid('initial');
+        setDrawPhaseFocus(true);
         const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
         const ph3 = $('bac-ph3'); if (ph3) ph3.innerHTML = '';
         if (choice === 'draw-player') {
-          doPlayerDraw(() => showBankerDrawQuiz());
+          doPlayerDraw(() => { setDrawPhaseFocus(false); showBankerDrawQuiz(); });
         } else {
-          doBankerDraw(() => showSpecialQuiz());
+          doBankerDraw(() => { setDrawPhaseFocus(false); showSpecialQuiz(); });
         }
       },
 
@@ -2608,15 +2623,13 @@ const Sims = {
         if (!S.pairDone) { showMistake(() => showBankerDrawQuiz()); return; }
         const needsDraw = bankerRule(pts(S.bh), S.pThird);
         if (!needsDraw) { showMistake(() => showBankerDrawQuiz(), 'OVER DRAW'); return; }
-        clearInlineBtns();
-        // Draw's starting — hide the Pair row the same way the other
-        // quiz buttons just were, so nothing lingers mid-animation.
-        clearPairBtns();
-        // Any un-submitted winner/special picks from this stage don't
-        // carry over to the next quiz screen.
+        // See quizInitial() above for why this repaints instead of
+        // clearing before dimming for the draw.
         S.resultPicks = { winner: null, special: null, superPayout: null };
+        paintResultGrid('banker');
+        setDrawPhaseFocus(true);
         const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
-        doBankerDraw(() => showSpecialQuiz());
+        doBankerDraw(() => { setDrawPhaseFocus(false); showSpecialQuiz(); });
       },
 
       quizSpecial(choice) {
