@@ -2220,12 +2220,14 @@ const Sims = {
     // sub-rows) since the experimental layout scatters BIG6/SMALL6/BIG7/
     // SMALL7 into their own grid cells instead of stacking them under
     // their WIN button.
-    // BIG6/SMALL6/BIG7/SMALL7/SUPER7's inner text stack: a big central
-    // number (6 or 7) with a smaller BIG/SMALL/SUPER label under it,
-    // instead of one plain "BIG 6"-style string — purely a text-layout
-    // change, no effect on the button's own shape/size/color (those all
-    // still come from .bac-felt-circle/.bac-circle-btn + the button's
-    // own color-family class, untouched here).
+    // Shared inner text stack for BIG6/SMALL6/BIG7/SMALL7/SUPER7 (num='6'
+    // or '7', label='BIG'/'SMALL'/'SUPER') AND B PAIR/P PAIR (num='B' or
+    // 'P', label='PAIR', see renderPairBtns()/renderPairBtnsFinal() below)
+    // — a big central character with a smaller label under it, instead of
+    // one plain "BIG 6"/"B PAIR"-style string. Purely a text-layout
+    // change, no effect on any button's own shape/size/color (those still
+    // come from .bac-felt-circle/.bac-circle-btn or .bac-pair-circle +
+    // the button's own color-family class, untouched here).
     const circleInner = (num, label) =>
       `<span class="bac-circle-num">${num}</span><span class="bac-circle-label">${label}</span>`;
     function winBtns(source) {
@@ -2304,9 +2306,9 @@ const Sims = {
       // NO PAIR now shares the exact same shape/size (positioned via
       // .bac-exp-nopair-mid, not a real table position but still styled
       // to read as part of the same Pair-judgment group).
-      setBtn('bac-pair-b', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle"${bLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('banker-pair')">B PAIR</button>`);
+      setBtn('bac-pair-b', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle"${bLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('banker-pair')">${circleInner('B','PAIR')}</button>`);
       setBtn('bac-pair-mid', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle" onclick="Sims.baccarat.quizPair('no-pair')">NO PAIR</button>`);
-      setBtn('bac-pair-p', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">P PAIR</button>`);
+      setBtn('bac-pair-p', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">${circleInner('P','PAIR')}</button>`);
     }
 
     // Once the Pair judgment is fully answered, keep all three buttons
@@ -2320,9 +2322,9 @@ const Sims = {
       const p = S.pairPicked;
       const btn = (label, selected, extraCls) =>
         `<button class="btn-bac-pair${selected ? ' bac-pair-selected' : ''}${extraCls ? ' ' + extraCls : ''}" disabled>${label}</button>`;
-      setBtn('bac-pair-b', btn('B PAIR', p.banker, 'bac-felt-circle bac-pair-circle'));
+      setBtn('bac-pair-b', btn(circleInner('B','PAIR'), p.banker, 'bac-felt-circle bac-pair-circle'));
       setBtn('bac-pair-mid', btn('NO PAIR', p.none, 'bac-felt-circle bac-pair-circle'));
-      setBtn('bac-pair-p', btn('P PAIR', p.player, 'bac-felt-circle bac-pair-circle'));
+      setBtn('bac-pair-p', btn(circleInner('P','PAIR'), p.player, 'bac-felt-circle bac-pair-circle'));
     }
 
     function showPairQuiz() {
