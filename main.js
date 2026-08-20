@@ -2243,6 +2243,26 @@ const Sims = {
       setTimeout(() => t.remove(), 1800);
     }
 
+    // Same light-nudge pattern as the two toasts above — guards
+    // BIG6/SMALL6/BIG7/SUPER7/SMALL7 from being picked before a main
+    // result (PLAYER WIN/BANKER WIN) is chosen. TIE does NOT satisfy
+    // this guard: none of these specials are ever a valid combination
+    // with a tie (see DIM_ON_WINNER's 'tie' entry, which already dims
+    // every special), so only 'player-win'/'banker-win' count.
+    function showMainResultRequiredToast() {
+      S.mistakes++;
+      const mEl = $('bac-mistakes'); if (mEl) mEl.textContent = S.mistakes;
+      const tbl = document.querySelector('.baccarat-table');
+      if (!tbl) return;
+      const existing = tbl.querySelector('.pair-required-toast');
+      if (existing) existing.remove();
+      const t = document.createElement('div');
+      t.className = 'pair-required-toast';
+      t.textContent = '⚠️ 메인 결과를 먼저 선택하세요.';
+      tbl.appendChild(t);
+      setTimeout(() => t.remove(), 1800);
+    }
+
     function dealSequence(cards, targets, onDone) {
       const ids = [];
       cards.forEach((card, i) => {
@@ -2819,6 +2839,7 @@ const Sims = {
       toggleSpecialPick(label, source) {
         if (!S.pairDone) { showPairRequiredToast(); return; }
         if (!handFullyDrawn()) { showCardsNotRevealedToast(); return; }
+        if (S.resultPicks.winner !== 'player-win' && S.resultPicks.winner !== 'banker-win') { showMainResultRequiredToast(); return; }
         S.resultPicks.special = S.resultPicks.special === label ? null : label;
         refreshResultBtns(source);
       },
@@ -2835,6 +2856,7 @@ const Sims = {
       pickSuper7(source) {
         if (!S.pairDone) { showPairRequiredToast(); return; }
         if (!handFullyDrawn()) { showCardsNotRevealedToast(); return; }
+        if (S.resultPicks.winner !== 'player-win' && S.resultPicks.winner !== 'banker-win') { showMainResultRequiredToast(); return; }
         const tbl = document.querySelector('.baccarat-table');
         if (!tbl) return;
         this.closeSuperPayoutPopup();
