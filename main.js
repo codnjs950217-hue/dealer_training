@@ -2445,20 +2445,29 @@ const Sims = {
     function renderPairBtns() {
       const bLocked = S.pairPicked.banker;
       const pLocked = S.pairPicked.player;
-      // Once either side's pair is confirmed, NO PAIR is provably wrong
-      // — dim it (.bac-choice-dim) to signal that without disabling it
-      // (still clickable, still a real — if now-obvious — mistake if
-      // tapped, same as before). B PAIR/P PAIR never dim each other:
-      // they're independent (a hand can have either, neither, or both),
-      // so confirming one says nothing about the other.
-      const noPairDim = (bLocked || pLocked) ? ' bac-choice-dim' : '';
+      const bPair = S.bh[0].rank === S.bh[1].rank;
+      const pPair = S.ph[0].rank === S.ph[1].rank;
+      // Ground-truth dimming: the instant the cards are revealed (this
+      // renders right inside showPairQuiz(), immediately after that), a
+      // button that can never be correct for THIS hand dims right away
+      // — not just after the trainee has already confirmed the actual
+      // answer. B PAIR/P PAIR never dim each other on that basis alone
+      // (a hand can have either, neither, or both — see quizPair()),
+      // only on their OWN ground truth; NO PAIR dims whenever either
+      // real pair exists. Dimmed-but-not-locked buttons stay clickable
+      // (pointer-events untouched) so a tap on one still reaches
+      // quizPair() and gets rejected with a Mistake + toast there,
+      // rather than silently doing nothing.
+      const bDim = !bPair ? ' bac-choice-dim' : '';
+      const pDim = !pPair ? ' bac-choice-dim' : '';
+      const noPairDim = (bPair || pPair) ? ' bac-choice-dim' : '';
       // .bac-pair-circle: the round corner-mark shape on a real table.
       // NO PAIR now shares the exact same shape/size (positioned via
       // .bac-exp-nopair-mid, not a real table position but still styled
       // to read as part of the same Pair-judgment group).
-      setBtn('bac-pair-b', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle"${bLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('banker-pair')">${pairInner('B')}</button>`);
+      setBtn('bac-pair-b', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle${bDim}"${bLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('banker-pair')">${pairInner('B')}</button>`);
       setBtn('bac-pair-mid', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle${noPairDim}" onclick="Sims.baccarat.quizPair('no-pair')">NO PAIR</button>`);
-      setBtn('bac-pair-p', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">${pairInner('P')}</button>`);
+      setBtn('bac-pair-p', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle${pDim}"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">${pairInner('P')}</button>`);
     }
 
     // Once the Pair judgment is fully answered, keep all three buttons
@@ -2484,19 +2493,6 @@ const Sims = {
     function showPairQuiz() {
       setPairPhaseFocus(true);
       renderPairBtns();
-    }
-
-    function showPairMistake(retryFn) {
-      S.mistakes++;
-      const mEl = $('bac-mistakes'); if (mEl) mEl.textContent = S.mistakes;
-      clearPairBtns();
-      const tbl = document.querySelector('.baccarat-table');
-      if (!tbl) return;
-      const ov = document.createElement('div');
-      ov.className = 'mistake-overlay';
-      ov.innerHTML = `<div class="mistake-text">MISTAKE!</div>`;
-      tbl.appendChild(ov);
-      setTimeout(() => { ov.remove(); retryFn(); }, 1600);
     }
 
     function showInitialQuiz() {
@@ -2693,7 +2689,7 @@ const Sims = {
         const bPair = S.bh[0].rank === S.bh[1].rank;
         const pPair = S.ph[0].rank === S.ph[1].rank;
         if (side === 'no-pair') {
-          if (bPair || pPair) { showPairMistake(renderPairBtns); return; }
+          if (bPair || pPair) { showPairRequiredToast(); return; }
           S.pairDone = true;
           S.pairPicked.none = true;
           renderPairBtnsFinal();
@@ -2701,10 +2697,10 @@ const Sims = {
           return;
         }
         if (side === 'banker-pair') {
-          if (!bPair) { showPairMistake(renderPairBtns); return; }
+          if (!bPair) { showPairRequiredToast(); return; }
           S.pairPicked.banker = true;
         } else if (side === 'player-pair') {
-          if (!pPair) { showPairMistake(renderPairBtns); return; }
+          if (!pPair) { showPairRequiredToast(); return; }
           S.pairPicked.player = true;
         }
         const done = (!bPair || S.pairPicked.banker) && (!pPair || S.pairPicked.player);
