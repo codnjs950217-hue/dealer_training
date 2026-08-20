@@ -3973,7 +3973,6 @@ body {
   filter: brightness(.75);
   transition: opacity .15s ease, filter .15s ease;
 }
-
 /* ============================================================
    POKER SIMULATIONS
    ============================================================ */
@@ -4182,6 +4181,29 @@ body {
 }
 .btn-bac-player:active, .btn-bac-banker:active, .btn-bac-tie:active,
 .btn-bac-super7:active, .btn-bac-pair:active, .btn-bac-draw:active {
+  filter: brightness(.95);
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,.35),
+    inset 0 -1px 0 rgba(var(--btn-hi), .1),
+    0 1px 2px rgba(0,0,0,.3);
+}
+/* Subtle permanent "pressed-in" look for the literal pick (winBtns()'s
+   pressed() helper in main.js — not the whole undimmed group, just the
+   button that was actually clicked). Added back per explicit request
+   once dimming alone was confirmed working as the real cross-device
+   signal — this is layered on top as a tactile nicety, not load-
+   bearing, so it's safe to use depth/transform here even though rev
+   9's border-only design (.bac-choice-dim above, in the SELECTED-STATE
+   DESIGN comment) deliberately avoided depth as the PRIMARY signal.
+   Mirrors the :active rule directly above (same values, same --btn-hi-
+   based shadow so it auto-matches each button's own color) so it reads
+   as "still pressed down" rather than a distinct new state.
+   MUST come after the plain .btn-bac-player/etc. base rule above (same
+   0,1,0 specificity — later source order wins the box-shadow/border
+   tie) or its box-shadow gets silently overridden; don't move this
+   above that block. */
+.bac-choice-pressed {
   filter: brightness(.95);
   transform: translateY(1px);
   box-shadow:

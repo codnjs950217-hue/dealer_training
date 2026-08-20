@@ -2293,6 +2293,15 @@ const Sims = {
     function winBtns(source) {
       const wp = S.resultPicks.winner, sp = S.resultPicks.special;
       const dim = (label) => wp && DIM_ON_WINNER[wp] && DIM_ON_WINNER[wp].includes(label) ? ' bac-choice-dim' : '';
+      // Subtle permanent "pressed-in" look on the literal pick (not the
+      // whole bright/undimmed group — e.g. PLAYER WIN picked keeps 7 BIG/
+      // SUPER7/7 SMALL bright too, but only PLAYER WIN itself was
+      // actually clicked, so only it gets this). Separate from .bac-
+      // choice-dim: dimming is the reliable cross-device SIGNAL (see its
+      // own comment in style.css for why it replaced border highlighting
+      // entirely); this press is just a tactile nicety layered back on
+      // top now that the signal itself doesn't depend on it.
+      const pressed = (label) => (label === wp || label === sp) ? ' bac-choice-pressed' : '';
       // SUPER 7 is one result, not a BIG/SMALL choice — clicking it opens
       // the payout popup (pickSuper7()) instead of toggling directly; the
       // chosen ratio (S.resultPicks.superPayout) shows as a third, smallest
@@ -2304,14 +2313,14 @@ const Sims = {
       // a long oval (the biggest shape on the felt); TIE/BIG/SMALL/SUPER7
       // all render as equal-size circles, matching a real table's layout.
       return {
-        bankerWin:    `<button class="btn-bac-banker bac-inline-btn bac-win-oval${dim('banker-win')}" onclick="Sims.baccarat.toggleWinnerPick('banker-win','${source}')">BANKER WIN</button>`,
-        bankerBig6:   `<button class="btn-bac-banker bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('banker-big6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-big6','${source}')">${circleInner('6','BIG')}</button>`,
-        bankerSmall6: `<button class="btn-bac-banker bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('banker-small6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-small6','${source}')">${circleInner('6','SMALL')}</button>`,
-        tie:          `<button class="btn-bac-tie bac-inline-btn bac-felt-circle bac-circle-btn${dim('tie')}" onclick="Sims.baccarat.toggleWinnerPick('tie','${source}')"><span class="bac-circle-num">TIE</span></button>`,
-        super7:       `<button class="btn-bac-super7 bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('super7')}" onclick="Sims.baccarat.pickSuper7('${source}')">${circleInner('7','SUPER')}${super7Sub}</button>`,
-        playerWin:    `<button class="btn-bac-player bac-inline-btn bac-win-oval${dim('player-win')}" onclick="Sims.baccarat.toggleWinnerPick('player-win','${source}')">PLAYER WIN</button>`,
-        playerBig7:   `<button class="btn-bac-player bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('player-big7')}" onclick="Sims.baccarat.toggleSpecialPick('player-big7','${source}')">${circleInner('7','BIG')}</button>`,
-        playerSmall7: `<button class="btn-bac-player bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('player-small7')}" onclick="Sims.baccarat.toggleSpecialPick('player-small7','${source}')">${circleInner('7','SMALL')}</button>`,
+        bankerWin:    `<button class="btn-bac-banker bac-inline-btn bac-win-oval${dim('banker-win')}${pressed('banker-win')}" onclick="Sims.baccarat.toggleWinnerPick('banker-win','${source}')">BANKER WIN</button>`,
+        bankerBig6:   `<button class="btn-bac-banker bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('banker-big6')}${pressed('banker-big6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-big6','${source}')">${circleInner('6','BIG')}</button>`,
+        bankerSmall6: `<button class="btn-bac-banker bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('banker-small6')}${pressed('banker-small6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-small6','${source}')">${circleInner('6','SMALL')}</button>`,
+        tie:          `<button class="btn-bac-tie bac-inline-btn bac-felt-circle bac-circle-btn${dim('tie')}${pressed('tie')}" onclick="Sims.baccarat.toggleWinnerPick('tie','${source}')"><span class="bac-circle-num">TIE</span></button>`,
+        super7:       `<button class="btn-bac-super7 bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('super7')}${pressed('super7')}" onclick="Sims.baccarat.pickSuper7('${source}')">${circleInner('7','SUPER')}${super7Sub}</button>`,
+        playerWin:    `<button class="btn-bac-player bac-inline-btn bac-win-oval${dim('player-win')}${pressed('player-win')}" onclick="Sims.baccarat.toggleWinnerPick('player-win','${source}')">PLAYER WIN</button>`,
+        playerBig7:   `<button class="btn-bac-player bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('player-big7')}${pressed('player-big7')}" onclick="Sims.baccarat.toggleSpecialPick('player-big7','${source}')">${circleInner('7','BIG')}</button>`,
+        playerSmall7: `<button class="btn-bac-player bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('player-small7')}${pressed('player-small7')}" onclick="Sims.baccarat.toggleSpecialPick('player-small7','${source}')">${circleInner('7','SMALL')}</button>`,
       };
     }
 
