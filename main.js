@@ -2937,7 +2937,18 @@ const Sims = {
           const baseWinner = correct.startsWith('banker') ? 'banker-win' : 'player-win';
           isCorrect = uw === baseWinner && us === correct;
         }
-        if (!isCorrect) { showMistake(showQuiz); return; }
+        if (!isCorrect) {
+          // A wrong CONFIRM clears the WIN/TIE/BIG/SMALL/SUPER7 picks
+          // (not just the DOM via showMistake()'s clearInlineBtns() —
+          // that alone left S.resultPicks stale, so the retry repaint
+          // showed the same wrong picks still pressed/selected). PAIR
+          // state (S.pairPicked/S.pairDone) is untouched — the trainee
+          // keeps their already-confirmed PAIR judgment and only re-picks
+          // the main/option result.
+          S.resultPicks = { winner: null, special: null, superPayout: null };
+          showMistake(showQuiz);
+          return;
+        }
         clearInlineBtns();
         if (source === 'initial') {
           const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
