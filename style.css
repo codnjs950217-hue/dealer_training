@@ -1895,20 +1895,25 @@ body {
 }
 /* While the Pair judgment is pending (.bac-pair-phase, toggled by
    setPairPhaseFocus() in JS), dim the WIN/TIE/BIG6/SMALL6/BIG7/SMALL7/
-   SUPER BIG7/SUPER SMALL7/DRAW buttons instead of hiding them, so the
-   trainee still sees the full board but reads at a glance that this
-   isn't the active choice — only BANKER PAIR/NO PAIR/PLAYER PAIR
-   (.btn-bac-pair, untouched by this selector) stay clickable.
+   SUPER BIG7/SUPER SMALL7/DRAW/CONFIRM buttons instead of hiding them,
+   so the trainee still sees the full board but reads at a glance that
+   none of this is the active choice — only BANKER PAIR/NO PAIR/PLAYER
+   PAIR (.btn-bac-pair, untouched by this selector) stay clickable.
+   .bac-check-btn (CONFIRM) added here per explicit request — it
+   already rejected premature taps via checkResult()'s own
+   `if (!S.pairDone)` guard, but looked fully enabled the whole time,
+   unlike every other button in this phase.
    Deliberately NOT pointer-events:none (was, until the forced-PAIR-
    first check below was added) — clicks need to actually reach
-   toggleWinnerPick()/toggleSpecialPick()/pickSuper7()/quizInitial() so
-   their own `if (!S.pairDone)` guard can fire showPairRequiredToast()
-   and count a Mistake; a CSS-only block would eat the click silently
-   instead. cursor:pointer (was default) so a dimmed button doesn't
-   visually read as unclickable when it's actually one tap away from a
-   Mistake. */
+   toggleWinnerPick()/toggleSpecialPick()/pickSuper7()/quizInitial()/
+   checkResult() so their own `if (!S.pairDone)` guard can fire
+   showPairRequiredToast() and count a Mistake; a CSS-only block would
+   eat the click silently instead. cursor:pointer (was default) so a
+   dimmed button doesn't visually read as unclickable when it's
+   actually one tap away from a Mistake. */
 .bac-pair-phase .bac-inline-btn,
-.bac-pair-phase .btn-bac-draw {
+.bac-pair-phase .btn-bac-draw,
+.bac-pair-phase .bac-check-btn {
   filter: brightness(.55) saturate(.75);
   cursor: pointer;
   transition: filter .15s;
