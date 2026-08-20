@@ -2137,6 +2137,25 @@ const Sims = {
       return false;
     }
 
+    // Gates BIG6/SMALL6/BIG7/SMALL7/SUPER7 — those all depend on the
+    // FINAL card count per side (BIG needs 3 cards, SMALL needs 2), which
+    // isn't settled until the draw phase is fully done. Computed live off
+    // the actual hand lengths + the same draw rules quizInitial()/
+    // quizBanker() use, instead of a manually-toggled flag, so it can't
+    // drift out of sync across the several draw entry/exit points.
+    function handFullyDrawn() {
+      const bp = pts(S.bh);
+      if (S.bh.length === 3) return true; // banker drew — nothing left to draw, ever
+      if (S.ph.length === 3) return !bankerRule(bp, S.pThird); // player drew, banker's turn resolved?
+      // Still 2+2 — mirrors quizInitial()'s correctChoice==='win' cases:
+      // final either on a natural, or when player stands (pp>5) AND
+      // banker would also stand (a draw is genuinely never coming).
+      const pp = pts(S.ph);
+      if (pp >= 8 || bp >= 8) return true;
+      if (pp <= 5) return false;
+      return !bankerRule(bp, null);
+    }
+
     function flipHTML(card, id, extraClass = '', sideways = false) {
       const fc = `<div class="flip-card${extraClass ? ' ' + extraClass : ''}" id="fc${id}"><div class="flip-inner">
         <div class="flip-back"><div class="card back"><div class="card-pattern"></div></div></div>
@@ -2190,6 +2209,27 @@ const Sims = {
       const t = document.createElement('div');
       t.className = 'pair-required-toast';
       t.textContent = '⚠ 먼저 PAIR 판정을 진행하세요.';
+      tbl.appendChild(t);
+      setTimeout(() => t.remove(), 1800);
+    }
+
+    // Same light-nudge pattern as showPairRequiredToast() just above —
+    // guards BIG6/SMALL6/BIG7/SMALL7/SUPER7 (via handFullyDrawn()) and
+    // the PAIR row (via S.initialDealRevealed) from being answered before
+    // the cards they depend on are actually visible. Deliberately reuses
+    // the toast style, not showMistake()'s full-screen overlay, for the
+    // same reason: this is a repeatable "not yet" guard, not a scored
+    // wrong answer — the board and any picks already made stay untouched.
+    function showCardsNotRevealedToast() {
+      S.mistakes++;
+      const mEl = $('bac-mistakes'); if (mEl) mEl.textContent = S.mistakes;
+      const tbl = document.querySelector('.baccarat-table');
+      if (!tbl) return;
+      const existing = tbl.querySelector('.pair-required-toast');
+      if (existing) existing.remove();
+      const t = document.createElement('div');
+      t.className = 'pair-required-toast';
+      t.textContent = '⚠ 모든 카드가 공개된 후 선택해주세요.';
       tbl.appendChild(t);
       setTimeout(() => t.remove(), 1800);
     }
@@ -2613,6 +2653,7 @@ const Sims = {
         S.ph = []; S.bh = []; S.pThird = null; S.winner = null;
         S.pairPicked = { banker: false, player: false, none: false };
         S.pairDone = false;
+        S.initialDealRevealed = false;
         S.resultPicks = { winner: null, special: null, superPayout: null };
         this.closeSuperPayoutPopup();
         disableDraw();
@@ -2641,12 +2682,14 @@ const Sims = {
 
         // Deal visual order: 4→2→3→1 (P2, B1, P1, B2)
         dealSequence(cards, ['bac-ph','bac-bh','bac-ph','bac-bh'], () => {
+          S.initialDealRevealed = true;
           showInitialQuiz();
           showPairQuiz();
         });
       },
 
       quizPair(side) {
+        if (!S.initialDealRevealed) { showCardsNotRevealedToast(); return; }
         const bPair = S.bh[0].rank === S.bh[1].rank;
         const pPair = S.ph[0].rank === S.ph[1].rank;
         if (side === 'no-pair') {
@@ -2746,6 +2789,7 @@ const Sims = {
 
       toggleSpecialPick(label, source) {
         if (!S.pairDone) { showPairRequiredToast(); return; }
+        if (!handFullyDrawn()) { showCardsNotRevealedToast(); return; }
         S.resultPicks.special = S.resultPicks.special === label ? null : label;
         refreshResultBtns(source);
       },
@@ -2761,6 +2805,7 @@ const Sims = {
       // flow replaced the old immediate-commit-on-click behavior.
       pickSuper7(source) {
         if (!S.pairDone) { showPairRequiredToast(); return; }
+        if (!handFullyDrawn()) { showCardsNotRevealedToast(); return; }
         const tbl = document.querySelector('.baccarat-table');
         if (!tbl) return;
         this.closeSuperPayoutPopup();
