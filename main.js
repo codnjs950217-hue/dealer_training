@@ -2343,14 +2343,20 @@ const Sims = {
       'tie':        ['player-win', 'banker-win', 'banker-big6', 'banker-small6', 'player-big7', 'super7', 'player-small7'],
     };
     // Same "what's still a valid next pick" guide as DIM_ON_WINNER, one
-    // level deeper: once a SPECIAL is picked, its sibling specials within
-    // the same winner's group (the ones checkResult() would now consider
-    // impossible alongside this specific special) dim too — e.g. PLAYER
-    // WIN + BIG 7 dims SUPER 7 and SMALL 7, not just the banker side.
+    // level deeper: once a card-count special is picked, its sibling
+    // within the same winner's group dims too — e.g. PLAYER WIN + BIG 7
+    // dims SMALL 7 (mutually exclusive: a hand can't be both 2 and 3
+    // cards). SUPER 7 is deliberately absent from every list here and has
+    // no entry of its own — real Baccarat treats it as an INDEPENDENT
+    // side bet from Big/Small (card count vs. point/rank matchup), so a
+    // hand can require BOTH e.g. player-small7 AND super7 at once; picking
+    // one must never dim the other. See checkResult()'s `correctSuper7`
+    // for the matching scoring-side change (2026-08-20, per explicit
+    // request — this used to dim super7 against big7/small7 and vice
+    // versa, which was wrong).
     const DIM_ON_SPECIAL = {
-      'player-big7':   ['super7', 'player-small7'],
-      'super7':        ['player-big7', 'player-small7'],
-      'player-small7': ['player-big7', 'super7'],
+      'player-big7':   ['player-small7'],
+      'player-small7': ['player-big7'],
       'banker-big6':   ['banker-small6'],
       'banker-small6': ['banker-big6'],
     };
@@ -2381,20 +2387,22 @@ const Sims = {
         if (sp && DIM_ON_SPECIAL[sp] && DIM_ON_SPECIAL[sp].includes(label)) return ' bac-choice-dim';
         return '';
       };
-      // Subtle permanent "pressed-in" look on the literal pick (not the
-      // whole bright/undimmed group — e.g. PLAYER WIN picked keeps 7 BIG/
-      // SUPER7/7 SMALL bright too, but only PLAYER WIN itself was
-      // actually clicked, so only it gets this). Separate from .bac-
+      // Subtle permanent "pressed-in" look on the literal pick(s) — SUPER
+      // 7 is its own independent boolean (S.resultPicks.super7), not part
+      // of `sp`, so a hand needing BOTH e.g. player-small7 AND super7 can
+      // show both as pressed simultaneously. Separate from .bac-
       // choice-dim: dimming is the reliable cross-device SIGNAL (see its
       // own comment in style.css for why it replaced border highlighting
       // entirely); this press is just a tactile nicety layered back on
       // top now that the signal itself doesn't depend on it.
-      const pressed = (label) => (label === wp || label === sp) ? ' bac-choice-pressed' : '';
+      const pressed = (label) =>
+        (label === wp || label === sp || (label === 'super7' && S.resultPicks.super7)) ? ' bac-choice-pressed' : '';
       // SUPER 7 is one result, not a BIG/SMALL choice — clicking it opens
       // the payout popup (pickSuper7()) instead of toggling directly; the
       // chosen ratio (S.resultPicks.superPayout) shows as a third, smallest
-      // line under the SUPER label once set.
-      const super7Sub = sp === 'super7' && S.resultPicks.superPayout
+      // line under the SUPER label once set. Independent of `sp` — see
+      // pressed() above.
+      const super7Sub = S.resultPicks.super7 && S.resultPicks.superPayout
         ? `<span class="bac-super7-payout-tag">(${S.resultPicks.superPayout})</span>` : '';
       // Shape hooks only (see .bac-win-oval/.bac-felt-circle in CSS) — no
       // change to onclick handlers or judging logic. WIN buttons render as
@@ -2702,7 +2710,7 @@ const Sims = {
         S.pairPicked = { banker: false, player: false, none: false };
         S.pairDone = false;
         S.initialDealRevealed = false;
-        S.resultPicks = { winner: null, special: null, superPayout: null };
+        S.resultPicks = { winner: null, special: null, super7: false, superPayout: null };
         this.closeSuperPayoutPopup();
         disableDraw();
 
@@ -2792,7 +2800,7 @@ const Sims = {
         // source, the only one live right now) so the reset shows up
         // instead of a stale highlight, then dim everything for the
         // draw instead of clearing it away (see setDrawPhaseFocus()).
-        S.resultPicks = { winner: null, special: null, superPayout: null };
+        S.resultPicks = { winner: null, special: null, super7: false, superPayout: null };
         paintResultGrid('initial');
         setDrawPhaseFocus(true);
         const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
@@ -2810,7 +2818,7 @@ const Sims = {
         if (!needsDraw) { showMistake(() => showBankerDrawQuiz(), 'OVER DRAW'); return; }
         // See quizInitial() above for why this repaints instead of
         // clearing before dimming for the draw.
-        S.resultPicks = { winner: null, special: null, superPayout: null };
+        S.resultPicks = { winner: null, special: null, super7: false, superPayout: null };
         paintResultGrid('banker');
         setDrawPhaseFocus(true);
         const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
@@ -2849,10 +2857,14 @@ const Sims = {
       // ratio only STAGES it (S.super7Staged) and re-renders the popup with
       // that ratio highlighted — it doesn't touch S.resultPicks or close
       // the popup. Only 선택완료 (confirmSuperPayout) commits the staged
-      // ratio into S.resultPicks.special/superPayout and closes; 닫기
+      // ratio into S.resultPicks.super7/superPayout and closes; 닫기
       // (closeSuperPayoutPopup) discards the staged ratio and closes
       // without touching S.resultPicks. This two-step stage-then-confirm
       // flow replaced the old immediate-commit-on-click behavior.
+      // S.resultPicks.super7 is independent of .special (BIG6/SMALL6/
+      // BIG7/SMALL7) — real Baccarat treats Super 7 as its own side bet,
+      // not mutually exclusive with Big/Small 7, so both can be required
+      // at once (see checkResult()'s correctSuper7).
       pickSuper7(source) {
         if (!S.pairDone) { showPairRequiredToast(); return; }
         if (!handFullyDrawn()) { showCardsNotRevealedToast(); return; }
@@ -2860,7 +2872,7 @@ const Sims = {
         const tbl = document.querySelector('.baccarat-table');
         if (!tbl) return;
         this.closeSuperPayoutPopup();
-        S.super7Staged = S.resultPicks.special === 'super7' ? S.resultPicks.superPayout : null;
+        S.super7Staged = S.resultPicks.super7 ? S.resultPicks.superPayout : null;
         const ov = document.createElement('div');
         ov.className = 'super7-payout-overlay';
         ov.id = 'super7-payout-overlay';
@@ -2895,7 +2907,7 @@ const Sims = {
 
       confirmSuperPayout(source) {
         if (!S.super7Staged) return;
-        S.resultPicks.special = 'super7';
+        S.resultPicks.super7 = true;
         S.resultPicks.superPayout = S.super7Staged;
         this.closeSuperPayoutPopup();
         refreshResultBtns(source);
@@ -2923,6 +2935,16 @@ const Sims = {
         } else if (source === 'banker') {
           if (bankerRule(bp, S.pThird)) { showMistake(() => showBankerDrawQuiz()); return; }
         }
+        // `correct`: the winner + card-count-based special (banker-small6/
+        // banker-big6/player-small7/player-big7), exactly as before.
+        // `correctSuper7`: a SEPARATE, independent boolean — real Baccarat
+        // treats Super 7 (banker wins... no, player wins 7 vs banker's 6)
+        // as its own side bet, not mutually exclusive with Small/Big 7
+        // (those are about card COUNT; Super 7 is about the point/rank
+        // matchup) — so a hand can require BOTH player-small7 (or -big7)
+        // AND super7 at once. This used to short-circuit to a single
+        // 'super7' label that silently dropped the small7/big7 requirement
+        // whenever bp===6 — fixed per explicit request.
         let correct;
         if (pp === bp) correct = 'tie';
         else if (bp > pp) {
@@ -2930,11 +2952,11 @@ const Sims = {
           else if (bp === 6 && S.bh.length === 3) correct = 'banker-big6';
           else                                     correct = 'banker-win';
         } else {
-          if (pp === 7 && bp === 6)               correct = 'super7';
-          else if (pp === 7 && S.ph.length === 2)  correct = 'player-small7';
-          else if (pp === 7 && S.ph.length === 3)  correct = 'player-big7';
+          if (pp === 7 && S.ph.length === 2)      correct = 'player-small7';
+          else if (pp === 7 && S.ph.length === 3) correct = 'player-big7';
           else                                     correct = 'player-win';
         }
+        const correctSuper7 = pp === 7 && bp === 6;
         const showQuiz = source === 'initial' ? showInitialQuiz
                        : source === 'banker'  ? showBankerDrawQuiz
                        : showSpecialQuiz;
@@ -2943,21 +2965,25 @@ const Sims = {
         // - banker-small6/banker-big6/player-small7/player-big7: BOTH the
         //   base winner AND the specific special (dealers need to catch
         //   the bonus condition, not just the winner).
-        // - super7: the special alone is enough (winner pick optional,
-        //   but must be 'player-win' if given) — plus the payout ratio
-        //   must match the total card count: 4→30:1, 5→40:1, 6→100:1.
-        const { winner: uw, special: us } = S.resultPicks;
+        // - super7 (S.resultPicks.super7, independent of .special): must
+        //   be selected with the payout ratio matching total card count
+        //   (4→30:1, 5→40:1, 6→100:1) whenever correctSuper7 is true, and
+        //   must NOT be selected when it's false — additive on top of
+        //   whatever the base winner/special check above already requires.
+        const { winner: uw, special: us, super7: usSuper7 } = S.resultPicks;
         let isCorrect;
         if (correct === 'tie' || correct === 'banker-win' || correct === 'player-win') {
           isCorrect = uw === correct && us === null;
-        } else if (correct === 'super7') {
-          const totalCards = S.bh.length + S.ph.length;
-          const correctPayout = totalCards === 4 ? '30:1' : totalCards === 5 ? '40:1' : '100:1';
-          isCorrect = us === 'super7' && S.resultPicks.superPayout === correctPayout
-                    && (uw === null || uw === 'player-win');
         } else {
           const baseWinner = correct.startsWith('banker') ? 'banker-win' : 'player-win';
           isCorrect = uw === baseWinner && us === correct;
+        }
+        if (correctSuper7) {
+          const totalCards = S.bh.length + S.ph.length;
+          const correctPayout = totalCards === 4 ? '30:1' : totalCards === 5 ? '40:1' : '100:1';
+          isCorrect = isCorrect && usSuper7 === true && S.resultPicks.superPayout === correctPayout;
+        } else {
+          isCorrect = isCorrect && !usSuper7;
         }
         if (!isCorrect) {
           // A wrong CONFIRM clears the WIN/TIE/BIG/SMALL/SUPER7 picks
@@ -2967,7 +2993,7 @@ const Sims = {
           // state (S.pairPicked/S.pairDone) is untouched — the trainee
           // keeps their already-confirmed PAIR judgment and only re-picks
           // the main/option result.
-          S.resultPicks = { winner: null, special: null, superPayout: null };
+          S.resultPicks = { winner: null, special: null, super7: false, superPayout: null };
           showMistake(showQuiz);
           return;
         }
