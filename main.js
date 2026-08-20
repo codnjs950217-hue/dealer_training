@@ -2137,15 +2137,21 @@ const Sims = {
       return false;
     }
 
-    // Gates PLAYER WIN/BANKER WIN/TIE and BIG6/SMALL6/BIG7/SMALL7/SUPER7
-    // — the actual winner (and obviously the card-count-dependent
-    // specials) can still change once a pending draw resolves, so none of
-    // these are a safe guess until the hand is genuinely done. Computed
-    // live off the actual hand lengths + the same draw rules
-    // quizInitial()/quizBanker() use, instead of a manually-toggled flag,
-    // so it can't drift out of sync across the several draw entry/exit
-    // points. NOT applied to CONFIRM (checkResult()) — that already has
-    // its own separate "tried to skip the draw quiz" mistake path.
+    // Gates PLAYER WIN/BANKER WIN/TIE, BIG6/SMALL6/BIG7/SMALL7/SUPER7, and
+    // CONFIRM (checkResult()) — the actual winner (and obviously the
+    // card-count-dependent specials) can still change once a pending draw
+    // resolves, so none of these are a safe guess until the hand is
+    // genuinely done. Computed live off the actual hand lengths + the
+    // same draw rules quizInitial()/quizBanker() use, instead of a
+    // manually-toggled flag, so it can't drift out of sync across the
+    // several draw entry/exit points. checkResult()'s own OLDER
+    // needsDrawP/needsDrawB ('initial' source) and bankerRule(bp,pThird)
+    // ('banker' source) pre-checks are each exactly equivalent to
+    // `!handFullyDrawn()` at that stage (verified by derivation, not just
+    // by inspection) — this guard now runs first and returns before
+    // either old check is reached, so both are unreachable dead code.
+    // Left in place rather than deleted: harmless, and removing "existing
+    // game logic" wasn't asked for.
     function handFullyDrawn() {
       const bp = pts(S.bh);
       if (S.bh.length === 3) return true; // banker drew — nothing left to draw, ever
@@ -2886,6 +2892,7 @@ const Sims = {
       // quizWinFull(); only how an answer gets submitted changed.
       checkResult(source) {
         if (!S.pairDone) { showPairRequiredToast(); return; }
+        if (!handFullyDrawn()) { showCardsNotRevealedToast(); return; }
         const pp = pts(S.ph), bp = pts(S.bh);
         if (source === 'initial') {
           const needsDrawP = !(pp >= 8 || bp >= 8) && pp <= 5;
