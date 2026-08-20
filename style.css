@@ -3965,8 +3965,12 @@ body {
    rendering reliability, and marking the picked button (rather than
    dimming its siblings) is exactly what kept failing that bar. */
 .bac-choice-dim {
-  opacity: .35;
-  filter: brightness(.55);
+  /* Softened from the initial opacity:.35/brightness:.55 spec — reported
+     as too washed-out to read the button's own label/color at a glance.
+     Kept noticeably darker than idle (still an obvious "not this one"
+     signal) without going translucent. */
+  opacity: .6;
+  filter: brightness(.75);
   transition: opacity .15s ease, filter .15s ease;
 }
 
