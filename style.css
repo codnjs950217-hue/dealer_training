@@ -1895,14 +1895,18 @@ body {
    trainee still sees the full board but reads at a glance that this
    isn't the active choice — only BANKER PAIR/NO PAIR/PLAYER PAIR
    (.btn-bac-pair, untouched by this selector) stay clickable.
-   pointer-events:none blocks clicks, taps, and :hover alike; cursor
-   stays the plain system arrow (cursor:default), same as the other
-   dimmed buttons here — no special not-allowed/wait cursor added. */
+   Deliberately NOT pointer-events:none (was, until the forced-PAIR-
+   first check below was added) — clicks need to actually reach
+   toggleWinnerPick()/toggleSpecialPick()/pickSuper7()/quizInitial() so
+   their own `if (!S.pairDone)` guard can fire showPairRequiredToast()
+   and count a Mistake; a CSS-only block would eat the click silently
+   instead. cursor:pointer (was default) so a dimmed button doesn't
+   visually read as unclickable when it's actually one tap away from a
+   Mistake. */
 .bac-pair-phase .bac-inline-btn,
 .bac-pair-phase .btn-bac-draw {
   filter: brightness(.55) saturate(.75);
-  pointer-events: none;
-  cursor: default;
+  cursor: pointer;
   transition: filter .15s;
 }
 /* While a third-card draw animation is running (.bac-draw-phase,
@@ -2848,6 +2852,35 @@ body {
 .overdraw-text {
   color: #ff8c00;
   text-shadow: 0 0 40px rgba(255,140,0,.9), 0 2px 8px rgba(0,0,0,.8);
+}
+
+/* PAIR-required toast (showPairRequiredToast() in main.js) — deliberately
+   NOT .mistake-overlay: that one blacks out the whole table and shows a
+   giant word, appropriate for "you judged wrong", but this fires on
+   every premature tap of WIN/TIE/BIG/SMALL/SUPER7/DRAW/CONFIRM before
+   PAIR is done, which is meant to be a light nudge, not a full-screen
+   interruption — the board (and the trainee's already-made picks) stay
+   fully visible underneath. pointer-events:none so the toast itself
+   never blocks the very buttons it's warning about. */
+.pair-required-toast {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  z-index: 55; pointer-events: none;
+  background: rgba(20,10,0,.88);
+  border: 1px solid rgba(255,160,40,.55);
+  border-radius: var(--r);
+  padding: .6rem 1.1rem;
+  color: #ffcf7a;
+  font-size: clamp(.85rem,2.2vw,1.05rem);
+  font-weight: 800;
+  letter-spacing: .3px;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 4px 18px rgba(0,0,0,.5), 0 0 24px rgba(255,160,40,.25);
+  animation: pairToastPop .2s ease-out forwards;
+}
+@keyframes pairToastPop {
+  0%   { transform: translate(-50%,-50%) scale(.85); opacity: 0; }
+  100% { transform: translate(-50%,-50%) scale(1); opacity: 1; }
 }
 
 /* SUPER 7 payout tag on the button itself, once a ratio's been chosen —

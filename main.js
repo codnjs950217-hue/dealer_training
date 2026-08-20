@@ -2166,6 +2166,31 @@ const Sims = {
       setTimeout(() => { ov.remove(); retryFn(); }, 1600);
     }
 
+    // Forced-PAIR-first guard: fired by every WIN/TIE/BIG/SMALL/SUPER7/
+    // DRAW/CONFIRM handler below when S.pairDone is still false. Counts a
+    // Mistake (same as showMistake()) but is deliberately NOT
+    // showMistake() itself — that one clears the board and blacks it out
+    // via .mistake-overlay for "you judged wrong"; this fires on every
+    // premature tap before PAIR is even attempted, so it must leave the
+    // board and the trainee's current picks completely untouched (no
+    // clearInlineBtns(), no retry callback) and just cancel that one
+    // click. A lightweight toast (.pair-required-toast), not alert().
+    function showPairRequiredToast() {
+      S.mistakes++;
+      const mEl = $('bac-mistakes'); if (mEl) mEl.textContent = S.mistakes;
+      const tbl = document.querySelector('.baccarat-table');
+      if (!tbl) return;
+      // Replace instead of stack if the trainee taps multiple guarded
+      // buttons in quick succession — one toast, its timer restarted.
+      const existing = tbl.querySelector('.pair-required-toast');
+      if (existing) existing.remove();
+      const t = document.createElement('div');
+      t.className = 'pair-required-toast';
+      t.textContent = '⚠ 먼저 PAIR 판정을 진행하세요.';
+      tbl.appendChild(t);
+      setTimeout(() => t.remove(), 1800);
+    }
+
     function dealSequence(cards, targets, onDone) {
       const ids = [];
       cards.forEach((card, i) => {
@@ -2595,7 +2620,7 @@ const Sims = {
       },
 
       quizInitial(choice) {
-        if (!S.pairDone) { showMistake(() => showInitialQuiz()); return; }
+        if (!S.pairDone) { showPairRequiredToast(); return; }
         const pp = pts(S.ph), bp = pts(S.bh);
         let correctChoice;
         if (pp >= 8 || bp >= 8) {
@@ -2634,7 +2659,7 @@ const Sims = {
       },
 
       quizBanker() {
-        if (!S.pairDone) { showMistake(() => showBankerDrawQuiz()); return; }
+        if (!S.pairDone) { showPairRequiredToast(); return; }
         const needsDraw = bankerRule(pts(S.bh), S.pThird);
         if (!needsDraw) { showMistake(() => showBankerDrawQuiz(), 'OVER DRAW'); return; }
         // See quizInitial() above for why this repaints instead of
@@ -2647,7 +2672,7 @@ const Sims = {
       },
 
       quizSpecial(choice) {
-        if (!S.pairDone) { showMistake(() => showSpecialQuiz()); return; }
+        if (!S.pairDone) { showPairRequiredToast(); return; }
         if (choice === 'draw-player') {
           showMistake(() => showSpecialQuiz(), 'OVER DRAW');
         }
@@ -2659,11 +2684,13 @@ const Sims = {
       // row so the current selection is visible. CHECK is the only thing
       // that submits (see checkResult() below).
       toggleWinnerPick(label, source) {
+        if (!S.pairDone) { showPairRequiredToast(); return; }
         S.resultPicks.winner = S.resultPicks.winner === label ? null : label;
         refreshResultBtns(source);
       },
 
       toggleSpecialPick(label, source) {
+        if (!S.pairDone) { showPairRequiredToast(); return; }
         S.resultPicks.special = S.resultPicks.special === label ? null : label;
         refreshResultBtns(source);
       },
@@ -2678,6 +2705,7 @@ const Sims = {
       // without touching S.resultPicks. This two-step stage-then-confirm
       // flow replaced the old immediate-commit-on-click behavior.
       pickSuper7(source) {
+        if (!S.pairDone) { showPairRequiredToast(); return; }
         const tbl = document.querySelector('.baccarat-table');
         if (!tbl) return;
         this.closeSuperPayoutPopup();
@@ -2734,13 +2762,7 @@ const Sims = {
       // checks, the `correct` label logic) is untouched from the old
       // quizWinFull(); only how an answer gets submitted changed.
       checkResult(source) {
-        if (!S.pairDone) {
-          const retry = source === 'initial' ? showInitialQuiz
-                      : source === 'banker'  ? showBankerDrawQuiz
-                      : showSpecialQuiz;
-          showMistake(retry);
-          return;
-        }
+        if (!S.pairDone) { showPairRequiredToast(); return; }
         const pp = pts(S.ph), bp = pts(S.bh);
         if (source === 'initial') {
           const needsDrawP = !(pp >= 8 || bp >= 8) && pp <= 5;
