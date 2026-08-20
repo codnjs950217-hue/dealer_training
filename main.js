@@ -2445,29 +2445,25 @@ const Sims = {
     function renderPairBtns() {
       const bLocked = S.pairPicked.banker;
       const pLocked = S.pairPicked.player;
-      const bPair = S.bh[0].rank === S.bh[1].rank;
-      const pPair = S.ph[0].rank === S.ph[1].rank;
-      // Ground-truth dimming: the instant the cards are revealed (this
-      // renders right inside showPairQuiz(), immediately after that), a
-      // button that can never be correct for THIS hand dims right away
-      // — not just after the trainee has already confirmed the actual
-      // answer. B PAIR/P PAIR never dim each other on that basis alone
-      // (a hand can have either, neither, or both — see quizPair()),
-      // only on their OWN ground truth; NO PAIR dims whenever either
-      // real pair exists. Dimmed-but-not-locked buttons stay clickable
-      // (pointer-events untouched) so a tap on one still reaches
-      // quizPair() and gets rejected with a Mistake + toast there,
-      // rather than silently doing nothing.
-      const bDim = !bPair ? ' bac-choice-dim' : '';
-      const pDim = !pPair ? ' bac-choice-dim' : '';
-      const noPairDim = (bPair || pPair) ? ' bac-choice-dim' : '';
+      // No ground-truth dimming here, by design: this renders before the
+      // trainee has picked anything (or with one side of a double-pair
+      // still open), and dimming off the real bPair/pPair would show the
+      // answer before they've judged it themselves — defeats the whole
+      // training purpose. Only a button the trainee has ALREADY correctly
+      // picked (bLocked/pLocked) is disabled+dimmed; NO PAIR dims only
+      // once that's happened for a real pair, i.e. strictly after a
+      // correct pick, never as a pre-pick hint. B PAIR/P PAIR never dim
+      // each other on lock alone: they're independent (a hand can have
+      // either, neither, or both), so confirming one says nothing about
+      // the other.
+      const noPairDim = (bLocked || pLocked) ? ' bac-choice-dim' : '';
       // .bac-pair-circle: the round corner-mark shape on a real table.
       // NO PAIR now shares the exact same shape/size (positioned via
       // .bac-exp-nopair-mid, not a real table position but still styled
       // to read as part of the same Pair-judgment group).
-      setBtn('bac-pair-b', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle${bDim}"${bLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('banker-pair')">${pairInner('B')}</button>`);
+      setBtn('bac-pair-b', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle"${bLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('banker-pair')">${pairInner('B')}</button>`);
       setBtn('bac-pair-mid', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle${noPairDim}" onclick="Sims.baccarat.quizPair('no-pair')">NO PAIR</button>`);
-      setBtn('bac-pair-p', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle${pDim}"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">${pairInner('P')}</button>`);
+      setBtn('bac-pair-p', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">${pairInner('P')}</button>`);
     }
 
     // Once the Pair judgment is fully answered, keep all three buttons
