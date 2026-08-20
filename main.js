@@ -487,37 +487,40 @@ const Views = {
               </div>
             </div>
             <div class="bac-exp-cell bac-exp-nopair-mid" id="bac-pair-mid"></div>
-          </div>
-          <!-- CONFIRM now lives here, attached to the right edge of the
-               BIG6/TIE/SMALL6 + BIG7/SUPER7/SMALL7 pair via
-               .bac-exp-confirm-attach (position:absolute, left:100% —
-               same "attach to the right of a row" pattern .bac-exp-attach
-               already uses for PLAYER PAIR/BANKER PAIR). Wrapping the two
-               .bac-exp-row-3col rows in .bac-exp-63-wrap only adds a
-               position:relative anchor for that attachment — it
-               reproduces .bac-exp-grid's own flex-column/gap exactly, so
-               the two rows' own spacing/centering is byte-identical to
-               before. CONFIRM's height spans the wrap's full height (both
-               rows + the gap between them), so it reads as one tall
-               button standing next to BIG6/BIG7's row pair, not stacked
-               under SHOE (see .bac-shoe-col below — SHOE is back to being
-               its own solo column now, no second stacked child) — see
-               [[project_baccarat_result_button]] in memory for the
-               earlier position history under SHOE. -->
-          <div class="bac-exp-63-wrap">
-            <div class="bac-exp-row bac-exp-row-3col">
-              <div class="bac-exp-cell" id="bac-exp-big6"></div>
-              <div class="bac-exp-cell" id="bac-tie-btn"></div>
-              <div class="bac-exp-cell" id="bac-exp-small6"></div>
-            </div>
-            <div class="bac-exp-row bac-exp-row-3col">
-              <div class="bac-exp-cell" id="bac-exp-big7"></div>
-              <div class="bac-exp-cell" id="bac-exp-super7"></div>
-              <div class="bac-exp-cell" id="bac-exp-small7"></div>
-            </div>
+            <!-- CONFIRM lives here — a child of .bac-exp-pairwrap (which
+                 was ALREADY position:relative, pre-dating CONFIRM
+                 entirely), positioned via calc() reaching down past
+                 pairwrap's own two WIN rows to the BIG6/BIG7 row pair
+                 below it (same left:100%-past-the-row-edge idea as
+                 .bac-exp-attach for PLAYER/BANKER PAIR above, just with
+                 an explicit top/height calc since the target row pair
+                 isn't pairwrap's own direct content). Deliberately NOT a
+                 child of a wrapper around the BIG6/BIG7 rows themselves
+                 (.bac-exp-63-wrap, tried first) — that wrapper needed
+                 position:relative to anchor CONFIRM, which made it the
+                 accidental containing block for the WIN/TIE result
+                 banner too (announceWinner() injects .bac-win-over-
+                 divider into #bac-tie-btn, INSIDE that row pair) and
+                 threw the banner's position off, overlapping NEXT HAND.
+                 Anchoring to pairwrap instead avoids adding ANY new
+                 positioned ancestor between #bac-tie-btn and
+                 .baccarat-table, so the banner's own top:var(--bac-
+                 banner-top) (relative to .baccarat-table, unchanged)
+                 keeps working exactly as before. See
+                 [[project_baccarat_result_button]] in memory. -->
             <div class="bac-exp-confirm-attach">
               <div id="bac-result"></div>
             </div>
+          </div>
+          <div class="bac-exp-row bac-exp-row-3col">
+            <div class="bac-exp-cell" id="bac-exp-big6"></div>
+            <div class="bac-exp-cell" id="bac-tie-btn"></div>
+            <div class="bac-exp-cell" id="bac-exp-small6"></div>
+          </div>
+          <div class="bac-exp-row bac-exp-row-3col">
+            <div class="bac-exp-cell" id="bac-exp-big7"></div>
+            <div class="bac-exp-cell" id="bac-exp-super7"></div>
+            <div class="bac-exp-cell" id="bac-exp-small7"></div>
           </div>
         </div>
         <div class="bac-field">

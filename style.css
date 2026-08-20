@@ -1992,9 +1992,11 @@ body {
    button height/size is untouched, only the space between rows grew.
    CONFIRM isn't a real table position, so it doesn't get a row here at
    all — it's attached to the right edge of the BIG6/BIG7 row pair
-   instead (.bac-exp-63-wrap/.bac-exp-confirm-attach below), the same
-   "pulled out of flow, pinned to a row's edge" pattern .bac-exp-attach
-   already uses for PLAYER PAIR/BANKER PAIR.
+   instead (.bac-exp-confirm-attach below, a child of .bac-exp-pairwrap
+   with its own top/height calc reaching down to that row pair — see
+   its own comment for why it's NOT a child of a wrapper around the row
+   pair itself), the same "pulled out of flow, pinned to a row's edge"
+   pattern .bac-exp-attach already uses for PLAYER PAIR/BANKER PAIR.
    --bac-pair-circle-d/--bac-win-w drive the actual felt shapes (oval
    WIN — height tied to --bac-pair-circle-d, same as PLAYER PAIR/
    BANKER PAIR's own diameter, round everything else) defined in
@@ -2129,18 +2131,15 @@ body {
    rows + BIG6/TIE/SMALL6 + BIG7/SUPER7/SMALL7, all 3 --bac-row-gaps
    between them) to the grid's bottom edge; translateY(-100%) bottom-
    aligns the button there so it sits entirely above that line instead
-   of straddling it — which puts its footprint right over
-   .bac-exp-63-wrap's own area (BIG6/BIG7's rows are empty at this
-   point anyway). .bac-exp-63-wrap needed real position:relative to
-   anchor CONFIRM (.bac-exp-confirm-attach, left:100% of it) — that
-   promotes it from a plain flex item (painted like an inline-block,
-   always below truly-positioned content) to a genuinely positioned
-   sibling in .bac-exp-grid's stacking context, and since it comes
-   after .bac-exp-pairwrap in document order, it would otherwise paint
-   (and intercept clicks) OVER this button. z-index lifts this out of
-   that plain auto-stacking tie so it stays on top and clickable —
-   without it, START/NEXT HAND becomes visually present but unclickable
-   (SUPER7's empty cell eats the tap instead). */
+   of straddling it — which puts its footprint right over the BIG6/BIG7
+   rows' own area (empty at this point anyway). z-index:2 keeps this
+   button clickable despite that overlap: BIG6/BIG7's row cells are
+   plain flex items (painted like inline-blocks, always below truly-
+   positioned content) so they shouldn't normally compete with this
+   already-positioned button — but see CONFIRM's own comment below for
+   a case where a wrapper around those rows briefly did compete, and
+   why CONFIRM no longer lives in such a wrapper. z-index is cheap
+   insurance either way. */
 .bac-exp-nopair-mid:has(.bac-cta-btn) {
   left: 50%;
   top: calc(2 * var(--bac-pair-circle-d) + 3 * var(--bac-row-gap) + 2 * var(--bac-capsule-h));
@@ -2149,13 +2148,29 @@ body {
 }
 /* CONFIRM (.bac-check-btn) isn't a real table position, so it doesn't
    get a slot in the felt-position grid — it's pinned to the right edge
-   of the BIG6/TIE/SMALL6 + BIG7/SUPER7/SMALL7 row pair instead, via
-   .bac-exp-63-wrap (a position:relative anchor wrapping just those two
-   rows) + .bac-exp-confirm-attach (position:absolute, left:100%,
-   height:100% of the wrap — same "pull out of flow, pin to a row's
-   edge" pattern .bac-exp-attach already uses for PLAYER PAIR/BANKER
-   PAIR above). CONFIRM's height spans both rows + the gap between them,
-   so it reads as one tall button standing beside SMALL6/SMALL7.
+   of the BIG6/TIE/SMALL6 + BIG7/SUPER7/SMALL7 row pair, but positioned
+   as a CHILD OF .bac-exp-pairwrap (already position:relative, pre-
+   dating CONFIRM) via an explicit top/height calc reaching down to that
+   row pair — not a child of a wrapper AROUND the row pair itself. That
+   was tried first (.bac-exp-63-wrap, position:relative around both
+   rows) and reverted: it became the accidental containing block for
+   the WIN/TIE result banner too, since announceWinner() injects
+   .bac-win-over-divider into #bac-tie-btn — INSIDE that row pair — and
+   that banner's own `top: var(--bac-banner-top)` assumes .baccarat-
+   table is its containing block. With the wrapper positioned, the
+   banner suddenly measured its top from the wrapper's position instead
+   (much further down the page) and ended up overlapping NEXT HAND.
+   Anchoring to pairwrap (a SIBLING of the row pair, not an ancestor)
+   avoids adding ANY new positioned ancestor between #bac-tie-btn and
+   .baccarat-table, so the banner is completely unaffected.
+   top/height below mirror the same distances .bac-exp-nopair-mid:has(
+   .bac-cta-btn) above already computes from pairwrap's own top: `2 *
+   --bac-pair-circle-d + 2 * --bac-row-gap` reaches past pairwrap's own
+   2 WIN rows + the grid-level gap before the row pair starts; height
+   `2 * --bac-capsule-h + --bac-row-gap` spans both rows + the gap
+   between them. left:100% (relative to pairwrap, not the row pair) is
+   equivalent — pairwrap and the row pair share the same width/center
+   (--bac-win-w) in .bac-exp-grid, so their right edges align exactly.
    POSITION HISTORY: originally lived under SHOE (.bac-shoe-col, far
    left, opposite side of the table from PLAYER/BANKER DRAW) after 3
    earlier attempts to move it rightward each broke something else in
@@ -2168,23 +2183,21 @@ body {
    DRAW's flex sizing. Verify on narrow landscape devices (iPhone 13
    mini 812×375 etc.) that this right margin is still wide enough before
    changing --bac-win-w or .bac-exp-confirm-attach's width. */
-.bac-exp-63-wrap {
-  position: relative;
-  display: flex; flex-direction: column; align-items: center;
-  gap: var(--bac-row-gap);
-}
 .bac-exp-confirm-attach {
-  position: absolute; left: 100%; top: 0; height: 100%;
+  position: absolute; left: 100%;
+  top: calc(2 * var(--bac-pair-circle-d) + 2 * var(--bac-row-gap));
+  height: calc(2 * var(--bac-capsule-h) + var(--bac-row-gap));
   /* Pushed close to .baccarat-table's own right edge (not just past
-     SMALL6/SMALL7's own edge) per explicit request — .bac-exp-63-wrap
-     itself is only as wide as --bac-win-w and centered in the table, so
-     there's real empty margin between its right edge and the table's;
-     this margin-left eats most of that margin, leaving roughly a
-     20-50px gap to the table edge (grows slightly on wider viewports
-     since the table's own max-width:1200px cap makes that margin grow
-     faster than a flat vw factor tracks) — verified via real
-     getBoundingClientRect measurements at all 4 spec'd viewports
-     (iPhone 13 mini/14/15, Galaxy S23/24, desktop), not just eyeballed. */
+     SMALL6/SMALL7's own edge) per explicit request — the row pair
+     (and pairwrap, same width) is only as wide as --bac-win-w and
+     centered in the table, so there's real empty margin between its
+     right edge and the table's; this margin-left eats most of that
+     margin, leaving roughly a 20-50px gap to the table edge (grows
+     slightly on wider viewports since the table's own max-width:1200px
+     cap makes that margin grow faster than a flat vw factor tracks) —
+     verified via real getBoundingClientRect measurements at all 4
+     spec'd viewports (iPhone 13 mini/14/15, Galaxy S23/24, desktop),
+     not just eyeballed. */
   margin-left: clamp(110px,15vw,230px);
   /* Matches BANKER/PLAYER DRAW's own width range (.btn-bac-draw, sized
      off --card-h-lg ~80-140px) per spec — 78px floor (not exactly 80px)
@@ -2197,10 +2210,6 @@ body {
 .bac-exp-confirm-attach #bac-result {
   width: 100%; height: 100%;
   display: flex;
-  /* min-height so the slot doesn't collapse while #bac-result is
-     cleared to empty (deal animation, etc.) — same reasoning as
-     .bac-exp-cell-win/.bac-exp-row-3col above. */
-  min-height: calc(2 * var(--bac-capsule-h) + var(--bac-row-gap));
 }
 .bac-exp-confirm-attach .bac-check-btn {
   width: 100%; height: 100%;
