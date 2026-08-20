@@ -3924,13 +3924,24 @@ body {
   text-shadow: 0 1px 3px rgba(0,0,0,.9), 0 0 14px rgba(255,255,255,.35);
   animation: pairTakeFade 2.8s ease-out forwards;
 }
+/* Recolored to match .btn-bac-player exactly (same --btn-hi/--btn-glow,
+   background, color, text-shadow) so BIG7/SUPER7/SMALL7 read as one
+   visually consistent group — was its own dedicated purple/violet
+   identity, per explicit request to drop that in favor of grouping
+   with BIG7/SMALL7. Since :hover/:active/border/box-shadow below are
+   all driven off --btn-hi/--btn-glow (not hardcoded per class), this
+   alone makes every interaction state match too — no separate
+   :hover/:active override needed. Geometry (padding/font-size/
+   min-height) deliberately left untouched — actual on-screen size
+   comes from .bac-felt-circle/.bac-circle-btn anyway (see "REAL-TABLE
+   FELT SHAPES" below), and wasn't asked to change. */
 .btn-bac-super7 {
-  --btn-hi: 200,180,255; --btn-glow: 100,70,200;
-  background: linear-gradient(180deg, #28205a 0%, #12103a 100%);
-  color: #c8b8ff;
+  --btn-hi: 255,150,150; --btn-glow: 180,30,30;
+  background: linear-gradient(180deg, #5a0e1c 0%, #2e0610 100%);
+  color: #ff8080;
   padding: .38rem .75rem; border-radius: var(--r);
   font-weight: 800; cursor: pointer; font-size: .75rem;
-  letter-spacing: .5px; text-shadow: 0 1px 5px rgba(160,120,255,.4);
+  letter-spacing: .5px; text-shadow: 0 1px 6px rgba(255,80,80,.4);
   min-height: var(--tap-h);
   white-space: nowrap;
 }
