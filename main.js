@@ -2137,12 +2137,15 @@ const Sims = {
       return false;
     }
 
-    // Gates BIG6/SMALL6/BIG7/SMALL7/SUPER7 — those all depend on the
-    // FINAL card count per side (BIG needs 3 cards, SMALL needs 2), which
-    // isn't settled until the draw phase is fully done. Computed live off
-    // the actual hand lengths + the same draw rules quizInitial()/
-    // quizBanker() use, instead of a manually-toggled flag, so it can't
-    // drift out of sync across the several draw entry/exit points.
+    // Gates PLAYER WIN/BANKER WIN/TIE and BIG6/SMALL6/BIG7/SMALL7/SUPER7
+    // — the actual winner (and obviously the card-count-dependent
+    // specials) can still change once a pending draw resolves, so none of
+    // these are a safe guess until the hand is genuinely done. Computed
+    // live off the actual hand lengths + the same draw rules
+    // quizInitial()/quizBanker() use, instead of a manually-toggled flag,
+    // so it can't drift out of sync across the several draw entry/exit
+    // points. NOT applied to CONFIRM (checkResult()) — that already has
+    // its own separate "tried to skip the draw quiz" mistake path.
     function handFullyDrawn() {
       const bp = pts(S.bh);
       if (S.bh.length === 3) return true; // banker drew — nothing left to draw, ever
@@ -2802,6 +2805,7 @@ const Sims = {
       // that submits (see checkResult() below).
       toggleWinnerPick(label, source) {
         if (!S.pairDone) { showPairRequiredToast(); return; }
+        if (!handFullyDrawn()) { showCardsNotRevealedToast(); return; }
         S.resultPicks.winner = S.resultPicks.winner === label ? null : label;
         refreshResultBtns(source);
       },
