@@ -2257,13 +2257,17 @@ const Sims = {
     // border/glow rendering was unreliable). Driven entirely by the
     // WINNER pick (S.resultPicks.winner); a special picked with no
     // winner yet dims nothing, since there's no group to judge it
-    // against. The exact keep/dim membership per winner (below) is an
-    // explicit UI spec from the user, not derived from the actual
-    // scoring rule in checkResult() — don't "fix" it to match game
-    // logic without being asked; it's a deliberate design choice.
+    // against. This is a "what's still a valid next pick" guide, not a
+    // "here's what you clicked" indicator — so the keep-bright set per
+    // winner is each side's OWN specials (the only ones that can
+    // actually be correct alongside that winner in checkResult()'s
+    // scoring: e.g. PLAYER WIN + player-big7/small7/super7 is a real
+    // combination, PLAYER WIN + banker-big6/small6 never is) — fixed
+    // 2026-08-20 after an earlier version had this backwards (dimmed
+    // the winner's own specials, kept the other side's specials bright).
     const DIM_ON_WINNER = {
-      'player-win': ['banker-win', 'tie', 'player-big7', 'super7', 'player-small7'],
-      'banker-win': ['player-win', 'tie', 'banker-big6', 'banker-small6'],
+      'player-win': ['banker-win', 'tie', 'banker-big6', 'banker-small6'],
+      'banker-win': ['player-win', 'tie', 'player-big7', 'super7', 'player-small7'],
       'tie':        ['player-win', 'banker-win', 'banker-big6', 'banker-small6', 'player-big7', 'super7', 'player-small7'],
     };
     // Each button is now its own standalone piece (no more paired
