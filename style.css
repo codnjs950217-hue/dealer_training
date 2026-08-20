@@ -1918,6 +1918,47 @@ body {
   cursor: pointer;
   transition: filter .15s;
 }
+/* The click still reaches the JS guard (see above — that's the point),
+   but the shared console-button :hover/:active rules elsewhere in this
+   file (brightness lift, translateY press, a brighter box-shadow) fired
+   on every tap regardless of .bac-pair-phase, so a rejected tap still
+   visibly "reacted" for a moment — read as a selection happening even
+   though nothing was actually picked. Reset filter/transform/box-
+   shadow/border back to exactly the plain dimmed look above on both
+   :hover and :active while pair-phase is active, per explicit request
+   ("그냥 흐린 상태 그대로") — these buttons should look completely inert
+   until PAIR is resolved, not just logically reject the click.
+   Specificity note: `.bac-pair-phase .bac-inline-btn:active` is
+   (0,3,0) — beats the plain `.btn-bac-player:active` etc. at (0,2,0)
+   regardless of source order, so no !important needed. box-shadow/
+   border values are copied from each family's own base rule (var(
+   --btn-hi)/var(--btn-glow) still resolve per-element, so one rule
+   covers every color family correctly); .bac-check-btn gets its own
+   copy since it doesn't share those custom properties. */
+.bac-pair-phase .bac-inline-btn:hover,
+.bac-pair-phase .bac-inline-btn:active,
+.bac-pair-phase .btn-bac-draw:hover,
+.bac-pair-phase .btn-bac-draw:active {
+  filter: brightness(.55) saturate(.75);
+  transform: none;
+  border-color: rgba(var(--btn-hi), .3);
+  box-shadow:
+    inset 0 1px 0 rgba(var(--btn-hi), .16),
+    inset 0 -2px 3px rgba(0,0,0,.28),
+    0 2px 3px rgba(0,0,0,.35),
+    0 2px 10px rgba(var(--btn-glow), .35);
+}
+.bac-pair-phase .bac-check-btn:hover,
+.bac-pair-phase .bac-check-btn:active {
+  filter: brightness(.55) saturate(.75);
+  transform: none;
+  border-color: #8FC0FF;
+  box-shadow:
+    inset 0 1px 0 rgba(234,243,255,.5),
+    inset 0 -2px 3px rgba(0,0,0,.25),
+    0 2px 4px rgba(0,0,0,.35),
+    0 2px 6px rgba(20,60,150,.4);
+}
 /* While a third-card draw animation is running (.bac-draw-phase,
    toggled by setDrawPhaseFocus() in JS, from quizInitial()/
    quizBanker() just before doPlayerDraw()/doBankerDraw()), dim EVERY
