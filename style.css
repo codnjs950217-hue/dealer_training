@@ -1849,26 +1849,30 @@ body {
   opacity: .5; cursor: default; pointer-events: none;
   animation: none;
 }
-/* Final Pair-judgment state (renderPairBtnsFinal() in main.js): the
-   button(s) the trainee actually picked stay at full brightness (not
-   the :disabled dim above). THICK BORDER, not depth/shadow — see
-   .bac-inline-btn.bac-result-picked below for the full design
-   history and current rationale (this mirrors it exactly; kept as a
-   separate rule only because :disabled needs to be in the selector). */
+/* Final Pair-judgment state (renderPairBtnsFinal() in main.js) — class
+   name kept from the old border-highlight design (see .bac-choice-dim's
+   own comment below for the full pivot history) but now means "this
+   disabled button should NOT dim", not "this was the literal pick": B
+   PAIR and P PAIR never dim each other (they're independent, both hands
+   can have a pair at once) — only NO PAIR dims once either is
+   confirmed, and B PAIR/P PAIR both dim only when NO PAIR itself was
+   the correct answer. See renderPairBtnsFinal()'s bankerBright/
+   playerBright/noPairBright computation in main.js. */
 .btn-bac-pair.bac-pair-selected:disabled {
   opacity: 1;
-  border: 3px solid #FFE9B0;
-  box-shadow: 0 1px 2px rgba(0,0,0,.25);
 }
 /* Subtle pulse + glow (each button's own --btn-hi/--btn-glow, so B PAIR/
    P PAIR now pulse gold/red instead of the old hardcoded blue — see the
    recolor rules above) while a Pair judgment is still pending on this
    button — draws the eye to the choice without a jarring blink. Stops the
-   instant the button is picked/locked (:disabled, see above) or the whole
+   instant the button is picked/locked (:disabled, see above), dimmed
+   (.bac-choice-dim — e.g. NO PAIR once a real pair is confirmed on the
+   other button, still pending judgment but already a known-wrong pick,
+   so drawing the eye to it would contradict the dim), or the whole
    quiz clears (the button itself is removed from the DOM). Paused on
    hover/press so the console-button lift/depress feedback below (which
    also animates box-shadow/transform) is actually visible in the moment. */
-.btn-bac-pair:not(:disabled) {
+.btn-bac-pair:not(:disabled):not(.bac-choice-dim) {
   animation: bacPairPulse 1.35s ease-in-out infinite;
 }
 .btn-bac-pair:hover:not(:disabled),
@@ -3932,46 +3936,38 @@ body {
     inset 0 -1px 0 rgba(234,243,255,.15),
     0 1px 2px rgba(0,0,0,.3);
 }
-/* Marks the currently-picked winner/special button(s) — PLAYER WIN/BANKER
-   WIN/BIG6/TIE/SMALL6/BIG7/SUPER7/SMALL7, i.e. every .bac-inline-btn — so
-   the trainee can see their selection before committing with RESULT. Not
-   a disabled/dim state — these stay fully clickable (toggle off by
-   clicking again).
-   THICK BORDER — eighth revision. History: (1) border/outline/glow-
-   only (thin); (2) pressed-DOWN with a heavy dark inset shadow +
-   darkened fill, rejected as too heavy/neon; (3) floated UP for pure
-   elevation, rejected as backwards for something just pressed; (4)
-   sunk back DOWN with a soft inset shadow + a brightness lift, read
-   correctly as "pressed" but reported as not reliably distinguishable
-   across phones; (5) SCALED up ~4.5% + lifted UP, dropping color as a
-   signal entirely; (6) added a ✓ badge on top of (5) — rejected on
-   sight, removed; (7) pressed-in again (nudge down + inset shadow, no
-   scale/badge/color-change) — a fresh direct request; (8) THIS
-   version — depth/shadow-based signals (both pressed-in and elevated)
-   were reported as still too subtle to read reliably on mobile.
-   Explicit pivot back to design (1)'s original idea (border emphasis)
-   but done properly this time:
-     - border THICKENS from the idle 1px to 3px (net +2px) — a
-       obviously different edge weight, not just a color/opacity tint
-     - border color is a fixed bright gold/ivory (#FFE9B0), NOT tied to
-       the button's own --btn-hi — a hardcoded universal color so it
-       never comes out looking pink/reddish on the banker-red or
-       player-red button families (explicitly called out as unwanted)
-       and reads identically on every button regardless of its own hue
-     - NO glow/neon: no wide blurred colored box-shadow ring
-     - shadow is minimized to a single faint ambient contact shadow,
-       not a design element
-     - NO scale, NO translateY, NO filter/brightness/darkening — the
-       button's own fill color and size are completely untouched;
-       thickness + color of the border alone carry the "selected"
-       signal now
-   If legibility is ever raised again, tune the border's thickness/
-   color brightness first — depth/shadow/elevation approaches (2)-(7)
-   were all tried and explicitly moved away from; don't reintroduce
-   them as the primary signal. */
-.bac-inline-btn.bac-result-picked {
-  border: 3px solid #FFE9B0;
-  box-shadow: 0 1px 2px rgba(0,0,0,.25);
+/* SELECTED-STATE DESIGN — ninth revision, a full pivot away from
+   "highlight the picked button" entirely. History (1)-(8): border/
+   outline/glow-only, pressed-DOWN, floated UP, sunk-DOWN+brightness,
+   SCALED+lifted, a ✓ badge, pressed-in again, then a thick 3px gold/
+   ivory (#FFE9B0) border — every one of those marked the PICKED
+   button. All eight were reported as inconsistent across iPhone/
+   Android rendering: the highlight itself (border/glow/depth) didn't
+   reliably read as "selected" on every device.
+   (9) THIS version, per explicit request, flips the whole approach:
+   the picked button gets NO special treatment at all — it stays
+   pixel-identical to its own normal/idle look (whatever
+   .btn-bac-player/.btn-bac-banker/etc. already render). Selection
+   reads instead via .bac-choice-dim on the OTHER, now-invalid buttons
+   in the same decision group (see winBtns()'s DIM_ON_WINNER table in
+   main.js) — opacity+filter:brightness only, so it's the same effect
+   on every device/browser regardless of border-rendering quirks.
+   .bac-result-picked itself is gone from this button group now
+   (main.js's winBtns() emits .bac-choice-dim instead — see its own
+   rule below) but the class still exists for the unrelated SUPER 7
+   payout-ratio popup (.super7-payout-btn.bac-result-picked, a small
+   30:1/40:1/100:1 picker, out of scope for this request — left as-is).
+   S.resultPicks itself and the WIN/TIE/BIG/SMALL toggle logic are
+   untouched; only how "selected" is painted changed. Don't reintroduce
+   a border/glow/
+   scale/depth treatment on the picked button itself without a new
+   explicit request — the whole point of this pivot was device-
+   rendering reliability, and marking the picked button (rather than
+   dimming its siblings) is exactly what kept failing that bar. */
+.bac-choice-dim {
+  opacity: .35;
+  filter: brightness(.55);
+  transition: opacity .15s ease, filter .15s ease;
 }
 
 /* ============================================================

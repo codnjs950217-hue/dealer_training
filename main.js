@@ -2251,8 +2251,21 @@ const Sims = {
 
     // Winner/special buttons no longer judge on click — they just toggle
     // a pick (S.resultPicks) on and off; CHECK is what actually submits.
-    // .bac-result-picked marks the currently-picked button(s) so the
-    // trainee can see their selection before committing.
+    // Selection reads via dimming the OTHER, now-irrelevant buttons
+    // (.bac-choice-dim) instead of highlighting the picked one — see
+    // .bac-choice-dim's own comment in style.css for why (cross-device
+    // border/glow rendering was unreliable). Driven entirely by the
+    // WINNER pick (S.resultPicks.winner); a special picked with no
+    // winner yet dims nothing, since there's no group to judge it
+    // against. The exact keep/dim membership per winner (below) is an
+    // explicit UI spec from the user, not derived from the actual
+    // scoring rule in checkResult() — don't "fix" it to match game
+    // logic without being asked; it's a deliberate design choice.
+    const DIM_ON_WINNER = {
+      'player-win': ['banker-win', 'tie', 'player-big7', 'super7', 'player-small7'],
+      'banker-win': ['player-win', 'tie', 'banker-big6', 'banker-small6'],
+      'tie':        ['player-win', 'banker-win', 'banker-big6', 'banker-small6', 'player-big7', 'super7', 'player-small7'],
+    };
     // Each button is now its own standalone piece (no more paired
     // sub-rows) since the experimental layout scatters BIG6/SMALL6/BIG7/
     // SMALL7 into their own grid cells instead of stacking them under
@@ -2275,8 +2288,7 @@ const Sims = {
       `<span class="bac-pair-line">${letter}</span><span class="bac-pair-line">PAIR</span>`;
     function winBtns(source) {
       const wp = S.resultPicks.winner, sp = S.resultPicks.special;
-      const w = (label) => label === wp ? ' bac-result-picked' : '';
-      const s = (label) => label === sp ? ' bac-result-picked' : '';
+      const dim = (label) => wp && DIM_ON_WINNER[wp] && DIM_ON_WINNER[wp].includes(label) ? ' bac-choice-dim' : '';
       // SUPER 7 is one result, not a BIG/SMALL choice — clicking it opens
       // the payout popup (pickSuper7()) instead of toggling directly; the
       // chosen ratio (S.resultPicks.superPayout) shows as a third, smallest
@@ -2288,14 +2300,14 @@ const Sims = {
       // a long oval (the biggest shape on the felt); TIE/BIG/SMALL/SUPER7
       // all render as equal-size circles, matching a real table's layout.
       return {
-        bankerWin:    `<button class="btn-bac-banker bac-inline-btn bac-win-oval${w('banker-win')}" onclick="Sims.baccarat.toggleWinnerPick('banker-win','${source}')">BANKER WIN</button>`,
-        bankerBig6:   `<button class="btn-bac-banker bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('banker-big6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-big6','${source}')">${circleInner('6','BIG')}</button>`,
-        bankerSmall6: `<button class="btn-bac-banker bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('banker-small6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-small6','${source}')">${circleInner('6','SMALL')}</button>`,
-        tie:          `<button class="btn-bac-tie bac-inline-btn bac-felt-circle bac-circle-btn${w('tie')}" onclick="Sims.baccarat.toggleWinnerPick('tie','${source}')"><span class="bac-circle-num">TIE</span></button>`,
-        super7:       `<button class="btn-bac-super7 bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('super7')}" onclick="Sims.baccarat.pickSuper7('${source}')">${circleInner('7','SUPER')}${super7Sub}</button>`,
-        playerWin:    `<button class="btn-bac-player bac-inline-btn bac-win-oval${w('player-win')}" onclick="Sims.baccarat.toggleWinnerPick('player-win','${source}')">PLAYER WIN</button>`,
-        playerBig7:   `<button class="btn-bac-player bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('player-big7')}" onclick="Sims.baccarat.toggleSpecialPick('player-big7','${source}')">${circleInner('7','BIG')}</button>`,
-        playerSmall7: `<button class="btn-bac-player bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${s('player-small7')}" onclick="Sims.baccarat.toggleSpecialPick('player-small7','${source}')">${circleInner('7','SMALL')}</button>`,
+        bankerWin:    `<button class="btn-bac-banker bac-inline-btn bac-win-oval${dim('banker-win')}" onclick="Sims.baccarat.toggleWinnerPick('banker-win','${source}')">BANKER WIN</button>`,
+        bankerBig6:   `<button class="btn-bac-banker bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('banker-big6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-big6','${source}')">${circleInner('6','BIG')}</button>`,
+        bankerSmall6: `<button class="btn-bac-banker bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('banker-small6')}" onclick="Sims.baccarat.toggleSpecialPick('banker-small6','${source}')">${circleInner('6','SMALL')}</button>`,
+        tie:          `<button class="btn-bac-tie bac-inline-btn bac-felt-circle bac-circle-btn${dim('tie')}" onclick="Sims.baccarat.toggleWinnerPick('tie','${source}')"><span class="bac-circle-num">TIE</span></button>`,
+        super7:       `<button class="btn-bac-super7 bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('super7')}" onclick="Sims.baccarat.pickSuper7('${source}')">${circleInner('7','SUPER')}${super7Sub}</button>`,
+        playerWin:    `<button class="btn-bac-player bac-inline-btn bac-win-oval${dim('player-win')}" onclick="Sims.baccarat.toggleWinnerPick('player-win','${source}')">PLAYER WIN</button>`,
+        playerBig7:   `<button class="btn-bac-player bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('player-big7')}" onclick="Sims.baccarat.toggleSpecialPick('player-big7','${source}')">${circleInner('7','BIG')}</button>`,
+        playerSmall7: `<button class="btn-bac-player bac-inline-btn btn-bac-special bac-felt-circle bac-circle-btn${dim('player-small7')}" onclick="Sims.baccarat.toggleSpecialPick('player-small7','${source}')">${circleInner('7','SMALL')}</button>`,
       };
     }
 
@@ -2361,12 +2373,19 @@ const Sims = {
     function renderPairBtns() {
       const bLocked = S.pairPicked.banker;
       const pLocked = S.pairPicked.player;
+      // Once either side's pair is confirmed, NO PAIR is provably wrong
+      // — dim it (.bac-choice-dim) to signal that without disabling it
+      // (still clickable, still a real — if now-obvious — mistake if
+      // tapped, same as before). B PAIR/P PAIR never dim each other:
+      // they're independent (a hand can have either, neither, or both),
+      // so confirming one says nothing about the other.
+      const noPairDim = (bLocked || pLocked) ? ' bac-choice-dim' : '';
       // .bac-pair-circle: the round corner-mark shape on a real table.
       // NO PAIR now shares the exact same shape/size (positioned via
       // .bac-exp-nopair-mid, not a real table position but still styled
       // to read as part of the same Pair-judgment group).
       setBtn('bac-pair-b', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle"${bLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('banker-pair')">${pairInner('B')}</button>`);
-      setBtn('bac-pair-mid', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle" onclick="Sims.baccarat.quizPair('no-pair')">NO PAIR</button>`);
+      setBtn('bac-pair-mid', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle${noPairDim}" onclick="Sims.baccarat.quizPair('no-pair')">NO PAIR</button>`);
       setBtn('bac-pair-p', `<button class="btn-bac-pair bac-felt-circle bac-pair-circle"${pLocked ? ' disabled' : ''} onclick="Sims.baccarat.quizPair('player-pair')">${pairInner('P')}</button>`);
     }
 
@@ -2374,16 +2393,20 @@ const Sims = {
     // visible (not cleared) so the trainee can see what they picked while
     // the hand plays out — the button(s) actually picked stay at full
     // brightness (.bac-pair-selected overrides the shared :disabled dim),
-    // the rest fall back to the normal disabled look (~50% opacity, no
-    // hover/click). Once the hand ends, showNextBtn() replaces this row
+    // the rest dim via the same B/P-vs-NO-PAIR exclusivity as
+    // renderPairBtns() above: NO PAIR dims whenever either real pair was
+    // confirmed (p.banker || p.player); B PAIR/P PAIR both dim only when
+    // NO PAIR itself was the correct answer (p.none) — they never dim
+    // each other. Once the hand ends, showNextBtn() replaces this row
     // with the NEXT HAND button; deal() clears it for the new hand.
     function renderPairBtnsFinal() {
       const p = S.pairPicked;
-      const btn = (label, selected, extraCls) =>
-        `<button class="btn-bac-pair${selected ? ' bac-pair-selected' : ''}${extraCls ? ' ' + extraCls : ''}" disabled>${label}</button>`;
-      setBtn('bac-pair-b', btn(pairInner('B'), p.banker, 'bac-felt-circle bac-pair-circle'));
-      setBtn('bac-pair-mid', btn('NO PAIR', p.none, 'bac-felt-circle bac-pair-circle'));
-      setBtn('bac-pair-p', btn(pairInner('P'), p.player, 'bac-felt-circle bac-pair-circle'));
+      const bankerBright = !p.none, playerBright = !p.none, noPairBright = p.none;
+      const btn = (label, bright, extraCls) =>
+        `<button class="btn-bac-pair${bright ? ' bac-pair-selected' : ''}${extraCls ? ' ' + extraCls : ''}" disabled>${label}</button>`;
+      setBtn('bac-pair-b', btn(pairInner('B'), bankerBright, 'bac-felt-circle bac-pair-circle'));
+      setBtn('bac-pair-mid', btn('NO PAIR', noPairBright, 'bac-felt-circle bac-pair-circle'));
+      setBtn('bac-pair-p', btn(pairInner('P'), playerBright, 'bac-felt-circle bac-pair-circle'));
     }
 
     function showPairQuiz() {
