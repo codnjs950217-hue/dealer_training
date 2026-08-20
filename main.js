@@ -2273,6 +2273,18 @@ const Sims = {
       'banker-win': ['player-win', 'tie', 'player-big7', 'super7', 'player-small7'],
       'tie':        ['player-win', 'banker-win', 'banker-big6', 'banker-small6', 'player-big7', 'super7', 'player-small7'],
     };
+    // Same "what's still a valid next pick" guide as DIM_ON_WINNER, one
+    // level deeper: once a SPECIAL is picked, its sibling specials within
+    // the same winner's group (the ones checkResult() would now consider
+    // impossible alongside this specific special) dim too — e.g. PLAYER
+    // WIN + BIG 7 dims SUPER 7 and SMALL 7, not just the banker side.
+    const DIM_ON_SPECIAL = {
+      'player-big7':   ['super7', 'player-small7'],
+      'super7':        ['player-big7', 'player-small7'],
+      'player-small7': ['player-big7', 'super7'],
+      'banker-big6':   ['banker-small6'],
+      'banker-small6': ['banker-big6'],
+    };
     // Each button is now its own standalone piece (no more paired
     // sub-rows) since the experimental layout scatters BIG6/SMALL6/BIG7/
     // SMALL7 into their own grid cells instead of stacking them under
@@ -2295,7 +2307,11 @@ const Sims = {
       `<span class="bac-pair-line">${letter}</span><span class="bac-pair-line">PAIR</span>`;
     function winBtns(source) {
       const wp = S.resultPicks.winner, sp = S.resultPicks.special;
-      const dim = (label) => wp && DIM_ON_WINNER[wp] && DIM_ON_WINNER[wp].includes(label) ? ' bac-choice-dim' : '';
+      const dim = (label) => {
+        if (wp && DIM_ON_WINNER[wp] && DIM_ON_WINNER[wp].includes(label)) return ' bac-choice-dim';
+        if (sp && DIM_ON_SPECIAL[sp] && DIM_ON_SPECIAL[sp].includes(label)) return ' bac-choice-dim';
+        return '';
+      };
       // Subtle permanent "pressed-in" look on the literal pick (not the
       // whole bright/undimmed group — e.g. PLAYER WIN picked keeps 7 BIG/
       // SUPER7/7 SMALL bright too, but only PLAYER WIN itself was
