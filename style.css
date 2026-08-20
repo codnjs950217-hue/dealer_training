@@ -2167,12 +2167,22 @@ body {
 }
 .bac-exp-confirm-attach {
   position: absolute; left: 100%; top: 0; height: 100%;
-  margin-left: clamp(.3rem,.8vw,.6rem);
+  /* Pushed close to .baccarat-table's own right edge (not just past
+     SMALL6/SMALL7's own edge) per explicit request — .bac-exp-63-wrap
+     itself is only as wide as --bac-win-w and centered in the table, so
+     there's real empty margin between its right edge and the table's;
+     this margin-left eats most of that margin, leaving roughly a
+     20-50px gap to the table edge (grows slightly on wider viewports
+     since the table's own max-width:1200px cap makes that margin grow
+     faster than a flat vw factor tracks) — verified via real
+     getBoundingClientRect measurements at all 4 spec'd viewports
+     (iPhone 13 mini/14/15, Galaxy S23/24, desktop), not just eyeballed. */
+  margin-left: clamp(110px,15vw,230px);
   /* Matches BANKER/PLAYER DRAW's own width range (.btn-bac-draw, sized
      off --card-h-lg ~80-140px) per spec — 78px floor (not exactly 80px)
      leaves a hair of extra room before .baccarat-table's own right edge
      on the narrowest tested viewport (iPhone 13 mini landscape,
-     812×375), where there's still 125px+ of margin to spare. */
+     812×375), where there's still 20px+ of margin to spare. */
   width: clamp(78px,9.5vw,130px);
   display: flex;
 }
