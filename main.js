@@ -2470,15 +2470,21 @@ const Sims = {
     // visible (not cleared) so the trainee can see what they picked while
     // the hand plays out — the button(s) actually picked stay at full
     // brightness (.bac-pair-selected overrides the shared :disabled dim),
-    // the rest dim via the same B/P-vs-NO-PAIR exclusivity as
-    // renderPairBtns() above: NO PAIR dims whenever either real pair was
-    // confirmed (p.banker || p.player); B PAIR/P PAIR both dim only when
-    // NO PAIR itself was the correct answer (p.none) — they never dim
-    // each other. Once the hand ends, showNextBtn() replaces this row
+    // the rest dim based on which side(s) actually had a real pair: NO
+    // PAIR dims whenever either real pair was confirmed (p.banker ||
+    // p.player); B PAIR dims unless banker's pair was the (or a) real
+    // one, P PAIR dims unless player's was — independent of each other,
+    // since a hand can have either, neither, or both. p.banker/p.player
+    // only ever get set true on an actually-correct pick (quizPair()'s
+    // `done` gate guarantees that by the time this final render runs,
+    // p.banker === bPair and p.player === pPair), so they're already a
+    // reliable stand-in for ground truth here — using `!p.none` for both
+    // instead (as this used to) wrongly kept BOTH bright whenever either
+    // one was real. Once the hand ends, showNextBtn() replaces this row
     // with the NEXT HAND button; deal() clears it for the new hand.
     function renderPairBtnsFinal() {
       const p = S.pairPicked;
-      const bankerBright = !p.none, playerBright = !p.none, noPairBright = p.none;
+      const bankerBright = p.banker, playerBright = p.player, noPairBright = p.none;
       const btn = (label, bright, extraCls) =>
         `<button class="btn-bac-pair${bright ? ' bac-pair-selected' : ''}${extraCls ? ' ' + extraCls : ''}" disabled>${label}</button>`;
       setBtn('bac-pair-b', btn(pairInner('B'), bankerBright, 'bac-felt-circle bac-pair-circle'));
