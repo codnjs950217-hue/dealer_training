@@ -2491,6 +2491,27 @@ const Sims = {
       renderPairBtns();
     }
 
+    // A genuinely wrong PAIR guess (the trainee DID attempt the judgment,
+    // just picked the wrong side) — distinct from showPairRequiredToast(),
+    // which is for tapping WIN/TIE/BIG/SMALL/SUPER7/DRAW/CONFIRM before
+    // PAIR has been judged at all; reusing that toast's "먼저 PAIR 판정을
+    // 진행하세요" text here read as broken/confusing for an actual wrong
+    // answer. Mirrors showMistake()'s overlay/counter but only clears the
+    // pair row (clearPairBtns()), never the win-quiz slots, then re-renders
+    // the pending PAIR row via retryFn so the trainee can try again.
+    function showPairMistake(retryFn) {
+      S.mistakes++;
+      const mEl = $('bac-mistakes'); if (mEl) mEl.textContent = S.mistakes;
+      clearPairBtns();
+      const tbl = document.querySelector('.baccarat-table');
+      if (!tbl) return;
+      const ov = document.createElement('div');
+      ov.className = 'mistake-overlay';
+      ov.innerHTML = `<div class="mistake-text">MISTAKE!</div>`;
+      tbl.appendChild(ov);
+      setTimeout(() => { ov.remove(); retryFn(); }, 1600);
+    }
+
     function showInitialQuiz() {
       paintResultGrid('initial');
       setBtn('bac-result', checkBtnHtml('initial'));
@@ -2685,7 +2706,7 @@ const Sims = {
         const bPair = S.bh[0].rank === S.bh[1].rank;
         const pPair = S.ph[0].rank === S.ph[1].rank;
         if (side === 'no-pair') {
-          if (bPair || pPair) { showPairRequiredToast(); return; }
+          if (bPair || pPair) { showPairMistake(renderPairBtns); return; }
           S.pairDone = true;
           S.pairPicked.none = true;
           renderPairBtnsFinal();
@@ -2693,10 +2714,10 @@ const Sims = {
           return;
         }
         if (side === 'banker-pair') {
-          if (!bPair) { showPairRequiredToast(); return; }
+          if (!bPair) { showPairMistake(renderPairBtns); return; }
           S.pairPicked.banker = true;
         } else if (side === 'player-pair') {
-          if (!pPair) { showPairRequiredToast(); return; }
+          if (!pPair) { showPairMistake(renderPairBtns); return; }
           S.pairPicked.player = true;
         }
         const done = (!bPair || S.pairPicked.banker) && (!pPair || S.pairPicked.player);
