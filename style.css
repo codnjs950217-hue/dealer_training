@@ -644,6 +644,28 @@ body {
 .card-pips .pip[data-col="L"]  { left: 38%; }
 .card-pips .pip[data-col="C"]  { left: 50%; }
 .card-pips .pip[data-col="R"]  { left: 62%; }
+/* Rank 10 only: its corner index is "10" (2 digits) — wider than every
+   other numeral's single-digit corner at the same font-size, since only
+   width grows with digit count (height is identical, same font-size/
+   line-height:1 stack regardless of rank). The shared L/R columns above
+   were sized around a 1-digit corner, so on "10" specifically the wider
+   corner text can reach into where the L/R pips (row 1/1b/2 near the
+   top-left corner, row 4/4b/5 mirrored near the bottom-right one — see
+   PIP_LAYOUTS in main.js, cardHTML() stamps data-rank="10" on
+   .card-pips for exactly this selector) already sit. Nudged 3% further
+   toward center than every other rank's L/R (38/62% -> 41/59%) — enough
+   to gain real clearance from the wider corner without pushing L/R so
+   far in that they start crowding row 4/4b's own center-column pip
+   instead (a real trade-off: less inward shift = safer against the
+   corner but not by much; more inward shift = safer against the corner
+   but tighter against the C column — 3% was chosen as a middle point,
+   not derived from an exact measurement, since this sandbox cannot
+   render real glyphs to measure against — see
+   [[reference_sandbox_no_fonts]]). Rows are untouched for rank 10 —
+   the corner is not taller, so no vertical adjustment is needed here,
+   only horizontal. */
+.card-pips[data-rank="10"] .pip[data-col="L"] { left: 41%; }
+.card-pips[data-rank="10"] .pip[data-col="R"] { left: 59%; }
 
 /* Red suits (hearts/diamonds) override the black default above on every
    suit-colored part of the face. Must come after the black-default rules —
