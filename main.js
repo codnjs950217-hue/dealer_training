@@ -602,11 +602,8 @@ const Views = {
         <div class="bac-field">
           <div class="bac-shoe-col">
             <div class="shoe-visual">
-              <div class="shoe-top">
-                <div class="shoe-stack"></div>
-              </div>
-              <div class="shoe-card"></div>
               <div class="shoe-label-text">SHOE</div>
+              <div class="shoe-card-slot"></div>
             </div>
           </div>
           <div class="bac-banker-zone">
