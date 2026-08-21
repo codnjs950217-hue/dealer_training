@@ -2241,16 +2241,69 @@ body {
      margin, leaving roughly a 20-50px gap to the table edge (grows
      slightly on wider viewports since the table's own max-width:1200px
      cap makes that margin grow faster than a flat vw factor tracks) —
-     verified via real getBoundingClientRect measurements at all 4
-     spec'd viewports (iPhone 13 mini/14/15, Galaxy S23/24, desktop),
-     not just eyeballed. */
-  margin-left: clamp(110px,15vw,230px);
+     verified via real getBoundingClientRect measurements at 4 viewports
+     (iPhone 13 mini/14/15, Galaxy S23/24, desktop) in LANDSCAPE.
+     THAT set never included an iPhone SE-class width (~667px land-
+     scape) — narrower than iPhone 13 mini's 812px — where this
+     clamp()'s 110px floor (kicks in below ~733vw) plus --bac-win-w's
+     own 340px floor (kicks in below ~739vw) leave less real margin
+     than 110px+this box's own width needs, pushing CONFIRM's right
+     edge past .baccarat-table's (and, since html/body/.sim-page are
+     all overflow-hidden — see style.css:149,753 — past the viewport's)
+     visible edge with no scroll escape hatch, i.e. it gets silently
+     clipped rather than cramped. Fixed by capping this clamp() with
+     min() against a real remaining-space estimate instead of raising
+     its floor (which would just move the same bug to an even narrower
+     device). --bac-confirm-safe-margin below computes that estimate;
+     it only ever pulls the value DOWN from the original clamp(), so
+     anything wide enough to fit the original number (everything tested
+     above, and desktop) renders byte-identical to before — verify with
+     the same 4-viewport getBoundingClientRect check plus a 667px-wide
+     landscape run before changing either clamp(). */
+  /* Conservative (deliberately over-, not under-, estimated) combined
+     horizontal chrome eaten between the viewport edge and
+     .bac-exp-grid's own content box: .sim-page's padding (max .6rem
+     each side), .baccarat-table's padding (max 1.2rem each side) +
+     its 3px border, and .bac-exp-grid's own padding (max 1rem each
+     side) — summed at each rule's own clamp() MAX (not its typical
+     narrow-viewport value) so this stays safe even if any of those
+     paddings drift upward later. Duplicating their exact clamp()
+     formulas here instead would be more precise but silently goes
+     stale the moment any of those three rules' padding changes; this
+     flat, generous constant is the deliberately-safer trade-off. If
+     CONFIRM ever reads as sitting further left than it needs to on some
+     real device, tighten this constant — don't just delete it. */
+  --bac-confirm-chrome: 6rem;
+  /* Total room between pairwrap's centered column and .baccarat-
+     table's right edge (split in half — pairwrap is centered, so half
+     the remainder sits on each side). Both width and margin-left below
+     are capped against this SAME number so their combined footprint
+     can never exceed it, regardless of how narrow the viewport gets. */
+  --bac-confirm-avail: calc((100vw - var(--bac-confirm-chrome) - var(--bac-win-w)) / 2);
+  /* Width capped by min() against available space minus a flat 0.8rem
+     (reserves room for margin-left's own 0.4rem floor below + a 0.4rem
+     breathing gap to the table edge) — only engages on viewports
+     narrower than any real target device (everything from iPhone
+     SE-class landscape up stays at the original clamp(78px,9.5vw,
+     130px)); it exists purely so the "never clip" guarantee holds even
+     on a hypothetically narrower screen, not because any tested device
+     needs it. */
+  --bac-confirm-w: min(clamp(78px,9.5vw,130px), calc(var(--bac-confirm-avail) - 0.8rem));
   /* Matches BANKER/PLAYER DRAW's own width range (.btn-bac-draw, sized
      off --card-h-lg ~80-140px) per spec — 78px floor (not exactly 80px)
      leaves a hair of extra room before .baccarat-table's own right edge
      on the narrowest tested viewport (iPhone 13 mini landscape,
-     812×375), where there's still 20px+ of margin to spare. */
-  width: clamp(78px,9.5vw,130px);
+     812×375), where there's still 20px+ of margin to spare. Button's
+     own design/onclick untouched — only its size can shrink, and only
+     on viewports narrow enough to need it. */
+  width: var(--bac-confirm-w);
+  /* max(0.4rem, …) is the last-resort floor for extremely narrow
+     widths — CONFIRM still sits right next to the row pair with
+     minimal gap rather than disappearing, since moving it elsewhere
+     was explicitly ruled out. Subtracts the ACTUAL (already safe-
+     capped) --bac-confirm-w above, not the raw clamp(), so this always
+     accounts for the real rendered width. */
+  margin-left: min(clamp(110px,15vw,230px), max(0.4rem, calc(var(--bac-confirm-avail) - var(--bac-confirm-w) - 0.4rem)));
   display: flex;
 }
 .bac-exp-confirm-attach #bac-result {
