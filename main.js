@@ -25,12 +25,43 @@ function shuffle(a) {
   return a;
 }
 
+// Pip layout for the numeral cards (2-10) — A/J/Q/K keep the single big
+// center suit (.card-suit-center) unchanged. Each entry is [row, col]:
+// row/col are just key names ('1'..'5'/'1b'/'4b', 'L'/'C'/'R') rendered as
+// data-row/data-col attributes — the actual top%/left% positions for each
+// key live in style.css (.card-pips .pip[data-row=...]/[data-col=...]),
+// so position tuning never needs a main.js change. Rows below the midline
+// ('4','4b','5') get pipRotated()'s 180deg flip, matching a real deck.
+// '1b'/'4b' are the extra half-step rows the 10 needs for its top-/
+// bottom-center pips so they don't sit in the same row as the column pips
+// (which occupy row 2/row 4 for ranks 9-10).
+const PIP_LAYOUTS = {
+  '2':  [['1','C'],['5','C']],
+  '3':  [['1','C'],['3','C'],['5','C']],
+  '4':  [['1','L'],['1','R'],['5','L'],['5','R']],
+  '5':  [['1','L'],['1','R'],['3','C'],['5','L'],['5','R']],
+  '6':  [['1','L'],['1','R'],['3','L'],['3','R'],['5','L'],['5','R']],
+  '7':  [['1','L'],['1','R'],['2','C'],['3','L'],['3','R'],['5','L'],['5','R']],
+  '8':  [['1','L'],['1','R'],['2','C'],['3','L'],['3','R'],['4','C'],['5','L'],['5','R']],
+  '9':  [['1','L'],['1','R'],['2','L'],['2','R'],['3','C'],['4','L'],['4','R'],['5','L'],['5','R']],
+  '10': [['1','L'],['1','R'],['1b','C'],['2','L'],['2','R'],['4','L'],['4','R'],['4b','C'],['5','L'],['5','R']],
+};
+function pipRotated(row) { return row === '4' || row === '4b' || row === '5'; }
+function pipsHTML(rank, suit) {
+  return PIP_LAYOUTS[rank].map(([row, col]) =>
+    `<span class="pip${pipRotated(row) ? ' pip-rot' : ''}" data-row="${row}" data-col="${col}">${suit}</span>`
+  ).join('');
+}
+
 function cardHTML(c, faceDown = false) {
   if (faceDown) return `<div class="card back notranslate" translate="no"><div class="card-pattern"></div></div>`;
+  const center = PIP_LAYOUTS[c.rank]
+    ? `<div class="card-pips">${pipsHTML(c.rank, c.suit)}</div>`
+    : `<div class="card-suit-center">${c.suit}</div>`;
   return `
     <div class="card notranslate${c.red ? ' red' : ''}" translate="no">
       <div class="card-corner top"><span class="rank">${c.rank}</span><span class="suit">${c.suit}</span></div>
-      <div class="card-suit-center">${c.suit}</div>
+      ${center}
       <div class="card-corner bottom"><span class="rank">${c.rank}</span><span class="suit">${c.suit}</span></div>
     </div>`;
 }
