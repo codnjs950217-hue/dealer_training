@@ -55,11 +55,14 @@ function pipsHTML(rank, suit) {
 
 function cardHTML(c, faceDown = false) {
   if (faceDown) return `<div class="card back notranslate" translate="no"><div class="card-pattern"></div></div>`;
-  // data-rank on the wrapper (not just the individual pips) is only ever
-  // read by CSS for rank "10" — its 2-digit corner index is wider than
-  // every other numeral's, so .card-pips[data-rank="10"] .pip[data-col]
-  // in style.css nudges just the L/R columns further from the corners.
-  // Doesn't change which cells PIP_LAYOUTS picks or how many pips render.
+  // data-rank on the wrapper is only ever read by CSS, for rank "10" —
+  // its 2-digit corner index is wider than every other numeral's single
+  // digit, so style.css's .card-pips[data-rank="10"] bumps
+  // --corner-digits to 2, which feeds directly into the size-driven
+  // --pip-safe-left formula (see that rule's own comment) so 10's L/R
+  // columns automatically sit further from the corners than every other
+  // rank's. Doesn't change which cells PIP_LAYOUTS picks or how many
+  // pips render.
   const center = PIP_LAYOUTS[c.rank]
     ? `<div class="card-pips" data-rank="${c.rank}">${pipsHTML(c.rank, c.suit)}</div>`
     : `<div class="card-suit-center">${c.suit}</div>`;

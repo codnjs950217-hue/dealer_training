@@ -547,8 +547,17 @@ body {
    rank/suit "shaking" up/down while the card opens. Giving each one its own
    pre-rasterized layer means only the layer's bitmap gets transformed by the
    GPU during the flip — the text inside never gets re-rasterized mid-animation. */
-.card-corner.top    { top: 5px; left: 6px; transform: translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.card-corner.bottom { bottom: 5px; right: 6px; transform: rotate(180deg) translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+/* --corner-offset-y/-x, --corner-rank-fs/--corner-suit-fs (below) are the
+   single source of truth for this corner's real footprint — a context
+   that needs a different offset or font size (thp-rank-sim,
+   thpc-best-cards, baccarat-sim, etc.) sets THESE custom properties
+   instead of overriding top/left/font-size directly, so .card-pips'
+   auto-sizing formula (see its own comment further down) can read the
+   exact same numbers actually driving this corner's rendered size —
+   there's no second, separately-hand-tuned copy of "how big is the
+   corner" to keep in sync. */
+.card-corner.top    { top: var(--corner-offset-y, 5px); left: var(--corner-offset-x, 6px); transform: translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.card-corner.bottom { bottom: var(--corner-offset-y, 5px); right: var(--corner-offset-x, 6px); transform: rotate(180deg) translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 /* Every element inside .card is explicitly position:absolute and pinned to
    a fixed spot — top-left corner (top/left), bottom-right corner
    (bottom/right + the static rotate(180deg) above), center suit
@@ -570,8 +579,8 @@ body {
    black-suited cards' small corner suit looked grey/washed-out on some
    mobile viewports. Giving it the same explicit #111 as .rank fixes that
    regardless of context. */
-.card-corner .rank  { font-size: clamp(.7rem, 2vh, 1.05rem); font-weight: 700; color: #111; }
-.card-corner .suit  { font-size: clamp(.55rem, 1.6vh, .82rem); color: #111; }
+.card-corner .rank  { font-size: var(--corner-rank-fs, clamp(.7rem, 2vh, 1.05rem)); font-weight: 700; color: #111; }
+.card-corner .suit  { font-size: var(--corner-suit-fs, clamp(.55rem, 1.6vh, .82rem)); color: #111; }
 .card-suit-center   {
   position: absolute;
   top: 50%; left: 50%;
@@ -581,24 +590,68 @@ body {
   color: #111;
 }
 
-/* ---- CARD PIPS (numeral cards 2-10) ----
+/* ---- CARD PIPS (numeral cards 2-10) — SIZE-DRIVEN AUTO LAYOUT ----
    cardHTML() renders a .card-pips container (in place of the single
    .card-suit-center) for any numeral rank, with one .pip span per row/col
-   cell from PIP_LAYOUTS (main.js). Row/col percentages here are the single
-   source of truth for placement — main.js only picks WHICH row/col keys a
-   given rank uses, never a raw position. data-row="1"/"1b"/"2"/"3"/"4"/
-   "4b"/"5" run top-to-bottom; "1b"/"4b" are 10's extra half-step rows so
-   its top-/bottom-center pips don't land in the same row as 9/10's own
-   left/right column pips (which already occupy row 2 / row 4). Same
+   cell from PIP_LAYOUTS (main.js). data-row="1"/"1b"/"2"/"3"/"4"/"4b"/"5"
+   run top-to-bottom; "1b"/"4b" are 10's extra half-step rows so its top-/
+   bottom-center pips don't land in the same row as 9/10's own left/right
+   column pips (which already occupy row 2 / row 4). main.js only ever
+   picks WHICH row/col keys a rank uses (never a raw position) and stamps
+   data-rank="${rank}" so the formula below can tell a 2-digit corner
+   ("10") from a 1-digit one — it does not encode any layout math itself.
+
+   HOW THE SAFE ZONE IS COMPUTED (not hand-picked per page/rank):
+   --corner-offset-y/-x and --corner-rank-fs/--corner-suit-fs (set once
+   per card context — see .card-corner.top/.bottom and .card-corner
+   .rank/.suit above, which now READ these same variables, so there is
+   exactly one number for "how big is this context's corner" instead of
+   a second hand-tuned copy) drive --pip-safe-top/--pip-safe-left below:
+   the corner's own offset + an estimated ink height/width (rank+suit
+   font-sizes scaled by --pip-corner-k, a digit's visible height/width is
+   less than its full font-size box) + a small breathing gap
+   (--pip-gap). Every row/col position is then interpolated between that
+   safe boundary and its mirror on the opposite edge — so a page that
+   defines a bigger card (more vh) or a bigger corner automatically gets
+   a bigger, further-out pip band, and a smaller one automatically gets
+   a smaller, more central pip band, with NO page-specific
+   .card-pips override anywhere anymore. The outer clamp()s on
+   --pip-safe-top/-left are a safety rail, not a tuning knob — they stop
+   the formula from ever collapsing the band to zero/negative on an
+   extreme viewport, not a per-page "sweet spot."
+   Rank 10's wider corner is handled the same way: --corner-digits is 1
+   by default and 2 under [data-rank="10"], multiplying straight into
+   --pip-safe-left — no separate per-cell override table.
+   --pip-corner-k (~0.62 for height, --pip-char-w ~0.6 for per-digit
+   width) are estimates, not measurements — this sandbox cannot render
+   real glyphs to measure actual corner ink size (see
+   [[reference_sandbox_no_fonts]]). If a real device still shows the pip
+   group crowding the corner (or sitting with too much unused margin
+   from it), these two constants are the ONE place to retune — not a
+   per-page/per-rank percentage table anymore. Same
    translateZ(0)+backface-visibility:hidden+transition/animation:none
    treatment as .card-corner/.card-suit-center above, for the same
-   flip-animation anti-shake reason (see that comment). Sizing is
-   deliberately NOT set here — every context that already has its own
-   .card-suit-center font-size override (baccarat-sim, player-spot,
-   dealer-area-bj, etc.) gets a matching .card-pips .pip override next to
-   it, since a single flat size can't fit both a 100px-wide baccarat card
-   and a 28px-wide Hold'em ranking card. */
-.card-pips { position: absolute; inset: 0; pointer-events: none; }
+   flip-animation anti-shake reason (see that comment). Pip font-size is
+   still set per page (baccarat-sim, player-spot, dealer-area-bj, etc.,
+   right next to that context's --corner-rank-fs) since a single flat
+   size can't fit both a 100px-wide baccarat card and a 28px-wide
+   Hold'em ranking card, and legibility floors are a judgment call this
+   formula doesn't try to make. */
+.card-pips {
+  position: absolute; inset: 0; pointer-events: none;
+  --pip-corner-k: 0.62;   /* corner ink height ≈ this × (rank-fs + suit-fs) */
+  --pip-char-w: 0.6;      /* corner ink width per digit ≈ this × rank-fs */
+  --pip-gap: .3rem;       /* breathing room beyond the estimated corner ink */
+  --corner-digits: 1;
+  --pip-safe-top: clamp(22%,
+    calc(var(--corner-offset-y, 5px) + (var(--corner-rank-fs, 1.05rem) + var(--corner-suit-fs, .82rem)) * var(--pip-corner-k) + var(--pip-gap)),
+    42%);
+  --pip-safe-left: clamp(28%,
+    calc(var(--corner-offset-x, 6px) + var(--corner-rank-fs, 1.05rem) * var(--pip-char-w) * var(--corner-digits) + var(--pip-gap)),
+    46%);
+  --pip-band-h: calc(100% - 2 * var(--pip-safe-top));
+}
+.card-pips[data-rank="10"] { --corner-digits: 2; }
 .card-pips .pip {
   position: absolute;
   transform: translate(-50%, -50%) translateZ(0);
@@ -609,74 +662,20 @@ body {
   color: #111;
 }
 .card-pips .pip.pip-rot { transform: translate(-50%, -50%) rotate(180deg) translateZ(0); }
-/* Row/col percentages pulled in from a textbook pip chart, on two axes for
-   two different reasons:
-   - col L/R sit closer to center than a printed card's pips would — the
-     top-left/bottom-right corner index here is fixed-size text (top:5px/
-     left:6px + the rank/suit font sizes above, all "must not shrink" per
-     spec) that eats noticeably more of a small HTML card's real estate
-     than a printed card's tiny corner index does, so this keeps pips
-     clear of that corner block at the largest scoped card size
-     (baccarat-sim, where the corner is biggest relative to the card).
-   - row 1..5 went 16%-84% → 25%-75% → THIS: ~30%-70% (two rounds of
-     follow-up compression). Each round the wider spread technically
-     didn't overlap anything, but visually read as the pip group
-     stretching too close to the corner index / taking up too much of
-     the card, not like a real card's compact, centrally-clustered pip
-     block. Col L/R were tightened a matching (smaller) amount this
-     round too, per "밀집되게 배치" applying to both axes, not just
-     height. Pip count/rotation/font-size are unchanged in all of this —
-     only how far apart the row/col percentages sit moved, which is what
-     actually controls the group's footprint. **This has now been
-     tightened 3 times in one direction (looser → tighter) — if a future
-     request asks to shrink it further, keep going the same direction;
-     if one asks to make it "look more like a real card"/"less cramped"
-     again, that means WIDEN back out, the opposite of every change so
-     far, so don't reflexively tighten again without rereading which way
-     the request points.** */
-.card-pips .pip[data-row="1"]  { top: 30%; }
-.card-pips .pip[data-row="1b"] { top: 36.7%; }
-.card-pips .pip[data-row="2"]  { top: 43.3%; }
-.card-pips .pip[data-row="3"]  { top: 50%; }
-.card-pips .pip[data-row="4"]  { top: 56.7%; }
-.card-pips .pip[data-row="4b"] { top: 63.3%; }
-.card-pips .pip[data-row="5"]  { top: 70%; }
-.card-pips .pip[data-col="L"]  { left: 38%; }
+/* 7 row levels interpolated evenly across the safe band (0, 1/6, 2/6,
+   3/6, 4/6, 5/6, 6/6 of --pip-band-h, offset from --pip-safe-top) —
+   row"5" lands exactly on the mirrored safe-bottom boundary since
+   6/6 = 1 * the full band height. */
+.card-pips .pip[data-row="1"]  { top: var(--pip-safe-top); }
+.card-pips .pip[data-row="1b"] { top: calc(var(--pip-safe-top) + var(--pip-band-h) * 0.16667); }
+.card-pips .pip[data-row="2"]  { top: calc(var(--pip-safe-top) + var(--pip-band-h) * 0.33333); }
+.card-pips .pip[data-row="3"]  { top: calc(var(--pip-safe-top) + var(--pip-band-h) * 0.5); }
+.card-pips .pip[data-row="4"]  { top: calc(var(--pip-safe-top) + var(--pip-band-h) * 0.66667); }
+.card-pips .pip[data-row="4b"] { top: calc(var(--pip-safe-top) + var(--pip-band-h) * 0.83333); }
+.card-pips .pip[data-row="5"]  { top: calc(var(--pip-safe-top) + var(--pip-band-h) * 1); }
+.card-pips .pip[data-col="L"]  { left: var(--pip-safe-left); }
 .card-pips .pip[data-col="C"]  { left: 50%; }
-.card-pips .pip[data-col="R"]  { left: 62%; }
-/* Rank 10 only: its corner index is "10" (2 digits) — wider than every
-   other numeral's single-digit corner at the same font-size, since only
-   width grows with digit count (height is identical, same font-size/
-   line-height:1 stack regardless of rank). The shared L/R columns above
-   were sized around a 1-digit corner, so on "10" specifically the wider
-   corner text can reach into where the L/R pips nearest each corner sit
-   (see PIP_LAYOUTS in main.js — cardHTML() stamps data-rank="10" on
-   .card-pips for exactly this selector).
-   Only 4 of 10's pips are actually adjacent to a corner and need to
-   move: row1-L/row2-L (next to the top-LEFT corner) and row4-R/row5-R
-   (next to the bottom-RIGHT corner, mirrored). row1-R/row2-R (top-
-   RIGHT, no corner there) and row4-L/row5-L (bottom-LEFT, no corner
-   there) sit safely away from any corner already and are deliberately
-   left at the shared 38%/62% — an earlier version of this fix moved
-   ALL of rank 10's L/R pips together, which over-corrected the 4 safe
-   ones for no benefit and ate into their own clearance from the C
-   column (row1b/row4b) pips for nothing.
-   Even limited to just the 4 at-risk cells, shifting them toward center
-   unavoidably brings them closer to row1b/row4b's C-column pip — pushed
-   further than ~3% starts costing more there than it gains from the
-   corner (tried, made the C-column crowding worse without fixing the
-   corner problem, since 1b/4b sit between two rows that are BOTH
-   shifted). 3% (38/62% -> 41/59%) is the compromise point tried here;
-   this sandbox cannot render real glyphs to confirm it's enough (see
-   [[reference_sandbox_no_fonts]]) — if the corner still visibly
-   overlaps row1-L/row2-L or row4-R/row5-R on a real device, nudge only
-   THESE 4 rules further; if row1b/row4b starts crowding instead, ease
-   back toward 38/62. Rows are untouched — the corner isn't taller for
-   10, only wider, so no vertical change is needed here. */
-.card-pips[data-rank="10"] .pip[data-row="1"][data-col="L"],
-.card-pips[data-rank="10"] .pip[data-row="2"][data-col="L"] { left: 41%; }
-.card-pips[data-rank="10"] .pip[data-row="4"][data-col="R"],
-.card-pips[data-rank="10"] .pip[data-row="5"][data-col="R"] { left: 59%; }
+.card-pips .pip[data-col="R"]  { left: calc(100% - var(--pip-safe-left)); }
 
 /* Red suits (hearts/diamonds) override the black default above on every
    suit-colored part of the face. Must come after the black-default rules —
@@ -982,8 +981,7 @@ body {
   width: var(--card-w-sm);
   height: var(--card-h-sm);
 }
-.dealer-area-bj .card-corner .rank { font-size: clamp(.55rem, 1.8vh, .88rem); }
-.dealer-area-bj .card-corner .suit { font-size: clamp(.45rem, 1.5vh, .72rem); }
+.dealer-area-bj .card { --corner-rank-fs: clamp(.55rem, 1.8vh, .88rem); --corner-suit-fs: clamp(.45rem, 1.5vh, .72rem); }
 .dealer-area-bj .card-suit-center  { font-size: clamp(.9rem, 2.5vh, 1.4rem); }
 .dealer-area-bj .card-pips .pip    { font-size: clamp(.36rem, 1vh, .56rem); }
 .dealer-area-bj .card-pattern      { width: clamp(24px, 7vh, 44px); height: clamp(35px, 9.7vh, 66px); }
@@ -1041,9 +1039,9 @@ body {
 .player-spot .card {
   width: var(--card-w-sm);
   height: var(--card-h-sm);
+  --corner-rank-fs: clamp(.55rem, 1.8vh, .88rem);
+  --corner-suit-fs: clamp(.45rem, 1.5vh, .72rem);
 }
-.player-spot .card-corner .rank { font-size: clamp(.55rem, 1.8vh, .88rem); }
-.player-spot .card-corner .suit { font-size: clamp(.45rem, 1.5vh, .72rem); }
 .player-spot .card-suit-center   { font-size: clamp(.9rem, 2.5vh, 1.4rem); }
 .player-spot .card-pips .pip     { font-size: clamp(.36rem, 1vh, .56rem); }
 .player-spot .card-pattern       { width: clamp(24px, 7vh, 44px); height: clamp(35px, 9.7vh, 66px); }
@@ -1809,8 +1807,10 @@ body {
   --card-w-lg: clamp(58px, 15.5vh, 100px);
   --card-h-lg: clamp(80px, 21.5vh, 140px);
 }
-.baccarat-sim .card-corner .rank { font-size: clamp(1.15rem, 3.5vh, 1.85rem); }
-.baccarat-sim .card-corner .suit { font-size: clamp(.88rem,  2.6vh, 1.4rem); }
+.baccarat-sim .card {
+  --corner-rank-fs: clamp(1.15rem, 3.5vh, 1.85rem);
+  --corner-suit-fs: clamp(.88rem,  2.6vh, 1.4rem);
+}
 .baccarat-sim .card-suit-center  { font-size: clamp(1.65rem,5vh,  2.7rem); }
 .baccarat-sim .card-pips .pip    { font-size: clamp(.6rem,1.8vh,.95rem); }
 
@@ -2832,13 +2832,17 @@ body {
   --card-h-sm: clamp(60px, 17vh, 94px);
   --card-cascade: clamp(9px, 2.6vh, 14px);
 }
-.blackjack-sim .player-spot .card-corner .rank { font-size: clamp(.9rem, 2.8vh, 1.35rem); }
-.blackjack-sim .player-spot .card-corner .suit { font-size: clamp(.72rem, 2.2vh, 1.08rem); }
+.blackjack-sim .player-spot .card {
+  --corner-rank-fs: clamp(.9rem, 2.8vh, 1.35rem);
+  --corner-suit-fs: clamp(.72rem, 2.2vh, 1.08rem);
+}
 .blackjack-sim .player-spot .card-suit-center  { font-size: clamp(1.4rem, 3.9vh, 2.1rem); }
 .blackjack-sim .player-spot .card-pips .pip    { font-size: clamp(.54rem, 1.5vh, .8rem); }
 .blackjack-sim .player-spot .card-pattern      { width: clamp(28px, 8vh, 50px); height: clamp(40px, 11vh, 74px); }
-.blackjack-sim .dealer-area-bj .card-corner .rank { font-size: clamp(.9rem, 2.8vh, 1.35rem); }
-.blackjack-sim .dealer-area-bj .card-corner .suit { font-size: clamp(.72rem, 2.2vh, 1.08rem); }
+.blackjack-sim .dealer-area-bj .card {
+  --corner-rank-fs: clamp(.9rem, 2.8vh, 1.35rem);
+  --corner-suit-fs: clamp(.72rem, 2.2vh, 1.08rem);
+}
 .blackjack-sim .dealer-area-bj .card-suit-center  { font-size: clamp(1.4rem, 3.9vh, 2.1rem); }
 .blackjack-sim .dealer-area-bj .card-pips .pip    { font-size: clamp(.54rem, 1.5vh, .8rem); }
 .blackjack-sim .dealer-area-bj .card-pattern      { width: clamp(28px, 8vh, 50px); height: clamp(40px, 11vh, 74px); }
@@ -4633,11 +4637,11 @@ body {
 .thpc-best-cards {
   display: flex; gap: .18rem; justify-content: center; flex-wrap: wrap;
 }
-.thpc-best-cards .card         { width: 44px; height: 62px; border-radius: 5px; }
-.thpc-best-cards .card-corner.top    { top: 3px; left: 4px; }
-.thpc-best-cards .card-corner.bottom { bottom: 3px; right: 4px; }
-.thpc-best-cards .card-corner .rank  { font-size: .7rem; }
-.thpc-best-cards .card-corner .suit  { font-size: .6rem; }
+.thpc-best-cards .card         {
+  width: 44px; height: 62px; border-radius: 5px;
+  --corner-offset-y: 3px; --corner-offset-x: 4px;
+  --corner-rank-fs: .7rem; --corner-suit-fs: .6rem;
+}
 .thpc-best-cards .card-suit-center   { font-size: 1.05rem; }
 .thpc-best-cards .card-pips .pip     { font-size: .42rem; }
 
@@ -4881,39 +4885,20 @@ body {
    classes come and go afterward. */
 .thp-rank-sim .flip-card.revealed { animation: none; }
 
-/* Tighter corner positions for small cards */
-.thp-rank-sim .card-corner.top    { top: 2px; left: 3px; }
-.thp-rank-sim .card-corner.bottom { bottom: 2px; right: 3px; }
-
-/* Card text — sized relative to viewport height so they scale with card */
-.thp-rank-sim .card-corner .rank { font-size: clamp(.86rem, 2.5vh, 1.2rem); }
-.thp-rank-sim .card-corner .suit { font-size: clamp(.7rem, 2vh, 1rem); }
+/* Card text — sized relative to viewport height so they scale with card.
+   --corner-offset-y/-x (was a direct top/left/bottom/right override on
+   .card-corner.top/.bottom) and --corner-rank-fs/--corner-suit-fs (was a
+   direct font-size override) now feed the shared .card-pips auto-sizing
+   formula below instead of just this corner — see that formula's own
+   comment for why there's no page-specific pip row/col override here
+   anymore. */
+.thp-rank-sim .card {
+  --corner-offset-y: 2px; --corner-offset-x: 3px;
+  --corner-rank-fs: clamp(.86rem, 2.5vh, 1.2rem);
+  --corner-suit-fs: clamp(.7rem, 2vh, 1rem);
+}
 .thp-rank-sim .card-suit-center  { font-size: clamp(1.25rem, 3.7vh, 1.9rem); }
 .thp-rank-sim .card-pips .pip    { font-size: clamp(.5rem, 1.45vh, .74rem); }
-/* This is the smallest scoped card size in the app (28-50px wide,
-   40-70px tall) — the corner index above (fixed at top:2px/left:3px,
-   font-size unchanged) ends up occupying a much bigger fraction of the
-   card than on any larger card context, so the shared (unscoped)
-   .card-pips row band read as crowding right up against it. Gives this
-   page its own row band, pushed down and slightly tightened from the
-   shared default (row 1..5 at 30/36.7/43.3/50/56.7/63.3/70% elsewhere
-   → 34/40/46/52/58/64/70% here): row 1 gains real clearance from the
-   corner (34% vs 30%, i.e. more empty space between the index and the
-   first pip row) while row 5's clearance to the bottom-right corner
-   stays exactly what it was (70% either way) — the extra room comes
-   from tightening the band itself (36% total span vs 40%), not from
-   trading top margin for bottom margin. Pip count (main.js) and pip
-   font-size (right above) are untouched; only these row positions move.
-   Columns are left at the shared 38/50/62% — this page's complaint was
-   specifically about vertical clearance from the corner, not
-   horizontal. */
-.thp-rank-sim .card-pips .pip[data-row="1"]  { top: 34%; }
-.thp-rank-sim .card-pips .pip[data-row="1b"] { top: 40%; }
-.thp-rank-sim .card-pips .pip[data-row="2"]  { top: 46%; }
-.thp-rank-sim .card-pips .pip[data-row="3"]  { top: 52%; }
-.thp-rank-sim .card-pips .pip[data-row="4"]  { top: 58%; }
-.thp-rank-sim .card-pips .pip[data-row="4b"] { top: 64%; }
-.thp-rank-sim .card-pips .pip[data-row="5"]  { top: 70%; }
 .thp-rank-sim .card-pattern      { width: clamp(18px, 5.2vh, 32px); height: clamp(25px, 7.2vh, 46px); }
 
 /* ---- Page header: Rounds / Score / Mistake status panel ---- */
