@@ -618,26 +618,32 @@ body {
      than a printed card's tiny corner index does, so this keeps pips
      clear of that corner block at the largest scoped card size
      (baccarat-sim, where the corner is biggest relative to the card).
-   - row 1..5 are compressed into a ~25%-75% band (was ~16%-84%) per an
-     explicit follow-up request: the wider spread technically didn't
-     overlap anything, but visually read as the pip GROUP stretching to
-     fill almost the entire card height with little top/bottom margin,
-     not like a real card's more centrally-clustered pip block. Pip
-     count/rotation/font-size are unchanged — only how far apart the rows
-     sit moved, which is what actually controls how much of the card
-     height the group occupies. Don't widen this band back out to chase
-     "more traditional spacing" without re-confirming this is still the
-     wanted look — it was deliberately tightened after visual review. */
-.card-pips .pip[data-row="1"]  { top: 25%; }
-.card-pips .pip[data-row="1b"] { top: 33%; }
-.card-pips .pip[data-row="2"]  { top: 41%; }
+   - row 1..5 went 16%-84% → 25%-75% → THIS: ~30%-70% (two rounds of
+     follow-up compression). Each round the wider spread technically
+     didn't overlap anything, but visually read as the pip group
+     stretching too close to the corner index / taking up too much of
+     the card, not like a real card's compact, centrally-clustered pip
+     block. Col L/R were tightened a matching (smaller) amount this
+     round too, per "밀집되게 배치" applying to both axes, not just
+     height. Pip count/rotation/font-size are unchanged in all of this —
+     only how far apart the row/col percentages sit moved, which is what
+     actually controls the group's footprint. **This has now been
+     tightened 3 times in one direction (looser → tighter) — if a future
+     request asks to shrink it further, keep going the same direction;
+     if one asks to make it "look more like a real card"/"less cramped"
+     again, that means WIDEN back out, the opposite of every change so
+     far, so don't reflexively tighten again without rereading which way
+     the request points.** */
+.card-pips .pip[data-row="1"]  { top: 30%; }
+.card-pips .pip[data-row="1b"] { top: 36.7%; }
+.card-pips .pip[data-row="2"]  { top: 43.3%; }
 .card-pips .pip[data-row="3"]  { top: 50%; }
-.card-pips .pip[data-row="4"]  { top: 59%; }
-.card-pips .pip[data-row="4b"] { top: 67%; }
-.card-pips .pip[data-row="5"]  { top: 75%; }
-.card-pips .pip[data-col="L"]  { left: 36%; }
+.card-pips .pip[data-row="4"]  { top: 56.7%; }
+.card-pips .pip[data-row="4b"] { top: 63.3%; }
+.card-pips .pip[data-row="5"]  { top: 70%; }
+.card-pips .pip[data-col="L"]  { left: 38%; }
 .card-pips .pip[data-col="C"]  { left: 50%; }
-.card-pips .pip[data-col="R"]  { left: 64%; }
+.card-pips .pip[data-col="R"]  { left: 62%; }
 
 /* Red suits (hearts/diamonds) override the black default above on every
    suit-colored part of the face. Must come after the black-default rules —
