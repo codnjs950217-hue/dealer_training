@@ -609,24 +609,32 @@ body {
   color: #111;
 }
 .card-pips .pip.pip-rot { transform: translate(-50%, -50%) rotate(180deg) translateZ(0); }
-/* Row/col percentages pulled in further than a physical card's pips would
-   sit — the top-left/bottom-right corner index here is fixed-size text
-   (top:5px/left:6px + the rank/suit font sizes above, all "must not
-   shrink" per spec) that eats noticeably more of a small HTML card's
-   real estate than a printed card's tiny corner index does, so col L/R
-   sit closer to center and row 1/5 sit a bit further from the top/bottom
-   edge than a textbook pip chart, specifically to keep clear of that
-   corner block at the largest scoped card size (baccarat-sim, where the
-   corner is at its biggest relative to the card). This is the "pip 배치
-   최적화" fallback from the request, applied preemptively rather than
-   only if a collision were spotted. */
-.card-pips .pip[data-row="1"]  { top: 16%; }
-.card-pips .pip[data-row="1b"] { top: 26%; }
-.card-pips .pip[data-row="2"]  { top: 36%; }
+/* Row/col percentages pulled in from a textbook pip chart, on two axes for
+   two different reasons:
+   - col L/R sit closer to center than a printed card's pips would — the
+     top-left/bottom-right corner index here is fixed-size text (top:5px/
+     left:6px + the rank/suit font sizes above, all "must not shrink" per
+     spec) that eats noticeably more of a small HTML card's real estate
+     than a printed card's tiny corner index does, so this keeps pips
+     clear of that corner block at the largest scoped card size
+     (baccarat-sim, where the corner is biggest relative to the card).
+   - row 1..5 are compressed into a ~25%-75% band (was ~16%-84%) per an
+     explicit follow-up request: the wider spread technically didn't
+     overlap anything, but visually read as the pip GROUP stretching to
+     fill almost the entire card height with little top/bottom margin,
+     not like a real card's more centrally-clustered pip block. Pip
+     count/rotation/font-size are unchanged — only how far apart the rows
+     sit moved, which is what actually controls how much of the card
+     height the group occupies. Don't widen this band back out to chase
+     "more traditional spacing" without re-confirming this is still the
+     wanted look — it was deliberately tightened after visual review. */
+.card-pips .pip[data-row="1"]  { top: 25%; }
+.card-pips .pip[data-row="1b"] { top: 33%; }
+.card-pips .pip[data-row="2"]  { top: 41%; }
 .card-pips .pip[data-row="3"]  { top: 50%; }
-.card-pips .pip[data-row="4"]  { top: 64%; }
-.card-pips .pip[data-row="4b"] { top: 74%; }
-.card-pips .pip[data-row="5"]  { top: 84%; }
+.card-pips .pip[data-row="4"]  { top: 59%; }
+.card-pips .pip[data-row="4b"] { top: 67%; }
+.card-pips .pip[data-row="5"]  { top: 75%; }
 .card-pips .pip[data-col="L"]  { left: 36%; }
 .card-pips .pip[data-col="C"]  { left: 50%; }
 .card-pips .pip[data-col="R"]  { left: 64%; }
