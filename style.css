@@ -4857,6 +4857,30 @@ body {
 .thp-rank-sim .card-corner .suit { font-size: clamp(.7rem, 2vh, 1rem); }
 .thp-rank-sim .card-suit-center  { font-size: clamp(1.25rem, 3.7vh, 1.9rem); }
 .thp-rank-sim .card-pips .pip    { font-size: clamp(.5rem, 1.45vh, .74rem); }
+/* This is the smallest scoped card size in the app (28-50px wide,
+   40-70px tall) — the corner index above (fixed at top:2px/left:3px,
+   font-size unchanged) ends up occupying a much bigger fraction of the
+   card than on any larger card context, so the shared (unscoped)
+   .card-pips row band read as crowding right up against it. Gives this
+   page its own row band, pushed down and slightly tightened from the
+   shared default (row 1..5 at 30/36.7/43.3/50/56.7/63.3/70% elsewhere
+   → 34/40/46/52/58/64/70% here): row 1 gains real clearance from the
+   corner (34% vs 30%, i.e. more empty space between the index and the
+   first pip row) while row 5's clearance to the bottom-right corner
+   stays exactly what it was (70% either way) — the extra room comes
+   from tightening the band itself (36% total span vs 40%), not from
+   trading top margin for bottom margin. Pip count (main.js) and pip
+   font-size (right above) are untouched; only these row positions move.
+   Columns are left at the shared 38/50/62% — this page's complaint was
+   specifically about vertical clearance from the corner, not
+   horizontal. */
+.thp-rank-sim .card-pips .pip[data-row="1"]  { top: 34%; }
+.thp-rank-sim .card-pips .pip[data-row="1b"] { top: 40%; }
+.thp-rank-sim .card-pips .pip[data-row="2"]  { top: 46%; }
+.thp-rank-sim .card-pips .pip[data-row="3"]  { top: 52%; }
+.thp-rank-sim .card-pips .pip[data-row="4"]  { top: 58%; }
+.thp-rank-sim .card-pips .pip[data-row="4b"] { top: 64%; }
+.thp-rank-sim .card-pips .pip[data-row="5"]  { top: 70%; }
 .thp-rank-sim .card-pattern      { width: clamp(18px, 5.2vh, 32px); height: clamp(25px, 7.2vh, 46px); }
 
 /* ---- Page header: Rounds / Score / Mistake status panel ---- */
