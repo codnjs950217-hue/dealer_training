@@ -649,23 +649,34 @@ body {
    width grows with digit count (height is identical, same font-size/
    line-height:1 stack regardless of rank). The shared L/R columns above
    were sized around a 1-digit corner, so on "10" specifically the wider
-   corner text can reach into where the L/R pips (row 1/1b/2 near the
-   top-left corner, row 4/4b/5 mirrored near the bottom-right one — see
-   PIP_LAYOUTS in main.js, cardHTML() stamps data-rank="10" on
-   .card-pips for exactly this selector) already sit. Nudged 3% further
-   toward center than every other rank's L/R (38/62% -> 41/59%) — enough
-   to gain real clearance from the wider corner without pushing L/R so
-   far in that they start crowding row 4/4b's own center-column pip
-   instead (a real trade-off: less inward shift = safer against the
-   corner but not by much; more inward shift = safer against the corner
-   but tighter against the C column — 3% was chosen as a middle point,
-   not derived from an exact measurement, since this sandbox cannot
-   render real glyphs to measure against — see
-   [[reference_sandbox_no_fonts]]). Rows are untouched for rank 10 —
-   the corner is not taller, so no vertical adjustment is needed here,
-   only horizontal. */
-.card-pips[data-rank="10"] .pip[data-col="L"] { left: 41%; }
-.card-pips[data-rank="10"] .pip[data-col="R"] { left: 59%; }
+   corner text can reach into where the L/R pips nearest each corner sit
+   (see PIP_LAYOUTS in main.js — cardHTML() stamps data-rank="10" on
+   .card-pips for exactly this selector).
+   Only 4 of 10's pips are actually adjacent to a corner and need to
+   move: row1-L/row2-L (next to the top-LEFT corner) and row4-R/row5-R
+   (next to the bottom-RIGHT corner, mirrored). row1-R/row2-R (top-
+   RIGHT, no corner there) and row4-L/row5-L (bottom-LEFT, no corner
+   there) sit safely away from any corner already and are deliberately
+   left at the shared 38%/62% — an earlier version of this fix moved
+   ALL of rank 10's L/R pips together, which over-corrected the 4 safe
+   ones for no benefit and ate into their own clearance from the C
+   column (row1b/row4b) pips for nothing.
+   Even limited to just the 4 at-risk cells, shifting them toward center
+   unavoidably brings them closer to row1b/row4b's C-column pip — pushed
+   further than ~3% starts costing more there than it gains from the
+   corner (tried, made the C-column crowding worse without fixing the
+   corner problem, since 1b/4b sit between two rows that are BOTH
+   shifted). 3% (38/62% -> 41/59%) is the compromise point tried here;
+   this sandbox cannot render real glyphs to confirm it's enough (see
+   [[reference_sandbox_no_fonts]]) — if the corner still visibly
+   overlaps row1-L/row2-L or row4-R/row5-R on a real device, nudge only
+   THESE 4 rules further; if row1b/row4b starts crowding instead, ease
+   back toward 38/62. Rows are untouched — the corner isn't taller for
+   10, only wider, so no vertical change is needed here. */
+.card-pips[data-rank="10"] .pip[data-row="1"][data-col="L"],
+.card-pips[data-rank="10"] .pip[data-row="2"][data-col="L"] { left: 41%; }
+.card-pips[data-rank="10"] .pip[data-row="4"][data-col="R"],
+.card-pips[data-rank="10"] .pip[data-row="5"][data-col="R"] { left: 59%; }
 
 /* Red suits (hearts/diamonds) override the black default above on every
    suit-colored part of the face. Must come after the black-default rules —
