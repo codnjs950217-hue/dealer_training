@@ -1952,12 +1952,10 @@ body {
 .bac-pair-phase .bac-check-btn:active {
   filter: brightness(.55) saturate(.75);
   transform: none;
-  border-color: #8FC0FF;
+  border-color: #ffe9a3;
   box-shadow:
-    inset 0 1px 0 rgba(234,243,255,.5),
-    inset 0 -2px 3px rgba(0,0,0,.25),
-    0 2px 4px rgba(0,0,0,.35),
-    0 2px 6px rgba(20,60,150,.4);
+    inset 0 1px 0 rgba(255,244,214,.6),
+    inset 0 -2px 3px rgba(0,0,0,.28);
 }
 /* While a third-card draw animation is running (.bac-draw-phase,
    toggled by setDrawPhaseFocus() in JS, from quizInitial()/
@@ -3953,40 +3951,45 @@ body {
    what actually submits. Always enabled (never hints at whether the
    current picks are right).
    Color history: vivid neon cyan-teal originally → deep antique-gold
-   metal plaque (clashed less with the felt, but needed to read as
-   calmer than START/NEXT HAND's own gold CTA) → THIS: blue, per
-   explicit request. Kept the same restrained metal-plaque structure
-   (3-stop gradient lit from above, thin border, soft top highlight, no
-   wide blurred glow) just recolored, rather than reintroducing the old
-   neon treatment. Still given its own dedicated :hover/:active (not
+   metal plaque → blue → THIS: metallic gold hexagon, per explicit
+   request ("카지노 테마에 맞는 고급 스타일", VIP-chip feel). Shape via
+   clip-path (6-point hexagon, pointed left/right, flat top/bottom —
+   border-radius no longer applies since clip-path replaces the box
+   outline entirely). box-shadow stays inset-only (highlight/shade)
+   since outer box-shadow does NOT follow a clip-path's shape — it'd
+   render as a rectangular shadow poking past the hex points. Outer
+   shadow instead uses filter:drop-shadow(), which follows the actual
+   clipped alpha shape. Kept deliberately restrained per spec ("은은한
+   Shadow", "과한 Glow 금지") — no colored glow, just a soft neutral
+   contact shadow. Still given its own dedicated :hover/:active (not
    the shared WIN/PAIR/DRAW console-button block) so this shading stays
-   intact. */
+   intact. Size/position untouched — only fill/border/text/shape here;
+   .bac-exp-confirm-attach .bac-check-btn below still owns width/height/
+   font-size/padding. */
 .bac-check-btn {
-  --btn-hi: 150,195,255; --btn-glow: 40,100,210;
-  background: linear-gradient(180deg, #4A86E8 0%, #2A5FC4 55%, #163A7A 100%);
-  color: #EAF3FF;
-  border: 1px solid #8FC0FF;
-  border-radius: var(--r);
+  --btn-hi: 255,233,163; --btn-glow: 216,160,39;
+  background: linear-gradient(180deg, #f8d86e 0%, #d8a027 55%, #9f6b11 100%);
+  color: #2b1a00;
+  border: 1px solid #ffe9a3;
+  border-radius: 0;
+  clip-path: polygon(18% 0%, 82% 0%, 100% 50%, 82% 100%, 18% 100%, 0% 50%);
   font-weight: 900; cursor: pointer;
   letter-spacing: 1.5px;
-  text-shadow: 0 1px 2px rgba(0,0,0,.45);
+  text-shadow: 0 1px 0 rgba(255,244,214,.55), 0 -1px 0 rgba(0,0,0,.15);
   white-space: nowrap;
   box-shadow:
-    inset 0 1px 0 rgba(234,243,255,.5),
-    inset 0 -2px 3px rgba(0,0,0,.25),
-    0 2px 4px rgba(0,0,0,.35),
-    0 2px 6px rgba(20,60,150,.4);
+    inset 0 1px 0 rgba(255,244,214,.6),
+    inset 0 -2px 3px rgba(0,0,0,.28);
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)) drop-shadow(0 2px 6px rgba(0,0,0,.2));
   transition: filter .15s ease, transform .12s ease, box-shadow .15s ease, border-color .15s ease;
 }
 .bac-check-btn:hover {
-  filter: brightness(1.08);
+  filter: brightness(1.08) drop-shadow(0 3px 4px rgba(0,0,0,.38)) drop-shadow(0 2px 7px rgba(0,0,0,.22));
   transform: translateY(-1px);
-  border-color: #b6d8ff;
+  border-color: #fff3cf;
   box-shadow:
-    inset 0 1px 0 rgba(234,243,255,.6),
-    inset 0 -2px 3px rgba(0,0,0,.22),
-    0 4px 8px rgba(0,0,0,.4),
-    0 3px 9px rgba(20,60,150,.45);
+    inset 0 1px 0 rgba(255,244,214,.7),
+    inset 0 -2px 3px rgba(0,0,0,.25);
 }
 /* Pressed state exaggerated beyond the plain-console-button treatment
    above (2px translate + darker border, not just 1px + brightness) —
@@ -3994,13 +3997,12 @@ body {
    rather than in a labeled corner slot, so tap feedback has to carry
    more of "this registered" on its own, especially on mobile. */
 .bac-check-btn:active {
-  filter: brightness(.88);
+  filter: brightness(.88) drop-shadow(0 1px 2px rgba(0,0,0,.3));
   transform: translateY(2px) scale(.97);
-  border-color: #163A7A;
+  border-color: #9f6b11;
   box-shadow:
-    inset 0 3px 7px rgba(0,0,0,.45),
-    inset 0 -1px 0 rgba(234,243,255,.15),
-    0 1px 2px rgba(0,0,0,.3);
+    inset 0 3px 7px rgba(0,0,0,.4),
+    inset 0 -1px 0 rgba(255,244,214,.2);
 }
 /* SELECTED-STATE DESIGN — ninth revision, a full pivot away from
    "highlight the picked button" entirely. History (1)-(8): border/
