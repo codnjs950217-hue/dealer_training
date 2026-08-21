@@ -590,6 +590,48 @@ body {
   color: #111;
 }
 
+/* ---- CARD FACE ART (J/Q/K) ----
+   cardHTML() renders a .card-face-art box (in place of .card-suit-center)
+   for J/Q/K, containing an inline SVG silhouette (main.js's FACE_ART —
+   sword/floral-scepter/crown, one per rank, each drawn top-bottom
+   symmetric so it reads sensibly regardless of orientation). A and 2-10
+   are completely untouched by this rule.
+   Sizing/position reuse the exact same size-driven approach as
+   .card-pips's --pip-safe-top/-left (see that rule's own long comment)
+   — a SEPARATE set of variables (--face-safe-top/-left), not the pip
+   ones themselves, so nothing here can ever affect pip layout. All four
+   insets (top/left/right/bottom) are set on this absolutely-positioned
+   box, which is what makes its width/height auto-resolve to "whatever's
+   left after clearing the corner index on every side" — the SVG inside
+   is width:100%/height:100% of that box, so the illustration
+   automatically grows/shrinks with the card and never needs a
+   page-specific override, the same way the corner-index-driven pip
+   formula doesn't. Bounds are a bit more generous than the pip
+   formula's (single big shape vs. up to 10 small dots needing mutual
+   clearance too) — if a real device still shows crowding against the
+   corner, --face-corner-k/--face-char-w below are the ones to retune,
+   the same "one constant, not a new page/rank exception" pattern used
+   for pips (see [[project_card_pip_rendering]] in memory). */
+.card-face-art {
+  position: absolute;
+  display: flex; align-items: center; justify-content: center;
+  transition: none; animation: none;
+  color: #111;
+  --face-corner-k: 0.62;
+  --face-char-w: 0.62;
+  --face-gap: .3rem;
+  --face-safe-top: clamp(16%,
+    calc(var(--corner-offset-y, 5px) + (var(--corner-rank-fs, 1.05rem) + var(--corner-suit-fs, .82rem)) * var(--face-corner-k) + var(--face-gap)),
+    36%);
+  --face-safe-left: clamp(12%,
+    calc(var(--corner-offset-x, 6px) + var(--corner-rank-fs, 1.05rem) * var(--face-char-w) + var(--face-gap)),
+    36%);
+  top: var(--face-safe-top); left: var(--face-safe-left);
+  right: var(--face-safe-left); bottom: var(--face-safe-top);
+}
+.card.red .card-face-art { color: var(--card-red); }
+.card-face-art .face-icon { width: 100%; height: 100%; display: block; }
+
 /* ---- CARD PIPS (numeral cards 2-10) — SIZE-DRIVEN AUTO LAYOUT ----
    cardHTML() renders a .card-pips container (in place of the single
    .card-suit-center) for any numeral rank, with one .pip span per row/col

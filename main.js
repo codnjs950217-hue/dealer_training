@@ -53,6 +53,47 @@ function pipsHTML(rank, suit) {
   ).join('');
 }
 
+// J/Q/K face-card center art. Simple, top-bottom-symmetric geometric
+// silhouettes (sword / floral scepter / crown+scepter) drawn as inline
+// SVG — no raster image asset exists in this project (see icon-*.png,
+// the only local images, neither of which is a card illustration) and
+// per explicit instruction, none was downloaded to make one. `fill:
+// currentColor` on every shape means these pick up red/black purely
+// from .card-face-art's own `color` (set in style.css the same way
+// .card-suit-center/.card-pips already are), no per-icon color code.
+// To swap in a real illustration asset later: change ONLY this
+// function's returned markup (e.g. to an <img class="card-face-img"
+// src="..." onerror="this.remove()"> followed by this same SVG as a
+// fallback) — .card-face-art's CSS sizing/positioning and cardHTML()'s
+// call site don't need to change, since both just render whatever this
+// function returns.
+const FACE_ART = {
+  // Bold/wide on purpose (not a delicate line drawing) — these still
+  // need to read clearly at a 20-30px-tall mobile card, so every shape
+  // fills most of the 100x100 viewBox instead of sitting as a thin mark
+  // in the middle of it.
+  J: `<svg viewBox="0 0 100 100" class="face-icon face-icon-j" aria-hidden="true" focusable="false">
+        <polygon points="50,2 68,24 68,76 50,98 32,76 32,24" fill="currentColor"/>
+        <rect x="16" y="43" width="68" height="14" rx="3" fill="currentColor"/>
+      </svg>`,
+  Q: `<svg viewBox="0 0 100 100" class="face-icon face-icon-q" aria-hidden="true" focusable="false">
+        <rect x="41" y="16" width="18" height="68" rx="6" fill="currentColor"/>
+        <circle cx="50" cy="15" r="16" fill="currentColor"/>
+        <circle cx="26" cy="26" r="11" fill="currentColor"/>
+        <circle cx="74" cy="26" r="11" fill="currentColor"/>
+        <circle cx="50" cy="85" r="16" fill="currentColor"/>
+        <circle cx="26" cy="74" r="11" fill="currentColor"/>
+        <circle cx="74" cy="74" r="11" fill="currentColor"/>
+      </svg>`,
+  K: `<svg viewBox="0 0 100 100" class="face-icon face-icon-k" aria-hidden="true" focusable="false">
+        <rect x="41" y="26" width="18" height="48" fill="currentColor"/>
+        <polygon points="14,30 24,6 38,22 50,2 62,22 76,6 86,30" fill="currentColor"/>
+        <rect x="12" y="27" width="76" height="13" rx="3" fill="currentColor"/>
+        <polygon points="14,70 24,94 38,78 50,98 62,78 76,94 86,70" fill="currentColor"/>
+        <rect x="12" y="60" width="76" height="13" rx="3" fill="currentColor"/>
+      </svg>`,
+};
+
 function cardHTML(c, faceDown = false) {
   if (faceDown) return `<div class="card back notranslate" translate="no"><div class="card-pattern"></div></div>`;
   // data-rank on the wrapper is only ever read by CSS, for rank "10" —
@@ -63,9 +104,14 @@ function cardHTML(c, faceDown = false) {
   // columns automatically sit further from the corners than every other
   // rank's. Doesn't change which cells PIP_LAYOUTS picks or how many
   // pips render.
-  const center = PIP_LAYOUTS[c.rank]
-    ? `<div class="card-pips" data-rank="${c.rank}">${pipsHTML(c.rank, c.suit)}</div>`
-    : `<div class="card-suit-center">${c.suit}</div>`;
+  let center;
+  if (PIP_LAYOUTS[c.rank]) {
+    center = `<div class="card-pips" data-rank="${c.rank}">${pipsHTML(c.rank, c.suit)}</div>`;
+  } else if (FACE_ART[c.rank]) {
+    center = `<div class="card-face-art">${FACE_ART[c.rank]}</div>`;
+  } else {
+    center = `<div class="card-suit-center">${c.suit}</div>`;
+  }
   return `
     <div class="card notranslate${c.red ? ' red' : ''}" translate="no">
       <div class="card-corner top"><span class="rank">${c.rank}</span><span class="suit">${c.suit}</span></div>
