@@ -365,18 +365,9 @@ const Views = {
     <div class="home-screen">
       <div class="home-hero">
         <div class="home-hero-cards">
-          <div class="hcard red" style="transform:rotate(-18deg) translate(-6px,8px)">
-            <div class="hcard-corner">A<br>♥</div>
-            <div class="hcard-center">♥</div>
-          </div>
-          <div class="hcard" style="transform:rotate(5deg) translate(6px,-10px)">
-            <div class="hcard-corner">K<br>♠</div>
-            <div class="hcard-center">♠</div>
-          </div>
-          <div class="hcard red" style="transform:rotate(22deg) translate(20px,6px)">
-            <div class="hcard-corner">Q<br>♦</div>
-            <div class="hcard-center">♦</div>
-          </div>
+          <div class="hcard-slot" style="transform:rotate(-18deg) translate(-6px,8px)">${cardHTML({ rank: 'A', suit: '♥', red: true })}</div>
+          <div class="hcard-slot" style="transform:rotate(5deg) translate(6px,-10px)">${cardHTML({ rank: 'K', suit: '♠', red: false })}</div>
+          <div class="hcard-slot" style="transform:rotate(22deg) translate(20px,6px)">${cardHTML({ rank: 'Q', suit: '♦', red: true })}</div>
         </div>
         <div class="home-hero-text">
           <h1 class="home-title">Casino Dealer<br><span class="gold">Training System</span></h1>

@@ -404,7 +404,30 @@ body {
 }
 .home-hero-cards {
   position: relative; width: 108px; height: 100px; flex-shrink: 0;
+  /* Scopes the SAME shared card component every game uses (.card /
+     .card-corner / .card-suit-center / .card-face-art — see cardHTML()
+     in main.js) to this hero's size, exactly the way .baccarat-sim,
+     .thp-rank-sim etc. each scope it to their own table's card size.
+     Views.home() now calls cardHTML({rank,suit,red}) directly instead
+     of hand-rolling a separate mini card markup, so any future change
+     to the real card system (pip layout, face-card art, corner
+     styling) shows up here automatically with zero home-screen-specific
+     code to update. */
+  --card-w-lg: 52px; --card-h-lg: 70px;
 }
+.home-hero-cards .card {
+  --corner-rank-fs: .6rem; --corner-suit-fs: .5rem;
+  --corner-offset-y: 3px; --corner-offset-x: 4px;
+}
+.home-hero-cards .card-suit-center { font-size: 1.2rem; }
+/* Replaces the 3 individually-rotated wrapper divs that used to carry
+   both the position AND the old hand-rolled .hcard look — position/
+   rotation only now, the real .card inside supplies its own look. */
+.hcard-slot { position: absolute; left: 0; top: 0; }
+/* --- Legacy static hero card look (.hcard/.hcard-corner/.hcard-center)
+   kept per explicit request, not deleted — no longer used by
+   Views.home() (see .hcard-slot above), left here in case something
+   else still references it. */
 .hcard {
   position: absolute; width: 52px; height: 70px;
   background: #fff; border-radius: 6px;
