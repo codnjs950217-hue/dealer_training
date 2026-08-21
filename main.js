@@ -53,44 +53,66 @@ function pipsHTML(rank, suit) {
   ).join('');
 }
 
-// J/Q/K face-card center art. Simple, top-bottom-symmetric geometric
-// silhouettes (sword / floral scepter / crown+scepter) drawn as inline
-// SVG — no raster image asset exists in this project (see icon-*.png,
-// the only local images, neither of which is a card illustration) and
-// per explicit instruction, none was downloaded to make one. `fill:
-// currentColor` on every shape means these pick up red/black purely
-// from .card-face-art's own `color` (set in style.css the same way
-// .card-suit-center/.card-pips already are), no per-icon color code.
-// To swap in a real illustration asset later: change ONLY this
-// function's returned markup (e.g. to an <img class="card-face-img"
-// src="..." onerror="this.remove()"> followed by this same SVG as a
-// fallback) — .card-face-art's CSS sizing/positioning and cardHTML()'s
-// call site don't need to change, since both just render whatever this
-// function returns.
+// J/Q/K face-card center art. Inline SVG — no raster image asset exists
+// in this project (see icon-*.png, the only local images, neither of
+// which is a card illustration) and per explicit instruction, none was
+// downloaded to make one. `fill: currentColor` on every shape means
+// these pick up red/black purely from .card-face-art's own `color` (set
+// in style.css the same way .card-suit-center/.card-pips already are),
+// no per-icon color code. To swap in a real illustration asset later:
+// change ONLY this function's returned markup (e.g. to an <img
+// class="card-face-img" src="..." onerror="this.remove()"> followed by
+// this same SVG as a fallback) — .card-face-art's CSS sizing/positioning
+// and cardHTML()'s call site don't need to change, since both just
+// render whatever this function returns.
+//
+// REVISION 2 (2026-08-21): revision 1's icons were confirmed rendering
+// (right DOM, right size, right color) but user feedback was that a
+// real player couldn't tell them apart from ordinary suit pips at a
+// glance — the goal isn't "an SVG exists", it's "instantly reads as a
+// face card". Revision 1 was ALSO top-bottom mirror-symmetric (a nice-
+// to-have per the original "가능한 경우" wording, not a requirement),
+// which meant each individual crown/scepter had to be squeezed into
+// half the vertical space, shrinking exactly the details that make it
+// recognizable. This revision drops the mirroring in favor of ONE
+// bigger, single-orientation icon per rank, each built from a distinct
+// real regalia silhouette instead of an abstract mark:
 const FACE_ART = {
-  // Bold/wide on purpose (not a delicate line drawing) — these still
-  // need to read clearly at a 20-30px-tall mobile card, so every shape
-  // fills most of the 100x100 viewBox instead of sitting as a thin mark
-  // in the middle of it.
+  // J = a sword: pointed tip, blade, wide crossguard, grip, round
+  // pommel — an unmistakably different silhouette from any suit pip
+  // (tall/thin with one crossbar, not a compact glyph).
   J: `<svg viewBox="0 0 100 100" class="face-icon face-icon-j" aria-hidden="true" focusable="false">
-        <polygon points="50,2 68,24 68,76 50,98 32,76 32,24" fill="currentColor"/>
-        <rect x="16" y="43" width="68" height="14" rx="3" fill="currentColor"/>
+        <polygon points="50,2 61,20 39,20" fill="currentColor"/>
+        <rect x="45" y="18" width="10" height="44" fill="currentColor"/>
+        <rect x="18" y="58" width="64" height="11" rx="3" fill="currentColor"/>
+        <rect x="45" y="67" width="10" height="18" rx="2" fill="currentColor"/>
+        <circle cx="50" cy="90" r="9" fill="currentColor"/>
       </svg>`,
+  // Q = a rounded 3-pearl crown (soft circles, not sharp points) over a
+  // band, on a scepter ending in a round gem — deliberately ROUNDER
+  // than K's crown so the two don't read as the same shape at a glance.
   Q: `<svg viewBox="0 0 100 100" class="face-icon face-icon-q" aria-hidden="true" focusable="false">
-        <rect x="41" y="16" width="18" height="68" rx="6" fill="currentColor"/>
-        <circle cx="50" cy="15" r="16" fill="currentColor"/>
-        <circle cx="26" cy="26" r="11" fill="currentColor"/>
-        <circle cx="74" cy="26" r="11" fill="currentColor"/>
-        <circle cx="50" cy="85" r="16" fill="currentColor"/>
-        <circle cx="26" cy="74" r="11" fill="currentColor"/>
-        <circle cx="74" cy="74" r="11" fill="currentColor"/>
+        <circle cx="30" cy="11" r="9" fill="currentColor"/>
+        <circle cx="50" cy="5" r="10" fill="currentColor"/>
+        <circle cx="70" cy="11" r="9" fill="currentColor"/>
+        <rect x="20" y="17" width="60" height="12" rx="3" fill="currentColor"/>
+        <rect x="44" y="31" width="12" height="39" rx="3" fill="currentColor"/>
+        <circle cx="50" cy="80" r="15" fill="currentColor"/>
       </svg>`,
+  // K = a wider crown with sharp triangular points AND a cross at its
+  // center spike (distinct from Q's soft pearls), a thicker scepter,
+  // and an orb topped with a small cross (a classic "globus cruciger" —
+  // instantly reads as royal/male regalia, different from Q's gem).
   K: `<svg viewBox="0 0 100 100" class="face-icon face-icon-k" aria-hidden="true" focusable="false">
-        <rect x="41" y="26" width="18" height="48" fill="currentColor"/>
-        <polygon points="14,30 24,6 38,22 50,2 62,22 76,6 86,30" fill="currentColor"/>
-        <rect x="12" y="27" width="76" height="13" rx="3" fill="currentColor"/>
-        <polygon points="14,70 24,94 38,78 50,98 62,78 76,94 86,70" fill="currentColor"/>
-        <rect x="12" y="60" width="76" height="13" rx="3" fill="currentColor"/>
+        <polygon points="8,32 20,10 32,24 42,10" fill="currentColor"/>
+        <polygon points="58,10 68,24 80,10 92,32" fill="currentColor"/>
+        <rect x="47" y="0" width="6" height="24" fill="currentColor"/>
+        <rect x="41" y="8" width="18" height="6" fill="currentColor"/>
+        <rect x="8" y="30" width="84" height="10" rx="2" fill="currentColor"/>
+        <rect x="44" y="40" width="12" height="34" rx="3" fill="currentColor"/>
+        <rect x="47" y="58" width="6" height="10" fill="currentColor"/>
+        <rect x="43" y="61" width="14" height="5" fill="currentColor"/>
+        <circle cx="50" cy="82" r="14" fill="currentColor"/>
       </svg>`,
 };
 

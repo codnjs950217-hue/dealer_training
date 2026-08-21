@@ -642,11 +642,27 @@ body {
   color: #111;
   --face-corner-k: 0.62;
   --face-char-w: 0.62;
-  --face-gap: .3rem;
-  --face-safe-top: clamp(16%,
+  --face-gap: .2rem;
+  /* Floors lowered from 16%/12% to 12%/8% (2026-08-21, "make the
+     illustration bigger" follow-up) — the floor only kicks in when the
+     formula's computed value is already smaller than that, i.e. only
+     on contexts with a proportionally tiny corner, so this is a safe,
+     art-only-gets-bigger change there. Ceilings deliberately left at
+     36%/36% (NOT lowered) — thp-rank-sim's smallest size computes a
+     safe-top near ~40% (a bigger corner-to-card ratio than baccarat's
+     own worst case), meaning it's already leaning on this ceiling;
+     lowering it further would shrink its actual reserved clearance
+     and risk the art crowding that context's corner index. If more
+     size is still needed after this, prefer shrinking --face-gap
+     further or the shapes' own margins inside the 100x100 viewBox
+     first — don't lower these ceilings without re-deriving the
+     worst-case numbers per context (see
+     [[project_card_pip_rendering]] for the same formula pattern and
+     its own worked-through numbers). */
+  --face-safe-top: clamp(12%,
     calc(var(--corner-offset-y, 5px) + (var(--corner-rank-fs, 1.05rem) + var(--corner-suit-fs, .82rem)) * var(--face-corner-k) + var(--face-gap)),
     36%);
-  --face-safe-left: clamp(12%,
+  --face-safe-left: clamp(8%,
     calc(var(--corner-offset-x, 6px) + var(--corner-rank-fs, 1.05rem) * var(--face-char-w) + var(--face-gap)),
     36%);
   top: var(--face-safe-top); left: var(--face-safe-left);
