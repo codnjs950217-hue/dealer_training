@@ -2887,11 +2887,16 @@ const Sims = {
       // opens a small payout popup instead of toggling directly. Picking a
       // ratio only STAGES it (S.super7Staged) and re-renders the popup with
       // that ratio highlighted — it doesn't touch S.resultPicks or close
-      // the popup. Only 선택완료 (confirmSuperPayout) commits the staged
-      // ratio into S.resultPicks.super7/superPayout and closes; 닫기
-      // (closeSuperPayoutPopup) discards the staged ratio and closes
-      // without touching S.resultPicks. This two-step stage-then-confirm
-      // flow replaced the old immediate-commit-on-click behavior.
+      // the popup; tapping the same staged ratio again un-stages it
+      // (stageSuperPayout toggles). Only 선택완료 (confirmSuperPayout)
+      // commits the staged ratio into S.resultPicks.super7/superPayout and
+      // closes. 닫기 (dismissSuper7Popup) discards the staged draft and
+      // closes — but if nothing was staged at that moment (never picked,
+      // or toggled off), it ALSO clears any already-committed
+      // super7/superPayout, so closing with no ratio staged always leaves
+      // SUPER7 fully unpicked, never a stale committed pick. This
+      // stage-then-confirm flow replaced the old immediate-commit-on-click
+      // behavior.
       // S.resultPicks.super7 is independent of .special (BIG6/SMALL6/
       // BIG7/SMALL7) — real Baccarat treats Super 7 as its own side bet,
       // not mutually exclusive with Big/Small 7, so both can be required
@@ -2926,13 +2931,16 @@ const Sims = {
             </div>
             <div class="super7-payout-footer">
               <button class="super7-payout-confirm"${S.super7Staged ? '' : ' disabled'} onclick="Sims.baccarat.confirmSuperPayout('${source}')">선택완료</button>
-              <button class="super7-payout-close" onclick="Sims.baccarat.closeSuperPayoutPopup()">닫기</button>
+              <button class="super7-payout-close" onclick="Sims.baccarat.dismissSuper7Popup('${source}')">닫기</button>
             </div>
           </div>`;
       },
 
+      // Tapping an already-staged ratio again un-stages it (toggle off),
+      // same as tapping any other unselected ratio stages it — 선택완료
+      // stays disabled and no ratio shows picked until one is staged again.
       stageSuperPayout(ratio, source) {
-        S.super7Staged = ratio;
+        S.super7Staged = S.super7Staged === ratio ? null : ratio;
         this.renderSuper7Popup(source);
       },
 
@@ -2940,6 +2948,26 @@ const Sims = {
         if (!S.super7Staged) return;
         S.resultPicks.super7 = true;
         S.resultPicks.superPayout = S.super7Staged;
+        this.closeSuperPayoutPopup();
+        refreshResultBtns(source);
+      },
+
+      // 닫기's own handler (not the internal cleanup closeSuperPayoutPopup
+      // below, which pickSuper7 also calls just to clear a leftover overlay
+      // before reopening — that path must NOT touch S.resultPicks). If
+      // nothing is staged at the moment 닫기 is pressed — either the ratio
+      // was toggled off via stageSuperPayout, or nothing was ever picked —
+      // treat SUPER7 as fully unpicked: clear any already-committed
+      // super7/superPayout too, not just the in-popup draft, so the SUPER7
+      // button/highlight/payout tag all revert exactly as if SUPER7 had
+      // never been picked. If a ratio IS still staged, 닫기 keeps its
+      // original behavior (discard the staged draft, leave whatever was
+      // previously committed untouched).
+      dismissSuper7Popup(source) {
+        if (!S.super7Staged) {
+          S.resultPicks.super7 = false;
+          S.resultPicks.superPayout = null;
+        }
         this.closeSuperPayoutPopup();
         refreshResultBtns(source);
       },
