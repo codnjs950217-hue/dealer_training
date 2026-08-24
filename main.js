@@ -3311,7 +3311,7 @@ const Sims = {
               <input type="hidden" id="bpay-ci-${c.key}" value="0">
               <div class="bpay-chip-btns">
                 <button class="bpay-chip-btn" onclick="Sims.baccaratPay.addChip('${c.key}',5)" aria-label="+${fmtAmt(c.val * 5)}">
-                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val * 5)}</div>
+                  <div class="comm-slot-chip bpay-chip-btn-disc bpay-chip-btn-stacked" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val * 5)}</div>
                 </button>
                 <button class="bpay-chip-btn" onclick="Sims.baccaratPay.addChip('${c.key}',1)" aria-label="+${fmtAmt(c.val)}">
                   <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val)}</div>
@@ -3639,7 +3639,7 @@ const Sims = {
               <input type="hidden" id="bside-ci-${c.key}" value="0">
               <div class="bpay-chip-btns">
                 <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',5)" aria-label="+${fmtAmt(c.val * 5)}">
-                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val * 5)}</div>
+                  <div class="comm-slot-chip bpay-chip-btn-disc bpay-chip-btn-stacked" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val * 5)}</div>
                 </button>
                 <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',1)" aria-label="+${fmtAmt(c.val)}">
                   <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val)}</div>

@@ -4086,6 +4086,56 @@ body {
    flex column; kept as an explicit hook rather than styling
    .comm-slot-chip differently by context. */
 .bpay-chip-btn-disc { flex-shrink: 0; }
+/* REV 5 (2026-08-24): the ×5 button (left of each pair — always the
+   c.val*5 amount, e.g. "500M") and the ×1 button (right — c.val, e.g.
+   "100M") were visually identical shapes, differing only in their
+   printed number. Per explicit request, the ×5 disc now shows 2 darker
+   "ghost" chips peeking out behind it (not all 5 — "여러 개 쌓여있는
+   스택 느낌만 표현", just enough to read as a bundle) so "multiple" vs
+   "single" is visible without reading the text. Only .bpay-chip-btn-
+   -stacked (main.js only adds this to the ×5 disc, never the ×1 one)
+   gets the ::before/::after ghost circles; the ×1 disc is untouched.
+   Implementation notes:
+   - The ghosts are `position:absolute` — they don't participate in
+     .bpay-chip-btn's layout at all, so this can't change the button's
+     own box size (the "버튼 크기는 크게 변경하지 않음" constraint holds
+     by construction, not by care).
+   - `background: inherit` picks up the DISC's own inline
+     `style="background:${c.bg}"` automatically (inherit forces that on
+     any property, not just ones that are normally inherited) — no new
+     per-chip color plumbing needed, works for all 6 denominations for
+     free.
+   - `z-index: -1/-2` keeps both ghosts behind the disc's own painted
+     background+text, and `filter: brightness()` darkens each one a
+     little more than the last — the classic "coins in shadow behind
+     the top one" read, not just 3 identical flat copies. */
+/* z-index:0 (not just position:relative) is required here — without an
+   explicit z-index, this element doesn't establish its OWN stacking
+   context, so the ghost pseudo-elements' negative z-index resolves
+   against the nearest ANCESTOR context instead (e.g. .comm-slot),
+   which can tuck them behind unrelated sibling panels' opaque
+   backgrounds instead of just behind this disc. Confirmed via
+   screenshot: ghosts were invisible without this line even at a
+   deliberately large 42% offset. */
+.bpay-chip-btn-stacked { position: relative; z-index: 0; }
+.bpay-chip-btn-stacked::before,
+.bpay-chip-btn-stacked::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: inherit;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.4);
+  pointer-events: none;
+}
+/* Percentage transforms (not fixed px) — resolve against the pseudo-
+   element's own box, which is sized to match the disc (inset:0), so
+   the peek amount scales with --ch-md's own clamp() instead of being
+   a fixed px that reads as strong on a big screen and invisible on a
+   small one (an earlier px-based pass at 3px/6px was confirmed
+   imperceptible at this tray's normal render size). */
+.bpay-chip-btn-stacked::before { transform: translate(22%, 22%); filter: brightness(.8); z-index: -1; }
+.bpay-chip-btn-stacked::after  { transform: translate(42%, 42%); filter: brightness(.62); z-index: -2; }
 /* No longer referenced by any markup as of rev 4 (2026-08-24) — the
    amount text moved onto the chip disc itself (.bpay-chip-btn-disc,
    above) instead of a separate label row. Left in place, same
