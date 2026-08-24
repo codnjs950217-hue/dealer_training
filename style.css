@@ -4520,13 +4520,27 @@ body {
    0,1,0 specificity — later source order wins the box-shadow/border
    tie) or its box-shadow gets silently overridden; don't move this
    above that block. */
+/* Gold ring + glow layered on top of the press-in shadow above so the
+   literal pick reads as unambiguously "chosen" next to its siblings,
+   which stay in their normal enabled look (no dim, no ring) when
+   they're simply valid next options — e.g. after PLAYER WIN, BIG7/
+   SUPER7/SMALL6 don't get dimmed OR ringed, only PLAYER WIN does.
+   Two box-shadow layers, not a border-color change: a crisp 1.5px gold
+   ring (0 0 0 1.5px) plus a soft blurred glow (0 0 8px) — box-shadow
+   spread doesn't affect layout box size the way changing `border-width`
+   would, so this can't shift button dimensions. Static values only, no
+   `animation`/keyframes/pulsing — the .15s box-shadow transition is the
+   SAME one-time easing every other state change on these buttons
+   already uses (from .btn-bac-player's base rule), not a new blink. */
 .bac-choice-pressed {
   filter: brightness(.95);
   transform: translateY(1px);
   box-shadow:
     inset 0 2px 4px rgba(0,0,0,.35),
     inset 0 -1px 0 rgba(var(--btn-hi), .1),
-    0 1px 2px rgba(0,0,0,.3);
+    0 1px 2px rgba(0,0,0,.3),
+    0 0 0 1.5px rgba(212,175,55,.85),
+    0 0 8px 1px rgba(212,175,55,.5);
 }
 
 /* ---- BACCARAT: REAL-TABLE FELT SHAPES ----
