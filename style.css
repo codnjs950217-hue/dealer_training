@@ -4035,17 +4035,25 @@ body {
    - +5 button: .spread-mini-stack (already used for a 5-chip stack in
      the bet-spread display, see renderPositions()) — same face+body
      markup, --ms-bg set to this chip's own color.
-   - +1 button: .comm-slot-chip (the SAME class the per-column header
-     disc above these buttons already uses) — a single flat chip disc
-     with the denomination's key text on it.
+   - +1 button: .comm-slot-chip (the SAME class the old per-column
+     header disc used, reused here on the +1 button's own chip image
+     now that the header disc itself is gone — see below) — a single
+     flat chip disc with the denomination's key text on it.
    Only the button's CONTENTS changed; onclick handlers, addChip()'s
    logic, and everything downstream of it are untouched — these are
    purely presentational wrapper elements around the exact same
    Sims.baccaratPay.addChip('KEY', 5|1) / Sims.baccaratSide.addChip(...)
-   calls the old text buttons made. */
+   calls the old text buttons made.
+   REV 2 (2026-08-24, same day): per explicit follow-up, dropped the
+   .comm-slot-chip header disc that used to sit above these two buttons
+   (main.js no longer renders it at all — nothing to hide in CSS) and
+   changed .bpay-chip-btns from a vertical stack (+5 above +1) to a
+   horizontal row (+5 beside +1), so the tray now reads left-to-right as
+   +5,+1 | +5,+1 | +5,+1 ... once per denomination, not +5-over-+1
+   under a separate header chip. */
 .bpay-chip-btns {
-  display: flex; flex-direction: column; align-items: center;
-  gap: .35rem; width: 100%;
+  display: flex; flex-direction: row; align-items: flex-end; justify-content: center;
+  gap: .3rem; width: 100%;
 }
 .bpay-chip-btn {
   display: flex; flex-direction: column; align-items: center; justify-content: flex-end;

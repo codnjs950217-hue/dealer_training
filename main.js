@@ -3302,7 +3302,6 @@ const Sims = {
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
             <div class="comm-slot">
-              <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
               <input type="hidden" id="bpay-ci-${c.key}" value="0">
               <div class="bpay-chip-btns">
                 <button class="bpay-chip-btn" onclick="Sims.baccaratPay.addChip('${c.key}',5)" aria-label="${c.key} +5">
@@ -3629,7 +3628,6 @@ const Sims = {
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
             <div class="comm-slot">
-              <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
               <input type="hidden" id="bside-ci-${c.key}" value="0">
               <div class="bpay-chip-btns">
                 <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',5)" aria-label="${c.key} +5">
