@@ -53,193 +53,40 @@ function pipsHTML(rank, suit) {
   ).join('');
 }
 
-// J/Q/K face-card center art. Inline SVG — no raster image asset exists
-// in this project (see icon-*.png, the only local images, neither of
-// which is a card illustration) and per explicit instruction, none was
-// downloaded to make one. To swap in a real illustration asset later:
-// change ONLY this function's returned markup (e.g. to an <img
-// class="card-face-img" src="..." onerror="this.remove()"> followed by
-// this same SVG as a fallback) — .card-face-art's CSS sizing/positioning
-// and cardHTML()'s call site don't need to change, since both just
-// render whatever this function returns.
-//
-// REVISION 5 (2026-08-24): revisions 1-3 were flat ONE-COLOR silhouettes
-// (currentColor fill only) — readable as "a person with a crown/cap" but
-// not as an actual illustrated face/figure, since a solid silhouette
-// can't show a face, clothing texture, or articulated arms at all. This
-// revision adds a SECOND tone, hardcoded #fff (matches .card's own white
-// background — see .card { background:#fff } in style.css), used purely
-// for negative-space detail drawn ON TOP of the currentColor ink shapes:
-// - the FACE is now a white circle with a currentColor outline (stroke),
-//   not a solid ink blob, with eyes/eyebrows/nose/mouth (and a mustache
-//   for K) drawn in ink linework on that white — an actual illustrated
-//   face, not a shadow.
-// - the CROWN carries small white jewel/pearl-center dots.
-// - the SHOULDER LINE carries a row of small white dots (K, an ermine/
-//   fur-trim read) or a white V-neck notch (Q) or a white open wing-
-//   collar (J, same idea as rev 1-3 but now explicitly drawn instead of
-//   an accidental gap between shapes).
-// - the ROBE/GOWN carries thin white fold lines for fabric texture.
-// - ARMS are now their own bent (shoulder → elbow → inward) ink shapes
-//   ending in a round hand at chest height, gripping the held item —
-//   rev 1-3 had no separate arms at all, just a torso silhouette.
-// Paint order matters here (later SVG children draw on top) — each
-// rank's markup is a sequence of small <g fill="currentColor"> / <g
-// fill="#fff"> blocks in the exact order needed: crown → crown jewels →
-// white face circle → ink facial features (+ beard, K only) → torso →
-// white collar/trim → arms → held item → hands (hands last, so they
-// visually grip the item's shaft). Splitting into many small groups
-// instead of one big fill="currentColor" wrapper (rev 1-3's approach)
-// is what makes that interleaving possible.
-// Left-right (bilateral) symmetry and the portrait viewBox (now
-// 100x150, was 100x140) are unchanged from rev 3.
-const FACE_ART = {
-  // J = Jack: plain domed cap (no crown, small diamond badge) + a young
-  // clean-shaven face + an open white wing-collar at the throat + a
-  // leaner tunic + arms gripping an upright sword — the only rank with
-  // no crown and no facial hair, deliberately the "plainest" figure.
-  J: `<svg viewBox="0 0 100 150" class="face-icon face-icon-j" aria-hidden="true" focusable="false">
-        <g fill="currentColor">
-          <path d="M28,36 Q50,6 72,36 Z"/>
-          <rect x="26" y="32" width="48" height="8" rx="2"/>
-          <rect x="46" y="19" width="8" height="8" transform="rotate(45 50 23)"/>
-        </g>
-        <g fill="#fff"><circle cx="50" cy="23" r="2"/></g>
-        <circle cx="50" cy="54" r="16" fill="#fff" stroke="currentColor" stroke-width="2.5"/>
-        <g fill="currentColor">
-          <circle cx="43" cy="51" r="2.2"/>
-          <circle cx="57" cy="51" r="2.2"/>
-          <rect x="39" y="45" width="8" height="2" rx="1"/>
-          <rect x="53" y="45" width="8" height="2" rx="1"/>
-          <polygon points="49,52 51,52 50,59"/>
-          <rect x="45" y="61" width="10" height="2.2" rx="1.1"/>
-        </g>
-        <g fill="currentColor"><polygon points="32,90 68,90 80,150 20,150"/></g>
-        <g fill="#fff">
-          <polygon points="35,74 50,86 35,92"/>
-          <polygon points="65,74 50,86 65,92"/>
-        </g>
-        <g fill="currentColor">
-          <path d="M30,90 Q10,102 14,118 Q18,128 32,124 Q40,120 46,116 Q34,112 32,102 Q32,96 36,90 Z"/>
-          <path d="M70,90 Q90,102 86,118 Q82,128 68,124 Q60,120 54,116 Q66,112 68,102 Q68,96 64,90 Z"/>
-        </g>
-        <g fill="currentColor">
-          <rect x="47" y="76" width="6" height="38" rx="1"/>
-          <rect x="36" y="112" width="28" height="6" rx="2"/>
-          <rect x="47" y="119" width="6" height="13"/>
-          <circle cx="50" cy="134" r="6"/>
-        </g>
-        <g fill="currentColor">
-          <circle cx="37" cy="117" r="6"/>
-          <circle cx="63" cy="117" r="6"/>
-        </g>
-      </svg>`,
-  // Q = Queen: rounded 3-pearl crown + hair flowing past both shoulders
-  // + a soft (no eyebrow-frown, curved smile) face + an hourglass gown
-  // with a white V-neck and waist sash + arms gripping a gemmed scepter
-  // — every held/worn shape curved, no sharp points anywhere.
-  Q: `<svg viewBox="0 0 100 150" class="face-icon face-icon-q" aria-hidden="true" focusable="false">
-        <g fill="currentColor">
-          <circle cx="32" cy="16" r="10"/>
-          <circle cx="50" cy="9" r="11"/>
-          <circle cx="68" cy="16" r="10"/>
-          <rect x="20" y="22" width="60" height="9" rx="3"/>
-        </g>
-        <g fill="#fff"><circle cx="50" cy="9" r="3"/></g>
-        <g fill="currentColor">
-          <path d="M35,46 Q16,62 22,98 Q28,112 39,101 Q31,82 37,58 Z"/>
-          <path d="M65,46 Q84,62 78,98 Q72,112 61,101 Q69,82 63,58 Z"/>
-        </g>
-        <circle cx="50" cy="54" r="17" fill="#fff" stroke="currentColor" stroke-width="2.5"/>
-        <g fill="currentColor">
-          <circle cx="43" cy="51" r="2.2"/>
-          <circle cx="57" cy="51" r="2.2"/>
-          <rect x="39" y="45" width="8" height="2" rx="1"/>
-          <rect x="53" y="45" width="8" height="2" rx="1"/>
-          <polygon points="49,52 51,52 50,58"/>
-        </g>
-        <path d="M44,61 Q50,65 56,61" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-        <g fill="currentColor"><polygon points="26,92 74,92 64,114 90,150 10,150 36,114"/></g>
-        <g fill="#fff">
-          <polygon points="42,92 58,92 50,104"/>
-          <rect x="33" y="110" width="34" height="4" rx="2"/>
-          <rect x="30" y="118" width="3" height="28" rx="1.5"/>
-          <rect x="67" y="118" width="3" height="28" rx="1.5"/>
-        </g>
-        <g fill="currentColor">
-          <path d="M28,92 Q4,104 8,122 Q12,132 28,128 Q38,122 44,118 Q30,114 28,102 Q28,96 32,92 Z"/>
-          <path d="M72,92 Q96,104 92,122 Q88,132 72,128 Q62,122 56,118 Q70,114 72,102 Q72,96 68,92 Z"/>
-        </g>
-        <g fill="currentColor">
-          <rect x="47" y="100" width="6" height="46" rx="1"/>
-          <circle cx="50" cy="98" r="9"/>
-        </g>
-        <g fill="currentColor">
-          <circle cx="36" cy="119" r="6.5"/>
-          <circle cx="64" cy="119" r="6.5"/>
-        </g>
-      </svg>`,
-  // K = King: pointed crown + cross + a bearded face (mustache + full
-  // chin beard, the only rank with facial hair) + a broad epauletted
-  // robe with a white ermine-dot trim at the shoulder line + arms
-  // gripping a cross-topped orb scepter — every shape angular, opposite
-  // language from Q's curves.
-  K: `<svg viewBox="0 0 100 150" class="face-icon face-icon-k" aria-hidden="true" focusable="false">
-        <g fill="currentColor">
-          <rect x="48" y="0" width="4" height="8"/>
-          <rect x="44" y="2" width="12" height="4"/>
-          <polygon points="20,26 30,8 40,26 50,10 60,26 70,8 80,26"/>
-          <rect x="18" y="24" width="64" height="10" rx="2"/>
-        </g>
-        <g fill="#fff">
-          <circle cx="33" cy="29" r="2.4"/>
-          <circle cx="50" cy="29" r="2.4"/>
-          <circle cx="67" cy="29" r="2.4"/>
-        </g>
-        <circle cx="50" cy="54" r="17" fill="#fff" stroke="currentColor" stroke-width="2.5"/>
-        <g fill="currentColor">
-          <circle cx="43" cy="51" r="2.2"/>
-          <circle cx="57" cy="51" r="2.2"/>
-          <rect x="39" y="45" width="8" height="2.2" rx="1"/>
-          <rect x="53" y="45" width="8" height="2.2" rx="1"/>
-          <polygon points="49,52 51,52 50,59"/>
-          <rect x="38" y="61" width="24" height="3" rx="1.5"/>
-          <polygon points="34,64 66,64 50,100"/>
-        </g>
-        <g fill="currentColor">
-          <polygon points="20,90 80,90 96,150 4,150"/>
-          <rect x="8" y="88" width="20" height="14" rx="3"/>
-          <rect x="72" y="88" width="20" height="14" rx="3"/>
-        </g>
-        <g fill="#fff">
-          <circle cx="24" cy="92" r="3"/>
-          <circle cx="33" cy="92" r="3"/>
-          <circle cx="42" cy="92" r="3"/>
-          <circle cx="58" cy="92" r="3"/>
-          <circle cx="67" cy="92" r="3"/>
-          <circle cx="76" cy="92" r="3"/>
-          <rect x="30" y="112" width="3" height="32" rx="1.5"/>
-          <rect x="67" y="112" width="3" height="32" rx="1.5"/>
-        </g>
-        <g fill="currentColor">
-          <path d="M22,90 Q0,102 4,120 Q8,130 24,126 Q36,120 42,118 Q28,114 26,102 Q26,94 30,90 Z"/>
-          <path d="M78,90 Q100,102 96,120 Q92,130 76,126 Q64,120 58,118 Q72,114 74,102 Q74,94 70,90 Z"/>
-        </g>
-        <g fill="currentColor">
-          <rect x="47" y="100" width="6" height="47" rx="1"/>
-          <circle cx="50" cy="120" r="10"/>
-          <rect x="47" y="108" width="6" height="8"/>
-          <rect x="44" y="111" width="12" height="4"/>
-        </g>
-        <g fill="currentColor">
-          <circle cx="37" cy="121" r="7"/>
-          <circle cx="63" cy="121" r="7"/>
-        </g>
-      </svg>`,
-};
+// J/Q/K face cards: real illustrated card art (.svg image files), not
+// hand-drawn shapes. REVISION 6 (2026-08-24) replaces every prior
+// FACE_ART revision (1-5, all hand-authored inline SVG: abstract
+// glyphs, then flat silhouettes, then a two-tone silhouette+linework
+// attempt) after explicit user feedback that hand-drawn shapes read as
+// icons/pictograms no matter how much detail was added, never as an
+// actual illustrated card ("실제 카드 일러스트" vs "아이콘/픽토그램").
+// Source: the "English pattern playing cards" SVG set by Dmitry Fomin
+// on Wikimedia Commons — CC0 (public domain, no attribution required):
+// https://commons.wikimedia.org/wiki/Category:SVG_English_pattern_playing_cards
+// Downloaded once into assets/cards/ (12 files, {rank}_of_{suit}.svg for
+// J/Q/K × 4 suits — A/2-10 don't need art files, PIP_LAYOUTS already
+// draws them, untouched by this revision). Each file is a COMPLETE card
+// face — white background, keyline border, corner indices, AND the
+// illustrated portrait all baked in by the source artist — not
+// center-only art. So for J/Q/K, cardHTML() below renders the whole
+// .card as that <img> and skips the separately-rendered .card-corner
+// divs / center-content box entirely (those stay exactly as before for
+// A/2-10 — FACE_RANK_NAME/SUIT_NAME only affect the J/Q/K branch).
+const FACE_RANK_NAME = { J: 'jack', Q: 'queen', K: 'king' };
+const SUIT_NAME = { '♠': 'spades', '♥': 'hearts', '♦': 'diamonds', '♣': 'clubs' };
 
 function cardHTML(c, faceDown = false) {
   if (faceDown) return `<div class="card back notranslate" translate="no"><div class="card-pattern"></div></div>`;
+  // J/Q/K: the downloaded asset IS the whole card (background, border,
+  // corner indices, and portrait all baked in by the source artist) —
+  // render it as the entire .card, no .card-corner divs, no center box.
+  if (FACE_RANK_NAME[c.rank]) {
+    const src = `/assets/cards/${FACE_RANK_NAME[c.rank]}_of_${SUIT_NAME[c.suit]}.svg`;
+    return `
+    <div class="card card-illustrated notranslate" translate="no">
+      <img class="card-illustration" src="${src}" alt="${c.rank}${c.suit}" draggable="false">
+    </div>`;
+  }
   // data-rank on the wrapper is only ever read by CSS, for rank "10" —
   // its 2-digit corner index is wider than every other numeral's single
   // digit, so style.css's .card-pips[data-rank="10"] bumps
@@ -248,14 +95,9 @@ function cardHTML(c, faceDown = false) {
   // columns automatically sit further from the corners than every other
   // rank's. Doesn't change which cells PIP_LAYOUTS picks or how many
   // pips render.
-  let center;
-  if (PIP_LAYOUTS[c.rank]) {
-    center = `<div class="card-pips" data-rank="${c.rank}">${pipsHTML(c.rank, c.suit)}</div>`;
-  } else if (FACE_ART[c.rank]) {
-    center = `<div class="card-face-art">${FACE_ART[c.rank]}</div>`;
-  } else {
-    center = `<div class="card-suit-center">${c.suit}</div>`;
-  }
+  const center = PIP_LAYOUTS[c.rank]
+    ? `<div class="card-pips" data-rank="${c.rank}">${pipsHTML(c.rank, c.suit)}</div>`
+    : `<div class="card-suit-center">${c.suit}</div>`;
   return `
     <div class="card notranslate${c.red ? ' red' : ''}" translate="no">
       <div class="card-corner top"><span class="rank">${c.rank}</span><span class="suit">${c.suit}</span></div>

@@ -405,14 +405,14 @@ body {
 .home-hero-cards {
   position: relative; width: 108px; height: 100px; flex-shrink: 0;
   /* Scopes the SAME shared card component every game uses (.card /
-     .card-corner / .card-suit-center / .card-face-art — see cardHTML()
-     in main.js) to this hero's size, exactly the way .baccarat-sim,
-     .thp-rank-sim etc. each scope it to their own table's card size.
-     Views.home() now calls cardHTML({rank,suit,red}) directly instead
-     of hand-rolling a separate mini card markup, so any future change
-     to the real card system (pip layout, face-card art, corner
-     styling) shows up here automatically with zero home-screen-specific
-     code to update. */
+     .card-corner / .card-suit-center / .card-pips / .card-illustration
+     for J/Q/K — see cardHTML() in main.js) to this hero's size, exactly
+     the way .baccarat-sim, .thp-rank-sim etc. each scope it to their own
+     table's card size. Views.home() now calls cardHTML({rank,suit,red})
+     directly instead of hand-rolling a separate mini card markup, so any
+     future change to the real card system (pip layout, face-card art,
+     corner styling) shows up here automatically with zero
+     home-screen-specific code to update. */
   --card-w-lg: 52px; --card-h-lg: 70px;
 }
 .home-hero-cards .card {
@@ -579,16 +579,8 @@ body {
    exact same numbers actually driving this corner's rendered size —
    there's no second, separately-hand-tuned copy of "how big is the
    corner" to keep in sync. */
-/* z-index:2 guarantees both indices paint ABOVE .card-face-art no matter
-   how large the face-card illustration's box grows (see that rule's own
-   comment — rev 4 deliberately sized the box past the corners' exact
-   clearance need to hit a 70-80%-of-center target, the same way a real
-   printed card's illustration runs under/behind its corner index). Without
-   this, DOM order alone would only protect the BOTTOM corner (it paints
-   after .card-face-art); the TOP corner comes before it in cardHTML()'s
-   markup and would have nothing else keeping it on top. */
-.card-corner.top    { top: var(--corner-offset-y, 5px); left: var(--corner-offset-x, 6px); transform: translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; z-index: 2; }
-.card-corner.bottom { bottom: var(--corner-offset-y, 5px); right: var(--corner-offset-x, 6px); transform: rotate(180deg) translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; z-index: 2; }
+.card-corner.top    { top: var(--corner-offset-y, 5px); left: var(--corner-offset-x, 6px); transform: translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.card-corner.bottom { bottom: var(--corner-offset-y, 5px); right: var(--corner-offset-x, 6px); transform: rotate(180deg) translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 /* Every element inside .card is explicitly position:absolute and pinned to
    a fixed spot — top-left corner (top/left), bottom-right corner
    (bottom/right + the static rotate(180deg) above), center suit
@@ -621,81 +613,30 @@ body {
   color: #111;
 }
 
-/* ---- CARD FACE ART (J/Q/K) ----
-   cardHTML() renders a .card-face-art box (in place of .card-suit-center)
-   for J/Q/K, containing an inline SVG bust/figure illustration (main.js's
-   FACE_ART — headwear + head + hair-or-beard + robe + one held accessory,
-   one per rank, each left-right symmetric on a portrait 100x140 viewBox).
-   A and 2-10 are completely untouched by this rule.
-   Sizing/position reuse the exact same size-driven approach as
-   .card-pips's --pip-safe-top/-left (see that rule's own long comment)
-   — a SEPARATE set of variables (--face-safe-top/-left), not the pip
-   ones themselves, so nothing here can ever affect pip layout. All four
-   insets (top/left/right/bottom) are set on this absolutely-positioned
-   box, which is what makes its width/height auto-resolve to "whatever's
-   left after clearing the corner index on every side" — the SVG inside
-   is width:100%/height:100% of that box, so the illustration
-   automatically grows/shrinks with the card and never needs a
-   page-specific override, the same way the corner-index-driven pip
-   formula doesn't. Bounds are a bit more generous than the pip
-   formula's (single big shape vs. up to 10 small dots needing mutual
-   clearance too) — if a real device still shows crowding against the
-   corner, --face-corner-k/--face-char-w below are the ones to retune,
-   the same "one constant, not a new page/rank exception" pattern used
-   for pips (see [[project_card_pip_rendering]] in memory). */
-.card-face-art {
-  position: absolute;
-  display: flex; align-items: center; justify-content: center;
-  transition: none; animation: none;
-  color: #111;
-  --face-corner-k: 0.62;
-  --face-char-w: 0.62;
-  --face-gap: .2rem;
-  /* REV 4 (2026-08-24): "70-80% of the center area" is now an explicit,
-     literal requirement, not just "as big as fits outside the corner."
-     The old clamp(12%, calc(real corner clearance), 36%) let the corner's
-     OWN size dictate the box — fine for zero-overlap, but nowhere close
-     to 70-80% on most contexts (measured ~50-62% pre-rev-4) and it
-     actively shrank the box further on any context with a proportionally
-     large corner index (thp-rank-sim's 28x40 floor measured ~28%).
-     Rev 4 tightens both the floor AND the ceiling around the actual
-     target band instead of leaving the ceiling as a rarely-hit safety
-     rail: --face-safe-top lands in [10%,11%] (box height 78-80%) and
-     --face-safe-left in [7%,12%] (box width 76-86%) on EVERY context,
-     because the ceiling is now low enough to be the binding constraint
-     almost everywhere a corner index would otherwise have demanded more
-     room. That deliberately sacrifices this rule's old "always
-     geometrically clears the corner" guarantee on contexts with a large
-     corner index relative to the card (thp-rank-sim's floor, in
-     particular) — the corner z-index rule above is what keeps the index
-     legible in that case (art can run under it, same as a real printed
-     card's illustration does; the index no longer depends on the art's
-     box staying outside its footprint). Don't widen this band without
-     re-checking both: (a) the 70-80% target is still met, (b) the
-     corner z-index rule is still in place.
-     Top's ceiling (11%, not left's 12%) is deliberately tighter than
-     left's: FACE_ART's viewBox is portrait (100x150, aspect 0.667), so
-     with the box itself letterboxing the SVG content to that aspect,
-     the box's HEIGHT ends up the binding dimension for how much
-     illustrated content actually shows — a wider box beyond what the
-     letterboxed content needs just adds empty side margin, it doesn't
-     grow the illustration. Pushing height to ~78-80% is what pulls the
-     letterboxed content's OWN width up to the 70-80% band too (verified
-     ~73-76% via DOM-rect measurement) — left's ceiling has slack because
-     of this, not because it needed to be looser on its own. If
-     FACE_ART's viewBox aspect ratio ever changes, re-derive this pair
-     together, not just left's number. */
-  --face-safe-top: clamp(10%,
-    calc(var(--corner-offset-y, 5px) + (var(--corner-rank-fs, 1.05rem) + var(--corner-suit-fs, .82rem)) * var(--face-corner-k) + var(--face-gap)),
-    11%);
-  --face-safe-left: clamp(7%,
-    calc(var(--corner-offset-x, 6px) + var(--corner-rank-fs, 1.05rem) * var(--face-char-w) + var(--face-gap)),
-    12%);
-  top: var(--face-safe-top); left: var(--face-safe-left);
-  right: var(--face-safe-left); bottom: var(--face-safe-top);
+/* ---- CARD ILLUSTRATION (J/Q/K) ----
+   REVISION 6 (2026-08-24): replaces every hand-drawn-SVG .card-face-art
+   revision (1-5). cardHTML() now renders J/Q/K as a single <img
+   class="card-illustration"> filling the ENTIRE .card.card-illustrated —
+   the downloaded asset (assets/cards/*.svg, see main.js's FACE_RANK_NAME/
+   SUIT_NAME) already bakes in the card's white background, keyline
+   border, corner indices, AND the illustrated portrait, so there's no
+   separate .card-corner/center-box compositing to do here (unlike A/2-10,
+   which still use .card-corner + .card-pips/.card-suit-center exactly as
+   before — this block only ever applies to .card-illustrated). */
+.card-illustrated { padding: 0; }
+.card-illustration {
+  width: 100%; height: 100%;
+  object-fit: contain; /* source SVGs are 360x540 (aspect .667); every
+    --card-w/h-lg pairing in this app is closer to .70-.74, so contain
+    avoids stretching the portrait — the tiny resulting side-letterbox
+    is invisible since both the card and the source image use the same
+    white background. */
+  display: block;
+  pointer-events: none; /* matches the rest of .card — nothing here is
+    interactive, and this stops the browser's native image drag/ghost
+    from firing on a long-press or drag gesture over a dealt card. */
+  user-select: none;
 }
-.card.red .card-face-art { color: var(--card-red); }
-.card-face-art .face-icon { width: 100%; height: 100%; display: block; }
 
 /* ---- CARD PIPS (numeral cards 2-10) — SIZE-DRIVEN AUTO LAYOUT ----
    cardHTML() renders a .card-pips container (in place of the single
