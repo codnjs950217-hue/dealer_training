@@ -3152,6 +3152,12 @@ const Sims = {
     ];
     const BET_CHIPS_MAIN  = [COMM_CHIPS[3], COMM_CHIPS[2]];        // 100K, 1M
     const BET_CHIPS_EXTRA = [COMM_CHIPS[3], COMM_CHIPS[2], COMM_CHIPS[1]]; // 100K, 1M, 10M
+    // Display-only: formats a chip button's resulting amount (val*5 or
+    // val*1) the same way COMM_CHIPS's own `key` strings already read
+    // (e.g. 500_000_000 -> "500M"), so the +5/+1 buttons can show what
+    // they actually add instead of a bare multiplier. Pure formatting —
+    // does not feed into addChip()/S.bets/any real amount calculation.
+    const fmtAmt = v => v >= 1_000_000 ? `${v / 1_000_000}M` : v >= 1_000 ? `${v / 1_000}K` : String(v);
 
     let S = {};
     const $ = id => document.getElementById(id);
@@ -3304,13 +3310,13 @@ const Sims = {
             <div class="comm-slot">
               <input type="hidden" id="bpay-ci-${c.key}" value="0">
               <div class="bpay-chip-btns">
-                <button class="bpay-chip-btn" onclick="Sims.baccaratPay.addChip('${c.key}',5)" aria-label="${c.key} +5">
-                  <div class="spread-mini-stack" style="--ms-bg:${c.bg}"><div class="spread-mini-stack-face"></div><div class="spread-mini-stack-body"></div></div>
-                  <span class="bpay-chip-btn-lbl">+5</span>
-                </button>
-                <button class="bpay-chip-btn" onclick="Sims.baccaratPay.addChip('${c.key}',1)" aria-label="${c.key} +1">
+                <button class="bpay-chip-btn" onclick="Sims.baccaratPay.addChip('${c.key}',5)" aria-label="+${fmtAmt(c.val * 5)}">
+                  <span class="bpay-chip-btn-lbl">${fmtAmt(c.val * 5)}</span>
                   <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${c.key}</div>
-                  <span class="bpay-chip-btn-lbl">+1</span>
+                </button>
+                <button class="bpay-chip-btn" onclick="Sims.baccaratPay.addChip('${c.key}',1)" aria-label="+${fmtAmt(c.val)}">
+                  <span class="bpay-chip-btn-lbl">${fmtAmt(c.val)}</span>
+                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${c.key}</div>
                 </button>
               </div>
             </div>`).join('')}
@@ -3519,6 +3525,10 @@ const Sims = {
       { key: '5K',   val:       5_000, bg: '#b5176b', fg: '#fff'    },
     ];
     const SIDE_CHIPS = [COMM_CHIPS[3], COMM_CHIPS[4]];
+    // Display-only, mirrors Sims.baccaratPay's own fmtAmt (see that
+    // copy's comment) — formats a chip button's resulting amount, does
+    // not feed into addChip()/S.bets/any real amount calculation.
+    const fmtAmt = v => v >= 1_000_000 ? `${v / 1_000_000}M` : v >= 1_000 ? `${v / 1_000}K` : String(v);
     const SIDE_KEYS  = ['st','tt','bt','sd','s7','bd','pp','bp'];
     const SIDE_BET_MIN = 10_000;
     const SIDE_BET_MAX = {
@@ -3630,13 +3640,13 @@ const Sims = {
             <div class="comm-slot">
               <input type="hidden" id="bside-ci-${c.key}" value="0">
               <div class="bpay-chip-btns">
-                <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',5)" aria-label="${c.key} +5">
-                  <div class="spread-mini-stack" style="--ms-bg:${c.bg}"><div class="spread-mini-stack-face"></div><div class="spread-mini-stack-body"></div></div>
-                  <span class="bpay-chip-btn-lbl">+5</span>
-                </button>
-                <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',1)" aria-label="${c.key} +1">
+                <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',5)" aria-label="+${fmtAmt(c.val * 5)}">
+                  <span class="bpay-chip-btn-lbl">${fmtAmt(c.val * 5)}</span>
                   <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${c.key}</div>
-                  <span class="bpay-chip-btn-lbl">+1</span>
+                </button>
+                <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',1)" aria-label="+${fmtAmt(c.val)}">
+                  <span class="bpay-chip-btn-lbl">${fmtAmt(c.val)}</span>
+                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${c.key}</div>
                 </button>
               </div>
             </div>`).join('')}
