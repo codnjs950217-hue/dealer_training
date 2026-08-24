@@ -4016,6 +4016,57 @@ body {
 }
 .comm-5k-reset:hover  { background: rgba(255,255,255,.14); color: rgba(255,255,255,.9); box-shadow: 0 2px 6px rgba(0,0,0,.32); }
 .comm-5k-reset:active { transform: scale(.95); }
+/* .comm-5k-btn(s)/.comm-5k-reset above are no longer referenced by any
+   markup as of 2026-08-24 (the +5/+1 text buttons became chip-image
+   buttons — .bpay-chip-btn below — and the per-chip RESET button was
+   removed outright, per explicit request; ALL RESET, .comm-all-reset-btn,
+   is untouched). Left in place rather than deleted, same "don't remove,
+   just stop using" convention as this project's old .hcard CSS — grep
+   main.js for these class names before assuming it's safe to delete. */
+
+/* ---- BACCARAT PAYOUT: chip-image +5/+1 buttons (2026-08-24) ----
+   Replaces the old plain-text "+5"/"+1" buttons with a real chip visual
+   per button, styled after Roulette Payout's own chip-tray buttons
+   (.rpay-tray-chip-btn and friends, further up this file) — same idea
+   (a clickable button whose face IS a chip image, with a small +N label
+   underneath) but built from THIS page's own existing chip-visual
+   classes instead of importing Roulette's, so it matches the chip
+   spread already drawn elsewhere on this same page:
+   - +5 button: .spread-mini-stack (already used for a 5-chip stack in
+     the bet-spread display, see renderPositions()) — same face+body
+     markup, --ms-bg set to this chip's own color.
+   - +1 button: .comm-slot-chip (the SAME class the per-column header
+     disc above these buttons already uses) — a single flat chip disc
+     with the denomination's key text on it.
+   Only the button's CONTENTS changed; onclick handlers, addChip()'s
+   logic, and everything downstream of it are untouched — these are
+   purely presentational wrapper elements around the exact same
+   Sims.baccaratPay.addChip('KEY', 5|1) / Sims.baccaratSide.addChip(...)
+   calls the old text buttons made. */
+.bpay-chip-btns {
+  display: flex; flex-direction: column; align-items: center;
+  gap: .35rem; width: 100%;
+}
+.bpay-chip-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  gap: .15rem; width: 100%;
+  background: none; border: none; padding: .1rem 0;
+  cursor: pointer;
+  transition: transform .12s, filter .12s;
+}
+.bpay-chip-btn:hover  { transform: translateY(-2px); filter: brightness(1.12); }
+.bpay-chip-btn:active { transform: translateY(-1px) scale(.94); filter: brightness(.95); }
+/* .bpay-chip-btn-disc reuses .comm-slot-chip's exact disc look (same
+   class, combined) — this modifier only removes the header disc's
+   margin-bottom-less spacing quirks if any show up inside a button
+   flex column; kept as an explicit hook rather than styling
+   .comm-slot-chip differently by context. */
+.bpay-chip-btn-disc { flex-shrink: 0; }
+.bpay-chip-btn-lbl {
+  font-size: var(--bf-xs); font-weight: 700; letter-spacing: .2px;
+  color: rgba(255,255,255,.72);
+  line-height: 1;
+}
 
 /* PAY button inside the rack */
 .comm-pay-slot {

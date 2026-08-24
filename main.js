@@ -3304,11 +3304,16 @@ const Sims = {
             <div class="comm-slot">
               <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
               <input type="hidden" id="bpay-ci-${c.key}" value="0">
-              <div class="comm-5k-btns">
-                <button class="comm-5k-btn" onclick="Sims.baccaratPay.addChip('${c.key}',5)">+5</button>
-                <button class="comm-5k-btn" onclick="Sims.baccaratPay.addChip('${c.key}',1)">+1</button>
+              <div class="bpay-chip-btns">
+                <button class="bpay-chip-btn" onclick="Sims.baccaratPay.addChip('${c.key}',5)" aria-label="${c.key} +5">
+                  <div class="spread-mini-stack" style="--ms-bg:${c.bg}"><div class="spread-mini-stack-face"></div><div class="spread-mini-stack-body"></div></div>
+                  <span class="bpay-chip-btn-lbl">+5</span>
+                </button>
+                <button class="bpay-chip-btn" onclick="Sims.baccaratPay.addChip('${c.key}',1)" aria-label="${c.key} +1">
+                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${c.key}</div>
+                  <span class="bpay-chip-btn-lbl">+1</span>
+                </button>
               </div>
-              <button class="comm-5k-reset" onclick="Sims.baccaratPay.resetChip('${c.key}')">RESET</button>
             </div>`).join('')}
           <div class="comm-pay-slot">
             <button class="comm-pay-btn" onclick="Sims.baccaratPay.submitComm()">PAY</button>
@@ -3626,11 +3631,16 @@ const Sims = {
             <div class="comm-slot">
               <div class="comm-slot-chip" style="background:${c.bg};color:${c.fg}">${c.key}</div>
               <input type="hidden" id="bside-ci-${c.key}" value="0">
-              <div class="comm-5k-btns">
-                <button class="comm-5k-btn" onclick="Sims.baccaratSide.addChip('${c.key}',5)">+5</button>
-                <button class="comm-5k-btn" onclick="Sims.baccaratSide.addChip('${c.key}',1)">+1</button>
+              <div class="bpay-chip-btns">
+                <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',5)" aria-label="${c.key} +5">
+                  <div class="spread-mini-stack" style="--ms-bg:${c.bg}"><div class="spread-mini-stack-face"></div><div class="spread-mini-stack-body"></div></div>
+                  <span class="bpay-chip-btn-lbl">+5</span>
+                </button>
+                <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',1)" aria-label="${c.key} +1">
+                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${c.key}</div>
+                  <span class="bpay-chip-btn-lbl">+1</span>
+                </button>
               </div>
-              <button class="comm-5k-reset" onclick="Sims.baccaratSide.resetChip('${c.key}')">RESET</button>
             </div>`).join('')}
           <div class="comm-pay-slot">
             <button class="comm-pay-btn" onclick="Sims.baccaratSide.submitPay()">PAY</button>
