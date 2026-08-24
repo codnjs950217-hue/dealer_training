@@ -579,8 +579,16 @@ body {
    exact same numbers actually driving this corner's rendered size —
    there's no second, separately-hand-tuned copy of "how big is the
    corner" to keep in sync. */
-.card-corner.top    { top: var(--corner-offset-y, 5px); left: var(--corner-offset-x, 6px); transform: translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.card-corner.bottom { bottom: var(--corner-offset-y, 5px); right: var(--corner-offset-x, 6px); transform: rotate(180deg) translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+/* z-index:2 guarantees both indices paint ABOVE .card-face-art no matter
+   how large the face-card illustration's box grows (see that rule's own
+   comment — rev 4 deliberately sized the box past the corners' exact
+   clearance need to hit a 70-80%-of-center target, the same way a real
+   printed card's illustration runs under/behind its corner index). Without
+   this, DOM order alone would only protect the BOTTOM corner (it paints
+   after .card-face-art); the TOP corner comes before it in cardHTML()'s
+   markup and would have nothing else keeping it on top. */
+.card-corner.top    { top: var(--corner-offset-y, 5px); left: var(--corner-offset-x, 6px); transform: translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; z-index: 2; }
+.card-corner.bottom { bottom: var(--corner-offset-y, 5px); right: var(--corner-offset-x, 6px); transform: rotate(180deg) translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; z-index: 2; }
 /* Every element inside .card is explicitly position:absolute and pinned to
    a fixed spot — top-left corner (top/left), bottom-right corner
    (bottom/right + the static rotate(180deg) above), center suit
@@ -643,28 +651,34 @@ body {
   --face-corner-k: 0.62;
   --face-char-w: 0.62;
   --face-gap: .2rem;
-  /* Floors lowered from 16%/12% to 12%/8% (2026-08-21, "make the
-     illustration bigger" follow-up) — the floor only kicks in when the
-     formula's computed value is already smaller than that, i.e. only
-     on contexts with a proportionally tiny corner, so this is a safe,
-     art-only-gets-bigger change there. Ceilings deliberately left at
-     36%/36% (NOT lowered) — thp-rank-sim's smallest size computes a
-     safe-top near ~40% (a bigger corner-to-card ratio than baccarat's
-     own worst case), meaning it's already leaning on this ceiling;
-     lowering it further would shrink its actual reserved clearance
-     and risk the art crowding that context's corner index. If more
-     size is still needed after this, prefer shrinking --face-gap
-     further or the shapes' own margins inside the 100x100 viewBox
-     first — don't lower these ceilings without re-deriving the
-     worst-case numbers per context (see
-     [[project_card_pip_rendering]] for the same formula pattern and
-     its own worked-through numbers). */
-  --face-safe-top: clamp(12%,
+  /* REV 4 (2026-08-24): "70-80% of the center area" is now an explicit,
+     literal requirement, not just "as big as fits outside the corner."
+     The old clamp(12%, calc(real corner clearance), 36%) let the corner's
+     OWN size dictate the box — fine for zero-overlap, but nowhere close
+     to 70-80% on most contexts (measured ~50-62% pre-rev-4) and it
+     actively shrank the box further on any context with a proportionally
+     large corner index (thp-rank-sim's 28x40 floor measured ~28%).
+     Rev 4 tightens both the floor AND the ceiling around the actual
+     target band instead of leaving the ceiling as a rarely-hit safety
+     rail: --face-safe-top now lands in [10%,15%] (box height 70-80%) and
+     --face-safe-left in [7%,12%] (box width 76-86%) on EVERY context,
+     because the ceiling is now low enough to be the binding constraint
+     almost everywhere a corner index would otherwise have demanded more
+     room. That deliberately sacrifices this rule's old "always
+     geometrically clears the corner" guarantee on contexts with a large
+     corner index relative to the card (thp-rank-sim's floor, in
+     particular) — the corner z-index rule above is what keeps the index
+     legible in that case (art can run under it, same as a real printed
+     card's illustration does; the index no longer depends on the art's
+     box staying outside its footprint). Don't widen this band without
+     re-checking both: (a) the 70-80% target is still met, (b) the
+     corner z-index rule is still in place. */
+  --face-safe-top: clamp(10%,
     calc(var(--corner-offset-y, 5px) + (var(--corner-rank-fs, 1.05rem) + var(--corner-suit-fs, .82rem)) * var(--face-corner-k) + var(--face-gap)),
-    36%);
-  --face-safe-left: clamp(8%,
+    15%);
+  --face-safe-left: clamp(7%,
     calc(var(--corner-offset-x, 6px) + var(--corner-rank-fs, 1.05rem) * var(--face-char-w) + var(--face-gap)),
-    36%);
+    12%);
   top: var(--face-safe-top); left: var(--face-safe-left);
   right: var(--face-safe-left); bottom: var(--face-safe-top);
 }
