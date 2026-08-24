@@ -615,10 +615,10 @@ body {
 
 /* ---- CARD FACE ART (J/Q/K) ----
    cardHTML() renders a .card-face-art box (in place of .card-suit-center)
-   for J/Q/K, containing an inline SVG silhouette (main.js's FACE_ART —
-   sword/floral-scepter/crown, one per rank, each drawn top-bottom
-   symmetric so it reads sensibly regardless of orientation). A and 2-10
-   are completely untouched by this rule.
+   for J/Q/K, containing an inline SVG bust/figure illustration (main.js's
+   FACE_ART — headwear + head + hair-or-beard + robe + one held accessory,
+   one per rank, each left-right symmetric on a portrait 100x140 viewBox).
+   A and 2-10 are completely untouched by this rule.
    Sizing/position reuse the exact same size-driven approach as
    .card-pips's --pip-safe-top/-left (see that rule's own long comment)
    — a SEPARATE set of variables (--face-safe-top/-left), not the pip

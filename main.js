@@ -56,63 +56,94 @@ function pipsHTML(rank, suit) {
 // J/Q/K face-card center art. Inline SVG — no raster image asset exists
 // in this project (see icon-*.png, the only local images, neither of
 // which is a card illustration) and per explicit instruction, none was
-// downloaded to make one. `fill: currentColor` on every shape means
-// these pick up red/black purely from .card-face-art's own `color` (set
+// downloaded to make one. Every shape lives inside one <g fill="currentColor">
+// so it picks up red/black purely from .card-face-art's own `color` (set
 // in style.css the same way .card-suit-center/.card-pips already are),
-// no per-icon color code. To swap in a real illustration asset later:
+// no per-shape color code. To swap in a real illustration asset later:
 // change ONLY this function's returned markup (e.g. to an <img
 // class="card-face-img" src="..." onerror="this.remove()"> followed by
 // this same SVG as a fallback) — .card-face-art's CSS sizing/positioning
 // and cardHTML()'s call site don't need to change, since both just
 // render whatever this function returns.
 //
-// REVISION 2 (2026-08-21): revision 1's icons were confirmed rendering
-// (right DOM, right size, right color) but user feedback was that a
-// real player couldn't tell them apart from ordinary suit pips at a
-// glance — the goal isn't "an SVG exists", it's "instantly reads as a
-// face card". Revision 1 was ALSO top-bottom mirror-symmetric (a nice-
-// to-have per the original "가능한 경우" wording, not a requirement),
-// which meant each individual crown/scepter had to be squeezed into
-// half the vertical space, shrinking exactly the details that make it
-// recognizable. This revision drops the mirroring in favor of ONE
-// bigger, single-orientation icon per rank, each built from a distinct
-// real regalia silhouette instead of an abstract mark:
+// REVISION 3 (2026-08-24): revisions 1-2 were regalia GLYPHS (a sword, a
+// crown+scepter) floating in the center — readable as "not a numeral
+// card" but not as a specific person. This revision draws an actual
+// bust/figure per rank (headwear + head + hair-or-beard + robe/torso +
+// one held accessory), the classic Bicycle-style face-card silhouette,
+// so K/Q/J are distinguishable from each other at a glance the same way
+// real playing cards are, not just distinguishable from a numeral card.
+// Each icon is left-right (bilaterally) symmetric — no rotational/
+// top-bottom mirroring — and uses a portrait viewBox (100x140, close to
+// the card's own aspect ratio) instead of the old square 100x100, so it
+// fills a portrait center-box with less letterboxing. Shapes are kept
+// large and blocky (no fine linework) on purpose: this still has to read
+// correctly at thp-rank-sim's smallest dealt-card size (see
+// [[project_card_pip_rendering]] in memory for that floor), where hairline
+// detail would just turn to mud.
 const FACE_ART = {
-  // J = a sword: pointed tip, blade, wide crossguard, grip, round
-  // pommel — an unmistakably different silhouette from any suit pip
-  // (tall/thin with one crossbar, not a compact glyph).
-  J: `<svg viewBox="0 0 100 100" class="face-icon face-icon-j" aria-hidden="true" focusable="false">
-        <polygon points="50,2 61,20 39,20" fill="currentColor"/>
-        <rect x="45" y="18" width="10" height="44" fill="currentColor"/>
-        <rect x="18" y="58" width="64" height="11" rx="3" fill="currentColor"/>
-        <rect x="45" y="67" width="10" height="18" rx="2" fill="currentColor"/>
-        <circle cx="50" cy="90" r="9" fill="currentColor"/>
+  // J = Jack: plain domed cap (no crown) + pointed wing-collar (open at
+  // the throat, unlike K/Q's closed robe neckline) + a narrower tunic +
+  // a held sword — youthful, un-crowned, distinct silhouette from both
+  // royals above him.
+  J: `<svg viewBox="0 0 100 140" class="face-icon face-icon-j" aria-hidden="true" focusable="false">
+        <g fill="currentColor">
+          <path d="M26,32 Q50,2 74,32 Z"/>
+          <rect x="24" y="28" width="52" height="8" rx="2"/>
+          <rect x="46" y="15" width="8" height="8" transform="rotate(45 50 19)"/>
+          <circle cx="50" cy="49" r="16"/>
+          <polygon points="34,60 50,72 34,79"/>
+          <polygon points="66,60 50,72 66,79"/>
+          <polygon points="34,75 66,75 78,140 22,140"/>
+          <rect x="26" y="112" width="48" height="8"/>
+          <polygon points="44,84 56,84 50,74"/>
+          <rect x="47" y="84" width="6" height="28"/>
+          <rect x="36" y="110" width="28" height="6" rx="2"/>
+          <rect x="47" y="116" width="6" height="14"/>
+          <circle cx="50" cy="132" r="6"/>
+        </g>
       </svg>`,
-  // Q = a rounded 3-pearl crown (soft circles, not sharp points) over a
-  // band, on a scepter ending in a round gem — deliberately ROUNDER
-  // than K's crown so the two don't read as the same shape at a glance.
-  Q: `<svg viewBox="0 0 100 100" class="face-icon face-icon-q" aria-hidden="true" focusable="false">
-        <circle cx="30" cy="11" r="9" fill="currentColor"/>
-        <circle cx="50" cy="5" r="10" fill="currentColor"/>
-        <circle cx="70" cy="11" r="9" fill="currentColor"/>
-        <rect x="20" y="17" width="60" height="12" rx="3" fill="currentColor"/>
-        <rect x="44" y="31" width="12" height="39" rx="3" fill="currentColor"/>
-        <circle cx="50" cy="80" r="15" fill="currentColor"/>
+  // Q = Queen: rounded 3-pearl crown (soft circles, deliberately ROUNDER
+  // than K's) + flowing hair framing both sides of the face + an
+  // hourglass gown (flared shoulders, cinched waist, flared hem) + a
+  // round-gemmed scepter — every shape in this icon is curved, no sharp
+  // points anywhere, the opposite design language from K.
+  Q: `<svg viewBox="0 0 100 140" class="face-icon face-icon-q" aria-hidden="true" focusable="false">
+        <g fill="currentColor">
+          <circle cx="32" cy="14" r="10"/>
+          <circle cx="50" cy="8" r="11"/>
+          <circle cx="68" cy="14" r="10"/>
+          <rect x="20" y="20" width="60" height="9" rx="3"/>
+          <path d="M33,40 Q18,55 24,85 Q30,95 38,88 Q30,70 36,50 Z"/>
+          <path d="M67,40 Q82,55 76,85 Q70,95 62,88 Q70,70 64,50 Z"/>
+          <circle cx="50" cy="48" r="17"/>
+          <polygon points="30,80 70,80 62,100 82,140 18,140 38,100"/>
+          <circle cx="50" cy="82" r="8"/>
+          <rect x="47" y="88" width="6" height="36"/>
+        </g>
       </svg>`,
-  // K = a wider crown with sharp triangular points AND a cross at its
-  // center spike (distinct from Q's soft pearls), a thicker scepter,
-  // and an orb topped with a small cross (a classic "globus cruciger" —
-  // instantly reads as royal/male regalia, different from Q's gem).
-  K: `<svg viewBox="0 0 100 100" class="face-icon face-icon-k" aria-hidden="true" focusable="false">
-        <polygon points="8,32 20,10 32,24 42,10" fill="currentColor"/>
-        <polygon points="58,10 68,24 80,10 92,32" fill="currentColor"/>
-        <rect x="47" y="0" width="6" height="24" fill="currentColor"/>
-        <rect x="41" y="8" width="18" height="6" fill="currentColor"/>
-        <rect x="8" y="30" width="84" height="10" rx="2" fill="currentColor"/>
-        <rect x="44" y="40" width="12" height="34" rx="3" fill="currentColor"/>
-        <rect x="47" y="58" width="6" height="10" fill="currentColor"/>
-        <rect x="43" y="61" width="14" height="5" fill="currentColor"/>
-        <circle cx="50" cy="82" r="14" fill="currentColor"/>
+  // K = King: wide crown with sharp triangular points AND a cross above
+  // the center spike (a classic globus cruciger cross, distinct from
+  // Q's soft pearls) + a full pointed beard (Q has none) + a broad
+  // epauletted robe + a scepter topped with a cross-bearing orb — every
+  // shape here is angular, the opposite design language from Q.
+  K: `<svg viewBox="0 0 100 140" class="face-icon face-icon-k" aria-hidden="true" focusable="false">
+        <g fill="currentColor">
+          <rect x="48" y="0" width="4" height="8"/>
+          <rect x="44" y="2" width="12" height="4"/>
+          <polygon points="20,24 30,8 40,24 50,10 60,24 70,8 80,24"/>
+          <rect x="18" y="22" width="64" height="9" rx="2"/>
+          <circle cx="50" cy="48" r="17"/>
+          <polygon points="33,56 67,56 50,90"/>
+          <polygon points="24,76 76,76 94,140 6,140"/>
+          <rect x="14" y="74" width="18" height="13" rx="3"/>
+          <rect x="68" y="74" width="18" height="13" rx="3"/>
+          <rect x="12" y="112" width="76" height="9"/>
+          <rect x="46" y="80" width="8" height="34"/>
+          <circle cx="50" cy="124" r="11"/>
+          <rect x="47" y="112" width="6" height="10"/>
+          <rect x="43" y="115" width="14" height="4"/>
+        </g>
       </svg>`,
 };
 
