@@ -579,8 +579,20 @@ body {
    exact same numbers actually driving this corner's rendered size —
    there's no second, separately-hand-tuned copy of "how big is the
    corner" to keep in sync. */
-.card-corner.top    { top: var(--corner-offset-y, 5px); left: var(--corner-offset-x, 6px); transform: translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.card-corner.bottom { bottom: var(--corner-offset-y, 5px); right: var(--corner-offset-x, 6px); transform: rotate(180deg) translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+/* z-index:2 is what STRUCTURALLY guarantees these paint above
+   .card-illustration-wrap (below) on every J/Q/K card, regardless of any
+   geometry — not "they happen not to overlap." Also fixes a real rev-7
+   bug: .card-illustration-wrap needs position:relative/absolute for its
+   own layout, which promotes it into the same CSS "positioned elements"
+   paint tier .card-corner lives in; inside that tier, paint order
+   follows DOM order, and the top corner comes BEFORE the illustration
+   in cardHTML()'s markup — so without an explicit z-index here, the
+   illustration would paint OVER the top corner, not under it. (The
+   bottom corner comes after in DOM order and painted correctly even
+   without this; this rule makes both corners' behavior explicit and
+   independent of markup order, not just the top one.) */
+.card-corner.top    { top: var(--corner-offset-y, 5px); left: var(--corner-offset-x, 6px); transform: translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; z-index: 2; }
+.card-corner.bottom { bottom: var(--corner-offset-y, 5px); right: var(--corner-offset-x, 6px); transform: rotate(180deg) translateZ(0); backface-visibility: hidden; -webkit-backface-visibility: hidden; z-index: 2; }
 /* Every element inside .card is explicitly position:absolute and pinned to
    a fixed spot — top-left corner (top/left), bottom-right corner
    (bottom/right + the static rotate(180deg) above), center suit
@@ -614,51 +626,51 @@ body {
 }
 
 /* ---- CARD ILLUSTRATION (J/Q/K) ----
-   REVISION 7 (2026-08-24): rev 6 rendered the downloaded asset
-   (assets/cards/*.svg — see main.js's FACE_RANK_NAME/SUIT_NAME) as the
-   ENTIRE .card, corner index and all. User feedback: that made J/Q/K's
-   corner index visibly smaller than A/2-10's (the source art sizes its
-   own index for a full-bleed card, not to match this app's
-   --corner-rank-fs/-suit-fs), and the portrait competed with the corner
-   instead of sitting behind it. Rev 7 goes back to compositing, same
-   shape as A/2-10: cardHTML() renders this app's OWN .card-corner divs
-   (byte-identical markup/CSS to the numeral branch — .card-corner .rank/
-   .suit below is the ONE rule for both, so there is no way for a face
-   card's corner to drift out of sync with a numeral card's) on top of a
-   smaller, centered illustration. */
+   REVISION 8 (2026-08-24): rev 7's .card-illustration-wrap was a flat
+   80% height, kept clear of the corner index by covering the SOURCE
+   image's own baked-in mini-index with two opaque white "mask" divs.
+   That masking approach was rejected outright (not just the bug it
+   shipped with — see .card-corner.top/.bottom's own comment above):
+   the corner index's visibility needs to be structurally guaranteed
+   (that's what this rule's z-index:2 partner does), and the
+   illustration's own size/placement needs to actually clear the corner
+   zone, not rely on a same-colored patch happening to sit in the right
+   spot.
+   So instead of a flat 80%, this box is sized with the EXACT same
+   corner-derived clamp() pattern used by every other size-driven part
+   of this card system — .card-pips's --pip-safe-top/-left
+   ([[project_card_pip_rendering]] in memory) and the pre-rev-6
+   .card-face-art before it: computed from THIS card context's real
+   --corner-offset-x/-y and --corner-rank-fs/-suit-fs, so the box is
+   inherently sized to sit outside the corner index's actual footprint
+   on every context (baccarat-sim, thp-rank-sim, home hero cards, etc.),
+   not a single fixed percentage that happens to work at one size. */
 .card-illustration-wrap {
-  position: relative;
-  height: 80%; /* ~20% smaller than rev 6's full-bleed image, per the
-    "20% 축소" ask — the freed 20% becomes top/bottom margin for free
-    since this is centered by .card's own flex (align-items/
-    justify-content: center), no extra margin math needed here. */
-  aspect-ratio: 360 / 540; /* the source SVGs' own fixed intrinsic size —
-    width is derived from this against the 80% height, so it's never
-    hand-tuned per context the way a left/right inset would need to be. */
+  position: absolute;
+  --illus-corner-k: 0.62;
+  --illus-char-w: 0.62;
+  --illus-gap: .3rem;
+  --illus-safe-top: clamp(16%,
+    calc(var(--corner-offset-y, 5px) + (var(--corner-rank-fs, 1.05rem) + var(--corner-suit-fs, .82rem)) * var(--illus-corner-k) + var(--illus-gap)),
+    36%);
+  --illus-safe-left: clamp(12%,
+    calc(var(--corner-offset-x, 6px) + var(--corner-rank-fs, 1.05rem) * var(--illus-char-w) + var(--illus-gap)),
+    36%);
+  top: var(--illus-safe-top); left: var(--illus-safe-left);
+  right: var(--illus-safe-left); bottom: var(--illus-safe-top);
 }
 .card-illustration {
   width: 100%; height: 100%;
+  object-fit: contain; /* the box's own aspect (derived independently
+    per-axis from the corner-clearance formula above) won't generally
+    equal the source SVGs' fixed 360x540 — contain letterboxes instead
+    of stretching/distorting the portrait. */
   display: block;
   pointer-events: none; /* matches the rest of .card — nothing here is
     interactive, and this stops the browser's native image drag/ghost
     from firing on a long-press or drag gesture over a dealt card. */
   user-select: none;
 }
-/* The source asset bakes its OWN small rank/suit index near its own
-   four corners (that's how the artist drew a complete card face) — with
-   our .card-corner now also drawn at the TRUE card corners, that baked
-   index would otherwise show through faintly inset from ours, reading
-   as a stray duplicate. These two opaque white patches cover exactly
-   that area. Measured empirically off king_of_hearts.svg (drew it onto
-   a canvas at its native 360x540 and inspected where the index cluster
-   ends), not guessed — the same template underlies all 12 files, so one
-   measurement covers every rank/suit. Percentages are relative to
-   .card-illustration-wrap, which is aspect-locked to the source's own
-   360x540, so these percentages equal the same percentages of the
-   source image itself with no separate unit conversion. */
-.card-illustration-mask { position: absolute; background: #fff; }
-.card-illustration-mask.tl { left: 0; top: 0; width: 21%; height: 24%; }
-.card-illustration-mask.br { right: 0; bottom: 0; width: 21%; height: 24%; }
 
 /* ---- CARD PIPS (numeral cards 2-10) — SIZE-DRIVEN AUTO LAYOUT ----
    cardHTML() renders a .card-pips container (in place of the single

@@ -66,24 +66,34 @@ const SUIT_NAME = { '♠': 'spades', '♥': 'hearts', '♦': 'diamonds', '♣': 
 
 function cardHTML(c, faceDown = false) {
   if (faceDown) return `<div class="card back notranslate" translate="no"><div class="card-pattern"></div></div>`;
-  // J/Q/K: REVISION 7 (2026-08-24). Rev 6 rendered the downloaded asset
-  // as the WHOLE .card (its own baked-in corner index included) — user
-  // feedback was that this made the corner index noticeably smaller
-  // than A/2-10's (the source art's own index is sized for a full-bleed
-  // card illustration, not to match this app's --corner-rank-fs/-suit-fs
-  // system), and the portrait competed with the corner for attention
-  // instead of sitting behind it. Rev 7 goes back to compositing, same
-  // shape as A/2-10: our OWN .card-corner divs (byte-identical markup to
-  // the numeral branch below, so font-size/weight/line-height match
-  // EXACTLY — no separate face-card corner styling exists to drift out
-  // of sync) drawn on top of a smaller, centered, MASKED illustration.
-  // "Masked" because the source image still has its own tiny baked-in
-  // index near each of ITS corners (see assets/cards/*.svg) — two small
-  // opaque white .card-illustration-mask divs (style.css) cover exactly
-  // that area (measured empirically off king_of_hearts.svg's actual
-  // pixel content, not guessed) so nothing duplicates or fights our
-  // real corner index. See .card-illustration-wrap in style.css for the
-  // sizing (~80% of the card, aspect-locked to the source's 360x540).
+  // J/Q/K: REVISION 8 (2026-08-24). Rev 7 kept the source art at a flat
+  // 80% size and covered ITS OWN baked-in corner index with two opaque
+  // white "mask" divs so it wouldn't show through inset from our real
+  // corner index. Bug + explicit user rejection: giving
+  // .card-illustration-wrap `position:relative` (needed so the mask divs
+  // could be positioned inside it) promoted it into the CSS "positioned
+  // elements" paint tier — the SAME tier .card-corner lives in — where
+  // paint order follows DOM order, not who's "on top" logically. Since
+  // the top .card-corner comes BEFORE .card-illustration-wrap in this
+  // markup, the wrap (and its mask) ended up painting OVER the top
+  // corner index instead of staying under it. Masking was also rejected
+  // outright as an approach, independent of the bug: user wants the
+  // corner index's full visibility structurally guaranteed (a z-index
+  // rule), not incidentally true because a same-colored patch happens to
+  // sit in the right place.
+  // Rev 8: dropped both mask divs entirely. .card-corner.top/.bottom
+  // (style.css) now carry z-index:2, so this app's own corner index
+  // ALWAYS paints above .card-illustration-wrap no matter what — not
+  // contingent on any geometry. Independently, .card-illustration-wrap
+  // is no longer a flat 80%: it now uses the same corner-derived
+  // clamp() formula the old (pre-rev-6) .card-face-art used — computed
+  // from each context's real --corner-offset-x/-y and
+  // --corner-rank-fs/-suit-fs, so the illustration's own box is sized to
+  // actually clear the corner by construction, not by relying on the
+  // z-index safety net to hide an overlap. The source image's own tiny
+  // baked-in index (see assets/cards/*.svg) is small enough at this
+  // reduced scale, and far enough inside the box's own margin, that it
+  // no longer reads as a conflicting duplicate next to our real one.
   if (FACE_RANK_NAME[c.rank]) {
     const src = `/assets/cards/${FACE_RANK_NAME[c.rank]}_of_${SUIT_NAME[c.suit]}.svg`;
     return `
@@ -91,8 +101,6 @@ function cardHTML(c, faceDown = false) {
       <div class="card-corner top"><span class="rank">${c.rank}</span><span class="suit">${c.suit}</span></div>
       <div class="card-illustration-wrap">
         <img class="card-illustration" src="${src}" alt="${c.rank}${c.suit}" draggable="false">
-        <div class="card-illustration-mask tl"></div>
-        <div class="card-illustration-mask br"></div>
       </div>
       <div class="card-corner bottom"><span class="rank">${c.rank}</span><span class="suit">${c.suit}</span></div>
     </div>`;
