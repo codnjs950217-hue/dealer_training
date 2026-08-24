@@ -4535,13 +4535,21 @@ body {
    0,1,0 specificity — later source order wins the box-shadow/border
    tie) or its box-shadow gets silently overridden; don't move this
    above that block. */
-/* Gold ring + glow layered on top of the press-in shadow above so the
+/* White ring + glow layered on top of the press-in shadow above so the
    literal pick reads as unambiguously "chosen" next to its siblings,
    which stay in their normal enabled look (no dim, no ring) when
    they're simply valid next options — e.g. after PLAYER WIN, BIG7/
    SUPER7/SMALL6 don't get dimmed OR ringed, only PLAYER WIN does.
-   Two box-shadow layers, not a border-color change: a crisp 1.5px gold
-   ring (0 0 0 1.5px) plus a soft blurred glow (0 0 8px) — box-shadow
+   REV 2 (2026-08-24): was gold (rgba(212,175,55,...)) — reported as
+   reading fine on the red PLAYER WIN button but nearly invisible on
+   BANKER WIN's own gold-family color (--btn-hi/--btn-glow), since a
+   gold ring on a gold button has almost no contrast. White has uniform
+   contrast against every button family's color (--btn-hi is either warm
+   red, gold, or blue/green per family — see each .btn-bac-* block's own
+   --btn-hi), so this is no longer color-dependent.
+   Still two box-shadow layers, not a border-color change: a crisp 1.5px
+   white ring (0 0 0 1.5px) plus a two-stop soft glow (0 0 6px / 0 0
+   12px, matching the exact rgba/blur values requested) — box-shadow
    spread doesn't affect layout box size the way changing `border-width`
    would, so this can't shift button dimensions. Static values only, no
    `animation`/keyframes/pulsing — the .15s box-shadow transition is the
@@ -4554,8 +4562,9 @@ body {
     inset 0 2px 4px rgba(0,0,0,.35),
     inset 0 -1px 0 rgba(var(--btn-hi), .1),
     0 1px 2px rgba(0,0,0,.3),
-    0 0 0 1.5px rgba(212,175,55,.85),
-    0 0 8px 1px rgba(212,175,55,.5);
+    0 0 0 1.5px rgba(255,255,255,.9),
+    0 0 6px rgba(255,255,255,.5),
+    0 0 12px rgba(255,255,255,.3);
 }
 
 /* ---- BACCARAT: REAL-TABLE FELT SHAPES ----
