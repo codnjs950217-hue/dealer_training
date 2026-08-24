@@ -660,7 +660,7 @@ body {
      large corner index (thp-rank-sim's 28x40 floor measured ~28%).
      Rev 4 tightens both the floor AND the ceiling around the actual
      target band instead of leaving the ceiling as a rarely-hit safety
-     rail: --face-safe-top now lands in [10%,15%] (box height 70-80%) and
+     rail: --face-safe-top lands in [10%,11%] (box height 78-80%) and
      --face-safe-left in [7%,12%] (box width 76-86%) on EVERY context,
      because the ceiling is now low enough to be the binding constraint
      almost everywhere a corner index would otherwise have demanded more
@@ -672,10 +672,22 @@ body {
      card's illustration does; the index no longer depends on the art's
      box staying outside its footprint). Don't widen this band without
      re-checking both: (a) the 70-80% target is still met, (b) the
-     corner z-index rule is still in place. */
+     corner z-index rule is still in place.
+     Top's ceiling (11%, not left's 12%) is deliberately tighter than
+     left's: FACE_ART's viewBox is portrait (100x150, aspect 0.667), so
+     with the box itself letterboxing the SVG content to that aspect,
+     the box's HEIGHT ends up the binding dimension for how much
+     illustrated content actually shows — a wider box beyond what the
+     letterboxed content needs just adds empty side margin, it doesn't
+     grow the illustration. Pushing height to ~78-80% is what pulls the
+     letterboxed content's OWN width up to the 70-80% band too (verified
+     ~73-76% via DOM-rect measurement) — left's ceiling has slack because
+     of this, not because it needed to be looser on its own. If
+     FACE_ART's viewBox aspect ratio ever changes, re-derive this pair
+     together, not just left's number. */
   --face-safe-top: clamp(10%,
     calc(var(--corner-offset-y, 5px) + (var(--corner-rank-fs, 1.05rem) + var(--corner-suit-fs, .82rem)) * var(--face-corner-k) + var(--face-gap)),
-    15%);
+    11%);
   --face-safe-left: clamp(7%,
     calc(var(--corner-offset-x, 6px) + var(--corner-rank-fs, 1.05rem) * var(--face-char-w) + var(--face-gap)),
     12%);

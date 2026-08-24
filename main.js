@@ -56,93 +56,184 @@ function pipsHTML(rank, suit) {
 // J/Q/K face-card center art. Inline SVG — no raster image asset exists
 // in this project (see icon-*.png, the only local images, neither of
 // which is a card illustration) and per explicit instruction, none was
-// downloaded to make one. Every shape lives inside one <g fill="currentColor">
-// so it picks up red/black purely from .card-face-art's own `color` (set
-// in style.css the same way .card-suit-center/.card-pips already are),
-// no per-shape color code. To swap in a real illustration asset later:
+// downloaded to make one. To swap in a real illustration asset later:
 // change ONLY this function's returned markup (e.g. to an <img
 // class="card-face-img" src="..." onerror="this.remove()"> followed by
 // this same SVG as a fallback) — .card-face-art's CSS sizing/positioning
 // and cardHTML()'s call site don't need to change, since both just
 // render whatever this function returns.
 //
-// REVISION 3 (2026-08-24): revisions 1-2 were regalia GLYPHS (a sword, a
-// crown+scepter) floating in the center — readable as "not a numeral
-// card" but not as a specific person. This revision draws an actual
-// bust/figure per rank (headwear + head + hair-or-beard + robe/torso +
-// one held accessory), the classic Bicycle-style face-card silhouette,
-// so K/Q/J are distinguishable from each other at a glance the same way
-// real playing cards are, not just distinguishable from a numeral card.
-// Each icon is left-right (bilaterally) symmetric — no rotational/
-// top-bottom mirroring — and uses a portrait viewBox (100x140, close to
-// the card's own aspect ratio) instead of the old square 100x100, so it
-// fills a portrait center-box with less letterboxing. Shapes are kept
-// large and blocky (no fine linework) on purpose: this still has to read
-// correctly at thp-rank-sim's smallest dealt-card size (see
-// [[project_card_pip_rendering]] in memory for that floor), where hairline
-// detail would just turn to mud.
+// REVISION 5 (2026-08-24): revisions 1-3 were flat ONE-COLOR silhouettes
+// (currentColor fill only) — readable as "a person with a crown/cap" but
+// not as an actual illustrated face/figure, since a solid silhouette
+// can't show a face, clothing texture, or articulated arms at all. This
+// revision adds a SECOND tone, hardcoded #fff (matches .card's own white
+// background — see .card { background:#fff } in style.css), used purely
+// for negative-space detail drawn ON TOP of the currentColor ink shapes:
+// - the FACE is now a white circle with a currentColor outline (stroke),
+//   not a solid ink blob, with eyes/eyebrows/nose/mouth (and a mustache
+//   for K) drawn in ink linework on that white — an actual illustrated
+//   face, not a shadow.
+// - the CROWN carries small white jewel/pearl-center dots.
+// - the SHOULDER LINE carries a row of small white dots (K, an ermine/
+//   fur-trim read) or a white V-neck notch (Q) or a white open wing-
+//   collar (J, same idea as rev 1-3 but now explicitly drawn instead of
+//   an accidental gap between shapes).
+// - the ROBE/GOWN carries thin white fold lines for fabric texture.
+// - ARMS are now their own bent (shoulder → elbow → inward) ink shapes
+//   ending in a round hand at chest height, gripping the held item —
+//   rev 1-3 had no separate arms at all, just a torso silhouette.
+// Paint order matters here (later SVG children draw on top) — each
+// rank's markup is a sequence of small <g fill="currentColor"> / <g
+// fill="#fff"> blocks in the exact order needed: crown → crown jewels →
+// white face circle → ink facial features (+ beard, K only) → torso →
+// white collar/trim → arms → held item → hands (hands last, so they
+// visually grip the item's shaft). Splitting into many small groups
+// instead of one big fill="currentColor" wrapper (rev 1-3's approach)
+// is what makes that interleaving possible.
+// Left-right (bilateral) symmetry and the portrait viewBox (now
+// 100x150, was 100x140) are unchanged from rev 3.
 const FACE_ART = {
-  // J = Jack: plain domed cap (no crown) + pointed wing-collar (open at
-  // the throat, unlike K/Q's closed robe neckline) + a narrower tunic +
-  // a held sword — youthful, un-crowned, distinct silhouette from both
-  // royals above him.
-  J: `<svg viewBox="0 0 100 140" class="face-icon face-icon-j" aria-hidden="true" focusable="false">
+  // J = Jack: plain domed cap (no crown, small diamond badge) + a young
+  // clean-shaven face + an open white wing-collar at the throat + a
+  // leaner tunic + arms gripping an upright sword — the only rank with
+  // no crown and no facial hair, deliberately the "plainest" figure.
+  J: `<svg viewBox="0 0 100 150" class="face-icon face-icon-j" aria-hidden="true" focusable="false">
         <g fill="currentColor">
-          <path d="M26,32 Q50,2 74,32 Z"/>
-          <rect x="24" y="28" width="52" height="8" rx="2"/>
-          <rect x="46" y="15" width="8" height="8" transform="rotate(45 50 19)"/>
-          <circle cx="50" cy="49" r="16"/>
-          <polygon points="34,60 50,72 34,79"/>
-          <polygon points="66,60 50,72 66,79"/>
-          <polygon points="34,75 66,75 78,140 22,140"/>
-          <rect x="26" y="112" width="48" height="8"/>
-          <polygon points="44,84 56,84 50,74"/>
-          <rect x="47" y="84" width="6" height="28"/>
-          <rect x="36" y="110" width="28" height="6" rx="2"/>
-          <rect x="47" y="116" width="6" height="14"/>
-          <circle cx="50" cy="132" r="6"/>
+          <path d="M28,36 Q50,6 72,36 Z"/>
+          <rect x="26" y="32" width="48" height="8" rx="2"/>
+          <rect x="46" y="19" width="8" height="8" transform="rotate(45 50 23)"/>
+        </g>
+        <g fill="#fff"><circle cx="50" cy="23" r="2"/></g>
+        <circle cx="50" cy="54" r="16" fill="#fff" stroke="currentColor" stroke-width="2.5"/>
+        <g fill="currentColor">
+          <circle cx="43" cy="51" r="2.2"/>
+          <circle cx="57" cy="51" r="2.2"/>
+          <rect x="39" y="45" width="8" height="2" rx="1"/>
+          <rect x="53" y="45" width="8" height="2" rx="1"/>
+          <polygon points="49,52 51,52 50,59"/>
+          <rect x="45" y="61" width="10" height="2.2" rx="1.1"/>
+        </g>
+        <g fill="currentColor"><polygon points="32,90 68,90 80,150 20,150"/></g>
+        <g fill="#fff">
+          <polygon points="35,74 50,86 35,92"/>
+          <polygon points="65,74 50,86 65,92"/>
+        </g>
+        <g fill="currentColor">
+          <path d="M30,90 Q10,102 14,118 Q18,128 32,124 Q40,120 46,116 Q34,112 32,102 Q32,96 36,90 Z"/>
+          <path d="M70,90 Q90,102 86,118 Q82,128 68,124 Q60,120 54,116 Q66,112 68,102 Q68,96 64,90 Z"/>
+        </g>
+        <g fill="currentColor">
+          <rect x="47" y="76" width="6" height="38" rx="1"/>
+          <rect x="36" y="112" width="28" height="6" rx="2"/>
+          <rect x="47" y="119" width="6" height="13"/>
+          <circle cx="50" cy="134" r="6"/>
+        </g>
+        <g fill="currentColor">
+          <circle cx="37" cy="117" r="6"/>
+          <circle cx="63" cy="117" r="6"/>
         </g>
       </svg>`,
-  // Q = Queen: rounded 3-pearl crown (soft circles, deliberately ROUNDER
-  // than K's) + flowing hair framing both sides of the face + an
-  // hourglass gown (flared shoulders, cinched waist, flared hem) + a
-  // round-gemmed scepter — every shape in this icon is curved, no sharp
-  // points anywhere, the opposite design language from K.
-  Q: `<svg viewBox="0 0 100 140" class="face-icon face-icon-q" aria-hidden="true" focusable="false">
+  // Q = Queen: rounded 3-pearl crown + hair flowing past both shoulders
+  // + a soft (no eyebrow-frown, curved smile) face + an hourglass gown
+  // with a white V-neck and waist sash + arms gripping a gemmed scepter
+  // — every held/worn shape curved, no sharp points anywhere.
+  Q: `<svg viewBox="0 0 100 150" class="face-icon face-icon-q" aria-hidden="true" focusable="false">
         <g fill="currentColor">
-          <circle cx="32" cy="14" r="10"/>
-          <circle cx="50" cy="8" r="11"/>
-          <circle cx="68" cy="14" r="10"/>
-          <rect x="20" y="20" width="60" height="9" rx="3"/>
-          <path d="M33,40 Q18,55 24,85 Q30,95 38,88 Q30,70 36,50 Z"/>
-          <path d="M67,40 Q82,55 76,85 Q70,95 62,88 Q70,70 64,50 Z"/>
-          <circle cx="50" cy="48" r="17"/>
-          <polygon points="30,80 70,80 62,100 82,140 18,140 38,100"/>
-          <circle cx="50" cy="82" r="8"/>
-          <rect x="47" y="88" width="6" height="36"/>
+          <circle cx="32" cy="16" r="10"/>
+          <circle cx="50" cy="9" r="11"/>
+          <circle cx="68" cy="16" r="10"/>
+          <rect x="20" y="22" width="60" height="9" rx="3"/>
+        </g>
+        <g fill="#fff"><circle cx="50" cy="9" r="3"/></g>
+        <g fill="currentColor">
+          <path d="M35,46 Q16,62 22,98 Q28,112 39,101 Q31,82 37,58 Z"/>
+          <path d="M65,46 Q84,62 78,98 Q72,112 61,101 Q69,82 63,58 Z"/>
+        </g>
+        <circle cx="50" cy="54" r="17" fill="#fff" stroke="currentColor" stroke-width="2.5"/>
+        <g fill="currentColor">
+          <circle cx="43" cy="51" r="2.2"/>
+          <circle cx="57" cy="51" r="2.2"/>
+          <rect x="39" y="45" width="8" height="2" rx="1"/>
+          <rect x="53" y="45" width="8" height="2" rx="1"/>
+          <polygon points="49,52 51,52 50,58"/>
+        </g>
+        <path d="M44,61 Q50,65 56,61" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <g fill="currentColor"><polygon points="26,92 74,92 64,114 90,150 10,150 36,114"/></g>
+        <g fill="#fff">
+          <polygon points="42,92 58,92 50,104"/>
+          <rect x="33" y="110" width="34" height="4" rx="2"/>
+          <rect x="30" y="118" width="3" height="28" rx="1.5"/>
+          <rect x="67" y="118" width="3" height="28" rx="1.5"/>
+        </g>
+        <g fill="currentColor">
+          <path d="M28,92 Q4,104 8,122 Q12,132 28,128 Q38,122 44,118 Q30,114 28,102 Q28,96 32,92 Z"/>
+          <path d="M72,92 Q96,104 92,122 Q88,132 72,128 Q62,122 56,118 Q70,114 72,102 Q72,96 68,92 Z"/>
+        </g>
+        <g fill="currentColor">
+          <rect x="47" y="100" width="6" height="46" rx="1"/>
+          <circle cx="50" cy="98" r="9"/>
+        </g>
+        <g fill="currentColor">
+          <circle cx="36" cy="119" r="6.5"/>
+          <circle cx="64" cy="119" r="6.5"/>
         </g>
       </svg>`,
-  // K = King: wide crown with sharp triangular points AND a cross above
-  // the center spike (a classic globus cruciger cross, distinct from
-  // Q's soft pearls) + a full pointed beard (Q has none) + a broad
-  // epauletted robe + a scepter topped with a cross-bearing orb — every
-  // shape here is angular, the opposite design language from Q.
-  K: `<svg viewBox="0 0 100 140" class="face-icon face-icon-k" aria-hidden="true" focusable="false">
+  // K = King: pointed crown + cross + a bearded face (mustache + full
+  // chin beard, the only rank with facial hair) + a broad epauletted
+  // robe with a white ermine-dot trim at the shoulder line + arms
+  // gripping a cross-topped orb scepter — every shape angular, opposite
+  // language from Q's curves.
+  K: `<svg viewBox="0 0 100 150" class="face-icon face-icon-k" aria-hidden="true" focusable="false">
         <g fill="currentColor">
           <rect x="48" y="0" width="4" height="8"/>
           <rect x="44" y="2" width="12" height="4"/>
-          <polygon points="20,24 30,8 40,24 50,10 60,24 70,8 80,24"/>
-          <rect x="18" y="22" width="64" height="9" rx="2"/>
-          <circle cx="50" cy="48" r="17"/>
-          <polygon points="33,56 67,56 50,90"/>
-          <polygon points="24,76 76,76 94,140 6,140"/>
-          <rect x="14" y="74" width="18" height="13" rx="3"/>
-          <rect x="68" y="74" width="18" height="13" rx="3"/>
-          <rect x="12" y="112" width="76" height="9"/>
-          <rect x="46" y="80" width="8" height="34"/>
-          <circle cx="50" cy="124" r="11"/>
-          <rect x="47" y="112" width="6" height="10"/>
-          <rect x="43" y="115" width="14" height="4"/>
+          <polygon points="20,26 30,8 40,26 50,10 60,26 70,8 80,26"/>
+          <rect x="18" y="24" width="64" height="10" rx="2"/>
+        </g>
+        <g fill="#fff">
+          <circle cx="33" cy="29" r="2.4"/>
+          <circle cx="50" cy="29" r="2.4"/>
+          <circle cx="67" cy="29" r="2.4"/>
+        </g>
+        <circle cx="50" cy="54" r="17" fill="#fff" stroke="currentColor" stroke-width="2.5"/>
+        <g fill="currentColor">
+          <circle cx="43" cy="51" r="2.2"/>
+          <circle cx="57" cy="51" r="2.2"/>
+          <rect x="39" y="45" width="8" height="2.2" rx="1"/>
+          <rect x="53" y="45" width="8" height="2.2" rx="1"/>
+          <polygon points="49,52 51,52 50,59"/>
+          <rect x="38" y="61" width="24" height="3" rx="1.5"/>
+          <polygon points="34,64 66,64 50,100"/>
+        </g>
+        <g fill="currentColor">
+          <polygon points="20,90 80,90 96,150 4,150"/>
+          <rect x="8" y="88" width="20" height="14" rx="3"/>
+          <rect x="72" y="88" width="20" height="14" rx="3"/>
+        </g>
+        <g fill="#fff">
+          <circle cx="24" cy="92" r="3"/>
+          <circle cx="33" cy="92" r="3"/>
+          <circle cx="42" cy="92" r="3"/>
+          <circle cx="58" cy="92" r="3"/>
+          <circle cx="67" cy="92" r="3"/>
+          <circle cx="76" cy="92" r="3"/>
+          <rect x="30" y="112" width="3" height="32" rx="1.5"/>
+          <rect x="67" y="112" width="3" height="32" rx="1.5"/>
+        </g>
+        <g fill="currentColor">
+          <path d="M22,90 Q0,102 4,120 Q8,130 24,126 Q36,120 42,118 Q28,114 26,102 Q26,94 30,90 Z"/>
+          <path d="M78,90 Q100,102 96,120 Q92,130 76,126 Q64,120 58,118 Q72,114 74,102 Q74,94 70,90 Z"/>
+        </g>
+        <g fill="currentColor">
+          <rect x="47" y="100" width="6" height="47" rx="1"/>
+          <circle cx="50" cy="120" r="10"/>
+          <rect x="47" y="108" width="6" height="8"/>
+          <rect x="44" y="111" width="12" height="4"/>
+        </g>
+        <g fill="currentColor">
+          <circle cx="37" cy="121" r="7"/>
+          <circle cx="63" cy="121" r="7"/>
         </g>
       </svg>`,
 };
