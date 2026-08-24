@@ -419,6 +419,26 @@ body {
 }
 .home-hero-cards {
   position: relative; width: 108px; height: 100px; flex-shrink: 0;
+  /* top:24px nudges the fan down — on short viewports, .home-screen's
+     vertical centering (justify-content:center) plus overflow:hidden
+     can clip the topmost card (the K slot's own translate(...,-10px)
+     lifts it further up than the other two) against the fixed .top-bar
+     above. `top` on this already-position:relative element is a pure
+     visual offset — unlike margin-top, it doesn't add to .home-hero's
+     row height or .home-screen's total centered content height, so it
+     can't make the centering-clip math worse elsewhere (e.g. push the
+     game-cards row further off the bottom edge). Only the image itself
+     moves; title text position (.home-hero-text, the sibling flex
+     child) is untouched.
+     24px picked empirically: confirmed zero clipping at 667x375
+     (iPhone SE-class landscape — this project's established smallest
+     real-device benchmark, see [[project_baccarat_result_button]]) with
+     comfortable margin, while staying visually near-centered (no
+     noticeable gap above the fan) at normal/desktop heights. 10px was
+     tried first and made no visible difference at any tested size —
+     don't assume a small bump is safe without re-checking at 667x375;
+     the clip amount at that viewport is what this value has to clear. */
+  top: 24px;
   /* Scopes the SAME shared card component every game uses (.card /
      .card-corner / .card-suit-center / .card-pips / .card-illustration
      for J/Q/K — see cardHTML() in main.js) to this hero's size, exactly
