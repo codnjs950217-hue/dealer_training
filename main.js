@@ -54,37 +54,47 @@ function pipsHTML(rank, suit) {
 }
 
 // J/Q/K face cards: real illustrated card art (.svg image files), not
-// hand-drawn shapes. REVISION 6 (2026-08-24) replaces every prior
-// FACE_ART revision (1-5, all hand-authored inline SVG: abstract
-// glyphs, then flat silhouettes, then a two-tone silhouette+linework
-// attempt) after explicit user feedback that hand-drawn shapes read as
-// icons/pictograms no matter how much detail was added, never as an
-// actual illustrated card ("실제 카드 일러스트" vs "아이콘/픽토그램").
-// Source: the "English pattern playing cards" SVG set by Dmitry Fomin
-// on Wikimedia Commons — CC0 (public domain, no attribution required):
+// hand-drawn shapes. Source: the "English pattern playing cards" SVG
+// set by Dmitry Fomin on Wikimedia Commons — CC0 (public domain, no
+// attribution required):
 // https://commons.wikimedia.org/wiki/Category:SVG_English_pattern_playing_cards
 // Downloaded once into assets/cards/ (12 files, {rank}_of_{suit}.svg for
 // J/Q/K × 4 suits — A/2-10 don't need art files, PIP_LAYOUTS already
-// draws them, untouched by this revision). Each file is a COMPLETE card
-// face — white background, keyline border, corner indices, AND the
-// illustrated portrait all baked in by the source artist — not
-// center-only art. So for J/Q/K, cardHTML() below renders the whole
-// .card as that <img> and skips the separately-rendered .card-corner
-// divs / center-content box entirely (those stay exactly as before for
-// A/2-10 — FACE_RANK_NAME/SUIT_NAME only affect the J/Q/K branch).
+// draws them).
 const FACE_RANK_NAME = { J: 'jack', Q: 'queen', K: 'king' };
 const SUIT_NAME = { '♠': 'spades', '♥': 'hearts', '♦': 'diamonds', '♣': 'clubs' };
 
 function cardHTML(c, faceDown = false) {
   if (faceDown) return `<div class="card back notranslate" translate="no"><div class="card-pattern"></div></div>`;
-  // J/Q/K: the downloaded asset IS the whole card (background, border,
-  // corner indices, and portrait all baked in by the source artist) —
-  // render it as the entire .card, no .card-corner divs, no center box.
+  // J/Q/K: REVISION 7 (2026-08-24). Rev 6 rendered the downloaded asset
+  // as the WHOLE .card (its own baked-in corner index included) — user
+  // feedback was that this made the corner index noticeably smaller
+  // than A/2-10's (the source art's own index is sized for a full-bleed
+  // card illustration, not to match this app's --corner-rank-fs/-suit-fs
+  // system), and the portrait competed with the corner for attention
+  // instead of sitting behind it. Rev 7 goes back to compositing, same
+  // shape as A/2-10: our OWN .card-corner divs (byte-identical markup to
+  // the numeral branch below, so font-size/weight/line-height match
+  // EXACTLY — no separate face-card corner styling exists to drift out
+  // of sync) drawn on top of a smaller, centered, MASKED illustration.
+  // "Masked" because the source image still has its own tiny baked-in
+  // index near each of ITS corners (see assets/cards/*.svg) — two small
+  // opaque white .card-illustration-mask divs (style.css) cover exactly
+  // that area (measured empirically off king_of_hearts.svg's actual
+  // pixel content, not guessed) so nothing duplicates or fights our
+  // real corner index. See .card-illustration-wrap in style.css for the
+  // sizing (~80% of the card, aspect-locked to the source's 360x540).
   if (FACE_RANK_NAME[c.rank]) {
     const src = `/assets/cards/${FACE_RANK_NAME[c.rank]}_of_${SUIT_NAME[c.suit]}.svg`;
     return `
     <div class="card card-illustrated notranslate" translate="no">
-      <img class="card-illustration" src="${src}" alt="${c.rank}${c.suit}" draggable="false">
+      <div class="card-corner top"><span class="rank">${c.rank}</span><span class="suit">${c.suit}</span></div>
+      <div class="card-illustration-wrap">
+        <img class="card-illustration" src="${src}" alt="${c.rank}${c.suit}" draggable="false">
+        <div class="card-illustration-mask tl"></div>
+        <div class="card-illustration-mask br"></div>
+      </div>
+      <div class="card-corner bottom"><span class="rank">${c.rank}</span><span class="suit">${c.suit}</span></div>
     </div>`;
   }
   // data-rank on the wrapper is only ever read by CSS, for rank "10" —
