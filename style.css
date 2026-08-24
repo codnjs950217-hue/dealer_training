@@ -626,36 +626,38 @@ body {
 }
 
 /* ---- CARD ILLUSTRATION (J/Q/K) ----
-   REVISION 8 (2026-08-24): rev 7's .card-illustration-wrap was a flat
-   80% height, kept clear of the corner index by covering the SOURCE
-   image's own baked-in mini-index with two opaque white "mask" divs.
-   That masking approach was rejected outright (not just the bug it
-   shipped with — see .card-corner.top/.bottom's own comment above):
-   the corner index's visibility needs to be structurally guaranteed
-   (that's what this rule's z-index:2 partner does), and the
-   illustration's own size/placement needs to actually clear the corner
-   zone, not rely on a same-colored patch happening to sit in the right
-   spot.
-   So instead of a flat 80%, this box is sized with the EXACT same
-   corner-derived clamp() pattern used by every other size-driven part
-   of this card system — .card-pips's --pip-safe-top/-left
-   ([[project_card_pip_rendering]] in memory) and the pre-rev-6
-   .card-face-art before it: computed from THIS card context's real
-   --corner-offset-x/-y and --corner-rank-fs/-suit-fs, so the box is
-   inherently sized to sit outside the corner index's actual footprint
-   on every context (baccarat-sim, thp-rank-sim, home hero cards, etc.),
-   not a single fixed percentage that happens to work at one size. */
+   REVISION 9 (2026-08-24): rev 8's clamp(16%, calc(...), 36%) reused the
+   PIP system's clearance formula wholesale — right pattern (corner-
+   derived, not a flat guess), wrong constants: --pip-corner-k/-gap were
+   tuned for arranging up to 10 small dots with mutual spacing, a much
+   more conservative need than one big centered illustration has. Result
+   measured ~28-47% of card height depending on context — user feedback
+   was that this reads as a small icon again, not "the card's main
+   character" (rev 7's flat-80% complaint's mirror image: rev 7 was too
+   big/uncleared, rev 8 swung too far to too small).
+   Rev 9 narrows the clamp band itself to the actual target (card height
+   65-75%, i.e. a 12.5-17.5% top inset) instead of letting the formula's
+   calc() term freely dictate the result — the same move rev 4/5 made
+   for the (now-retired) hand-drawn art, using the SAME safety net rev 8
+   already put in place: .card-corner's z-index:2 (above) is what keeps
+   the corner index fully legible even in the rare context where this
+   band's ceiling can't fully clear an unusually large corner index —
+   NOT a masking patch (explicitly rejected — see .card-corner's own
+   comment). The calc() term is kept (not deleted) so a context with a
+   genuinely tiny corner can still grow the illustration a bit past the
+   floor; in practice the band is now tight enough that the ceiling/floor
+   are the binding constraint almost everywhere, same as pre-rev-6. */
 .card-illustration-wrap {
   position: absolute;
   --illus-corner-k: 0.62;
   --illus-char-w: 0.62;
   --illus-gap: .3rem;
-  --illus-safe-top: clamp(16%,
+  --illus-safe-top: clamp(12%,
     calc(var(--corner-offset-y, 5px) + (var(--corner-rank-fs, 1.05rem) + var(--corner-suit-fs, .82rem)) * var(--illus-corner-k) + var(--illus-gap)),
-    36%);
-  --illus-safe-left: clamp(12%,
+    13%);
+  --illus-safe-left: clamp(8%,
     calc(var(--corner-offset-x, 6px) + var(--corner-rank-fs, 1.05rem) * var(--illus-char-w) + var(--illus-gap)),
-    36%);
+    9.5%);
   top: var(--illus-safe-top); left: var(--illus-safe-left);
   right: var(--illus-safe-left); bottom: var(--illus-safe-top);
 }
