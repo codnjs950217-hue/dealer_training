@@ -212,7 +212,22 @@ body {
   width: 108px; height: 100px;
   transform: scale(.28);
   transform-origin: top left;
+  /* Scopes the SAME shared card component every game uses (.card /
+     .card-corner / .card-pips / .card-illustration for J/Q/K — see
+     cardHTML() in main.js, populated here by renderTopBarHeroCards())
+     to this icon's size — identical --card-w-lg/-h-lg and corner-font
+     values to .home-hero-cards below, since this is the same 108x100
+     fan just scaled down further (.28) to fit the nav bar instead of
+     sitting at 1:1 in the hero. Position/size of the icon ITSELF
+     (width/height/transform above) is unchanged from before this
+     fix — only what renders inside each .hcard-slot changed. */
+  --card-w-lg: 52px; --card-h-lg: 70px;
 }
+.top-bar-hero-cards .card {
+  --corner-rank-fs: .6rem; --corner-suit-fs: .5rem;
+  --corner-offset-y: 3px; --corner-offset-x: 4px;
+}
+.top-bar-hero-cards .card-suit-center { font-size: 1.2rem; }
 .hamburger-btn {
   background: none; border: none; padding: .3rem .25rem;
   display: flex; flex-direction: column; gap: 4px;

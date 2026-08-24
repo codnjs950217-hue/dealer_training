@@ -5404,5 +5404,25 @@ function buildBettingTable() {
   return `<div id="rpay-zoom-stage" class="rpay-zoom-stage">${inner}</div>`;
 }
 
+// The top-bar title's card icon (index.html's #top-bar-hero-cards) used
+// to be static markup — its own hand-rolled .hcard/.hcard-corner/
+// .hcard-center divs, a duplicate of the look Views.home()'s hero used
+// to have before THAT was migrated to real cardHTML() (see
+// [[project_home_hero_cards]] in memory). This one got missed at the
+// time, so it kept rendering plain suit-symbol mini-cards instead of the
+// real J/Q/K illustration system. Same fix, same fan arrangement/
+// rotation values as Views.home()'s hero — .top-bar-hero-cards
+// (style.css) already carries its own --card-w-lg/-h-lg + corner-font
+// vars scoped to match, so nothing about position/size/layout changes,
+// only what's rendered inside each slot.
+function renderTopBarHeroCards() {
+  const el = document.getElementById('top-bar-hero-cards');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="hcard-slot" style="transform:rotate(-18deg) translate(-6px,8px)">${cardHTML({ rank: 'A', suit: '♥', red: true })}</div>
+    <div class="hcard-slot" style="transform:rotate(5deg) translate(6px,-10px)">${cardHTML({ rank: 'K', suit: '♠', red: false })}</div>
+    <div class="hcard-slot" style="transform:rotate(22deg) translate(20px,6px)">${cardHTML({ rank: 'Q', suit: '♦', red: true })}</div>`;
+}
+
 // ---- BOOT ----
-window.addEventListener('DOMContentLoaded', () => App.init());
+window.addEventListener('DOMContentLoaded', () => { renderTopBarHeroCards(); App.init(); });
