@@ -3311,12 +3311,10 @@ const Sims = {
               <input type="hidden" id="bpay-ci-${c.key}" value="0">
               <div class="bpay-chip-btns">
                 <button class="bpay-chip-btn" onclick="Sims.baccaratPay.addChip('${c.key}',5)" aria-label="+${fmtAmt(c.val * 5)}">
-                  <span class="bpay-chip-btn-lbl">${fmtAmt(c.val * 5)}</span>
-                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${c.key}</div>
+                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val * 5)}</div>
                 </button>
                 <button class="bpay-chip-btn" onclick="Sims.baccaratPay.addChip('${c.key}',1)" aria-label="+${fmtAmt(c.val)}">
-                  <span class="bpay-chip-btn-lbl">${fmtAmt(c.val)}</span>
-                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${c.key}</div>
+                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val)}</div>
                 </button>
               </div>
             </div>`).join('')}
@@ -3641,12 +3639,10 @@ const Sims = {
               <input type="hidden" id="bside-ci-${c.key}" value="0">
               <div class="bpay-chip-btns">
                 <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',5)" aria-label="+${fmtAmt(c.val * 5)}">
-                  <span class="bpay-chip-btn-lbl">${fmtAmt(c.val * 5)}</span>
-                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${c.key}</div>
+                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val * 5)}</div>
                 </button>
                 <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',1)" aria-label="+${fmtAmt(c.val)}">
-                  <span class="bpay-chip-btn-lbl">${fmtAmt(c.val)}</span>
-                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${c.key}</div>
+                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val)}</div>
                 </button>
               </div>
             </div>`).join('')}
