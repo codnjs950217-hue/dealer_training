@@ -3791,6 +3791,18 @@ const Sims = {
       clone.removeAttribute('id');
       clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
       clone.querySelectorAll('[onclick]').forEach(el => el.removeAttribute('onclick'));
+      // REV 9 (2026-08-26): readability pass — strip chip content out of
+      // the clone so the mini-map shows ONLY the betting-zone shapes
+      // (ovals/circles), not whatever chip discs/face values/×mult label
+      // happen to be sitting in the real layout at clone time (the target
+      // cell always has real bet chips in it by the time zoomToKey() runs,
+      // since deal() renders them before calling zoomToKey()). Explicit
+      // ask: "칩 정보/액면가/칩 스택 제거...베팅영역만 표시". Empties the
+      // amount containers rather than removing them outright, so the
+      // shapes' own box size (and thus the layout's overall proportions)
+      // stays identical to the real layout's.
+      clone.querySelectorAll('.bpay-oval-amt, .bpay-circ-bet').forEach(el => { el.innerHTML = ''; });
+      clone.querySelectorAll('.bside-circ-mult-above').forEach(el => el.remove());
       // Fix the clone's own box to the real layout's current (unzoomed)
       // pixel size, absolutely positioned at the container's origin, THEN
       // scaled — being out of normal flow means this box can never affect

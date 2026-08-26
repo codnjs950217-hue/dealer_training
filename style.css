@@ -3919,12 +3919,19 @@ body {
   justify-content: flex-end;
   padding: .3rem .1rem 0;
 }
+/* REV 9 (2026-08-26) — readability pass. Explicit complaint: "너무
+   연하고 존재감이 약해서 현재 위치를 즉시 인식하기 어렵습니다." Darkened/
+   opacified the frame, brightened the gold border, and (below) gave
+   every betting-zone shape INSIDE the mini-map a bold high-contrast
+   outline of its own — the real layout's shape borders
+   (rgba(255,255,255,.25-.3), 2px) are legible at full size but read as
+   almost nothing once scaled down to mini-map size. */
 .bside-minimap {
   position: relative;
   z-index: 4;
-  opacity: .78;
-  background: rgba(0,0,0,.42);
-  border: 1px solid rgba(201,168,76,.45);
+  opacity: .95;
+  background: rgba(0,0,0,.75);
+  border: 1.5px solid rgba(214,180,90,.9);
   border-radius: 4px;
   overflow: hidden;
   pointer-events: none;
@@ -3933,16 +3940,43 @@ body {
   position: relative;
   overflow: hidden;
 }
-/* Current-position marker — a small bright box over the mini-map clone,
+/* Betting-zone shapes rendered inside the mini-map clone (main.js strips
+   their chip content but keeps the shapes themselves — PLAYER/BANKER
+   ovals, P/B PAIR circles, BIG/TIE/SMALL/BIG7/SUPER7/SMALL7 circles).
+   Border width is deliberately oversized (7px) because it's set on the
+   PRE-SCALE clone — main.js's `transform: scale()` (typically ~0.2-0.3x
+   for this layout/dock-size combo) shrinks it back down to a few crisp,
+   clearly visible px, instead of the original 2px shrinking to a sub-
+   pixel, anti-aliased-away hairline. One unified bright gold outline for
+   every zone type (not each zone's own subtler original color) reads
+   fastest at a glance, which was the explicit goal — this trades the
+   real layout's per-zone color coding for flat legibility, on purpose,
+   scoped ONLY to `#bside-minimap-inner` so the real layout is untouched.
+   `!important` is required on border-color for `.bpay-pair-circ`'s
+   sibling `.bside-gray-oval` (sets its own border-color with
+   `!important`) to be reliably overridden here too. */
+#bside-minimap-inner .bpay-oval,
+#bside-minimap-inner .bpay-pair-circ,
+#bside-minimap-inner .bpay-circ {
+  border-color: rgba(255, 214, 100, .95) !important;
+  border-width: 7px !important;
+  box-shadow: none !important;
+}
+/* Current-position marker — a bright box over the mini-map clone,
    positioned/sized as a % of the mini-map's own box (main.js keeps this
    in the same coordinate space as the mini-map clone's uniform scale,
-   so it always lines up with the matching cell below it). */
+   so it always lines up with the matching cell below it). Thicker
+   border + brighter fill than before, per explicit "하이라이트 박스
+   두께 증가"/"반투명 채움 + 테두리 조합" — this element is NOT inside
+   the scaled clone (it's a sibling, positioned via % on the mini-map's
+   own final box), so its border-width renders at the literal px value
+   with no scale-compensation needed. */
 .bside-minimap-hl {
   position: absolute;
-  border: 1.5px solid #7fffb0;
+  border: 3px solid #7fffb0;
   border-radius: 2px;
-  background: rgba(127,255,176,.18);
-  box-shadow: 0 0 4px rgba(127,255,176,.6);
+  background: rgba(127,255,176,.32);
+  box-shadow: 0 0 6px rgba(127,255,176,.85);
   pointer-events: none;
 }
 .bside-chipset-pane {
