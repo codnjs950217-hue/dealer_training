@@ -3887,6 +3887,46 @@ body {
   transform-origin: 0 0;
 }
 .bside-zoom-stage .bpay-positions { flex: 1; min-height: 0; overflow: visible; }
+
+/* Mini-map (2026-08-26): small always-unzoomed reference thumbnail,
+   top-right corner of the zoom view, showing which part of the full
+   Option Bet layout the current zoomed-in view is looking at. Visual
+   reference only — pointer-events:none throughout, no click handling
+   (explicit "실제 네비게이션 기능은 없음"/"클릭 기능 없음"). Sits as a
+   sibling of #bside-zoom-stage (not inside it), so the stage's own
+   zoom `transform` never touches the mini-map. Width is 18% of the
+   pane (within the requested 15-20%); height isn't fixed — it's set
+   by the cloned layout's own scaled-down height (main.js), which
+   keeps the thumbnail's aspect ratio identical to the real layout's,
+   so highlight-box percentages line up without any distortion math. */
+.bside-minimap {
+  position: absolute;
+  top: .4rem; right: calc(.4rem + clamp(.3rem,.8vw,.6rem));
+  width: 18%;
+  z-index: 5;
+  background: rgba(0,0,0,.55);
+  border: 1px solid rgba(201,168,76,.55);
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.5);
+  overflow: hidden;
+  pointer-events: none;
+}
+.bside-minimap-inner {
+  position: relative;
+  overflow: hidden;
+}
+/* Current-position marker — a small bright box over the mini-map clone,
+   positioned/sized as a % of the mini-map's own box (main.js keeps this
+   in the same coordinate space as the mini-map clone's uniform scale,
+   so it always lines up with the matching cell below it). */
+.bside-minimap-hl {
+  position: absolute;
+  border: 1.5px solid #7fffb0;
+  border-radius: 2px;
+  background: rgba(127,255,176,.18);
+  box-shadow: 0 0 4px rgba(127,255,176,.6);
+  pointer-events: none;
+}
 .bside-chipset-pane {
   flex: 1 1 50%; min-width: 0;
   display: flex; flex-direction: column;

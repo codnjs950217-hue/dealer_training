@@ -734,6 +734,10 @@ const Views = {
                     </div>`).join('')}
                 </div>
               </div>
+              <div class="bside-minimap" id="bside-minimap">
+                <div class="bside-minimap-inner" id="bside-minimap-inner"></div>
+                <div class="bside-minimap-hl" id="bside-minimap-hl"></div>
+              </div>
             </div>
             <div class="bside-chipset-pane">
               <div class="bpay-spread-section" id="bside-spread-section" style="display:none"></div>
@@ -3687,6 +3691,59 @@ const Sims = {
     const ZOOM_OUT_CHIP_SCALE = 0.55;
     const ZOOM_IN_SCALE = 1.8;
     let zoomTimer = null;
+
+    // Mini-map (2026-08-26): a small always-unzoomed reference thumbnail of
+    // the full Option Bet layout, top-right of the zoom view, so a trainee
+    // can tell which part of the whole layout the zoomed-in view is showing.
+    // Visual reference only — no click handling, no real navigation (per
+    // explicit "실제 네비게이션 기능은 없음").
+    // Rebuilt from a cloneNode(true) of the real (unzoomed) layout each time
+    // zoomToKey() runs, rather than hand-built once — this is the simplest
+    // way to keep it a genuine "scaled-down version of the full layout"
+    // (explicit requirement) without hand-duplicating every bet-cell shape
+    // in a second markup block that could drift out of sync with the real
+    // one. All `id` attributes are stripped from the clone (the original
+    // elements' ids like `bside-bt-1` must stay unique in the document) and
+    // it's marked `pointer-events:none`, so the clone is inert — it can't be
+    // clicked and doesn't collide with the real layout's ids/lookups.
+    function buildMinimap(pRect) {
+      const mmInner = $('bside-minimap-inner');
+      const layout = document.querySelector('#bside-zoom-stage .bpay-positions.bside-layout');
+      if (!mmInner || !layout || !pRect.width || !pRect.height) return;
+      const clone = layout.cloneNode(true);
+      clone.removeAttribute('id');
+      clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+      clone.querySelectorAll('[onclick]').forEach(el => el.removeAttribute('onclick'));
+      // Fix the clone's own box to the real layout's current (unzoomed)
+      // pixel size before scaling it down — without an explicit width/height
+      // here, the clone would re-flow to whatever width the tiny mini-map
+      // box gives it instead of mirroring the real layout's proportions.
+      clone.style.width = `${layout.offsetWidth}px`;
+      clone.style.height = `${layout.offsetHeight}px`;
+      clone.style.transformOrigin = 'top left';
+      clone.style.transform = `scale(${(mmInner.clientWidth / layout.offsetWidth).toFixed(4)})`;
+      mmInner.innerHTML = '';
+      mmInner.appendChild(clone);
+    }
+
+    // Highlight box position/size is expressed as a % of the pane
+    // (pRect/tRect are both measured in the same unscaled pane-relative
+    // coordinate space that drives the real zoom below), so it lines up
+    // with the mini-map clone's own uniform scale regardless of the
+    // mini-map box's actual pixel size.
+    function updateMinimapHighlight(pRect, tRect) {
+      const hl = $('bside-minimap-hl');
+      if (!hl || !pRect.width || !pRect.height) return;
+      const leftPct = (tRect.left - pRect.left) / pRect.width  * 100;
+      const topPct  = (tRect.top  - pRect.top)  / pRect.height * 100;
+      const wPct    = tRect.width  / pRect.width  * 100;
+      const hPct    = tRect.height / pRect.height * 100;
+      hl.style.left   = `${leftPct}%`;
+      hl.style.top    = `${topPct}%`;
+      hl.style.width  = `${wPct}%`;
+      hl.style.height = `${hPct}%`;
+    }
+
     function zoomToKey(key) {
       const pane  = document.querySelector('.bside-layout-pane');
       const stage = $('bside-zoom-stage');
@@ -3702,6 +3759,8 @@ const Sims = {
         const pRect = pane.getBoundingClientRect();
         const tRect = target.getBoundingClientRect();
         if (!pRect.width || !pRect.height || !tRect.width || !tRect.height) return;
+        buildMinimap(pRect);
+        updateMinimapHighlight(pRect, tRect);
         const cx = tRect.left - pRect.left + tRect.width  / 2;
         const cy = tRect.top  - pRect.top  + tRect.height / 2;
         // Same fixed zoom ratio for every bet type — only the pan target (which
