@@ -3749,14 +3749,14 @@ const Sims = {
     // now lives in `.bside-minimap-dock`, a NORMAL-FLOW sibling of
     // `#bside-zoom-stage` (both children of `.bside-layout-pane`, which is
     // `display:flex; flex-direction:column`) instead of an absolutely
-    // positioned child of the stage. The dock has a fixed CSS height
-    // (`clamp(64px,16vh,110px)` — see style.css), so `.bside-zoom-stage`'s
-    // own `flex:1` simply gives it whatever pane height remains AFTER that
-    // fixed strip is subtracted — the zoomed content reflows into a
-    // slightly shorter area and stays 100% visible, rather than a fixed-
-    // size area being partially painted over. This is the same
-    // "reserve real layout space instead of overlaying" fix as REV 7 was
-    // to REV 4-5's right-pane placement, applied one level down.
+    // positioned child of the stage. The dock has a fixed CSS height (see
+    // style.css), so `.bside-zoom-stage`'s own `flex:1` simply gives it
+    // whatever pane height remains AFTER that fixed strip is subtracted —
+    // the zoomed content reflows into a slightly shorter area and stays
+    // 100% visible, rather than a fixed-size area being partially painted
+    // over. This is the same "reserve real layout space instead of
+    // overlaying" fix as REV 7 was to REV 4-5's right-pane placement,
+    // applied one level down.
     // Sizing is still a hand-rolled CONTAIN fit — the largest box that
     // fits the real layout's full aspect ratio inside BOTH a width cap and
     // a height cap at once, so neither can ever crop it (whichever cap is
@@ -3767,7 +3767,22 @@ const Sims = {
     // presence is itself part of what determines the pane's total height.
     // `updateMinimapHighlight()` below is untouched — it still computes %
     // against `pRect` (the pane), which is unaffected by any of this.
-    const MINIMAP_W_RATIO = 0.9;  // mini-map width  cap ≈ 90% of the dock's own width (dock's width = pane width)
+    //
+    // REV 9 (2026-08-26, same day, PARTIALLY superseded — see REV 10):
+    // added a scoped CSS override forcing every betting-zone shape inside
+    // the clone to one unified bright-gold border, on top of stripping
+    // chip content (still current, below). REV 10 in style.css reverted
+    // JUST the border-color override — it made the mini-map look like a
+    // hand-drawn schematic instead of an actual scaled copy of the real
+    // screen. The chip-stripping in this function is UNCHANGED/still
+    // current; only the CSS coloring was rolled back.
+    // REV 10 (2026-08-26): width ratio trimmed 0.9→0.6 alongside the dock's
+    // CSS height being roughly halved (style.css), per explicit "50-60%
+    // 수준으로 축소" — though in practice the DOCK HEIGHT is almost always
+    // the binding constraint for this layout's (taller-than-wide) aspect
+    // ratio, so this width cap mostly just stays a generous ceiling that's
+    // never actually hit.
+    const MINIMAP_W_RATIO = 0.6;  // mini-map width  cap ≈ 60% of the dock's own width (dock's width = pane width)
     const MINIMAP_MIN_W = 24;     // px floor so it never shrinks below legible
     function buildMinimap(pRect) {
       const mmBox   = $('bside-minimap');

@@ -3913,26 +3913,39 @@ body {
    as a passive HUD strip, not a popup. */
 .bside-minimap-dock {
   flex: 0 0 auto;
-  height: clamp(64px, 16vh, 110px);
+  height: clamp(36px, 9vh, 62px);
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: .3rem .1rem 0;
+  padding: .2rem .1rem 0;
 }
-/* REV 9 (2026-08-26) — readability pass. Explicit complaint: "너무
-   연하고 존재감이 약해서 현재 위치를 즉시 인식하기 어렵습니다." Darkened/
-   opacified the frame, brightened the gold border, and (below) gave
-   every betting-zone shape INSIDE the mini-map a bold high-contrast
-   outline of its own — the real layout's shape borders
-   (rgba(255,255,255,.25-.3), 2px) are legible at full size but read as
-   almost nothing once scaled down to mini-map size. */
+/* REV 10 (2026-08-26) — reverts REV 9's per-shape recolor, fixes the
+   REAL readability problem instead. Explicit complaint: REV 9 read as
+   "별도로 그려진 도식" (a separately-drawn diagram), not an actual
+   scaled-down copy of the real screen — forcing every zone's border to
+   one unified gold, 7px pre-scale, stripped the real layout's own
+   identity (red PLAYER oval, gold BANKER oval, per-type circle colors).
+   The ACTUAL cause of "뒤가 비쳐 보임" (the betting area behind it
+   showing through) wasn't those borders — it was `.bside-minimap`'s own
+   `opacity` (.78, then .95) blending the WHOLE box, background
+   included, with whatever's behind it, no matter how opaque the
+   background-color's own alpha was. Fix: `opacity: 1` (no blending at
+   all) + a genuinely solid, alpha-free background-color (no more
+   `rgba(...)`), so nothing behind the mini-map can ever show through,
+   full stop. With that fixed, the clone's OWN original borders/colors
+   (unmodified — no more `#bside-minimap-inner .bpay-oval` etc. override
+   block) are legible on their own against a truly opaque backdrop,
+   which is also what makes it read as an actual miniature of the real
+   screen again instead of a redrawn schematic. Also shrunk ~55% (dock
+   height `clamp(64px,16vh,110px)` → `clamp(36px,9vh,62px)`) per
+   explicit "크기를 50-60% 수준으로" — Overview-Map scale, not a
+   secondary display. */
 .bside-minimap {
   position: relative;
   z-index: 4;
-  opacity: .95;
-  background: rgba(0,0,0,.75);
-  border: 1.5px solid rgba(214,180,90,.9);
-  border-radius: 4px;
+  background: #0a2418;
+  border: 1.5px solid #d9b76a;
+  border-radius: 3px;
   overflow: hidden;
   pointer-events: none;
 }
@@ -3940,43 +3953,23 @@ body {
   position: relative;
   overflow: hidden;
 }
-/* Betting-zone shapes rendered inside the mini-map clone (main.js strips
-   their chip content but keeps the shapes themselves — PLAYER/BANKER
-   ovals, P/B PAIR circles, BIG/TIE/SMALL/BIG7/SUPER7/SMALL7 circles).
-   Border width is deliberately oversized (7px) because it's set on the
-   PRE-SCALE clone — main.js's `transform: scale()` (typically ~0.2-0.3x
-   for this layout/dock-size combo) shrinks it back down to a few crisp,
-   clearly visible px, instead of the original 2px shrinking to a sub-
-   pixel, anti-aliased-away hairline. One unified bright gold outline for
-   every zone type (not each zone's own subtler original color) reads
-   fastest at a glance, which was the explicit goal — this trades the
-   real layout's per-zone color coding for flat legibility, on purpose,
-   scoped ONLY to `#bside-minimap-inner` so the real layout is untouched.
-   `!important` is required on border-color for `.bpay-pair-circ`'s
-   sibling `.bside-gray-oval` (sets its own border-color with
-   `!important`) to be reliably overridden here too. */
-#bside-minimap-inner .bpay-oval,
-#bside-minimap-inner .bpay-pair-circ,
-#bside-minimap-inner .bpay-circ {
-  border-color: rgba(255, 214, 100, .95) !important;
-  border-width: 7px !important;
-  box-shadow: none !important;
-}
 /* Current-position marker — a bright box over the mini-map clone,
    positioned/sized as a % of the mini-map's own box (main.js keeps this
    in the same coordinate space as the mini-map clone's uniform scale,
-   so it always lines up with the matching cell below it). Thicker
-   border + brighter fill than before, per explicit "하이라이트 박스
-   두께 증가"/"반투명 채움 + 테두리 조합" — this element is NOT inside
-   the scaled clone (it's a sibling, positioned via % on the mini-map's
-   own final box), so its border-width renders at the literal px value
-   with no scale-compensation needed. */
+   so it always lines up with the matching cell below it). This element
+   is NOT part of the scaled clone (it's a sibling, positioned via % on
+   the mini-map's own final box), so its border-width renders at the
+   literal px value with no scale-compensation needed. Border trimmed
+   slightly (3px→2px) to stay in proportion with REV 10's smaller
+   overall mini-map — still a translucent-fill + solid-border combo per
+   explicit "반투명 채움 + 테두리 조합", just no longer oversized for the
+   box it's marking. */
 .bside-minimap-hl {
   position: absolute;
-  border: 3px solid #7fffb0;
+  border: 2px solid #7fffb0;
   border-radius: 2px;
   background: rgba(127,255,176,.32);
-  box-shadow: 0 0 6px rgba(127,255,176,.85);
+  box-shadow: 0 0 5px rgba(127,255,176,.8);
   pointer-events: none;
 }
 .bside-chipset-pane {
