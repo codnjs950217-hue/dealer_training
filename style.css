@@ -4094,17 +4094,28 @@ body {
    pseudo-element/z-index approach itself is left as a note here (see
    git history for the removed rule) rather than the visual, since
    REV 6 replaces it outright with real duplicated elements.
-   REV 6 (2026-08-24): the ×5 button's disc is now wrapped in
-   .bpay-chip-btn-stackwrap, which holds 2 literal copies of the SAME
-   .comm-slot-chip disc (.bpay-chip-stack-ghost — same classes/inline
-   background/border/box-shadow as the real disc, i.e. the chip design
-   itself is untouched) stacked behind the real one and offset toward
-   the TOP-LEFT (not bottom-right like REV 5) so each ghost's edge
-   peeks out past the front disc — the actual-casino-chip-pile read
-   the request asked for. No brightness()/darkening filter on the
-   ghosts — "칩의 디자인은 변경하지 말고 그대로 복제" means they're
-   exact clones, not shaded copies. The ×1 disc (no wrapper) is
-   untouched. */
+   REV 6 (2026-08-24, superseded by REV 7 for direction/units only): the
+   ×5 button's disc was wrapped in .bpay-chip-btn-stackwrap, holding 2
+   literal copies of the SAME .comm-slot-chip disc (.bpay-chip-stack-
+   ghost — same classes/inline background/border/box-shadow as the real
+   disc, chip design itself untouched) stacked behind the real one and
+   offset toward the TOP-LEFT using PERCENTAGE transforms (-20%/-38%,
+   resolving against the ghost's own --ch-md-sized box). No brightness()/
+   darkening filter on the ghosts — clones, not shaded copies. Wrapper
+   structure, no-filter rule, and "clone the real disc" approach are all
+   still current; only the direction and the transform UNITS changed in
+   REV 7 below.
+   REV 7 (2026-08-26): direction flipped to BOTTOM-RIGHT and units
+   switched from percentage to FIXED PX, per explicit spec — 2nd chip
+   at (+3px, +2px), 3rd chip at (+6px, +4px) off the front disc's own
+   position, with the front disc on top (highest z-index) so it covers
+   most of each ghost and only a slim edge peeks out past the front
+   disc's bottom-right silhouette. Fixed px (not %) is deliberate this
+   time — the explicit spec gave literal px values, not a proportional
+   rule; don't "fix" this back to percentage without a fresh ask (REV 6
+   used % specifically for --ch-md-responsiveness, but that reasoning
+   was superseded by this rev's explicit numbers). The ×1 disc (no
+   wrapper) is untouched. */
 .bpay-chip-btn-stackwrap {
   position: relative;
   width: var(--ch-md); height: var(--ch-md);
@@ -4115,12 +4126,8 @@ body {
   top: 0; left: 0;
   pointer-events: none;
 }
-/* Percentage transforms resolve against the ghost's OWN box (same
-   diameter as the real disc, var(--ch-md)), so the peek amount scales
-   with --ch-md's own clamp() instead of a fixed px. Negative = toward
-   the top-left, per the explicit direction request. */
-.bpay-chip-stack-ghost:nth-of-type(1) { transform: translate(-20%, -20%); z-index: 1; }
-.bpay-chip-stack-ghost:nth-of-type(2) { transform: translate(-38%, -38%); z-index: 0; }
+.bpay-chip-stack-ghost:nth-of-type(1) { transform: translate(3px, 2px); z-index: 1; }
+.bpay-chip-stack-ghost:nth-of-type(2) { transform: translate(6px, 4px); z-index: 0; }
 .bpay-chip-btn-stackwrap .bpay-chip-btn-disc { position: relative; z-index: 2; }
 /* No longer referenced by any markup as of rev 4 (2026-08-24) — the
    amount text moved onto the chip disc itself (.bpay-chip-btn-disc,
