@@ -741,6 +741,7 @@ const Views = {
               </div>
             </div>
             <div class="bside-chipset-pane">
+              <div class="bside-allreset-row" id="bside-allreset-slot"></div>
               <div class="bpay-spread-section" id="bside-spread-section" style="display:none"></div>
             </div>
           </div>
@@ -3638,9 +3639,16 @@ const Sims = {
     function showPayTray() {
       const panel = $('bside-comm-panel');
       const spread = $('bside-spread-section');
+      const allResetSlot = $('bside-allreset-slot');
       if (!panel) return;
       panel.style.display = 'block';
       if (spread) { spread.style.display = 'flex'; spread.innerHTML = '<div class="rpay-hint-text">왼쪽 베팅 구역을 확인하고 칩스를 세팅하세요</div>'; }
+      // ALL RESET lives in its own top-right slot (.bside-allreset-row, in the
+      // baccaratPaySim() template), not the PAY rack — same relocation the
+      // roulette payout page already uses for its own ALL RESET (.rpay-undo-row),
+      // so PAY reads as the tray's one primary action and ALL RESET as a
+      // secondary, out-of-the-way one. Same onclick/behavior, position only.
+      if (allResetSlot) allResetSlot.innerHTML = '<button class="comm-all-reset-btn" onclick="Sims.baccaratSide.resetAll()">ALL RESET</button>';
       panel.innerHTML = `<div class="comm-tray">
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
@@ -3661,7 +3669,6 @@ const Sims = {
             </div>`).join('')}
           <div class="comm-pay-slot">
             <button class="comm-pay-btn" onclick="Sims.baccaratSide.submitPay()">PAY</button>
-            <button class="comm-all-reset-btn" onclick="Sims.baccaratSide.resetAll()">ALL RESET</button>
           </div>
         </div>
       </div>`;
