@@ -734,12 +734,12 @@ const Views = {
                     </div>`).join('')}
                 </div>
               </div>
+            </div>
+            <div class="bside-chipset-pane">
               <div class="bside-minimap" id="bside-minimap">
                 <div class="bside-minimap-inner" id="bside-minimap-inner"></div>
                 <div class="bside-minimap-hl" id="bside-minimap-hl"></div>
               </div>
-            </div>
-            <div class="bside-chipset-pane">
               <div class="bpay-spread-section" id="bside-spread-section" style="display:none"></div>
             </div>
           </div>

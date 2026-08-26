@@ -3888,26 +3888,36 @@ body {
 }
 .bside-zoom-stage .bpay-positions { flex: 1; min-height: 0; overflow: visible; }
 
-/* Mini-map (2026-08-26): small always-unzoomed reference thumbnail,
-   top-right corner of the zoom view, showing which part of the full
-   Option Bet layout the current zoomed-in view is looking at. Visual
-   reference only — pointer-events:none throughout, no click handling
-   (explicit "실제 네비게이션 기능은 없음"/"클릭 기능 없음"). Sits as a
-   sibling of #bside-zoom-stage (not inside it), so the stage's own
-   zoom `transform` never touches the mini-map. Width is 18% of the
-   pane (within the requested 15-20%); height isn't fixed — it's set
-   by the cloned layout's own scaled-down height (main.js), which
-   keeps the thumbnail's aspect ratio identical to the real layout's,
-   so highlight-box percentages line up without any distortion math. */
+/* Mini-map (2026-08-26, REV 2 same day — moved off the zoom pane
+   entirely). REV 1 sat top-right INSIDE .bside-layout-pane, overlaying
+   the zoomed view itself — explicitly rejected as too large/popup-like
+   and sitting on top of the zoom screen. Now lives inside
+   .bside-chipset-pane (the right, green betting-guide side of
+   .bside-mid-row) instead, as the FIRST child there — above
+   #bside-spread-section's hint text in both DOM order and on-screen
+   position, top-left of that pane, never overlapping the zoom view at
+   all since it's a different pane entirely. Much smaller now (~1/8 of
+   the table width — half its old 18%-of-a-half-width-pane size) and
+   lower-opacity so it reads as a passive reference corner, not a
+   floating popup: no drop-shadow (that read as "panel floating above
+   the felt"), background/border dimmed, whole block at 78% opacity.
+   Still pointer-events:none throughout — visual reference only, no
+   click handling (explicit "실제 네비게이션 기능은 없음"). */
 .bside-minimap {
   position: absolute;
-  top: .4rem; right: calc(.4rem + clamp(.3rem,.8vw,.6rem));
-  width: 18%;
-  z-index: 5;
-  background: rgba(0,0,0,.55);
-  border: 1px solid rgba(201,168,76,.55);
-  border-radius: 5px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.5);
+  top: .3rem; left: .3rem;
+  /* ~1/8 of the table's real width in practice (.bside-chipset-pane is
+     ~50% of the table, so 10% of the pane ≈ 5% of the table — smaller
+     than that "1/8" ballpark on purpose, per the later explicit "훨씬
+     작게" correction taking priority over the rough size estimate;
+     clamped so it stays legible on a narrow viewport and doesn't grow
+     oversized on a wide one). */
+  width: clamp(46px, 10%, 84px);
+  z-index: 4;
+  opacity: .78;
+  background: rgba(0,0,0,.42);
+  border: 1px solid rgba(201,168,76,.45);
+  border-radius: 4px;
   overflow: hidden;
   pointer-events: none;
 }
