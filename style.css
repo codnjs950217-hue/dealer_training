@@ -3913,7 +3913,7 @@ body {
    as a passive HUD strip, not a popup. */
 .bside-minimap-dock {
   flex: 0 0 auto;
-  height: clamp(36px, 9vh, 62px);
+  height: clamp(54px, 13vh, 96px);
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -3943,6 +3943,7 @@ body {
 .bside-minimap {
   position: relative;
   z-index: 4;
+  box-sizing: border-box;
   background: #0a2418;
   border: 1.5px solid #d9b76a;
   border-radius: 3px;
@@ -3952,6 +3953,27 @@ body {
 .bside-minimap-inner {
   position: relative;
   overflow: hidden;
+}
+/* REV 12 (2026-08-26): border-only zoom-target marker, replacing the
+   opacity dim/bright treatment inherited from `.bside-quiz-mode` for
+   the mini-map specifically (explicit ask: "확대 영역은 테두리로만
+   표시"). Every zone in the clone is forced back to full opacity, and
+   the target cell (`.bside-paying-circ`, inherited from the real
+   layout via cloneNode) gets a white outline instead. The outline
+   width/offset are `calc(...)` against `--mm-scale` (set inline on
+   the cloned layout root by buildMinimap()) because the clone sits
+   inside a `transform: scale()` — a plain pre-scale px value would be
+   shrunk by that same transform down to sub-pixel and vanish. Dividing
+   by the live scale keeps the rendered outline a constant ~2px
+   regardless of how small a given bet cell's clone ends up. */
+#bside-minimap-inner .bside-oval-bet,
+#bside-minimap-inner .bpay-pair-circ,
+#bside-minimap-inner .bside-gray-oval { opacity: 1 !important; }
+#bside-minimap-inner .bside-paying-circ {
+  opacity: 1 !important;
+  outline: calc(2px / var(--mm-scale, 1)) solid #fff;
+  outline-offset: calc(1px / var(--mm-scale, 1));
+  z-index: 10;
 }
 /* REV 11 (2026-08-26): the current-position marker used to be a separate
    `.bside-minimap-hl` overlay box, positioned/sized via % by

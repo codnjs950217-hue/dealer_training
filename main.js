@@ -3811,8 +3811,9 @@ const Sims = {
     //    boosting `.bside-quiz-mode .bside-paying-circ`'s OWN treatment
     //    (e.g. a brighter box-shadow scoped to `#bside-minimap-inner`)
     //    rather than reintroducing a separate overlay box.
-    const MINIMAP_W_RATIO = 0.6;  // mini-map width  cap ≈ 60% of the dock's own width (dock's width = pane width)
+    const MINIMAP_W_RATIO = 0.72; // mini-map width cap ≈ 72% of the dock's own width (dock's width = pane width)
     const MINIMAP_MIN_W = 24;     // px floor so it never shrinks below legible
+    const MINIMAP_BORDER = 1.5;   // must match .bside-minimap's CSS border-width
     function buildMinimap(pRect) {
       const mmBox   = $('bside-minimap');
       const mmInner = $('bside-minimap-inner');
@@ -3823,8 +3824,14 @@ const Sims = {
       const dockW = dock.clientWidth, dockH = dock.clientHeight;
       if (!lw || !lh || !dockW || !dockH) return;
 
-      const capW = dockW * MINIMAP_W_RATIO;
-      const capH = dockH; // fill the dock's fixed height, aspect-ratio permitting
+      // Caps are for the CONTENT area only (inside `.bside-minimap`'s own
+      // border) — `mmBox` is sized further down via box-sizing:border-box
+      // to exactly capW/capH, so the border itself can never push the
+      // rendered box past the dock's edge (REV 11 fixed a padding-based
+      // version of this same overflow; this is the border-width version
+      // of the same bug, introduced when the box needed a visible frame).
+      const capW = dockW * MINIMAP_W_RATIO - MINIMAP_BORDER * 2;
+      const capH = dockH - MINIMAP_BORDER * 2; // fill the dock's fixed height, aspect-ratio permitting
       // Contain fit: pick the smaller of the two per-axis scales so the
       // full (uncropped) layout fits inside BOTH caps — same aspect ratio
       // as the real layout either way.
@@ -3858,15 +3865,24 @@ const Sims = {
       clone.style.height = `${lh}px`;
       clone.style.transformOrigin = 'top left';
       clone.style.transform = `scale(${scale.toFixed(4)})`;
+      // Exposes the live scale to CSS so the border-only zoom-target
+      // marker (`#bside-minimap-inner .bside-paying-circ`, style.css) can
+      // divide its outline width by it — a plain px value on that outline
+      // would get shrunk right along with everything else inside this
+      // `transform: scale()`'d clone and disappear at small scales.
+      clone.style.setProperty('--mm-scale', scale.toFixed(4));
       mmInner.innerHTML = '';
       mmInner.appendChild(clone);
 
       // Size both the outer box and the inner wrapper to EXACTLY the
       // scaled result — same uniform `scale` on both axes, so the aspect
       // ratio always matches the real layout's, with nothing left over to
-      // crop or hide.
+      // crop or hide. `mmBox` (the bordered outer box) is sized via
+      // box-sizing:border-box to CONTENT size + its own border, so the
+      // border can never push its rendered footprint past capW/capH.
       const scaledH = lh * scale;
-      mmBox.style.width    = `${targetW.toFixed(1)}px`;
+      mmBox.style.width    = `${(targetW + MINIMAP_BORDER * 2).toFixed(1)}px`;
+      mmBox.style.height   = `${(scaledH + MINIMAP_BORDER * 2).toFixed(1)}px`;
       mmInner.style.width  = `${targetW.toFixed(1)}px`;
       mmInner.style.height = `${scaledH.toFixed(1)}px`;
     }
