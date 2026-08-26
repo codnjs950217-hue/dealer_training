@@ -4137,19 +4137,29 @@ const Sims = {
         <div class="rpay-min-bet-lbl">MIN BET &nbsp;5,000</div>
         <div class="comm-tray rpay-btray">
           <div class="comm-tray-slots">
-            ${ccStk('rpay-tray-body-20', '+20')}
-            ${ccStk('rpay-tray-body-10', '+10')}
-            ${ccStk('rpay-tray-body-5',  '+5')}
-            <button class="rpay-tray-chip-btn" onclick="Sims.roulettePay.addChip('color',1)">
-              <div class="rpay-tray-disc-cc" style="--stk-bg:${color.bg};--stk-fg:${color.fg}"></div>
-              <span class="rpay-tray-chip-lbl">+1</span>
-            </button>
+            <div class="rpay-tray-group">
+              <div class="rpay-tray-group-lbl rpay-tray-group-lbl-color">COLOR CHIPS</div>
+              <div class="rpay-tray-group-row">
+                ${ccStk('rpay-tray-body-20', '+20')}
+                ${ccStk('rpay-tray-body-10', '+10')}
+                ${ccStk('rpay-tray-body-5',  '+5')}
+                <button class="rpay-tray-chip-btn" onclick="Sims.roulettePay.addChip('color',1)">
+                  <div class="rpay-tray-disc-cc" style="--stk-bg:${color.bg};--stk-fg:${color.fg}"></div>
+                  <span class="rpay-tray-chip-lbl">+1</span>
+                </button>
+              </div>
+            </div>
             <div class="rpay-tray-sep"></div>
-            ${[...MONEY_CHIPS].reverse().map(c => `
-            <button class="rpay-tray-chip-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">
-              <div class="rpay-tray-disc-mc" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${c.key}</div>
-              <span class="rpay-tray-chip-lbl">+1</span>
-            </button>`).join('')}
+            <div class="rpay-tray-group">
+              <div class="rpay-tray-group-lbl rpay-tray-group-lbl-cash">CASH CHIPS</div>
+              <div class="rpay-tray-group-row">
+                ${[...MONEY_CHIPS].reverse().map(c => `
+                <button class="rpay-tray-chip-btn" onclick="Sims.roulettePay.addChip('${c.key}',1)">
+                  <div class="rpay-tray-disc-mc" style="--stk-bg:${c.bg};--stk-fg:${c.fg}">${c.key}</div>
+                  <span class="rpay-tray-chip-lbl">+1</span>
+                </button>`).join('')}
+              </div>
+            </div>
             <div class="comm-pay-slot">
               <button class="comm-pay-btn" onclick="Sims.roulettePay.submitPay()">PAY</button>
             </div>

@@ -1627,11 +1627,54 @@ body {
   line-height: 1;
 }
 
-/* Vertical separator between CC stacks and money chips */
+/* Color Chips / Cash Chips regions (2026-08-26): the tray's two chip
+   groups (previously flat siblings of .comm-tray-slots, split only by
+   .rpay-tray-sep below) are now each wrapped in .rpay-tray-group with
+   its own small header label above the button row, so a trainee can
+   tell the two halves apart without reading every chip's denomination
+   text. Purely structural — .rpay-tray-chip-btn and everything inside
+   it (discs, stacks, +N labels, onclick handlers) is completely
+   unchanged, just nested one level deeper. Sizing is preserved by
+   construction, not by re-tuning any width: both groups still use
+   flex:1 with 4 flex:1 buttons each inside, the exact same ratio the
+   8 buttons had as flat siblings before (4:4 of the shared flex space
+   either way) — so chip size/spacing is byte-identical to pre-change.
+   .comm-pay-slot stays a direct flex-shrink:0 sibling of the two
+   groups, same position as always. */
+.rpay-tray-group {
+  display: flex; flex-direction: column;
+  flex: 1; min-width: 0;
+}
+.rpay-tray-group-row {
+  display: flex;
+  flex: 1;
+  align-items: stretch;
+}
+/* Small casino-sign-style header label per group — bold, gold/beige,
+   wide tracking, all-caps. COLOR CHIPS sits at the left edge of the
+   left group, CASH CHIPS at the right edge of the right group (per
+   explicit "좌측 상단"/"우측 상단" placement), reading as a label
+   pinned to the OUTER top corner of its own half rather than centered
+   over it. */
+.rpay-tray-group-lbl {
+  font-size: 10px; font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--gold-light);
+  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+  padding: .28rem .4rem .15rem;
+  white-space: nowrap;
+}
+.rpay-tray-group-lbl-color { text-align: left; }
+.rpay-tray-group-lbl-cash  { text-align: right; }
+
+/* Vertical separator between Color Chips and Cash Chips groups — a
+   short gold hairline, not a full-height rule (8-9px clear margin
+   top/bottom so it doesn't touch the tray's own top/bottom edges),
+   kept thin/dim per explicit "너무 두껍거나 밝지 않게". */
 .rpay-tray-sep {
   width: 1px;
-  background: rgba(255,190,50,.25);
-  margin: .3rem 0;
+  background: rgba(255,190,50,.4);
+  margin: 9px 0;
   flex-shrink: 0;
   align-self: stretch;
 }
