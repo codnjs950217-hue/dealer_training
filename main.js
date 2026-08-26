@@ -3314,11 +3314,11 @@ const Sims = {
                   <div class="bpay-chip-btn-stackwrap">
                     <div class="comm-slot-chip bpay-chip-stack-ghost" style="background:${c.bg};color:${c.fg}"></div>
                     <div class="comm-slot-chip bpay-chip-stack-ghost" style="background:${c.bg};color:${c.fg}"></div>
-                    <div class="comm-slot-chip bpay-chip-btn-disc${c.key === '10M' ? ' chip-design-test' : ''}" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val * 5)}</div>
+                    <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val * 5)}</div>
                   </div>
                 </button>
                 <button class="bpay-chip-btn" onclick="Sims.baccaratPay.addChip('${c.key}',1)" aria-label="+${fmtAmt(c.val)}">
-                  <div class="comm-slot-chip bpay-chip-btn-disc${c.key === '10M' ? ' chip-design-test' : ''}" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val)}</div>
+                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val)}</div>
                 </button>
               </div>
             </div>`).join('')}
@@ -3646,11 +3646,11 @@ const Sims = {
                   <div class="bpay-chip-btn-stackwrap">
                     <div class="comm-slot-chip bpay-chip-stack-ghost" style="background:${c.bg};color:${c.fg}"></div>
                     <div class="comm-slot-chip bpay-chip-stack-ghost" style="background:${c.bg};color:${c.fg}"></div>
-                    <div class="comm-slot-chip bpay-chip-btn-disc${c.key === '10M' ? ' chip-design-test' : ''}" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val * 5)}</div>
+                    <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val * 5)}</div>
                   </div>
                 </button>
                 <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',1)" aria-label="+${fmtAmt(c.val)}">
-                  <div class="comm-slot-chip bpay-chip-btn-disc${c.key === '10M' ? ' chip-design-test' : ''}" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val)}</div>
+                  <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val)}</div>
                 </button>
               </div>
             </div>`).join('')}
