@@ -734,12 +734,12 @@ const Views = {
                     </div>`).join('')}
                 </div>
               </div>
-            </div>
-            <div class="bside-chipset-pane">
               <div class="bside-minimap" id="bside-minimap">
                 <div class="bside-minimap-inner" id="bside-minimap-inner"></div>
                 <div class="bside-minimap-hl" id="bside-minimap-hl"></div>
               </div>
+            </div>
+            <div class="bside-chipset-pane">
               <div class="bpay-spread-section" id="bside-spread-section" style="display:none"></div>
             </div>
           </div>
@@ -3629,9 +3629,9 @@ const Sims = {
       });
       if (!groups.length) {
         section.innerHTML = '<div class="rpay-hint-text">왼쪽 베팅 구역을 확인하고 칩스를 세팅하세요</div>';
-        return;
+      } else {
+        section.innerHTML = `<div class="spread-row">${groups.join('')}</div>`;
       }
-      section.innerHTML = `<div class="spread-row">${groups.join('')}</div>`;
     }
 
     function showPayTray() {
@@ -3692,12 +3692,11 @@ const Sims = {
     const ZOOM_IN_SCALE = 1.8;
     let zoomTimer = null;
 
-    // Mini-map (2026-08-26, REV 3 same day — fixes a real crop bug). A
-    // small always-unzoomed reference thumbnail of the full Option Bet
-    // layout, top-left of the right betting pane, so a trainee can tell
-    // which part of the whole layout the zoomed-in view is showing. Visual
-    // reference only — no click handling, no real navigation (per explicit
-    // "실제 네비게이션 기능은 없음").
+    // Mini-map (2026-08-26). A small always-unzoomed reference thumbnail of
+    // the full Option Bet layout, so a trainee can tell which part of the
+    // whole layout the zoomed-in view is showing. Visual reference only —
+    // no click handling, no real navigation (per explicit "실제 네비게이션
+    // 기능은 없음").
     // Rebuilt from a cloneNode(true) of the real (unzoomed) layout each time
     // zoomToKey() runs, rather than hand-built once — this is the simplest
     // way to keep it a genuine "scaled-down version of the full layout"
@@ -3723,36 +3722,46 @@ const Sims = {
     // exactly fit its content — no `overflow:hidden` is doing any hiding,
     // nothing needs to be cropped.
     //
-    // REV 4 (2026-08-26, same day — bigger, sized against the right pane
-    // instead of the zoom pane). Explicit follow-up: REV 3's 1/30-of-zoom-
-    // pane size read as too small to recognize the overall layout at a
-    // glance. New target is a CONTAIN fit inside a box that's ~22% of
-    // .bside-chipset-pane's width and ~20% of its height (the pane the
-    // mini-map actually lives in, not the zoom pane) — i.e. the largest
-    // size that fits the real layout's full aspect ratio inside BOTH caps
-    // at once, so neither the width nor the height cap can ever crop it.
-    // Whichever cap is tighter for this layout's proportions wins; the
-    // other dimension comes out smaller than its own cap, by construction
-    // (this is the standard "object-fit:contain" sizing rule, done by hand
-    // since it also has to size #bside-minimap-inner explicitly — see the
-    // REV 3 note above for why a CSS-only max-width/max-height can't do
-    // this: the clone must be absolutely positioned regardless, and its
-    // container still needs an explicit height).
-    const MINIMAP_W_RATIO = 0.22; // mini-map width  cap ≈ 22% of the chipset pane's width
-    const MINIMAP_H_RATIO = 0.20; // mini-map height cap ≈ 20% of the chipset pane's height
+    // REV 4-5 (2026-08-26, same day, superseded — history only): tried
+    // living inside .bside-chipset-pane (the right betting pane) instead,
+    // top-left and then enlarged further. Explicit follow-up rejected this
+    // outright: a growing multi-row chip spread in that SAME pane
+    // (#bside-spread-section, vertically centered via `.bpay-spread-
+    // section`'s `align-items:center`) kept competing with the mini-map for
+    // space, no matter how the caps or a dynamic shrink-on-overlap fallback
+    // were tuned. REV 7 below moves it out of that pane entirely, which
+    // removes the competition at its root instead of continuing to manage
+    // it.
+    //
+    // REV 7 (2026-08-26, same day — moved to the ZOOM pane's own bottom-
+    // right corner). Lives inside `.bside-layout-pane` again (as in the
+    // original placement), but bottom-right instead of top-right, and
+    // sized/positioned to stay clear of the zoomed content per the
+    // attached reference image. Sizing is still a hand-rolled CONTAIN fit
+    // — the largest box that fits the real layout's full aspect ratio
+    // inside BOTH a width cap and a height cap at once, so neither can ever
+    // crop it (whichever cap is tighter for this layout's proportions
+    // wins; the other axis comes out under its own cap by construction).
+    // The caps are now based on `pRect` (the zoom pane passed in from
+    // zoomToKey() below) instead of a separate `.bside-chipset-pane` query
+    // — this also fixes a latent small inaccuracy in the REV 4/5 versions,
+    // where the mini-map's OWN size was based on the unrelated chipset
+    // pane's dimensions while `updateMinimapHighlight()` below has always
+    // computed the highlight box's position as a % of THIS SAME `pRect`;
+    // both now share one consistent reference frame.
+    const MINIMAP_W_RATIO = 0.34; // mini-map width  cap ≈ 34% of the zoom pane's width
+    const MINIMAP_H_RATIO = 0.34; // mini-map height cap ≈ 34% of the zoom pane's height
     const MINIMAP_MIN_W = 24;     // px floor so it never shrinks below legible
     function buildMinimap(pRect) {
       const mmBox   = $('bside-minimap');
       const mmInner = $('bside-minimap-inner');
       const layout  = document.querySelector('#bside-zoom-stage .bpay-positions.bside-layout');
-      const chipsetPane = document.querySelector('.bside-chipset-pane');
-      if (!mmBox || !mmInner || !layout || !chipsetPane || !pRect.width) return;
+      if (!mmBox || !mmInner || !layout || !pRect.width || !pRect.height) return;
       const lw = layout.offsetWidth, lh = layout.offsetHeight;
-      const paneW = chipsetPane.clientWidth, paneH = chipsetPane.clientHeight;
-      if (!lw || !lh || !paneW || !paneH) return;
+      if (!lw || !lh) return;
 
-      const capW = paneW * MINIMAP_W_RATIO;
-      const capH = paneH * MINIMAP_H_RATIO;
+      const capW = pRect.width  * MINIMAP_W_RATIO;
+      const capH = pRect.height * MINIMAP_H_RATIO;
       // Contain fit: pick the smaller of the two per-axis scales so the
       // full (uncropped) layout fits inside BOTH caps — same aspect ratio
       // as the real layout either way.

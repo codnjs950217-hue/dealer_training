@@ -3888,31 +3888,29 @@ body {
 }
 .bside-zoom-stage .bpay-positions { flex: 1; min-height: 0; overflow: visible; }
 
-/* Mini-map (2026-08-26, REV 3 same day — fixes a vertical-crop bug).
-   REV 1 sat top-right INSIDE .bside-layout-pane, overlaying the zoomed
-   view itself — rejected as too large/popup-like. REV 2 moved it into
-   .bside-chipset-pane (the right, green betting-guide side of
-   .bside-mid-row), top-left, above #bside-spread-section's hint text —
-   still current. REV 2's sizing (a CSS `width: clamp(...)` with
-   `overflow:hidden` hiding whatever didn't fit) was then found to crop
-   the mini-map vertically: main.js's clone kept its full un-scaled
-   height for LAYOUT purposes (only its PAINT was shrunk by `transform:
-   scale()`), so #bside-minimap-inner's auto-height silently became the
-   real layout's full height, and the excess got clipped by something
-   further up the page. REV 3 fixes this in main.js (buildMinimap() now
-   makes the clone `position:absolute` so it can't inflate the
-   container's size at all, then sets width/height explicitly to the
-   already-scaled result) — `width`/`height` here are consequently NOT
-   set in CSS at all anymore; main.js computes them fresh every
-   zoomToKey() call as ~1/30 of the zoom pane's current width, then
-   writes them as inline styles on #bside-minimap and #bside-minimap-
-   inner. `overflow:hidden` below is a defensive fallback only — with
-   REV 3's sizing fix nothing should ever actually need cropping. Still
-   pointer-events:none throughout — visual reference only, no click
-   handling (explicit "실제 네비게이션 기능은 없음"). */
+/* Mini-map (2026-08-26, REV 7 — moved to the zoom pane's own bottom-right
+   corner). History: REV 1 sat top-right INSIDE .bside-layout-pane
+   (rejected — too large/popup-like, on top of the zoom view). REV 2-5
+   moved it into .bside-chipset-pane (the right betting pane) instead,
+   top-left, then progressively enlarged — but that pane also hosts
+   #bside-spread-section's chip spread, vertically centered via
+   `.bpay-spread-section`'s `align-items:center`, and a multi-row bet kept
+   competing with the mini-map for the same space no matter how the sizing
+   was tuned. REV 7 sidesteps that at the root by moving back into
+   `.bside-layout-pane` (the ZOOM pane) — bottom-right this time, clear of
+   where the zoomed cell itself is centered/panned to. `width`/`height`
+   are NOT set here — main.js computes and writes them as inline styles
+   every `zoomToKey()` call (a contain-fit against the zoom pane's own
+   box; see the JS comment for why). `overflow:hidden` below is a
+   defensive fallback only — main.js's sizing fix means nothing should
+   ever actually need cropping. Still pointer-events:none throughout —
+   visual reference only, no click handling (explicit "실제 네비게이션
+   기능은 없음"). Opacity/dark background/thin gold border are all
+   deliberately understated so it reads as a passive HUD corner, not a
+   popup competing with the main zoomed view. */
 .bside-minimap {
   position: absolute;
-  top: .3rem; left: .3rem;
+  bottom: .35rem; right: .35rem;
   z-index: 4;
   opacity: .78;
   background: rgba(0,0,0,.42);
