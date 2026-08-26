@@ -4141,37 +4141,31 @@ body {
   line-height: 1;
 }
 
-/* ---- TEST DESIGN (2026-08-26): 10M chip disc only, richer casino-
-   chip look vs the flat single-color disc every other denomination
-   still uses. Explicit ask: thin gold ring + a ring of white edge-spot
-   marks (real casino chips' rim dashes), no excess 3D/gloss, keep the
-   blue color/center text/size/position exactly as they are. Scoped to
-   a single marker class — main.js only adds `.chip-design-test` to the
-   10M disc's ×5 and ×1 buttons (both trays), never the stack ghosts
-   behind the ×5 disc and never any other denomination — so it's
-   trivially reversible/comparable against the untouched chips sitting
-   right next to it, and doesn't touch onclick/addChip()/any logic.
-   Everything below is additive on top of .comm-slot-chip's existing
-   rules, not a replacement:
-   - Gold ring: one more layer in the same box-shadow list (doesn't
-     change the element's box size, just paints inside the existing
-     white border) instead of a wider border, so var(--ch-md) and the
-     button's own layout are untouched.
-   - Edge-spot dashes: an inline SVG background-image (10 white
-     trapezoids around the rim, viewBox 0 0 100 100 = a 1:1 square that
-     maps cleanly onto this always-square, border-radius:50% element —
-     the circular clip is free, no extra masking needed). Set via
-     `background-image` specifically (not the `background` shorthand)
-     with `!important` — the element's inline `style="background:
-     ${c.bg}"` attribute always wins over a class selector otherwise,
-     since that shorthand implicitly resets background-image to none
-     and inline style outranks any non-!important class rule. */
+/* ---- TEST DESIGN (2026-08-26): 10M chip disc only, a subtler "nicer
+   material" read vs the flat single-color disc every other
+   denomination still uses. Scoped to a single marker class — main.js
+   only adds `.chip-design-test` to the 10M disc's ×5 and ×1 buttons
+   (both trays), never the stack ghosts behind the ×5 disc and never
+   any other denomination — so it's trivially reversible/comparable
+   against the untouched chips sitting right next to it, and doesn't
+   touch onclick/addChip()/any logic.
+   REV 1 (same day, REJECTED on review): thin gold ring + a ring of 10
+   white edge-spot trapezoid marks (SVG background-image). Explicitly
+   rejected as too much — "카지노 패턴, 흰색 블록, 복잡한 테두리는
+   원하지 않습니다" — reverted outright, not layered under REV 2.
+   REV 2 (2026-08-26, same day): a single hairline gold OUTLINE only —
+   no white marks, no pattern, nothing else added. One extra layer in
+   the same box-shadow list (doesn't change the element's box size),
+   NOT inset this time (rev 1's ring sat just inside the existing white
+   border; this one sits right at the outer edge instead, per "칩 가장
+   바깥쪽에"). 0.75px spread, ~55% opacity — deliberately near-
+   imperceptible ("기존 디자인과 거의 구분 안 될 정도로 은은하게"), a
+   material/bezel cue rather than a visible new ring. Blue color/center
+   text/size/position/button layout all untouched — same convention as
+   rev 1. */
 .chip-design-test {
   box-shadow: 0 2px 8px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.12),
-              inset 0 0 0 2px #d4af37;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='%23f2f2f2' fill-opacity='0.92'%3E%3Cpolygon points='45,2 55,2 53.2,12 46.8,12'/%3E%3Cpolygon points='45,2 55,2 53.2,12 46.8,12' transform='rotate(36 50 50)'/%3E%3Cpolygon points='45,2 55,2 53.2,12 46.8,12' transform='rotate(72 50 50)'/%3E%3Cpolygon points='45,2 55,2 53.2,12 46.8,12' transform='rotate(108 50 50)'/%3E%3Cpolygon points='45,2 55,2 53.2,12 46.8,12' transform='rotate(144 50 50)'/%3E%3Cpolygon points='45,2 55,2 53.2,12 46.8,12' transform='rotate(180 50 50)'/%3E%3Cpolygon points='45,2 55,2 53.2,12 46.8,12' transform='rotate(216 50 50)'/%3E%3Cpolygon points='45,2 55,2 53.2,12 46.8,12' transform='rotate(252 50 50)'/%3E%3Cpolygon points='45,2 55,2 53.2,12 46.8,12' transform='rotate(288 50 50)'/%3E%3Cpolygon points='45,2 55,2 53.2,12 46.8,12' transform='rotate(324 50 50)'/%3E%3C/g%3E%3C/svg%3E") !important;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
+              0 0 0 .75px rgba(212,175,55,.55);
 }
 
 /* PAY button inside the rack */
