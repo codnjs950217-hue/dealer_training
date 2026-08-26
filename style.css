@@ -3917,7 +3917,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: .2rem .1rem 0;
+  padding: 0 .1rem;
 }
 /* REV 10 (2026-08-26) — reverts REV 9's per-shape recolor, fixes the
    REAL readability problem instead. Explicit complaint: REV 9 read as
@@ -3953,25 +3953,21 @@ body {
   position: relative;
   overflow: hidden;
 }
-/* Current-position marker — a bright box over the mini-map clone,
-   positioned/sized as a % of the mini-map's own box (main.js keeps this
-   in the same coordinate space as the mini-map clone's uniform scale,
-   so it always lines up with the matching cell below it). This element
-   is NOT part of the scaled clone (it's a sibling, positioned via % on
-   the mini-map's own final box), so its border-width renders at the
-   literal px value with no scale-compensation needed. Border trimmed
-   slightly (3px→2px) to stay in proportion with REV 10's smaller
-   overall mini-map — still a translucent-fill + solid-border combo per
-   explicit "반투명 채움 + 테두리 조합", just no longer oversized for the
-   box it's marking. */
-.bside-minimap-hl {
-  position: absolute;
-  border: 2px solid #7fffb0;
-  border-radius: 2px;
-  background: rgba(127,255,176,.32);
-  box-shadow: 0 0 5px rgba(127,255,176,.8);
-  pointer-events: none;
-}
+/* REV 11 (2026-08-26): the current-position marker used to be a separate
+   `.bside-minimap-hl` overlay box, positioned/sized via % by
+   updateMinimapHighlight() in main.js. Removed — explicitly rejected as
+   "이상한 녹색 네모" (a weird green square) that didn't match "실제
+   레이아웃에서 보이는것처럼...동일하게 반영" (reflect it identically to
+   the real layout). Turned out to be unnecessary anyway: the mini-map
+   clone already inherits `.bside-quiz-mode`/`.bside-paying-circ` from
+   the real layout (deal() adds both BEFORE zoomToKey() runs, and
+   cloneNode(true) deep-clones class lists), so the exact same dim-
+   everything-else / keep-target-at-full-opacity highlight the real
+   zoomed screen uses (`.bside-quiz-mode .bside-oval-bet, .bpay-pair-
+   circ, .bside-gray-oval { opacity:.28 }` /
+   `.bside-quiz-mode .bside-paying-circ { opacity:1 !important }`,
+   defined near those classes' own rules) already applies to the clone
+   for free — no mini-map-specific CSS needed here at all. */
 .bside-chipset-pane {
   flex: 1 1 50%; min-width: 0;
   display: flex; flex-direction: column;

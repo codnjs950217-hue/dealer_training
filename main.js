@@ -737,7 +737,6 @@ const Views = {
               <div class="bside-minimap-dock">
                 <div class="bside-minimap" id="bside-minimap">
                   <div class="bside-minimap-inner" id="bside-minimap-inner"></div>
-                  <div class="bside-minimap-hl" id="bside-minimap-hl"></div>
                 </div>
               </div>
             </div>
@@ -3765,8 +3764,6 @@ const Sims = {
     // the DOCK's own (CSS-fixed) height, not a % of `pRect.height` — using
     // `pRect.height` here would have been circular, since the dock's
     // presence is itself part of what determines the pane's total height.
-    // `updateMinimapHighlight()` below is untouched — it still computes %
-    // against `pRect` (the pane), which is unaffected by any of this.
     //
     // REV 9 (2026-08-26, same day, PARTIALLY superseded — see REV 10):
     // added a scoped CSS override forcing every betting-zone shape inside
@@ -3782,6 +3779,38 @@ const Sims = {
     // the binding constraint for this layout's (taller-than-wide) aspect
     // ratio, so this width cap mostly just stays a generous ceiling that's
     // never actually hit.
+    //
+    // REV 11 (2026-08-26, same day — two real bugs, not tuning):
+    // 1. "미니맵 아래가 짤려보이지" (bottom looked cropped): `capH` used
+    //    `dock.clientHeight`, which already INCLUDES the dock's own
+    //    padding — but `.bside-minimap-dock` had `padding-top: .2rem`
+    //    (style.css), so the child (sized to the FULL clientHeight) had
+    //    ~3px less real vertical room than it was sized for, once that
+    //    padding ate into the same box. The child overflowed the dock's
+    //    bottom edge by that amount, which read as a cropped mini-map.
+    //    Fixed in style.css: dropped the dock's vertical padding to 0 (kept
+    //    horizontal only) so `clientHeight` exactly equals the space
+    //    actually available — no discrepancy left to overflow.
+    // 2. "이상한 녹색 네모" (weird green square) — removed the separate
+    //    `.bside-minimap-hl` overlay box and `updateMinimapHighlight()`
+    //    entirely. It turned out to be REDUNDANT: `deal()` already adds
+    //    `.bside-quiz-mode` to `.bside-layout` and `.bside-paying-circ` to
+    //    the target cell BEFORE calling `zoomToKey()` (and thus
+    //    `buildMinimap()`) — since `cloneNode(true)` deep-clones class
+    //    lists, the mini-map clone ALREADY inherits the real layout's own
+    //    highlight mechanism for free: `.bside-quiz-mode .bside-oval-bet,
+    //    .bpay-pair-circ, .bside-gray-oval { opacity:.28 }` dims every
+    //    OTHER zone while `.bside-quiz-mode .bside-paying-circ { opacity:1
+    //    !important }` keeps the target at full brightness — the exact
+    //    same dim/bright treatment the real zoomed screen uses. Explicit
+    //    ask was "실제 레이아웃에서 보이는것처럼...동일하게 반영" (reflect
+    //    it identically to the real layout) — a hand-drawn green rectangle
+    //    was never going to match that as well as just letting the
+    //    already-cloned classes do it natively. If a future rev needs a
+    //    stronger position cue than opacity dimming provides, look at
+    //    boosting `.bside-quiz-mode .bside-paying-circ`'s OWN treatment
+    //    (e.g. a brighter box-shadow scoped to `#bside-minimap-inner`)
+    //    rather than reintroducing a separate overlay box.
     const MINIMAP_W_RATIO = 0.6;  // mini-map width  cap ≈ 60% of the dock's own width (dock's width = pane width)
     const MINIMAP_MIN_W = 24;     // px floor so it never shrinks below legible
     function buildMinimap(pRect) {
@@ -3842,24 +3871,6 @@ const Sims = {
       mmInner.style.height = `${scaledH.toFixed(1)}px`;
     }
 
-    // Highlight box position/size is expressed as a % of the pane
-    // (pRect/tRect are both measured in the same unscaled pane-relative
-    // coordinate space that drives the real zoom below), so it lines up
-    // with the mini-map clone's own uniform scale regardless of the
-    // mini-map box's actual pixel size.
-    function updateMinimapHighlight(pRect, tRect) {
-      const hl = $('bside-minimap-hl');
-      if (!hl || !pRect.width || !pRect.height) return;
-      const leftPct = (tRect.left - pRect.left) / pRect.width  * 100;
-      const topPct  = (tRect.top  - pRect.top)  / pRect.height * 100;
-      const wPct    = tRect.width  / pRect.width  * 100;
-      const hPct    = tRect.height / pRect.height * 100;
-      hl.style.left   = `${leftPct}%`;
-      hl.style.top    = `${topPct}%`;
-      hl.style.width  = `${wPct}%`;
-      hl.style.height = `${hPct}%`;
-    }
-
     function zoomToKey(key) {
       const pane  = document.querySelector('.bside-layout-pane');
       const stage = $('bside-zoom-stage');
@@ -3876,7 +3887,6 @@ const Sims = {
         const tRect = target.getBoundingClientRect();
         if (!pRect.width || !pRect.height || !tRect.width || !tRect.height) return;
         buildMinimap(pRect);
-        updateMinimapHighlight(pRect, tRect);
         const cx = tRect.left - pRect.left + tRect.width  / 2;
         const cy = tRect.top  - pRect.top  + tRect.height / 2;
         // Same fixed zoom ratio for every bet type — only the pan target (which
