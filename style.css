@@ -3888,31 +3888,31 @@ body {
 }
 .bside-zoom-stage .bpay-positions { flex: 1; min-height: 0; overflow: visible; }
 
-/* Mini-map (2026-08-26, REV 2 same day — moved off the zoom pane
-   entirely). REV 1 sat top-right INSIDE .bside-layout-pane, overlaying
-   the zoomed view itself — explicitly rejected as too large/popup-like
-   and sitting on top of the zoom screen. Now lives inside
+/* Mini-map (2026-08-26, REV 3 same day — fixes a vertical-crop bug).
+   REV 1 sat top-right INSIDE .bside-layout-pane, overlaying the zoomed
+   view itself — rejected as too large/popup-like. REV 2 moved it into
    .bside-chipset-pane (the right, green betting-guide side of
-   .bside-mid-row) instead, as the FIRST child there — above
-   #bside-spread-section's hint text in both DOM order and on-screen
-   position, top-left of that pane, never overlapping the zoom view at
-   all since it's a different pane entirely. Much smaller now (~1/8 of
-   the table width — half its old 18%-of-a-half-width-pane size) and
-   lower-opacity so it reads as a passive reference corner, not a
-   floating popup: no drop-shadow (that read as "panel floating above
-   the felt"), background/border dimmed, whole block at 78% opacity.
-   Still pointer-events:none throughout — visual reference only, no
-   click handling (explicit "실제 네비게이션 기능은 없음"). */
+   .bside-mid-row), top-left, above #bside-spread-section's hint text —
+   still current. REV 2's sizing (a CSS `width: clamp(...)` with
+   `overflow:hidden` hiding whatever didn't fit) was then found to crop
+   the mini-map vertically: main.js's clone kept its full un-scaled
+   height for LAYOUT purposes (only its PAINT was shrunk by `transform:
+   scale()`), so #bside-minimap-inner's auto-height silently became the
+   real layout's full height, and the excess got clipped by something
+   further up the page. REV 3 fixes this in main.js (buildMinimap() now
+   makes the clone `position:absolute` so it can't inflate the
+   container's size at all, then sets width/height explicitly to the
+   already-scaled result) — `width`/`height` here are consequently NOT
+   set in CSS at all anymore; main.js computes them fresh every
+   zoomToKey() call as ~1/30 of the zoom pane's current width, then
+   writes them as inline styles on #bside-minimap and #bside-minimap-
+   inner. `overflow:hidden` below is a defensive fallback only — with
+   REV 3's sizing fix nothing should ever actually need cropping. Still
+   pointer-events:none throughout — visual reference only, no click
+   handling (explicit "실제 네비게이션 기능은 없음"). */
 .bside-minimap {
   position: absolute;
   top: .3rem; left: .3rem;
-  /* ~1/8 of the table's real width in practice (.bside-chipset-pane is
-     ~50% of the table, so 10% of the pane ≈ 5% of the table — smaller
-     than that "1/8" ballpark on purpose, per the later explicit "훨씬
-     작게" correction taking priority over the rough size estimate;
-     clamped so it stays legible on a narrow viewport and doesn't grow
-     oversized on a wide one). */
-  width: clamp(46px, 10%, 84px);
   z-index: 4;
   opacity: .78;
   background: rgba(0,0,0,.42);

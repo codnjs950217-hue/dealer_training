@@ -3692,11 +3692,12 @@ const Sims = {
     const ZOOM_IN_SCALE = 1.8;
     let zoomTimer = null;
 
-    // Mini-map (2026-08-26): a small always-unzoomed reference thumbnail of
-    // the full Option Bet layout, top-right of the zoom view, so a trainee
-    // can tell which part of the whole layout the zoomed-in view is showing.
-    // Visual reference only — no click handling, no real navigation (per
-    // explicit "실제 네비게이션 기능은 없음").
+    // Mini-map (2026-08-26, REV 3 same day — fixes a real crop bug). A
+    // small always-unzoomed reference thumbnail of the full Option Bet
+    // layout, top-left of the right betting pane, so a trainee can tell
+    // which part of the whole layout the zoomed-in view is showing. Visual
+    // reference only — no click handling, no real navigation (per explicit
+    // "실제 네비게이션 기능은 없음").
     // Rebuilt from a cloneNode(true) of the real (unzoomed) layout each time
     // zoomToKey() runs, rather than hand-built once — this is the simplest
     // way to keep it a genuine "scaled-down version of the full layout"
@@ -3704,26 +3705,62 @@ const Sims = {
     // in a second markup block that could drift out of sync with the real
     // one. All `id` attributes are stripped from the clone (the original
     // elements' ids like `bside-bt-1` must stay unique in the document) and
-    // it's marked `pointer-events:none`, so the clone is inert — it can't be
-    // clicked and doesn't collide with the real layout's ids/lookups.
+    // it's marked `pointer-events:none` (CSS), so the clone is inert — it
+    // can't be clicked and doesn't collide with the real layout's ids.
+    //
+    // REV 3 bug fix: REV 1/2 left the clone as a normal (position:static)
+    // flow child with only a CSS `transform: scale()` shrinking it visually.
+    // `transform` never changes the box an element reserves for LAYOUT
+    // purposes — only how it's painted — so #bside-minimap-inner's auto
+    // height was silently sized to the clone's FULL, un-scaled height (its
+    // real on-page height, often 300px+), not the tiny painted result. That
+    // oversized box then got clipped by something further up the page,
+    // which is what showed up as "미니맵이 세로로 잘리면서 일부 영역만
+    // 보임". Fix: make the clone `position:absolute` inside `#bside-minimap-
+    // inner` (so it's taken OUT of normal flow and can't inflate the
+    // container's auto-size at all), then set the container's width/height
+    // EXPLICITLY to the scaled result. The mini-map box is now sized to
+    // exactly fit its content — no `overflow:hidden` is doing any hiding,
+    // nothing needs to be cropped.
+    const MINIMAP_RATIO = 1 / 30; // mini-map width ≈ 1/30 of the zoom pane's width
+    const MINIMAP_MIN_W = 24;     // px floor so it never shrinks below legible
     function buildMinimap(pRect) {
+      const mmBox   = $('bside-minimap');
       const mmInner = $('bside-minimap-inner');
-      const layout = document.querySelector('#bside-zoom-stage .bpay-positions.bside-layout');
-      if (!mmInner || !layout || !pRect.width || !pRect.height) return;
+      const layout  = document.querySelector('#bside-zoom-stage .bpay-positions.bside-layout');
+      if (!mmBox || !mmInner || !layout || !pRect.width) return;
+      const lw = layout.offsetWidth, lh = layout.offsetHeight;
+      if (!lw || !lh) return;
+
+      const targetW = Math.max(MINIMAP_MIN_W, pRect.width * MINIMAP_RATIO);
+      const scale = targetW / lw;
+
       const clone = layout.cloneNode(true);
       clone.removeAttribute('id');
       clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
       clone.querySelectorAll('[onclick]').forEach(el => el.removeAttribute('onclick'));
       // Fix the clone's own box to the real layout's current (unzoomed)
-      // pixel size before scaling it down — without an explicit width/height
-      // here, the clone would re-flow to whatever width the tiny mini-map
-      // box gives it instead of mirroring the real layout's proportions.
-      clone.style.width = `${layout.offsetWidth}px`;
-      clone.style.height = `${layout.offsetHeight}px`;
+      // pixel size, absolutely positioned at the container's origin, THEN
+      // scaled — being out of normal flow means this box can never affect
+      // #bside-minimap-inner's own size, no matter how tall the real
+      // layout is.
+      clone.style.position = 'absolute';
+      clone.style.top = '0'; clone.style.left = '0'; clone.style.margin = '0';
+      clone.style.width = `${lw}px`;
+      clone.style.height = `${lh}px`;
       clone.style.transformOrigin = 'top left';
-      clone.style.transform = `scale(${(mmInner.clientWidth / layout.offsetWidth).toFixed(4)})`;
+      clone.style.transform = `scale(${scale.toFixed(4)})`;
       mmInner.innerHTML = '';
       mmInner.appendChild(clone);
+
+      // Size both the outer box and the inner wrapper to EXACTLY the
+      // scaled result — same uniform `scale` on both axes, so the aspect
+      // ratio always matches the real layout's, with nothing left over to
+      // crop or hide.
+      const scaledH = lh * scale;
+      mmBox.style.width    = `${targetW.toFixed(1)}px`;
+      mmInner.style.width  = `${targetW.toFixed(1)}px`;
+      mmInner.style.height = `${scaledH.toFixed(1)}px`;
     }
 
     // Highlight box position/size is expressed as a % of the pane
