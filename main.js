@@ -734,9 +734,11 @@ const Views = {
                     </div>`).join('')}
                 </div>
               </div>
-              <div class="bside-minimap" id="bside-minimap">
-                <div class="bside-minimap-inner" id="bside-minimap-inner"></div>
-                <div class="bside-minimap-hl" id="bside-minimap-hl"></div>
+              <div class="bside-minimap-dock">
+                <div class="bside-minimap" id="bside-minimap">
+                  <div class="bside-minimap-inner" id="bside-minimap-inner"></div>
+                  <div class="bside-minimap-hl" id="bside-minimap-hl"></div>
+                </div>
               </div>
             </div>
             <div class="bside-chipset-pane">
@@ -3733,35 +3735,52 @@ const Sims = {
     // removes the competition at its root instead of continuing to manage
     // it.
     //
-    // REV 7 (2026-08-26, same day — moved to the ZOOM pane's own bottom-
-    // right corner). Lives inside `.bside-layout-pane` again (as in the
-    // original placement), but bottom-right instead of top-right, and
-    // sized/positioned to stay clear of the zoomed content per the
-    // attached reference image. Sizing is still a hand-rolled CONTAIN fit
-    // — the largest box that fits the real layout's full aspect ratio
-    // inside BOTH a width cap and a height cap at once, so neither can ever
-    // crop it (whichever cap is tighter for this layout's proportions
-    // wins; the other axis comes out under its own cap by construction).
-    // The caps are now based on `pRect` (the zoom pane passed in from
-    // zoomToKey() below) instead of a separate `.bside-chipset-pane` query
-    // — this also fixes a latent small inaccuracy in the REV 4/5 versions,
-    // where the mini-map's OWN size was based on the unrelated chipset
-    // pane's dimensions while `updateMinimapHighlight()` below has always
-    // computed the highlight box's position as a % of THIS SAME `pRect`;
-    // both now share one consistent reference frame.
-    const MINIMAP_W_RATIO = 0.34; // mini-map width  cap ≈ 34% of the zoom pane's width
-    const MINIMAP_H_RATIO = 0.34; // mini-map height cap ≈ 34% of the zoom pane's height
+    // REV 7 (2026-08-26, same day, superseded — history only): moved to the
+    // ZOOM pane's own bottom-right corner as a `position:absolute` overlay
+    // on top of `.bside-zoom-stage`. Explicit follow-up rejected this too —
+    // an absolutely-positioned overlay, however small/translucent, still
+    // physically covers whatever zoomed content happens to sit underneath
+    // it (SMALL/BIG/SUPER7 etc. specifically got obscured), which defeats
+    // the whole point of a trainee being able to verify the exact zoomed
+    // bet target. REV 8 below fixes this at the root: the mini-map is no
+    // longer an overlay AT ALL.
+    //
+    // REV 8 (2026-08-26, same day — docked, not overlaid). The mini-map
+    // now lives in `.bside-minimap-dock`, a NORMAL-FLOW sibling of
+    // `#bside-zoom-stage` (both children of `.bside-layout-pane`, which is
+    // `display:flex; flex-direction:column`) instead of an absolutely
+    // positioned child of the stage. The dock has a fixed CSS height
+    // (`clamp(64px,16vh,110px)` — see style.css), so `.bside-zoom-stage`'s
+    // own `flex:1` simply gives it whatever pane height remains AFTER that
+    // fixed strip is subtracted — the zoomed content reflows into a
+    // slightly shorter area and stays 100% visible, rather than a fixed-
+    // size area being partially painted over. This is the same
+    // "reserve real layout space instead of overlaying" fix as REV 7 was
+    // to REV 4-5's right-pane placement, applied one level down.
+    // Sizing is still a hand-rolled CONTAIN fit — the largest box that
+    // fits the real layout's full aspect ratio inside BOTH a width cap and
+    // a height cap at once, so neither can ever crop it (whichever cap is
+    // tighter for this layout's proportions wins; the other axis comes out
+    // under its own cap by construction). The height cap now comes from
+    // the DOCK's own (CSS-fixed) height, not a % of `pRect.height` — using
+    // `pRect.height` here would have been circular, since the dock's
+    // presence is itself part of what determines the pane's total height.
+    // `updateMinimapHighlight()` below is untouched — it still computes %
+    // against `pRect` (the pane), which is unaffected by any of this.
+    const MINIMAP_W_RATIO = 0.9;  // mini-map width  cap ≈ 90% of the dock's own width (dock's width = pane width)
     const MINIMAP_MIN_W = 24;     // px floor so it never shrinks below legible
     function buildMinimap(pRect) {
       const mmBox   = $('bside-minimap');
       const mmInner = $('bside-minimap-inner');
+      const dock    = document.querySelector('.bside-minimap-dock');
       const layout  = document.querySelector('#bside-zoom-stage .bpay-positions.bside-layout');
-      if (!mmBox || !mmInner || !layout || !pRect.width || !pRect.height) return;
+      if (!mmBox || !mmInner || !dock || !layout || !pRect.width) return;
       const lw = layout.offsetWidth, lh = layout.offsetHeight;
-      if (!lw || !lh) return;
+      const dockW = dock.clientWidth, dockH = dock.clientHeight;
+      if (!lw || !lh || !dockW || !dockH) return;
 
-      const capW = pRect.width  * MINIMAP_W_RATIO;
-      const capH = pRect.height * MINIMAP_H_RATIO;
+      const capW = dockW * MINIMAP_W_RATIO;
+      const capH = dockH; // fill the dock's fixed height, aspect-ratio permitting
       // Contain fit: pick the smaller of the two per-axis scales so the
       // full (uncropped) layout fits inside BOTH caps — same aspect ratio
       // as the real layout either way.
