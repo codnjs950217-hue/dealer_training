@@ -3999,18 +3999,23 @@ body {
 #bside-content .bpay-comm-panel   { flex: 0 0 auto; margin-top: .3rem; }
 
 /* ALL RESET, relocated (2026-08-26) out of the PAY rack (.comm-pay-slot)
-   to its own row at the top of the right-side pane — same structural spot
-   and flat/subdued treatment `.rpay-undo-row .comm-all-reset-btn` already
+   to its own row at the top of the table — same structural spot and
+   flat/subdued treatment `.rpay-undo-row .comm-all-reset-btn` already
    uses on the roulette payout page, so PAY reads as the tray's one primary
    action and this reads as a secondary, out-of-the-way one. `flex-end`
    (not roulette's `space-between`, which needs a 2nd item — UNDO — to mean
-   anything) right-aligns the single button. */
-.bside-allreset-row {
+   anything) right-aligns the single button. Shared by all three trays that
+   use this pattern: Option Bet (`#bside-allreset-slot`, inside
+   `.bside-chipset-pane`) and Commission/Half Pay (`#bpay-allreset-slot`,
+   top of `#bpay-content .baccarat-table` — both modes share one
+   showCommTray()). Both parents are `display:flex; flex-direction:column`,
+   so this row simply docks as their first child. */
+.pay-allreset-row {
   display: flex; justify-content: flex-end;
   flex: 0 0 auto;
   padding: 0 0 clamp(.2rem,.6vh,.35rem);
 }
-.bside-allreset-row .comm-all-reset-btn {
+.pay-allreset-row .comm-all-reset-btn {
   border-radius: 5px;
   border-width: 1px;
   background: rgba(110,20,38,.62);
@@ -4018,7 +4023,7 @@ body {
   color: rgba(255,225,230,.95);
   box-shadow: none;
 }
-.bside-allreset-row .comm-all-reset-btn:hover {
+.pay-allreset-row .comm-all-reset-btn:hover {
   background: rgba(140,30,48,.82); border-color: rgba(200,85,100,.6); color: #fff;
 }
 
