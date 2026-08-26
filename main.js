@@ -3722,18 +3722,42 @@ const Sims = {
     // EXPLICITLY to the scaled result. The mini-map box is now sized to
     // exactly fit its content — no `overflow:hidden` is doing any hiding,
     // nothing needs to be cropped.
-    const MINIMAP_RATIO = 1 / 30; // mini-map width ≈ 1/30 of the zoom pane's width
+    //
+    // REV 4 (2026-08-26, same day — bigger, sized against the right pane
+    // instead of the zoom pane). Explicit follow-up: REV 3's 1/30-of-zoom-
+    // pane size read as too small to recognize the overall layout at a
+    // glance. New target is a CONTAIN fit inside a box that's ~22% of
+    // .bside-chipset-pane's width and ~20% of its height (the pane the
+    // mini-map actually lives in, not the zoom pane) — i.e. the largest
+    // size that fits the real layout's full aspect ratio inside BOTH caps
+    // at once, so neither the width nor the height cap can ever crop it.
+    // Whichever cap is tighter for this layout's proportions wins; the
+    // other dimension comes out smaller than its own cap, by construction
+    // (this is the standard "object-fit:contain" sizing rule, done by hand
+    // since it also has to size #bside-minimap-inner explicitly — see the
+    // REV 3 note above for why a CSS-only max-width/max-height can't do
+    // this: the clone must be absolutely positioned regardless, and its
+    // container still needs an explicit height).
+    const MINIMAP_W_RATIO = 0.22; // mini-map width  cap ≈ 22% of the chipset pane's width
+    const MINIMAP_H_RATIO = 0.20; // mini-map height cap ≈ 20% of the chipset pane's height
     const MINIMAP_MIN_W = 24;     // px floor so it never shrinks below legible
     function buildMinimap(pRect) {
       const mmBox   = $('bside-minimap');
       const mmInner = $('bside-minimap-inner');
       const layout  = document.querySelector('#bside-zoom-stage .bpay-positions.bside-layout');
-      if (!mmBox || !mmInner || !layout || !pRect.width) return;
+      const chipsetPane = document.querySelector('.bside-chipset-pane');
+      if (!mmBox || !mmInner || !layout || !chipsetPane || !pRect.width) return;
       const lw = layout.offsetWidth, lh = layout.offsetHeight;
-      if (!lw || !lh) return;
+      const paneW = chipsetPane.clientWidth, paneH = chipsetPane.clientHeight;
+      if (!lw || !lh || !paneW || !paneH) return;
 
-      const targetW = Math.max(MINIMAP_MIN_W, pRect.width * MINIMAP_RATIO);
-      const scale = targetW / lw;
+      const capW = paneW * MINIMAP_W_RATIO;
+      const capH = paneH * MINIMAP_H_RATIO;
+      // Contain fit: pick the smaller of the two per-axis scales so the
+      // full (uncropped) layout fits inside BOTH caps — same aspect ratio
+      // as the real layout either way.
+      const scale = Math.max(MINIMAP_MIN_W / lw, Math.min(capW / lw, capH / lh));
+      const targetW = lw * scale;
 
       const clone = layout.cloneNode(true);
       clone.removeAttribute('id');
