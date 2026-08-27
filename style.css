@@ -3914,6 +3914,32 @@ body {
      stray line under ALL RESET instead of a real divider. Dropped here,
      same as .bside-chipset-pane's own override right below in this file. */
   border-top: none;
+  /* Anchor for the empty-tray hint's dead-center absolute positioning
+     right below — .spread-row (the real/answer chip display, the OTHER
+     thing this box holds) is untouched, stays normal-flow flex-centered. */
+  position: relative;
+}
+/* 정중앙 배치 (2026-08-27, explicit ask: "정답 칩과 칩 트레이 사이의 중앙",
+   "현재 안내문이 아래쪽에 치우쳐져 있음"). The plain flex align-items/
+   justify-content centering on `.bpay-spread-section` centers within the
+   box's CONTENT area, which is asymmetric here (`.18rem` top padding vs
+   `.12rem` bottom, right above) — small on its own, but this box is short
+   (its `flex:1` share of `.baccarat-table` is thin once BANKER oval / UNDO
+   +ALL RESET row / the tray below all take their fixed share first), so
+   the bias reads as a real downward skew rather than a rounding error.
+   Switched the hint specifically to `position:absolute` + `top/left:50%`
+   + `translate(-50%,-50%)` instead — this centers on the containing
+   block's PADDING BOX using the raw top+bottom padding sum, not either
+   side individually, so it's immune to that top/bottom split regardless
+   of box height. Scoped to `#bpay-content` only — Option Bet's own
+   `#bside-spread-section` use of `.rpay-hint-text` is untouched. */
+#bpay-content .rpay-hint-text {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
 }
 #bpay-content .bpay-comm-panel    { flex: 0 0 auto; margin-top: .3rem; }
 
