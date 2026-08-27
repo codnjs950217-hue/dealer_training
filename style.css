@@ -4012,15 +4012,18 @@ body {
    UNDO button. Since it's now a 2-button row, this shares the roulette
    page's OWN `.rpay-undo-row .comm-undo-btn`/`.comm-all-reset-btn` rule
    (further down, near .rpay-undo-row) directly via an extended selector
-   list, rather than duplicating those declarations again — `space-between`
-   only makes sense with 2 items, which is now also true here. Shared by
-   all three trays that use this pattern: Option Bet (`#bside-actions-slot`,
+   list, rather than duplicating those declarations again. Layout DIFFERS
+   from roulette's own `.rpay-undo-row` though (explicit ask, same day):
+   `flex-end` instead of `space-between` — both buttons sit together at
+   the row's right edge, UNDO immediately left of ALL RESET, separated by
+   `gap` only, rather than spread across the full row width. Shared by all
+   three trays that use this pattern: Option Bet (`#bside-actions-slot`,
    inside `.bside-chipset-pane`) and Commission/Half Pay (`#bpay-actions-
    slot`, below `.bpay-positions` in `#bpay-content .baccarat-table` — both
    modes share one showCommTray()). */
 .pay-actions-row {
-  display: flex; justify-content: space-between; align-items: center;
-  gap: .4rem;
+  display: flex; justify-content: flex-end; align-items: center;
+  gap: .5rem;
   flex: 0 0 auto;
   padding: 0 0 clamp(.2rem,.6vh,.35rem);
 }
