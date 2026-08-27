@@ -3864,6 +3864,13 @@ body {
   flex: 1; min-height: 0;
   margin-top: .25rem;
   padding: .18rem clamp(.25rem,.5vw,.4rem) .12rem;
+  /* .bpay-spread-section's base border-top (style.css, further down) was a
+     divider between it and .bpay-positions right above it — harmless while
+     they were adjacent, but 2026-08-27's ALL RESET relocation put
+     .pay-allreset-row between them, so that hairline now renders as a
+     stray line under ALL RESET instead of a real divider. Dropped here,
+     same as .bside-chipset-pane's own override right below in this file. */
+  border-top: none;
 }
 #bpay-content .bpay-comm-panel    { flex: 0 0 auto; margin-top: .3rem; }
 
