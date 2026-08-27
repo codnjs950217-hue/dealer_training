@@ -3649,19 +3649,28 @@ const Sims = {
         startCommAt(S.commIdx - 1);
       },
 
-      // 💡 (2026-08-27, rev 4 2026-08-27). Explicit requirements: shows the
+      // 💡 (2026-08-27, rev 11 2026-08-27). Explicit requirements: shows the
       // correct chip layout for THIS target, but the round must NOT count
       // toward Rounds/Score/Mistakes — so this skips submitComm() and
       // startCommAt() entirely (the only places that touch those counters)
       // rather than reusing them with a bypass flag.
       // Rev 2: the chip tray underneath is left exactly as showCommTray()
       // built it (no innerHTML replacement) — only disabled.
-      // Rev 3/4: NEXT ROUND is a separate row prepended above `.comm-tray`
-      // (a sibling, not a child — `.comm-tray` has `overflow:hidden`, so
-      // anything meant to sit above it has to live outside that box); PAY
-      // stays put underneath, just `disabled`. Positioning/color (right-
-      // aligned gold in rev 3, centered bright-yellow in rev 4) all lives
-      // in style.css's `.bpay-next-round-row`/`-btn` rules — nothing here.
+      // Rev 3/4/5: the button (then labeled NEXT ROUND) is a separate row
+      // prepended above `.comm-tray` (a sibling, not a child — `.comm-tray`
+      // has `overflow:hidden`, so anything meant to sit above it has to
+      // live outside that box); PAY stays put underneath, just `disabled`.
+      // Rev 11: label changed to "NEXT HAND" and the button now reuses
+      // `.bac-cta-btn` VERBATIM (the same class the baccarat drawing/
+      // practice page's own START/NEXT HAND button uses, main.js's
+      // showCtaBtn()) — explicit ask for identical design AND size, not
+      // just a matching label. `.bpay-next-round-row` still centers it
+      // (unchanged), but `.bac-cta-btn` itself carries `width:100%` from
+      // its home page, so it now spans that row's full width rather than
+      // sizing to its own text — that's carried over on purpose, not an
+      // oversight, since "크기 그대로" was explicit. The old bespoke
+      // `.bpay-next-round-row .bpay-next-round-btn` gold-pill styling
+      // (rev 3-5's own work) is dead CSS now — see style.css's own note.
       showAnswer() {
         if (!S.awaitingPay || S.answerRevealed) return;
         S.answerRevealed = true;
@@ -3672,7 +3681,7 @@ const Sims = {
         if (panel) {
           panel.querySelectorAll('.bpay-chip-btn, .comm-pay-btn').forEach(b => b.disabled = true);
           panel.insertAdjacentHTML('afterbegin', `<div class="bpay-next-round-row">
-            <button class="comm-pay-btn bpay-next-round-btn" onclick="Sims.baccaratPay.nextRound()">NEXT ROUND</button>
+            <button class="bac-cta-btn" onclick="Sims.baccaratPay.nextRound()">NEXT HAND</button>
           </div>`);
         }
       },
@@ -4327,14 +4336,16 @@ const Sims = {
         showNextHand();
       },
 
-      // 💡 (2026-08-27, rev 4 2026-08-27) — same approach as
+      // 💡 (2026-08-27, rev 11 2026-08-27) — same approach as
       // Sims.baccaratPay's own copy (see that copy's comment for the rev
-      // 2/3/4 rationale): skips submitPay() (the only place Rounds/Score/
-      // Mistakes change for this sim) entirely rather than reusing it with
-      // a bypass flag, so an answer-revealed round genuinely can't touch
-      // those counters. NEXT ROUND is prepended above `.comm-tray` as its
-      // own row (PAY stays put, disabled) rather than swapped in on PAY;
-      // centering/color are style.css concerns, not this markup's.
+      // 2/3/4/11 rationale): skips submitPay() (the only place Rounds/
+      // Score/Mistakes change for this sim) entirely rather than reusing
+      // it with a bypass flag, so an answer-revealed round genuinely
+      // can't touch those counters. The button (now labeled "NEXT HAND",
+      // was "NEXT ROUND") is prepended above `.comm-tray` as its own row
+      // (PAY stays put, disabled) rather than swapped in on PAY; it now
+      // reuses `.bac-cta-btn` verbatim — same design/size as the drawing
+      // page's own START/NEXT HAND button, per explicit ask.
       showAnswer() {
         if (!S.awaitingPay || S.answerRevealed) return;
         S.answerRevealed = true;
@@ -4345,7 +4356,7 @@ const Sims = {
         if (panel) {
           panel.querySelectorAll('.bpay-chip-btn, .comm-pay-btn').forEach(b => b.disabled = true);
           panel.insertAdjacentHTML('afterbegin', `<div class="bpay-next-round-row">
-            <button class="comm-pay-btn bpay-next-round-btn" onclick="Sims.baccaratSide.nextRound()">NEXT ROUND</button>
+            <button class="bac-cta-btn" onclick="Sims.baccaratSide.nextRound()">NEXT HAND</button>
           </div>`);
         }
       },

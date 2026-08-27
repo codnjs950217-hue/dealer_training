@@ -4195,48 +4195,25 @@ body {
   cursor: not-allowed;
 }
 
-/* NEXT ROUND row (💡 rev 3, 2026-08-27; rev 4 centered+yellow, rev 5 same
-   day — rev 4's flat saturated yellow (#fff066→#ffd500) read as cheap/
-   neon against this app's actual "premium yellow" language, which is
-   never flat: every gold/yellow CTA in this app (`.bpay-start-btn` here,
-   `.comm-pay-btn` itself) is a soft multi-stop warm gradient + pill shape
-   (border-radius:50px) + subtle amber shadow, not a bright flat fill.
-   Rev 5 restyles NEXT ROUND to follow that same recipe — still visibly
-   brighter/more yellow than `.comm-pay-btn`'s muted brass gold (per the
-   "노란색" ask), just built from the app's own gradient/shadow/shape
-   vocabulary instead of a flat saturated color. Prepended as its own row
-   directly above `.comm-tray` (a sibling, not a child of it — `.comm-tray`
-   has `overflow:hidden`, so an element meant to visually sit above that
-   box has to live outside it, not be absolutely positioned inside it),
-   centered per the rev 4 ask. `.comm-pay-btn` is kept only as a base for
-   sizing/font mechanics — every color/shape property is overridden. */
+/* NEXT HAND row (💡 rev 3-5, 2026-08-27 — bespoke gold-pill styling, now
+   dead; rev 11 same day — explicit ask: rename "NEXT ROUND"→"NEXT HAND"
+   and reuse the baccarat drawing page's own START/NEXT HAND button
+   design/size EXACTLY, not just a similar look. The button (main.js) now
+   has class `.bac-cta-btn` directly — the SAME class/rule that page uses
+   (further down this file, "BACCARAT: START / NEXT HAND (unified CTA)")
+   — no page-specific override needed, since "그대로" meant literally
+   identical, `width:100%` included: the button fills this row rather
+   than sizing to its own text, same as it fills its own slot on the
+   drawing page. This row's only remaining job is prepending above
+   `.comm-tray` as a sibling (`.comm-tray` has `overflow:hidden`, so
+   anything meant to sit above it has to live outside that box) —
+   `justify-content:center` is harmless leftover (moot once the child is
+   `width:100%`), not removed since it's free and matches the rev 4
+   centering ask if `.bac-cta-btn` ever stops being full-width here. */
 .bpay-next-round-row {
   display: flex;
   justify-content: center;
   padding: 0 .45rem .5rem;
-}
-/* Scoped to `.bpay-next-round-row` (not a bare `.bpay-next-round-btn`
-   selector) so this out-specificities `.comm-pay-btn`'s own base rule
-   further down the file (`flex:1`, `min-width:46px`, gold gradient)
-   regardless of source order. */
-.bpay-next-round-row .bpay-next-round-btn {
-  flex: 0 0 auto;
-  width: auto;
-  border-radius: 50px;
-  letter-spacing: 2px;
-  padding: 0 clamp(1.4rem,4vw,2.2rem);
-  min-height: clamp(36px,6.5vh,44px);
-  background: linear-gradient(135deg, #ffe27a 0%, #d9a721 60%, #b8860b 100%);
-  color: #2a1400;
-  box-shadow: 0 4px 16px rgba(184,134,11,.45), inset 0 1px 0 rgba(255,255,255,.5);
-}
-.bpay-next-round-row .bpay-next-round-btn:hover {
-  background: linear-gradient(135deg, #fff0a8 0%, #e8bb3a 60%, #c99615 100%);
-  box-shadow: 0 6px 20px rgba(184,134,11,.6), inset 0 1px 0 rgba(255,255,255,.6);
-}
-.bpay-next-round-row .bpay-next-round-btn:active {
-  transform: scale(.95);
-  box-shadow: 0 2px 8px rgba(184,134,11,.3);
 }
 
 .comm-tray {
