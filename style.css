@@ -4165,11 +4165,14 @@ body {
    Rev 5 (2026-08-27, same day, explicit ask): glyph sized up again, ~43%
    over rev 4's size (`* 1.4` → `* 2`, within the requested 40-50% "from
    current" range — cumulative with rev 4, not measured from the
-   original pre-rev-4 size). `left` nudged further left (`clamp(4px,1vw,
-   8px)` → `clamp(2px,.5vw,4px)`) per explicit follow-up, applied to the
-   shared base rule since this ask didn't scope to one page (unlike rev 6/
-   8's page-specific position tweaks) — moves both Commission/Half Pay's
-   and Option Bet's icon left together. The old dark contact-shadow
+   original pre-rev-4 size). `left` nudged further left, twice now —
+   `clamp(4px,1vw,8px)` → `clamp(2px,.5vw,4px)` here, then a same-day
+   follow-up ("전부다" — explicitly all 3 pages) → `clamp(0px,.2vw,2px)`.
+   Both applied to this SHARED base rule (not a page-scoped override like
+   the BANKER-relative position tweak in "Commission/Half Pay only"
+   below, a different, page-specific concern) — moves Commission/Half
+   Pay's and Option Bet's icon left together every time. The old dark
+   contact-shadow
    (`drop-shadow(0 1px 3px rgba(0,0,0,.5))`) is replaced with a genuine
    gold GLOW (`drop-shadow(0 0 3px rgba(232,201,109,.5))`, 0-offset =
    glow not a directional shadow) per explicit "아주 약한 Glow 또는
@@ -4180,7 +4183,7 @@ body {
    recognizable-but-understated, not eye-catching/inviting. */
 .bpay-hint-btn {
   position: absolute;
-  top: clamp(4px,1vh,8px); left: clamp(2px,.5vw,4px);
+  top: clamp(4px,1vh,8px); left: clamp(0px,.2vw,2px);
   z-index: 20;
   display: flex; align-items: center; justify-content: center;
   min-height: var(--tap-h);
