@@ -4099,32 +4099,43 @@ body {
 
 /* Answer-reveal (💡, 2026-08-27) — Commission/Half Pay/Option Bet all get
    a small "show the answer" icon pinned to the top-left of their own
-   betting area, matching `.table-refresh-btn`'s existing small dark
-   icon-button look (same recipe, just smaller: this sits inside a
-   cramped betting-area corner, not a whole sim-page corner). Commission/
-   Half Pay: a plain child of `.bpay-positions` (now `position:relative`
-   for this). Option Bet: a child of `.bside-layout-pane`, NOT
-   `#bside-zoom-stage` — that stage gets panned/scaled by zoomToKey(), so
-   anchoring the icon to the unzoomed pane instead is what keeps it a
-   fixed size in a fixed corner regardless of which bet cell is zoomed. */
+   betting area. Commission/Half Pay: a plain child of `.bpay-positions`
+   (now `position:relative` for this). Option Bet: a child of
+   `.bside-layout-pane`, NOT `#bside-zoom-stage` — that stage gets panned/
+   scaled by zoomToKey(), so anchoring the icon to the unzoomed pane
+   instead is what keeps it a fixed size in a fixed corner regardless of
+   which bet cell is zoomed.
+   Rev 2 (2026-08-27, same day, explicit ask): dropped the standalone
+   dark `.table-refresh-btn`-style look — it read as a separate/foreign UI
+   element next to UNDO/ALL RESET. Now shares their exact box model
+   (`min-height:var(--tap-h)`, same padding/border-width/border-radius —
+   see `.pay-actions-row .comm-undo-btn`/`.comm-all-reset-btn` further
+   down) so it reads as the same utility-button family, just repurposed:
+   icon only (no text, no `min-width` — sizes from padding same as those
+   two), and gold-toned (not blue/red) so its color still marks it as the
+   distinct "reveal the answer" action per that explicit request. */
 .bpay-hint-btn {
   position: absolute;
   top: clamp(4px,1vh,8px); left: clamp(4px,1vw,8px);
   z-index: 20;
-  background: rgba(0,0,0,.32);
-  border: 1px solid rgba(255,255,255,.22);
-  color: rgba(255,255,255,.8);
-  border-radius: 8px;
-  min-width: clamp(24px,4.2vh,30px); min-height: clamp(24px,4.2vh,30px);
   display: flex; align-items: center; justify-content: center;
-  font-size: clamp(.8rem,1.7vh,1rem);
+  min-height: var(--tap-h);
+  padding: clamp(.36rem,.85vh,.5rem) clamp(.6rem,1.3vw,.8rem);
+  border-radius: 5px;
+  border-width: 1px; border-style: solid;
+  border-color: rgba(220,190,110,.4);
+  background: rgba(120,95,20,.55);
+  color: rgba(255,235,190,.95);
+  box-shadow: none;
+  font-size: var(--bf-sm);
   line-height: 1;
   cursor: pointer;
-  transition: background .15s, border-color .15s;
+  transition: background-color .12s, border-color .12s, color .12s;
 }
 .bpay-hint-btn:hover {
-  background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.4);
+  background: rgba(160,125,25,.78); border-color: rgba(220,190,110,.6); color: #fff;
 }
+.bpay-hint-btn:active { transform: scale(.95); }
 /* Commission/Half Pay only (2026-08-27, explicit ask, scoped by user
    choice — Option Bet's icon deliberately left alone, see the comment
    block above about it anchoring to the unzoomed pane): moved down below
