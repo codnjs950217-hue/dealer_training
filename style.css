@@ -4250,6 +4250,16 @@ body {
 .bpay-next-round-row .bac-cta-btn {
   width: auto;
 }
+/* Rev 13 (2026-08-27, same day, explicit ask, Option Bet only) — moved
+   OFF `#bside-comm-panel` (see main.js's showAnswer() comment for why)
+   and appended into `.bside-chipset-pane` right after `#bside-spread-
+   section` instead. The base rule above has no top padding/margin
+   (never needed one — it always sat directly above `.comm-tray`'s own
+   top edge before), so this adds a small gap from the spread section
+   now sitting directly above it in the same column. */
+.bside-next-round-row {
+  padding-top: .4rem;
+}
 
 .comm-tray {
   position: relative;

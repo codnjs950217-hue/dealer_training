@@ -3888,6 +3888,12 @@ const Sims = {
       // Undo nextRound()'s instant fade-out — same as Sims.baccaratPay's
       // own showCommTray() copy, see that one's comment.
       panel.classList.remove('bpay-tray-fading');
+      // showAnswer() (rev 13) inserts NEXT HAND right after #bside-
+      // spread-section, OUTSIDE `panel` — so unlike Sims.baccaratPay's
+      // copy (where a plain `panel.innerHTML = ...` rebuild wipes out
+      // its own prepended row for free), this one needs its own explicit
+      // cleanup each fresh round, or it'd linger indefinitely.
+      document.querySelector('.bside-next-round-row')?.remove();
       if (spread) { spread.style.display = 'flex'; spread.innerHTML = '<div class="rpay-hint-text">왼쪽 베팅 구역을 확인하고 칩스를 세팅하세요</div>'; }
       // Fresh hand, fresh undo stack.
       S.history = [];
@@ -4336,16 +4342,25 @@ const Sims = {
         showNextHand();
       },
 
-      // 💡 (2026-08-27, rev 11 2026-08-27) — same approach as
+      // 💡 (2026-08-27, rev 13 2026-08-27) — same approach as
       // Sims.baccaratPay's own copy (see that copy's comment for the rev
       // 2/3/4/11 rationale): skips submitPay() (the only place Rounds/
       // Score/Mistakes change for this sim) entirely rather than reusing
       // it with a bypass flag, so an answer-revealed round genuinely
-      // can't touch those counters. The button (now labeled "NEXT HAND",
-      // was "NEXT ROUND") is prepended above `.comm-tray` as its own row
-      // (PAY stays put, disabled) rather than swapped in on PAY; it now
-      // reuses `.bac-cta-btn` verbatim — same design/size as the drawing
-      // page's own START/NEXT HAND button, per explicit ask.
+      // can't touch those counters. Reuses `.bac-cta-btn` verbatim — same
+      // design/size as the drawing page's own START/NEXT HAND button.
+      // Rev 13 (explicit ask, Option Bet only — Sims.baccaratPay's own
+      // copy is untouched): moved OFF `#bside-comm-panel` (the full-width
+      // tray pinned at the very bottom of the page, below `.bside-mid-
+      // row`) — prepending it there put it in a lone horizontal band
+      // between the two-column betting/chip-setting area above and the
+      // tray below, reading as "floating" rather than attached to either.
+      // Now appended into `.bside-chipset-pane` (the right-hand chip-
+      // setting column) right after `#bside-spread-section` — the SAME
+      // element `renderAnswerSpread()` just filled with the answer chips,
+      // left completely alone per explicit "정답 칩 배치 영역은 그대로
+      // 유지" — so it reads as chip-setting column → answer chips → NEXT
+      // HAND, all in the one column, instead of a page-wide floating row.
       showAnswer() {
         if (!S.awaitingPay || S.answerRevealed) return;
         S.answerRevealed = true;
@@ -4353,12 +4368,11 @@ const Sims = {
         const actionsSlot = $('bside-actions-slot'); if (actionsSlot) actionsSlot.innerHTML = '';
         renderAnswerSpread(computeAnswerChips(S.payTarget));
         const panel = $('bside-comm-panel');
-        if (panel) {
-          panel.querySelectorAll('.bpay-chip-btn, .comm-pay-btn').forEach(b => b.disabled = true);
-          panel.insertAdjacentHTML('afterbegin', `<div class="bpay-next-round-row">
-            <button class="bac-cta-btn" onclick="Sims.baccaratSide.nextRound()">NEXT HAND</button>
-          </div>`);
-        }
+        if (panel) panel.querySelectorAll('.bpay-chip-btn, .comm-pay-btn').forEach(b => b.disabled = true);
+        const spread = $('bside-spread-section');
+        if (spread) spread.insertAdjacentHTML('afterend', `<div class="bpay-next-round-row bside-next-round-row">
+          <button class="bac-cta-btn" onclick="Sims.baccaratSide.nextRound()">NEXT HAND</button>
+        </div>`);
       },
 
       // Perf/perceived-speed fix (2026-08-27) — same as Sims.baccaratPay's
