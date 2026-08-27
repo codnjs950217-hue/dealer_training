@@ -3867,7 +3867,7 @@ body {
   /* .bpay-spread-section's base border-top (style.css, further down) was a
      divider between it and .bpay-positions right above it — harmless while
      they were adjacent, but 2026-08-27's ALL RESET relocation put
-     .pay-allreset-row between them, so that hairline now renders as a
+     .pay-actions-row between them, so that hairline now renders as a
      stray line under ALL RESET instead of a real divider. Dropped here,
      same as .bside-chipset-pane's own override right below in this file. */
   border-top: none;
@@ -4005,33 +4005,24 @@ body {
 .bside-chipset-pane .bpay-spread-section { flex: 1; min-height: 0; border-top: none; margin-top: 0; }
 #bside-content .bpay-comm-panel   { flex: 0 0 auto; margin-top: .3rem; }
 
-/* ALL RESET, relocated (2026-08-26) out of the PAY rack (.comm-pay-slot)
-   to its own row at the top of the table — same structural spot and
-   flat/subdued treatment `.rpay-undo-row .comm-all-reset-btn` already
-   uses on the roulette payout page, so PAY reads as the tray's one primary
-   action and this reads as a secondary, out-of-the-way one. `flex-end`
-   (not roulette's `space-between`, which needs a 2nd item — UNDO — to mean
-   anything) right-aligns the single button. Shared by all three trays that
-   use this pattern: Option Bet (`#bside-allreset-slot`, inside
-   `.bside-chipset-pane`) and Commission/Half Pay (`#bpay-allreset-slot`,
-   top of `#bpay-content .baccarat-table` — both modes share one
-   showCommTray()). Both parents are `display:flex; flex-direction:column`,
-   so this row simply docks as their first child. */
-.pay-allreset-row {
-  display: flex; justify-content: flex-end;
+/* UNDO + ALL RESET row. ALL RESET was relocated (2026-08-26) out of the
+   PAY rack (.comm-pay-slot) to its own row, so PAY reads as the tray's one
+   primary action and these read as secondary, out-of-the-way ones. UNDO
+   joined it (2026-08-27), brought over from the roulette payout page's own
+   UNDO button. Since it's now a 2-button row, this shares the roulette
+   page's OWN `.rpay-undo-row .comm-undo-btn`/`.comm-all-reset-btn` rule
+   (further down, near .rpay-undo-row) directly via an extended selector
+   list, rather than duplicating those declarations again — `space-between`
+   only makes sense with 2 items, which is now also true here. Shared by
+   all three trays that use this pattern: Option Bet (`#bside-actions-slot`,
+   inside `.bside-chipset-pane`) and Commission/Half Pay (`#bpay-actions-
+   slot`, below `.bpay-positions` in `#bpay-content .baccarat-table` — both
+   modes share one showCommTray()). */
+.pay-actions-row {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: .4rem;
   flex: 0 0 auto;
   padding: 0 0 clamp(.2rem,.6vh,.35rem);
-}
-.pay-allreset-row .comm-all-reset-btn {
-  border-radius: 5px;
-  border-width: 1px;
-  background: rgba(110,20,38,.62);
-  border-color: rgba(200,85,100,.4);
-  color: rgba(255,225,230,.95);
-  box-shadow: none;
-}
-.pay-allreset-row .comm-all-reset-btn:hover {
-  background: rgba(140,30,48,.82); border-color: rgba(200,85,100,.6); color: #fff;
 }
 
 .comm-tray {
@@ -4390,9 +4381,15 @@ body {
   white-space: nowrap;
   order: 1;
 }
-/* UNDO / ALL RESET — flat, identical shape/size, no inherited 3D bevel */
+/* UNDO / ALL RESET — flat, identical shape/size, no inherited 3D bevel.
+   Shared verbatim with the baccarat pages' `.pay-actions-row` (2026-08-27
+   — see that class's own comment, style.css) since both are the same
+   UNDO+ALL RESET pairing; extending the selector list here instead of
+   duplicating the block keeps one source of truth for this shared look. */
 .rpay-undo-row .comm-undo-btn,
-.rpay-undo-row .comm-all-reset-btn {
+.rpay-undo-row .comm-all-reset-btn,
+.pay-actions-row .comm-undo-btn,
+.pay-actions-row .comm-all-reset-btn {
   min-height: var(--tap-h);
   display: flex; align-items: center; justify-content: center;
   border-radius: 5px;
@@ -4405,17 +4402,20 @@ body {
   box-shadow: none;
   transition: background-color .12s, border-color .12s, color .12s;
 }
-.rpay-undo-row .comm-undo-btn:hover {
+.rpay-undo-row .comm-undo-btn:hover,
+.pay-actions-row .comm-undo-btn:hover {
   background: rgba(55,72,115,.85); border-color: rgba(140,180,255,.6); color: #fff;
 }
-.rpay-undo-row .comm-all-reset-btn {
+.rpay-undo-row .comm-all-reset-btn,
+.pay-actions-row .comm-all-reset-btn {
   order: 2;
   background: rgba(110,20,38,.62);
   border-color: rgba(200,85,100,.4);
   color: rgba(255,225,230,.95);
   box-shadow: none;
 }
-.rpay-undo-row .comm-all-reset-btn:hover {
+.rpay-undo-row .comm-all-reset-btn:hover,
+.pay-actions-row .comm-all-reset-btn:hover {
   background: rgba(140,30,48,.82); border-color: rgba(200,85,100,.6); color: #fff;
 }
 .comm-undo-btn {

@@ -693,7 +693,7 @@ const Views = {
                 </div>
               </div>`).join('')}
           </div>
-          <div class="pay-allreset-row" id="bpay-allreset-slot"></div>
+          <div class="pay-actions-row" id="bpay-actions-slot"></div>
           <div class="bpay-spread-section" id="bpay-spread-section" style="display:flex"></div>
           <div class="bpay-comm-panel" id="bpay-comm-panel"></div>
         </div>
@@ -742,7 +742,7 @@ const Views = {
               </div>
             </div>
             <div class="bside-chipset-pane">
-              <div class="pay-allreset-row" id="bside-allreset-slot"></div>
+              <div class="pay-actions-row" id="bside-actions-slot"></div>
               <div class="bpay-spread-section" id="bside-spread-section" style="display:none"></div>
             </div>
           </div>
@@ -3307,15 +3307,47 @@ const Sims = {
       if (_row) { const ow = _row.offsetWidth, cw = section.clientWidth; if (ow > cw && cw > 0) _row.style.transform = `scale(${(cw / ow).toFixed(4)})`; }
     }
 
+    // UNDO (2026-08-27), brought over from the roulette payout page's own
+    // UNDO/S.history mechanism (Sims.roulettePay). That page keeps one flat
+    // in-memory object (S.payChips) to snapshot; this tray has no such
+    // object — the committed amounts live only as each denom's hidden
+    // <input>'s value — so snapshotChips()/restoreChips() read/write those
+    // inputs directly instead. Pushed right before every real mutation
+    // (addChip only pushes past its "저액 칩스부터" order-enforcement
+    // guard, i.e. only when a chip actually gets added; resetChip/resetAll
+    // always mutate, so they always push). Mistake-triggered resets
+    // (submitComm()'s wrong-amount branch) do NOT push, matching roulette's
+    // own submitPay() mistake branch — a wrong PAY isn't an undoable step.
+    function snapshotChips() {
+      const snap = {};
+      COMM_CHIPS.forEach(c => { snap[c.key] = $(`bpay-ci-${c.key}`)?.value || '0'; });
+      return snap;
+    }
+    function pushHistory() {
+      if (!S.history) S.history = [];
+      S.history.push(snapshotChips());
+    }
+    function restoreChips(snap) {
+      COMM_CHIPS.forEach(c => {
+        const inp = $(`bpay-ci-${c.key}`);
+        if (inp) inp.value = snap[c.key] ?? '0';
+      });
+    }
+
     function showCommTray() {
       const panel = $('bpay-comm-panel');
-      const allResetSlot = $('bpay-allreset-slot');
+      const actionsSlot = $('bpay-actions-slot');
       if (!panel) return;
-      // ALL RESET lives in its own top-of-table slot (.pay-allreset-row),
-      // not the PAY rack — same relocation as Option Bet's showPayTray()
-      // and the roulette payout page's own ALL RESET; PAY stays the tray's
-      // one primary action. Same onclick/behavior, position only.
-      if (allResetSlot) allResetSlot.innerHTML = '<button class="comm-all-reset-btn" onclick="Sims.baccaratPay.resetAll()">ALL RESET</button>';
+      // Fresh hand, fresh undo stack — same as roulette's showTray(),
+      // which also zeroes S.history each time it (re)builds the tray.
+      S.history = [];
+      // UNDO + ALL RESET live in their own slot (.pay-actions-row), not the
+      // PAY rack — same relocation as Option Bet's showPayTray() and the
+      // roulette payout page's own UNDO/ALL RESET row; PAY stays the
+      // tray's one primary action.
+      if (actionsSlot) actionsSlot.innerHTML = `
+        <button class="comm-undo-btn" onclick="Sims.baccaratPay.undo()">↩ UNDO</button>
+        <button class="comm-all-reset-btn" onclick="Sims.baccaratPay.resetAll()">ALL RESET</button>`;
       panel.innerHTML = `<div class="comm-tray">
         <div id="bpay-order-warn" class="bpay-order-warn"><span>저액 칩스부터 세팅하세요</span></div>
         <div class="comm-tray-slots">
@@ -3393,14 +3425,14 @@ const Sims = {
 
     return {
       init() {
-        S = { bets: [], commIdx: 0, rounds: 0, score: 0, mistakes: 0, commTarget: 0, mode: 'commission', lastTotal: 0, awaitingPay: false, nextTimer: null };
+        S = { bets: [], commIdx: 0, rounds: 0, score: 0, mistakes: 0, commTarget: 0, mode: 'commission', lastTotal: 0, awaitingPay: false, nextTimer: null, history: [] };
         this.deal();
       },
 
       restart() {
         if (S.nextTimer) { clearTimeout(S.nextTimer); }
         const cur = S.mode || 'commission';
-        S = { bets: [], commIdx: 0, rounds: S.rounds, score: S.score, mistakes: S.mistakes, commTarget: 0, mode: cur, lastTotal: 0, awaitingPay: S.awaitingPay, nextTimer: null };
+        S = { bets: [], commIdx: 0, rounds: S.rounds, score: S.score, mistakes: S.mistakes, commTarget: 0, mode: cur, lastTotal: 0, awaitingPay: S.awaitingPay, nextTimer: null, history: [] };
         this.setMode(cur);
       },
 
@@ -3476,6 +3508,7 @@ const Sims = {
         if (lowerUnset) { showOrderWarning(); return; }
         const inp = $(`bpay-ci-${key}`);
         if (!inp) return;
+        pushHistory();
         inp.value = (parseInt(inp.value) || 0) + n;
         // 10 of any denom → 1 of next higher (where 10x relationship exists), cascades up
         for (let i = COMM_CHIPS.length - 1; i > 0; i--) {
@@ -3496,16 +3529,24 @@ const Sims = {
       },
 
       resetChip(key) {
+        pushHistory();
         const inp = $(`bpay-ci-${key}`);
         if (inp) inp.value = '0';
         updateSpread();
       },
 
       resetAll() {
+        pushHistory();
         COMM_CHIPS.forEach(c => {
           const inp = $(`bpay-ci-${c.key}`);
           if (inp) inp.value = '0';
         });
+        updateSpread();
+      },
+
+      undo() {
+        if (!S.history || !S.history.length) return;
+        restoreChips(S.history.pop());
         updateSpread();
       },
 
@@ -3642,19 +3683,43 @@ const Sims = {
       }
     }
 
+    // UNDO (2026-08-27) — same mechanism as Sims.baccaratPay's own copy
+    // (brought over from roulette's S.history/undo()); see that copy's
+    // comment for why this snapshots hidden-<input> values instead of a
+    // flat state object.
+    function snapshotChips() {
+      const snap = {};
+      COMM_CHIPS.forEach(c => { snap[c.key] = $(`bside-ci-${c.key}`)?.value || '0'; });
+      return snap;
+    }
+    function pushHistory() {
+      if (!S.history) S.history = [];
+      S.history.push(snapshotChips());
+    }
+    function restoreChips(snap) {
+      COMM_CHIPS.forEach(c => {
+        const inp = $(`bside-ci-${c.key}`);
+        if (inp) inp.value = snap[c.key] ?? '0';
+      });
+    }
+
     function showPayTray() {
       const panel = $('bside-comm-panel');
       const spread = $('bside-spread-section');
-      const allResetSlot = $('bside-allreset-slot');
+      const actionsSlot = $('bside-actions-slot');
       if (!panel) return;
       panel.style.display = 'block';
       if (spread) { spread.style.display = 'flex'; spread.innerHTML = '<div class="rpay-hint-text">왼쪽 베팅 구역을 확인하고 칩스를 세팅하세요</div>'; }
-      // ALL RESET lives in its own top-right slot (.pay-allreset-row, in the
+      // Fresh hand, fresh undo stack.
+      S.history = [];
+      // UNDO + ALL RESET live in their own slot (.pay-actions-row, in the
       // baccaratPaySim() template), not the PAY rack — same relocation the
-      // roulette payout page already uses for its own ALL RESET (.rpay-undo-row),
-      // so PAY reads as the tray's one primary action and ALL RESET as a
-      // secondary, out-of-the-way one. Same onclick/behavior, position only.
-      if (allResetSlot) allResetSlot.innerHTML = '<button class="comm-all-reset-btn" onclick="Sims.baccaratSide.resetAll()">ALL RESET</button>';
+      // roulette payout page already uses for its own UNDO/ALL RESET row,
+      // so PAY reads as the tray's one primary action and these read as
+      // secondary, out-of-the-way ones.
+      if (actionsSlot) actionsSlot.innerHTML = `
+        <button class="comm-undo-btn" onclick="Sims.baccaratSide.undo()">↩ UNDO</button>
+        <button class="comm-all-reset-btn" onclick="Sims.baccaratSide.resetAll()">ALL RESET</button>`;
       panel.innerHTML = `<div class="comm-tray">
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
@@ -3966,7 +4031,7 @@ const Sims = {
         const keepRounds   = isRestart && S ? S.rounds + (wasMidHand ? 1 : 0) : 0;
         const keepScore    = isRestart && S ? S.score    : 0;
         const keepMistakes = isRestart && S ? S.mistakes : 0;
-        S = { rounds: keepRounds, score: keepScore, mistakes: keepMistakes, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0, awaitingPay: false, nextTimer: null };
+        S = { rounds: keepRounds, score: keepScore, mistakes: keepMistakes, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0, awaitingPay: false, nextTimer: null, history: [] };
         if ($('bside-rounds')) $('bside-rounds').textContent = S.rounds;
         if ($('bside-score')) $('bside-score').textContent = S.score;
         if ($('bside-mistakes')) $('bside-mistakes').textContent = S.mistakes;
@@ -4023,6 +4088,7 @@ const Sims = {
         if (!chip) return;
         const inp = $(`bside-ci-${key}`);
         if (!inp) return;
+        pushHistory();
         inp.value = (parseInt(inp.value) || 0) + n;
         for (let i = COMM_CHIPS.length - 1; i > 0; i--) {
           const lower = COMM_CHIPS[i], upper = COMM_CHIPS[i - 1];
@@ -4041,16 +4107,24 @@ const Sims = {
       },
 
       resetChip(key) {
+        pushHistory();
         const inp = $(`bside-ci-${key}`);
         if (inp) inp.value = '0';
         updateSpread();
       },
 
       resetAll() {
+        pushHistory();
         COMM_CHIPS.forEach(c => {
           const inp = $(`bside-ci-${c.key}`);
           if (inp) inp.value = '0';
         });
+        updateSpread();
+      },
+
+      undo() {
+        if (!S.history || !S.history.length) return;
+        restoreChips(S.history.pop());
         updateSpread();
       },
 
