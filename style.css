@@ -4121,13 +4121,26 @@ body {
    verified (see the sandbox limitation noted elsewhere).
    Rev 2 (2026-08-27, same day, explicit ask): dropped the standalone
    dark `.table-refresh-btn`-style look — it read as a separate/foreign UI
-   element next to UNDO/ALL RESET. Now shares their exact box model
+   element next to UNDO/ALL RESET. Adopted their exact box model
    (`min-height:var(--tap-h)`, same padding/border-width/border-radius —
    see `.pay-actions-row .comm-undo-btn`/`.comm-all-reset-btn` further
-   down) so it reads as the same utility-button family, just repurposed:
-   icon only (no text, no `min-width` — sizes from padding same as those
-   two), and gold-toned (not blue/red) so its color still marks it as the
-   distinct "reveal the answer" action per that explicit request. */
+   down) so it read as the same utility-button family, just repurposed:
+   icon only (no text), gold-toned (not blue/red).
+   Rev 4 (2026-08-27, same day, explicit ask): went further the OTHER
+   direction — rev 2 made it look like a same-family BUTTON; this ask was
+   for a plain small ICON instead ("버튼처럼 보이기보다 작은 유틸리티
+   아이콘처럼"). Border and background dropped entirely (`border:none`,
+   `background:none`) — nothing left to visually read as a button
+   boundary, so it should sit on the felt/BANKER-oval background the same
+   way `.table-refresh-btn`'s bare corner icons elsewhere in this app do.
+   `min-height`/`padding` from rev 2 are kept AS-IS on purpose (explicit
+   "클릭 영역은 현재 크기 유지") even though there's no visible box anymore
+   — the tap target is still there, just invisible. Glyph itself sized up
+   ~40% (`calc(var(--bf-sm) * 1.4)`, within the requested 30-50% range)
+   since with no button chrome around it, the icon alone needs to read as
+   present/tappable. Color kept gold (`--gold-light`) though real-world 💡
+   already reads yellow regardless of CSS `color` on platforms with color
+   emoji fonts — this only visibly matters on monochrome-glyph fallbacks. */
 .bpay-hint-btn {
   position: absolute;
   top: clamp(4px,1vh,8px); left: clamp(4px,1vw,8px);
@@ -4135,21 +4148,19 @@ body {
   display: flex; align-items: center; justify-content: center;
   min-height: var(--tap-h);
   padding: clamp(.36rem,.85vh,.5rem) clamp(.6rem,1.3vw,.8rem);
-  border-radius: 5px;
-  border-width: 1px; border-style: solid;
-  border-color: rgba(220,190,110,.4);
-  background: rgba(120,95,20,.55);
-  color: rgba(255,235,190,.95);
-  box-shadow: none;
-  font-size: var(--bf-sm);
+  border: none;
+  background: none;
+  color: var(--gold-light);
+  font-size: calc(var(--bf-sm) * 1.4);
   line-height: 1;
   cursor: pointer;
-  transition: background-color .12s, border-color .12s, color .12s;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,.5));
+  transition: filter .12s, transform .12s;
 }
 .bpay-hint-btn:hover {
-  background: rgba(160,125,25,.78); border-color: rgba(220,190,110,.6); color: #fff;
+  filter: drop-shadow(0 1px 5px rgba(230,190,90,.7)) brightness(1.2);
 }
-.bpay-hint-btn:active { transform: scale(.95); }
+.bpay-hint-btn:active { transform: scale(.9); }
 /* Commission/Half Pay only (2026-08-27, explicit ask, scoped by user
    choice — Option Bet's icon deliberately left alone, see the comment
    block above about it anchoring to the unzoomed pane): moved down below
