@@ -4101,16 +4101,41 @@ body {
 }
 
 /* Chip-tray disabled state (💡 rev 2, 2026-08-27) — once the answer's
-   revealed, the denomination buttons underneath stay mounted (not torn
-   down/replaced) but go inert: dimmed + unclickable via the native
-   `disabled` attribute set in showAnswer(). PAY itself is left enabled and
-   morphed into NEXT ROUND (text + onclick swapped in JS), so it keeps
-   PAY's own trailing-slot position in `.comm-tray-slots` instead of
-   becoming a separate centered element. */
-.bpay-chip-btn:disabled {
+   revealed, the whole tray underneath (denomination buttons AND PAY) stays
+   mounted (not torn down/replaced) but goes inert: dimmed + unclickable
+   via the native `disabled` attribute set in showAnswer(). */
+.bpay-chip-btn:disabled,
+.comm-pay-btn:disabled {
   opacity: .35;
   filter: grayscale(.5);
   cursor: not-allowed;
+}
+
+/* NEXT ROUND row (💡 rev 3, 2026-08-27) — explicit ask: NEXT ROUND must sit
+   ABOVE where PAY is, not swap in on top of it. Prepended as its own row
+   directly above `.comm-tray` (a sibling, not a child of it — `.comm-tray`
+   has `overflow:hidden`, so an element meant to visually sit above that
+   box has to live outside it, not be absolutely positioned inside it).
+   Right-padded to roughly the same amount as `.comm-tray`'s own side
+   padding (.45rem) so the button's right edge tracks PAY's right edge
+   (`.comm-pay-slot` sits flush against that same padding) instead of
+   centering across the whole tray width. */
+.bpay-next-round-row {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 .45rem .5rem;
+}
+/* Scoped to `.bpay-next-round-row` (not a bare `.bpay-next-round-btn`
+   selector) so this out-specificities `.comm-pay-btn`'s own base rule
+   further down the file (`flex:1`, `min-width:46px`) regardless of
+   source order — this button reuses `.comm-pay-btn` for its gold-pill
+   look but needs its own auto-sized/right-aligned box, not a flex item
+   stretching to fill a row it isn't actually in. */
+.bpay-next-round-row .bpay-next-round-btn {
+  flex: 0 0 auto;
+  width: auto;
+  padding: 0 clamp(1rem,3vw,1.6rem);
+  min-height: clamp(34px,6vh,42px);
 }
 
 .comm-tray {

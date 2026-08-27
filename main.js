@@ -3624,16 +3624,20 @@ const Sims = {
         startCommAt(S.commIdx - 1);
       },
 
-      // 💡 (2026-08-27, rev 2 2026-08-27). Explicit requirements: shows the
+      // 💡 (2026-08-27, rev 3 2026-08-27). Explicit requirements: shows the
       // correct chip layout for THIS target, but the round must NOT count
       // toward Rounds/Score/Mistakes — so this skips submitComm() and
       // startCommAt() entirely (the only places that touch those counters)
       // rather than reusing them with a bypass flag.
       // Rev 2: the chip tray underneath is left exactly as showCommTray()
-      // built it (no innerHTML replacement) — only the denomination buttons
-      // get `disabled` and the PAY button is morphed in place into NEXT
-      // ROUND, so it keeps PAY's own position/size (trailing slot of the
-      // chip row) instead of becoming a separate centered block.
+      // built it (no innerHTML replacement) — only disabled.
+      // Rev 3: explicit follow-up — NEXT ROUND must sit ABOVE where PAY is,
+      // not swapped in on top of it. PAY itself now stays put and just
+      // gets `disabled` alongside the denomination buttons; NEXT ROUND is a
+      // separate row prepended above `.comm-tray` (a sibling, not a child —
+      // `.comm-tray` has `overflow:hidden`, so anything meant to sit above
+      // it has to live outside that box), right-aligned to roughly track
+      // PAY's own position at the tray's right edge.
       showAnswer() {
         if (!S.awaitingPay || S.answerRevealed) return;
         S.answerRevealed = true;
@@ -3642,12 +3646,10 @@ const Sims = {
         renderAnswerSpread(computeAnswerChips(S.commTarget));
         const panel = $('bpay-comm-panel');
         if (panel) {
-          panel.querySelectorAll('.bpay-chip-btn').forEach(b => b.disabled = true);
-          const payBtn = panel.querySelector('.comm-pay-btn');
-          if (payBtn) {
-            payBtn.textContent = 'NEXT ROUND';
-            payBtn.onclick = () => Sims.baccaratPay.nextRound();
-          }
+          panel.querySelectorAll('.bpay-chip-btn, .comm-pay-btn').forEach(b => b.disabled = true);
+          panel.insertAdjacentHTML('afterbegin', `<div class="bpay-next-round-row">
+            <button class="comm-pay-btn bpay-next-round-btn" onclick="Sims.baccaratPay.nextRound()">NEXT ROUND</button>
+          </div>`);
         }
       },
 
@@ -4280,13 +4282,13 @@ const Sims = {
         showNextHand();
       },
 
-      // 💡 (2026-08-27, rev 2 2026-08-27) — same approach as
-      // Sims.baccaratPay's own copy (see that copy's comment for the rev 2
-      // rationale): skips submitPay() (the only place Rounds/Score/Mistakes
-      // change for this sim) entirely rather than reusing it with a bypass
-      // flag, so an answer-revealed round genuinely can't touch those
-      // counters. Morphs PAY into NEXT ROUND in place instead of replacing
-      // the whole tray.
+      // 💡 (2026-08-27, rev 3 2026-08-27) — same approach as
+      // Sims.baccaratPay's own copy (see that copy's comment for the rev
+      // 2/3 rationale): skips submitPay() (the only place Rounds/Score/
+      // Mistakes change for this sim) entirely rather than reusing it with
+      // a bypass flag, so an answer-revealed round genuinely can't touch
+      // those counters. NEXT ROUND is prepended above `.comm-tray` as its
+      // own row (PAY stays put, disabled) rather than swapped in on PAY.
       showAnswer() {
         if (!S.awaitingPay || S.answerRevealed) return;
         S.answerRevealed = true;
@@ -4295,12 +4297,10 @@ const Sims = {
         renderAnswerSpread(computeAnswerChips(S.payTarget));
         const panel = $('bside-comm-panel');
         if (panel) {
-          panel.querySelectorAll('.bpay-chip-btn').forEach(b => b.disabled = true);
-          const payBtn = panel.querySelector('.comm-pay-btn');
-          if (payBtn) {
-            payBtn.textContent = 'NEXT ROUND';
-            payBtn.onclick = () => Sims.baccaratSide.nextRound();
-          }
+          panel.querySelectorAll('.bpay-chip-btn, .comm-pay-btn').forEach(b => b.disabled = true);
+          panel.insertAdjacentHTML('afterbegin', `<div class="bpay-next-round-row">
+            <button class="comm-pay-btn bpay-next-round-btn" onclick="Sims.baccaratSide.nextRound()">NEXT ROUND</button>
+          </div>`);
         }
       },
 
