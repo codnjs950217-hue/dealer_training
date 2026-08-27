@@ -3297,6 +3297,15 @@ const Sims = {
       });
     }
 
+    // Empty-tray hint (2026-08-27) — explicit ask, mirroring Option Bet's
+    // own `.rpay-hint-text` (same class/position, in `#bpay-spread-section`
+    // just like that page uses `#bside-spread-section`): shown only while
+    // no chips are placed yet, per-mode message (Commission vs Half Pay —
+    // this closure serves both, `S.mode` tells them apart). Chip-state
+    // driven, not round-counter driven, so "reappears on a new round" and
+    // "stays up across a round change" both just fall out of the same
+    // check — see showCommTray()'s own comment for how a fresh round gets
+    // back here with all chip inputs at 0.
     function updateSpread() {
       const section = $('bpay-spread-section');
       if (!section) return;
@@ -3313,7 +3322,13 @@ const Sims = {
           anyPrev = true;
         }
       });
-      if (!html) { section.innerHTML = ''; return; }
+      if (!html) {
+        const hint = S.mode === 'halfpay'
+          ? '하프페이를 적용한 페이아웃 칩을 세팅하세요'
+          : '5% 커미션을 제외한 페이아웃 칩을 세팅하세요';
+        section.innerHTML = `<div class="rpay-hint-text">${hint}</div>`;
+        return;
+      }
       section.innerHTML = `<div class="spread-row">${html}</div>`;
       const _row = section.querySelector('.spread-row');
       if (_row) { const ow = _row.offsetWidth, cw = section.clientWidth; if (ow > cw && cw > 0) _row.style.transform = `scale(${(cw / ow).toFixed(4)})`; }
@@ -3429,6 +3444,10 @@ const Sims = {
           </div>
         </div>
       </div>`;
+      // Fresh round, all chip inputs just rebuilt at 0 — this is what
+      // brings the empty-tray hint back for the new round (see
+      // updateSpread()'s own comment).
+      updateSpread();
     }
 
     function showMistake(retryFn) {
