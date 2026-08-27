@@ -3891,16 +3891,31 @@ body {
 }
 .bpay-start-btn:active { transform: scale(.96); box-shadow: 0 2px 8px rgba(201,168,76,.3); }
 
-/* Commission panel — dealer rack style */
-.bpay-comm-panel { margin-top: 0; width: 100%; box-sizing: border-box; flex-shrink: 0; }
-/* NEXT ROUND perceived-speed fix (2026-08-27) — applied the instant a
-   trainee clicks NEXT ROUND (main.js's nextRound()), before deal()'s own
+/* Commission panel — dealer rack style. `transition` lives HERE (not
+   only on `.bpay-tray-fading` below) so opacity animates smoothly in
+   BOTH directions — fading out when `.bpay-tray-fading` is added AND
+   fading back in when it's removed. A transition declared only on the
+   temporary class would animate the fade-out fine but then vanish along
+   with the class on removal, making the fade-IN an instant, jarring pop
+   (exactly the "사라졌다가 생기는" flash this was rev 2'd to fix — see
+   below). */
+.bpay-comm-panel { margin-top: 0; width: 100%; box-sizing: border-box; flex-shrink: 0; transition: opacity .2s ease; }
+/* NEXT HAND perceived-speed fix (2026-08-27) — applied the instant a
+   trainee clicks NEXT HAND (main.js's nextRound()), before deal()'s own
    ~400ms pause even starts, so the (now-stale) disabled tray gives
    immediate visual feedback instead of sitting frozen on screen for that
    whole gap. showCommTray()/showPayTray() remove this class the moment
-   they rebuild the panel for the new round — opacity just goes back to
-   its default 1 on the fresh markup, no explicit "fade in" needed. */
-.bpay-tray-fading { opacity: 0; pointer-events: none; transition: opacity .15s ease-out; }
+   they rebuild the panel for the new round.
+   Rev 2 (2026-08-27, same day, explicit ask: NEXT HAND making the tray
+   "사라졌다가 생기는" instead of a natural continuous transition) — the
+   fade-OUT was smooth (this class's own transition), but fade-IN wasn't:
+   removing a class removes whatever `transition` it declared right along
+   with it, so opacity snapped 0→1 instantly the moment the fresh tray
+   was rebuilt — a hard pop, not a fade. Moved `transition` onto the
+   PERMANENT `.bpay-comm-panel` rule above so it's always active
+   regardless of which direction opacity is heading; this class now only
+   sets the target `opacity`/`pointer-events` for the faded-out state. */
+.bpay-tray-fading { opacity: 0; pointer-events: none; }
 
 /* ── Shared zone layout:
    Commission/Half Pay — 3-zone stack: TOP bet ovals, MIDDLE spread (grows), BOTTOM chip tray.
