@@ -3153,8 +3153,18 @@ body {
 .spot-bj-btn:hover   { background: #4e3900; }
 .spot-pay-btn  { background: #0a3020; color: #4ecdc4; border: 1px solid #1a6040; padding: .4rem .7rem; font-size: .8rem; }
 .spot-pay-btn:hover  { background: #0e3c28; }
-.spot-push-btn { background: #1a1a30; color: #8888bb; border: 1px solid #30305a; padding: .4rem .7rem; font-size: .8rem; }
-.spot-push-btn:hover { background: #22223c; }
+/* Recolored (2026-08-27) to match .s-push's own gold/amber, the color the
+   PUSH result badge shows on a spot after answering — explicit ask was to
+   tie the "Push" answer button visually to the outcome it produces,
+   instead of the previous unrelated blue-purple (#8888bb). Uses the same
+   `var(--gold)` text color .s-push itself uses; background/border are a
+   dark, solid version of that hue (same "dark saturated bg + bright text
+   + darker solid border" formula .spot-pay-btn/.spot-take-btn already
+   use for their own colors), not a literal copy of .s-push's own very
+   translucent badge background — a badge and a button call for different
+   contrast levels. */
+.spot-push-btn { background: #302408; color: var(--gold); border: 1px solid #6b4a1a; padding: .4rem .7rem; font-size: .8rem; }
+.spot-push-btn:hover { background: #3e2e0c; }
 .spot-take-btn { background: #300a0a; color: #ff7777; border: 1px solid #601818; padding: .4rem .7rem; font-size: .8rem; }
 .spot-take-btn:hover { background: #3e1010; }
 
