@@ -703,7 +703,6 @@ const Views = {
         <div class="baccarat-table">
           <div class="bside-mid-row">
             <div class="bside-layout-pane">
-              <button class="bpay-hint-btn" id="bside-hint-btn" onclick="Sims.baccaratSide.showAnswer()" title="정답 보기" aria-label="정답 보기">💡</button>
               <div class="bside-zoom-stage" id="bside-zoom-stage">
                 <div class="bpay-positions bside-layout">
                   ${[1].map(i => `
@@ -744,6 +743,7 @@ const Views = {
               </div>
             </div>
             <div class="bside-chipset-pane">
+              <button class="bpay-hint-btn" id="bside-hint-btn" onclick="Sims.baccaratSide.showAnswer()" title="정답 보기" aria-label="정답 보기">💡</button>
               <div class="pay-actions-row" id="bside-actions-slot"></div>
               <div class="bpay-spread-section" id="bside-spread-section" style="display:none"></div>
             </div>

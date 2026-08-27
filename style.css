@@ -4100,11 +4100,22 @@ body {
 /* Answer-reveal (💡, 2026-08-27) — Commission/Half Pay/Option Bet all get
    a small "show the answer" icon pinned to the top-left of their own
    betting area. Commission/Half Pay: a plain child of `.bpay-positions`
-   (now `position:relative` for this). Option Bet: a child of
-   `.bside-layout-pane`, NOT `#bside-zoom-stage` — that stage gets panned/
-   scaled by zoomToKey(), so anchoring the icon to the unzoomed pane
-   instead is what keeps it a fixed size in a fixed corner regardless of
-   which bet cell is zoomed.
+   (now `position:relative` for this).
+   Option Bet, rev 3 (2026-08-27, explicit ask: "칩스세팅구역 기준 왼쪽
+   상단"): moved from being the first child of `.bside-layout-pane` (top-
+   left of the BETTING layout, left side) to the first child of
+   `.bside-chipset-pane` instead (top-left of the CHIP-SETTING pane, right
+   side — already `position:relative`, no extra CSS needed for the
+   anchor). This is a strict improvement on the original "must not live
+   inside `#bside-zoom-stage`, which gets panned/scaled by zoomToKey()"
+   constraint from the very first version — `.bside-chipset-pane` is a
+   completely separate pane from the zoom stage (never panned/scaled at
+   all), so the icon stays fixed-size-fixed-corner even more robustly than
+   before. `.pay-actions-row` (UNDO/ALL RESET) is a normal-flow sibling
+   right after it in the same pane, right-aligned (`justify-content:
+   flex-end`) — the icon's absolute top-left positioning and that row's
+   right-aligned content shouldn't collide, but this wasn't visually
+   verified (see the sandbox limitation noted elsewhere).
    Rev 2 (2026-08-27, same day, explicit ask): dropped the standalone
    dark `.table-refresh-btn`-style look — it read as a separate/foreign UI
    element next to UNDO/ALL RESET. Now shares their exact box model
