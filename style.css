@@ -4306,6 +4306,22 @@ body {
 .bpay-chip-stack-ghost:nth-of-type(1) { transform: translate(3px, 2px); z-index: 1; }
 .bpay-chip-stack-ghost:nth-of-type(2) { transform: translate(6px, 4px); z-index: 0; }
 .bpay-chip-btn-stackwrap .bpay-chip-btn-disc { position: relative; z-index: 2; }
+/* Option Bet only (2026-08-27): the ×5 stack disc used to show the
+   pre-multiplied TOTAL (e.g. "500M" for 5×100M) — explicit ask was to
+   show it as base-denom × count instead ("100M×5") so a trainee reads
+   the stack disc as "5 of the base chip," matching the base ×1 disc's
+   own denomination label instead of a separate bigger number. Scoped
+   to `#bside-content` only — Commission/Half Pay's identical
+   .bpay-chip-btn-disc/-stackwrap markup (showCommTray(), main.js) keeps
+   its original single total-amount text, not asked to change here.
+   Chip look (ghost stack, colors, border, shadow) is untouched — only
+   the face text goes from one line to two (amount / ×5) to fit both
+   inside the same disc size. */
+#bside-content .bpay-chip-btn-disc-x5 {
+  flex-direction: column; gap: 1px; line-height: 1;
+}
+#bside-content .bpay-x5-amt { font-size: clamp(7.5px, 1.15vw, 9.5px); font-weight: 900; }
+#bside-content .bpay-x5-mult { font-size: clamp(7px, 1.05vw, 8.5px); font-weight: 800; opacity: .88; }
 /* No longer referenced by any markup as of rev 4 (2026-08-24) — the
    amount text moved onto the chip disc itself (.bpay-chip-btn-disc,
    above) instead of a separate label row. Left in place, same
