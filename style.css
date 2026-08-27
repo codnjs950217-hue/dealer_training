@@ -4571,15 +4571,21 @@ body {
    Chip look (ghost stack, colors, border, shadow) is untouched — only
    the face text itself changed. REV 2 (2026-08-27): switched from a
    2-line stack (amount over ×5) to ONE line, per explicit "위아래 두줄로
-   말고 한줄로만" — `flex-direction: row` (the wrapper's default, so
-   just dropping the `column` override), tight `gap`, and smaller/
-   tightened-letter-spacing fonts so "100M×5" (the longest of the 6
-   labels) still fits across the ~34-42px disc on a single line. */
+   말고 한줄로만".
+   REV 3 (2026-08-27, same day, explicit ask: "한줄말고 두줄로") — flipped
+   back to a 2-line stack (amount over ×5), reversing REV 2. Each line no
+   longer has to share horizontal room with the other, so fonts are sized
+   up a bit from REV 2's cramped single-line values instead of reusing
+   them as-is — still small (this is a ~34-42px disc), but no longer
+   fighting for space against a sibling on the same line. If a future ask
+   flips this again, don't assume REV 2's exact numbers were "the"
+   one-line answer either — they were tuned for THAT layout, not a
+   universal constant. */
 #bside-content .bpay-chip-btn-disc-x5 {
-  flex-direction: row; gap: .5px; line-height: 1;
+  flex-direction: column; gap: 0; line-height: 1;
 }
-#bside-content .bpay-x5-amt { font-size: clamp(6px, .95vw, 7.5px); font-weight: 900; letter-spacing: -.2px; }
-#bside-content .bpay-x5-mult { font-size: clamp(5.5px, .85vw, 7px); font-weight: 800; opacity: .88; }
+#bside-content .bpay-x5-amt { font-size: clamp(7px, 1.1vw, 8.5px); font-weight: 900; letter-spacing: -.1px; }
+#bside-content .bpay-x5-mult { font-size: clamp(6px, .95vw, 7.5px); font-weight: 800; opacity: .88; }
 /* No longer referenced by any markup as of rev 4 (2026-08-24) — the
    amount text moved onto the chip disc itself (.bpay-chip-btn-disc,
    above) instead of a separate label row. Left in place, same
