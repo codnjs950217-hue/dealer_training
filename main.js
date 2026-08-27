@@ -3427,13 +3427,14 @@ const Sims = {
             <div class="comm-slot">
               <input type="hidden" id="bpay-ci-${c.key}" value="0">
               <div class="bpay-chip-btns">
+                ${c.key === '5K' ? '' : `
                 <button class="bpay-chip-btn" onclick="Sims.baccaratPay.addChip('${c.key}',5)" aria-label="+${fmtAmt(c.val * 5)}">
                   <div class="bpay-chip-btn-stackwrap">
                     <div class="comm-slot-chip bpay-chip-stack-ghost" style="background:${c.bg};color:${c.fg}"></div>
                     <div class="comm-slot-chip bpay-chip-stack-ghost" style="background:${c.bg};color:${c.fg}"></div>
                     <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val * 5)}</div>
                   </div>
-                </button>
+                </button>`}
                 <button class="bpay-chip-btn" onclick="Sims.baccaratPay.addChip('${c.key}',1)" aria-label="+${fmtAmt(c.val)}">
                   <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val)}</div>
                 </button>
@@ -3874,13 +3875,14 @@ const Sims = {
             <div class="comm-slot">
               <input type="hidden" id="bside-ci-${c.key}" value="0">
               <div class="bpay-chip-btns">
+                ${c.key === '5K' ? '' : `
                 <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',5)" aria-label="+${fmtAmt(c.val)}×5">
                   <div class="bpay-chip-btn-stackwrap">
                     <div class="comm-slot-chip bpay-chip-stack-ghost" style="background:${c.bg};color:${c.fg}"></div>
                     <div class="comm-slot-chip bpay-chip-stack-ghost" style="background:${c.bg};color:${c.fg}"></div>
                     <div class="comm-slot-chip bpay-chip-btn-disc bpay-chip-btn-disc-x5" style="background:${c.bg};color:${c.fg}"><span class="bpay-x5-amt">${fmtAmt(c.val)}</span><span class="bpay-x5-mult">×5</span></div>
                   </div>
-                </button>
+                </button>`}
                 <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',1)" aria-label="+${fmtAmt(c.val)}">
                   <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val)}</div>
                 </button>
