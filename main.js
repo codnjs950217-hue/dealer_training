@@ -3405,6 +3405,11 @@ const Sims = {
       const panel = $('bpay-comm-panel');
       const actionsSlot = $('bpay-actions-slot');
       if (!panel) return;
+      // Undo nextRound()'s instant fade-out (see that function's own
+      // comment) — innerHTML gets replaced below, but the panel NODE
+      // itself is the same element, so a class added to it earlier
+      // survives unless explicitly removed here.
+      panel.classList.remove('bpay-tray-fading');
       // Fresh hand, fresh undo stack — same as roulette's showTray(),
       // which also zeroes S.history each time it (re)builds the tray.
       S.history = [];
@@ -3676,8 +3681,25 @@ const Sims = {
       // place Rounds/Score increment) — this is what actually keeps an
       // answer-revealed round out of the stats, not just the UI change
       // above.
+      //
+      // Perf/perceived-speed fix (2026-08-27, explicit ask: "정답 보기 후
+      // NEXT ROUND... 느립니다"). Root cause was NOT an extra timer or
+      // duplicate work — deal() (below) always has the same ~400ms pause
+      // before rebuilding the tray, on EVERY path, including the normal
+      // PAY → NEXT HAND flow. That flow just doesn't feel slow because
+      // showNextHand()'s full-table `.next-hand-overlay` covers the whole
+      // gap; this path calls deal() directly with nothing covering
+      // anything, so the disabled tray (dimmed chip buttons + this very
+      // NEXT ROUND button, now stale) just sits there unchanged for
+      // ~400ms, reading as frozen/unresponsive even though it's actually
+      // the FASTER of the two paths in raw elapsed time. Fix: fade the
+      // stale panel out instantly on click, so there's immediate visual
+      // feedback instead of a dead pause — showCommTray()/showPayTray()
+      // clear this class the moment the real new-round tray is rebuilt.
       nextRound() {
         if (S.nextTimer) { clearTimeout(S.nextTimer); S.nextTimer = null; }
+        const panel = $('bpay-comm-panel');
+        if (panel) panel.classList.add('bpay-tray-fading');
         this.deal();
       },
     };
@@ -3854,6 +3876,9 @@ const Sims = {
       const actionsSlot = $('bside-actions-slot');
       if (!panel) return;
       panel.style.display = 'block';
+      // Undo nextRound()'s instant fade-out — same as Sims.baccaratPay's
+      // own showCommTray() copy, see that one's comment.
+      panel.classList.remove('bpay-tray-fading');
       if (spread) { spread.style.display = 'flex'; spread.innerHTML = '<div class="rpay-hint-text">왼쪽 베팅 구역을 확인하고 칩스를 세팅하세요</div>'; }
       // Fresh hand, fresh undo stack.
       S.history = [];
@@ -4325,8 +4350,12 @@ const Sims = {
         }
       },
 
+      // Perf/perceived-speed fix (2026-08-27) — same as Sims.baccaratPay's
+      // own copy, see that one's comment for the root-cause writeup.
       nextRound() {
         if (S.nextTimer) { clearTimeout(S.nextTimer); S.nextTimer = null; }
+        const panel = $('bside-comm-panel');
+        if (panel) panel.classList.add('bpay-tray-fading');
         this.deal();
       },
     };

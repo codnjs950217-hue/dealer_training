@@ -3893,6 +3893,14 @@ body {
 
 /* Commission panel — dealer rack style */
 .bpay-comm-panel { margin-top: 0; width: 100%; box-sizing: border-box; flex-shrink: 0; }
+/* NEXT ROUND perceived-speed fix (2026-08-27) — applied the instant a
+   trainee clicks NEXT ROUND (main.js's nextRound()), before deal()'s own
+   ~400ms pause even starts, so the (now-stale) disabled tray gives
+   immediate visual feedback instead of sitting frozen on screen for that
+   whole gap. showCommTray()/showPayTray() remove this class the moment
+   they rebuild the panel for the new round — opacity just goes back to
+   its default 1 on the fresh markup, no explicit "fade in" needed. */
+.bpay-tray-fading { opacity: 0; pointer-events: none; transition: opacity .15s ease-out; }
 
 /* ── Shared zone layout:
    Commission/Half Pay — 3-zone stack: TOP bet ovals, MIDDLE spread (grows), BOTTOM chip tray.
