@@ -4158,15 +4158,29 @@ body {
    way `.table-refresh-btn`'s bare corner icons elsewhere in this app do.
    `min-height`/`padding` from rev 2 are kept AS-IS on purpose (explicit
    "클릭 영역은 현재 크기 유지") even though there's no visible box anymore
-   — the tap target is still there, just invisible. Glyph itself sized up
-   ~40% (`calc(var(--bf-sm) * 1.4)`, within the requested 30-50% range)
-   since with no button chrome around it, the icon alone needs to read as
-   present/tappable. Color kept gold (`--gold-light`) though real-world 💡
-   already reads yellow regardless of CSS `color` on platforms with color
-   emoji fonts — this only visibly matters on monochrome-glyph fallbacks. */
+   — the tap target is still there, just invisible. Color kept gold
+   (`--gold-light`) though real-world 💡 already reads yellow regardless
+   of CSS `color` on platforms with color emoji fonts — this only
+   visibly matters on monochrome-glyph fallbacks.
+   Rev 5 (2026-08-27, same day, explicit ask): glyph sized up again, ~43%
+   over rev 4's size (`* 1.4` → `* 2`, within the requested 40-50% "from
+   current" range — cumulative with rev 4, not measured from the
+   original pre-rev-4 size). `left` nudged further left (`clamp(4px,1vw,
+   8px)` → `clamp(2px,.5vw,4px)`) per explicit follow-up, applied to the
+   shared base rule since this ask didn't scope to one page (unlike rev 6/
+   8's page-specific position tweaks) — moves both Commission/Half Pay's
+   and Option Bet's icon left together. The old dark contact-shadow
+   (`drop-shadow(0 1px 3px rgba(0,0,0,.5))`) is replaced with a genuine
+   gold GLOW (`drop-shadow(0 0 3px rgba(232,201,109,.5))`, 0-offset =
+   glow not a directional shadow) per explicit "아주 약한 Glow 또는
+   하이라이트만" — kept deliberately faint (low blur radius, .5 alpha) and
+   STATIC (no keyframe animation, no pulsing) per "과도한 애니메이션 사용
+   금지". Hover only nudges the SAME glow slightly stronger, no
+   `brightness()` boost anymore (rev 4 had one) — explicit ask was for
+   recognizable-but-understated, not eye-catching/inviting. */
 .bpay-hint-btn {
   position: absolute;
-  top: clamp(4px,1vh,8px); left: clamp(4px,1vw,8px);
+  top: clamp(4px,1vh,8px); left: clamp(2px,.5vw,4px);
   z-index: 20;
   display: flex; align-items: center; justify-content: center;
   min-height: var(--tap-h);
@@ -4174,14 +4188,14 @@ body {
   border: none;
   background: none;
   color: var(--gold-light);
-  font-size: calc(var(--bf-sm) * 1.4);
+  font-size: calc(var(--bf-sm) * 2);
   line-height: 1;
   cursor: pointer;
-  filter: drop-shadow(0 1px 3px rgba(0,0,0,.5));
+  filter: drop-shadow(0 0 3px rgba(232,201,109,.5));
   transition: filter .12s, transform .12s;
 }
 .bpay-hint-btn:hover {
-  filter: drop-shadow(0 1px 5px rgba(230,190,90,.7)) brightness(1.2);
+  filter: drop-shadow(0 0 5px rgba(232,201,109,.75));
 }
 .bpay-hint-btn:active { transform: scale(.9); }
 /* Commission/Half Pay only (2026-08-27, explicit ask, scoped by user
