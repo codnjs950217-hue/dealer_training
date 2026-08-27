@@ -4196,24 +4196,27 @@ body {
 }
 
 /* NEXT HAND row (💡 rev 3-5, 2026-08-27 — bespoke gold-pill styling, now
-   dead; rev 11 same day — explicit ask: rename "NEXT ROUND"→"NEXT HAND"
-   and reuse the baccarat drawing page's own START/NEXT HAND button
-   design/size EXACTLY, not just a similar look. The button (main.js) now
-   has class `.bac-cta-btn` directly — the SAME class/rule that page uses
-   (further down this file, "BACCARAT: START / NEXT HAND (unified CTA)")
-   — no page-specific override needed, since "그대로" meant literally
-   identical, `width:100%` included: the button fills this row rather
-   than sizing to its own text, same as it fills its own slot on the
-   drawing page. This row's only remaining job is prepending above
-   `.comm-tray` as a sibling (`.comm-tray` has `overflow:hidden`, so
-   anything meant to sit above it has to live outside that box) —
-   `justify-content:center` is harmless leftover (moot once the child is
-   `width:100%`), not removed since it's free and matches the rev 4
-   centering ask if `.bac-cta-btn` ever stops being full-width here. */
+   dead; rev 11 same day — reuses the baccarat drawing page's own START/
+   NEXT HAND button, `.bac-cta-btn`, verbatim for design/size (gradient,
+   border, shadow, padding, font-size, min-height — all untouched here).
+   Rev 12 (2026-08-27, same day, explicit ask: "넥스트핸드 글자 길이만큼
+   버튼 길이도 줄여줘") — rev 11 kept `.bac-cta-btn`'s own `width:100%`
+   too, matching the drawing page's full-slot-filling look; this ask
+   walked that back specifically for WIDTH — the button now sizes to its
+   own "NEXT HAND" text + padding instead of filling the row, centered
+   via `justify-content:center` below (which rev 11's comment predicted
+   would become meaningful again "if `.bac-cta-btn` ever stops being
+   full-width here" — it just did). Every OTHER `.bac-cta-btn` property
+   (gradient/border/shadow/padding/font-size/min-height) is still
+   untouched — only `width` is overridden, scoped to this row so the
+   drawing page's own button is unaffected. */
 .bpay-next-round-row {
   display: flex;
   justify-content: center;
   padding: 0 .45rem .5rem;
+}
+.bpay-next-round-row .bac-cta-btn {
+  width: auto;
 }
 
 .comm-tray {
