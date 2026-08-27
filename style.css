@@ -3539,6 +3539,7 @@ body {
 }
 
 .bpay-positions {
+  position: relative;
   display: flex; gap: clamp(.6rem,1.2vw,1.6rem);
   flex: 1; min-height: 0; overflow: hidden;
 }
@@ -4069,6 +4070,62 @@ body {
   flex: 0 0 auto;
   padding: 0 0 clamp(.2rem,.6vh,.35rem);
 }
+
+/* Answer-reveal (💡, 2026-08-27) — Commission/Half Pay/Option Bet all get
+   a small "show the answer" icon pinned to the top-left of their own
+   betting area, matching `.table-refresh-btn`'s existing small dark
+   icon-button look (same recipe, just smaller: this sits inside a
+   cramped betting-area corner, not a whole sim-page corner). Commission/
+   Half Pay: a plain child of `.bpay-positions` (now `position:relative`
+   for this). Option Bet: a child of `.bside-layout-pane`, NOT
+   `#bside-zoom-stage` — that stage gets panned/scaled by zoomToKey(), so
+   anchoring the icon to the unzoomed pane instead is what keeps it a
+   fixed size in a fixed corner regardless of which bet cell is zoomed. */
+.bpay-hint-btn {
+  position: absolute;
+  top: clamp(4px,1vh,8px); left: clamp(4px,1vw,8px);
+  z-index: 20;
+  background: rgba(0,0,0,.32);
+  border: 1px solid rgba(255,255,255,.22);
+  color: rgba(255,255,255,.8);
+  border-radius: 8px;
+  min-width: clamp(24px,4.2vh,30px); min-height: clamp(24px,4.2vh,30px);
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(.8rem,1.7vh,1rem);
+  line-height: 1;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.bpay-hint-btn:hover {
+  background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.4);
+}
+
+/* Small label marking a chip spread as THE ANSWER (not the trainee's own
+   in-progress input) — same subtle small-caps treatment as .area-label
+   elsewhere in this app, tinted gold instead of gray so it doesn't read
+   as just another neutral hint line. */
+.bpay-answer-label {
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  text-align: center;
+  margin-bottom: .25rem;
+}
+
+/* Replaces the chip rack once the answer's been revealed for this round —
+   a short explanatory line plus a single NEXT ROUND button, standing in
+   for the now-pointless chip buttons/PAY. Reuses .comm-pay-btn's own gold
+   pill look for the button so it still reads as "the" primary action. */
+.bpay-answer-tray-msg {
+  color: rgba(255,255,255,.55);
+  font-size: .72rem;
+  text-align: center;
+  padding: .3rem .5rem;
+  line-height: 1.4;
+}
+.bpay-next-round-btn { width: 100%; }
 
 .comm-tray {
   position: relative;

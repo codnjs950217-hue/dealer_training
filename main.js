@@ -685,6 +685,7 @@ const Views = {
       <div id="bpay-content">
         <div class="baccarat-table">
           <div class="bpay-positions">
+            <button class="bpay-hint-btn" id="bpay-hint-btn" onclick="Sims.baccaratPay.showAnswer()" title="정답 보기" aria-label="정답 보기">💡</button>
             ${[1].map(i => `
               <div class="bpay-pos" id="bpay-pos-${i}">
                 <div class="bpay-oval bpay-b-oval" id="bpay-b-${i}">
@@ -702,6 +703,7 @@ const Views = {
         <div class="baccarat-table">
           <div class="bside-mid-row">
             <div class="bside-layout-pane">
+              <button class="bpay-hint-btn" id="bside-hint-btn" onclick="Sims.baccaratSide.showAnswer()" title="정답 보기" aria-label="정답 보기">💡</button>
               <div class="bside-zoom-stage" id="bside-zoom-stage">
                 <div class="bpay-positions bside-layout">
                   ${[1].map(i => `
@@ -3344,6 +3346,46 @@ const Sims = {
       });
     }
 
+    // Answer reveal (💡, 2026-08-27). Greedy largest-denom-first breakdown
+    // of the target amount — valid here specifically because COMM_CHIPS'
+    // values (100M/10M/1M/100K/10K/5K) and S.commTarget (always a multiple
+    // of 5000 — see startCommAt()) mean the greedy pick never leaves a
+    // remainder greedy couldn't cover: every step's remainder stays a
+    // multiple of the NEXT denom's own value, all the way down to 5K.
+    function computeAnswerChips(target) {
+      let rem = target;
+      const chips = {};
+      COMM_CHIPS.forEach(c => {
+        const cnt = Math.floor(rem / c.val);
+        if (cnt > 0) { chips[c.key] = cnt; rem -= cnt * c.val; }
+      });
+      return chips;
+    }
+    // Renders the answer using the EXACT same disc markup/CSS updateSpread()
+    // uses for the trainee's own live spread (explicit ask: "실제 정답
+    // 배치와 동일한 형태로") — only the data source differs (a computed
+    // chips object here, DOM `<input>` values there).
+    function renderAnswerSpread(chips) {
+      const section = $('bpay-spread-section');
+      if (!section) return;
+      let html = '';
+      let anyPrev = false;
+      COMM_CHIPS.forEach(c => {
+        const cnt = chips[c.key] || 0;
+        if (!cnt) return;
+        for (let j = 0; j < cnt; j++) {
+          let cls = 'spread-disc';
+          if (j === 0 && anyPrev)        cls += ' spread-gap';
+          else if (j > 0 && j % 5 === 0) cls += ' spread-gap5';
+          html += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`;
+          anyPrev = true;
+        }
+      });
+      section.innerHTML = `<div class="bpay-answer-label">정답 칩 배치</div><div class="spread-row">${html}</div>`;
+      const _row = section.querySelector('.spread-row');
+      if (_row) { const ow = _row.offsetWidth, cw = section.clientWidth; if (ow > cw && cw > 0) _row.style.transform = `scale(${(cw / ow).toFixed(4)})`; }
+    }
+
     function showCommTray() {
       const panel = $('bpay-comm-panel');
       const actionsSlot = $('bpay-actions-slot');
@@ -3351,6 +3393,11 @@ const Sims = {
       // Fresh hand, fresh undo stack — same as roulette's showTray(),
       // which also zeroes S.history each time it (re)builds the tray.
       S.history = [];
+      // Fresh hand, fresh answer-reveal state — showAnswer() hides this
+      // button and S.answerRevealed gates it against a 2nd reveal.
+      S.answerRevealed = false;
+      const hintBtn = $('bpay-hint-btn');
+      if (hintBtn) hintBtn.style.display = '';
       // UNDO + ALL RESET live in their own slot (.pay-actions-row), not the
       // PAY rack — same relocation as Option Bet's showPayTray() and the
       // roulette payout page's own UNDO/ALL RESET row; PAY stays the
@@ -3435,14 +3482,14 @@ const Sims = {
 
     return {
       init() {
-        S = { bets: [], commIdx: 0, rounds: 0, score: 0, mistakes: 0, commTarget: 0, mode: 'commission', lastTotal: 0, awaitingPay: false, nextTimer: null, history: [] };
+        S = { bets: [], commIdx: 0, rounds: 0, score: 0, mistakes: 0, commTarget: 0, mode: 'commission', lastTotal: 0, awaitingPay: false, nextTimer: null, history: [], answerRevealed: false };
         this.deal();
       },
 
       restart() {
         if (S.nextTimer) { clearTimeout(S.nextTimer); }
         const cur = S.mode || 'commission';
-        S = { bets: [], commIdx: 0, rounds: S.rounds, score: S.score, mistakes: S.mistakes, commTarget: 0, mode: cur, lastTotal: 0, awaitingPay: S.awaitingPay, nextTimer: null, history: [] };
+        S = { bets: [], commIdx: 0, rounds: S.rounds, score: S.score, mistakes: S.mistakes, commTarget: 0, mode: cur, lastTotal: 0, awaitingPay: S.awaitingPay, nextTimer: null, history: [], answerRevealed: false };
         this.setMode(cur);
       },
 
@@ -3575,6 +3622,35 @@ const Sims = {
           return;
         }
         startCommAt(S.commIdx - 1);
+      },
+
+      // 💡 (2026-08-27). Explicit requirements: shows the correct chip
+      // layout for THIS target, but the round must NOT count toward
+      // Rounds/Score/Mistakes — so this skips submitComm() and startCommAt()
+      // entirely (the only places that touch those counters) rather than
+      // reusing them with a bypass flag. Replaces the chip rack with a
+      // single NEXT ROUND button instead of requiring the trainee to now
+      // re-enter the chips they were just shown.
+      showAnswer() {
+        if (!S.awaitingPay || S.answerRevealed) return;
+        S.answerRevealed = true;
+        const hintBtn = $('bpay-hint-btn'); if (hintBtn) hintBtn.style.display = 'none';
+        const actionsSlot = $('bpay-actions-slot'); if (actionsSlot) actionsSlot.innerHTML = '';
+        renderAnswerSpread(computeAnswerChips(S.commTarget));
+        const panel = $('bpay-comm-panel');
+        if (panel) panel.innerHTML = `<div class="comm-tray">
+          <div class="bpay-answer-tray-msg">정답을 확인했습니다 — 이 라운드는 채점에서 제외됩니다.</div>
+          <button class="comm-pay-btn bpay-next-round-btn" onclick="Sims.baccaratPay.nextRound()">NEXT ROUND</button>
+        </div>`;
+      },
+
+      // Advances the hand WITHOUT going through showNextHand() (the only
+      // place Rounds/Score increment) — this is what actually keeps an
+      // answer-revealed round out of the stats, not just the UI change
+      // above.
+      nextRound() {
+        if (S.nextTimer) { clearTimeout(S.nextTimer); S.nextTimer = null; }
+        this.deal();
       },
     };
   })(),
@@ -3713,6 +3789,37 @@ const Sims = {
       });
     }
 
+    // Answer reveal (💡, 2026-08-27) — same mechanism as Sims.baccaratPay's
+    // own copy; see that copy's comment for why greedy largest-denom-first
+    // is valid here (S.payTarget = betTotal * mult, and betTotal is itself
+    // built from COMM_CHIPS-denominated chip counts via generateSideChips(),
+    // so it's always an exact multiple of the smallest denom in play).
+    function computeAnswerChips(target) {
+      let rem = target;
+      const chips = {};
+      COMM_CHIPS.forEach(c => {
+        const cnt = Math.floor(rem / c.val);
+        if (cnt > 0) { chips[c.key] = cnt; rem -= cnt * c.val; }
+      });
+      return chips;
+    }
+    function renderAnswerSpread(chips) {
+      const section = $('bside-spread-section');
+      if (!section) return;
+      const groups = [];
+      COMM_CHIPS.forEach(c => {
+        const cnt = chips[c.key] || 0;
+        if (!cnt) return;
+        let discs = '';
+        for (let j = 0; j < cnt; j++) {
+          const cls = (j > 0 && j % 5 === 0) ? 'spread-disc spread-gap5' : 'spread-disc';
+          discs += `<div class="${cls}" style="background:${c.bg};color:${c.fg}">${c.key}</div>`;
+        }
+        groups.push(`<div class="spread-group">${discs}</div>`);
+      });
+      section.innerHTML = `<div class="bpay-answer-label">정답 칩 배치</div><div class="spread-row">${groups.join('')}</div>`;
+    }
+
     function showPayTray() {
       const panel = $('bside-comm-panel');
       const spread = $('bside-spread-section');
@@ -3722,6 +3829,10 @@ const Sims = {
       if (spread) { spread.style.display = 'flex'; spread.innerHTML = '<div class="rpay-hint-text">왼쪽 베팅 구역을 확인하고 칩스를 세팅하세요</div>'; }
       // Fresh hand, fresh undo stack.
       S.history = [];
+      // Fresh hand, fresh answer-reveal state.
+      S.answerRevealed = false;
+      const hintBtn = $('bside-hint-btn');
+      if (hintBtn) hintBtn.style.display = '';
       // UNDO + ALL RESET live in their own slot (.pay-actions-row, in the
       // baccaratPaySim() template), not the PAY rack — same relocation the
       // roulette payout page already uses for its own UNDO/ALL RESET row,
@@ -4041,7 +4152,7 @@ const Sims = {
         const keepRounds   = isRestart && S ? S.rounds + (wasMidHand ? 1 : 0) : 0;
         const keepScore    = isRestart && S ? S.score    : 0;
         const keepMistakes = isRestart && S ? S.mistakes : 0;
-        S = { rounds: keepRounds, score: keepScore, mistakes: keepMistakes, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0, awaitingPay: false, nextTimer: null, history: [] };
+        S = { rounds: keepRounds, score: keepScore, mistakes: keepMistakes, currentKey: null, currentMult: 0, currentBet: 0, lastKey: null, payTarget: 0, awaitingPay: false, nextTimer: null, history: [], answerRevealed: false };
         if ($('bside-rounds')) $('bside-rounds').textContent = S.rounds;
         if ($('bside-score')) $('bside-score').textContent = S.score;
         if ($('bside-mistakes')) $('bside-mistakes').textContent = S.mistakes;
@@ -4160,6 +4271,28 @@ const Sims = {
         $('bside-score').textContent = S.score;
         $('bside-rounds').textContent = S.rounds;
         showNextHand();
+      },
+
+      // 💡 (2026-08-27) — same approach as Sims.baccaratPay's own copy:
+      // skips submitPay() (the only place Rounds/Score/Mistakes change for
+      // this sim) entirely rather than reusing it with a bypass flag, so
+      // an answer-revealed round genuinely can't touch those counters.
+      showAnswer() {
+        if (!S.awaitingPay || S.answerRevealed) return;
+        S.answerRevealed = true;
+        const hintBtn = $('bside-hint-btn'); if (hintBtn) hintBtn.style.display = 'none';
+        const actionsSlot = $('bside-actions-slot'); if (actionsSlot) actionsSlot.innerHTML = '';
+        renderAnswerSpread(computeAnswerChips(S.payTarget));
+        const panel = $('bside-comm-panel');
+        if (panel) panel.innerHTML = `<div class="comm-tray">
+          <div class="bpay-answer-tray-msg">정답을 확인했습니다 — 이 라운드는 채점에서 제외됩니다.</div>
+          <button class="comm-pay-btn bpay-next-round-btn" onclick="Sims.baccaratSide.nextRound()">NEXT ROUND</button>
+        </div>`;
+      },
+
+      nextRound() {
+        if (S.nextTimer) { clearTimeout(S.nextTimer); S.nextTimer = null; }
+        this.deal();
       },
     };
   })(),
