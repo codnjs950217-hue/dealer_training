@@ -1793,7 +1793,17 @@ const Sims = {
       const inner = document.createElement('div');
       inner.className = `hand-anim hand-anim-${type}`;
       inner.textContent = type === 'hit' ? '✊' : '🤚';
+      // Small HIT/STAY label next to the hand gesture (2026-08-27) — teaches
+      // the gesture's meaning alongside the gesture itself. Pure label, no
+      // gameplay effect. `.hand-anim` (not this wrap) carries the 180°
+      // flip that makes the emoji read right-side-up from the trainee's
+      // side — see that class's own comment in style.css for why the
+      // bubble doesn't need any counter-rotation of its own.
+      const bubble = document.createElement('div');
+      bubble.className = 'hand-anim-bubble';
+      bubble.textContent = type === 'hit' ? 'HIT' : 'STAY';
       wrap.appendChild(inner);
+      wrap.appendChild(bubble);
       spot.appendChild(wrap);
       setTimeout(() => { wrap.remove(); callback(); }, 480);
     }
