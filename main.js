@@ -684,7 +684,6 @@ const Views = {
       </div>
       <div id="bpay-content">
         <div class="baccarat-table">
-          <div class="pay-allreset-row" id="bpay-allreset-slot"></div>
           <div class="bpay-positions">
             ${[1].map(i => `
               <div class="bpay-pos" id="bpay-pos-${i}">
@@ -694,6 +693,7 @@ const Views = {
                 </div>
               </div>`).join('')}
           </div>
+          <div class="pay-allreset-row" id="bpay-allreset-slot"></div>
           <div class="bpay-spread-section" id="bpay-spread-section" style="display:flex"></div>
           <div class="bpay-comm-panel" id="bpay-comm-panel"></div>
         </div>
