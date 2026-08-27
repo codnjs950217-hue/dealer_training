@@ -4100,32 +4100,18 @@ body {
   background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.4);
 }
 
-/* Small label marking a chip spread as THE ANSWER (not the trainee's own
-   in-progress input) — same subtle small-caps treatment as .area-label
-   elsewhere in this app, tinted gold instead of gray so it doesn't read
-   as just another neutral hint line. */
-.bpay-answer-label {
-  font-size: .68rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--gold-light);
-  text-align: center;
-  margin-bottom: .25rem;
+/* Chip-tray disabled state (💡 rev 2, 2026-08-27) — once the answer's
+   revealed, the denomination buttons underneath stay mounted (not torn
+   down/replaced) but go inert: dimmed + unclickable via the native
+   `disabled` attribute set in showAnswer(). PAY itself is left enabled and
+   morphed into NEXT ROUND (text + onclick swapped in JS), so it keeps
+   PAY's own trailing-slot position in `.comm-tray-slots` instead of
+   becoming a separate centered element. */
+.bpay-chip-btn:disabled {
+  opacity: .35;
+  filter: grayscale(.5);
+  cursor: not-allowed;
 }
-
-/* Replaces the chip rack once the answer's been revealed for this round —
-   a short explanatory line plus a single NEXT ROUND button, standing in
-   for the now-pointless chip buttons/PAY. Reuses .comm-pay-btn's own gold
-   pill look for the button so it still reads as "the" primary action. */
-.bpay-answer-tray-msg {
-  color: rgba(255,255,255,.55);
-  font-size: .72rem;
-  text-align: center;
-  padding: .3rem .5rem;
-  line-height: 1.4;
-}
-.bpay-next-round-btn { width: 100%; }
 
 .comm-tray {
   position: relative;

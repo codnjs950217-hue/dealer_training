@@ -3381,7 +3381,7 @@ const Sims = {
           anyPrev = true;
         }
       });
-      section.innerHTML = `<div class="bpay-answer-label">정답 칩 배치</div><div class="spread-row">${html}</div>`;
+      section.innerHTML = `<div class="spread-row">${html}</div>`;
       const _row = section.querySelector('.spread-row');
       if (_row) { const ow = _row.offsetWidth, cw = section.clientWidth; if (ow > cw && cw > 0) _row.style.transform = `scale(${(cw / ow).toFixed(4)})`; }
     }
@@ -3624,13 +3624,16 @@ const Sims = {
         startCommAt(S.commIdx - 1);
       },
 
-      // 💡 (2026-08-27). Explicit requirements: shows the correct chip
-      // layout for THIS target, but the round must NOT count toward
-      // Rounds/Score/Mistakes — so this skips submitComm() and startCommAt()
-      // entirely (the only places that touch those counters) rather than
-      // reusing them with a bypass flag. Replaces the chip rack with a
-      // single NEXT ROUND button instead of requiring the trainee to now
-      // re-enter the chips they were just shown.
+      // 💡 (2026-08-27, rev 2 2026-08-27). Explicit requirements: shows the
+      // correct chip layout for THIS target, but the round must NOT count
+      // toward Rounds/Score/Mistakes — so this skips submitComm() and
+      // startCommAt() entirely (the only places that touch those counters)
+      // rather than reusing them with a bypass flag.
+      // Rev 2: the chip tray underneath is left exactly as showCommTray()
+      // built it (no innerHTML replacement) — only the denomination buttons
+      // get `disabled` and the PAY button is morphed in place into NEXT
+      // ROUND, so it keeps PAY's own position/size (trailing slot of the
+      // chip row) instead of becoming a separate centered block.
       showAnswer() {
         if (!S.awaitingPay || S.answerRevealed) return;
         S.answerRevealed = true;
@@ -3638,10 +3641,14 @@ const Sims = {
         const actionsSlot = $('bpay-actions-slot'); if (actionsSlot) actionsSlot.innerHTML = '';
         renderAnswerSpread(computeAnswerChips(S.commTarget));
         const panel = $('bpay-comm-panel');
-        if (panel) panel.innerHTML = `<div class="comm-tray">
-          <div class="bpay-answer-tray-msg">정답을 확인했습니다 — 이 라운드는 채점에서 제외됩니다.</div>
-          <button class="comm-pay-btn bpay-next-round-btn" onclick="Sims.baccaratPay.nextRound()">NEXT ROUND</button>
-        </div>`;
+        if (panel) {
+          panel.querySelectorAll('.bpay-chip-btn').forEach(b => b.disabled = true);
+          const payBtn = panel.querySelector('.comm-pay-btn');
+          if (payBtn) {
+            payBtn.textContent = 'NEXT ROUND';
+            payBtn.onclick = () => Sims.baccaratPay.nextRound();
+          }
+        }
       },
 
       // Advances the hand WITHOUT going through showNextHand() (the only
@@ -3817,7 +3824,7 @@ const Sims = {
         }
         groups.push(`<div class="spread-group">${discs}</div>`);
       });
-      section.innerHTML = `<div class="bpay-answer-label">정답 칩 배치</div><div class="spread-row">${groups.join('')}</div>`;
+      section.innerHTML = `<div class="spread-row">${groups.join('')}</div>`;
     }
 
     function showPayTray() {
@@ -4273,10 +4280,13 @@ const Sims = {
         showNextHand();
       },
 
-      // 💡 (2026-08-27) — same approach as Sims.baccaratPay's own copy:
-      // skips submitPay() (the only place Rounds/Score/Mistakes change for
-      // this sim) entirely rather than reusing it with a bypass flag, so
-      // an answer-revealed round genuinely can't touch those counters.
+      // 💡 (2026-08-27, rev 2 2026-08-27) — same approach as
+      // Sims.baccaratPay's own copy (see that copy's comment for the rev 2
+      // rationale): skips submitPay() (the only place Rounds/Score/Mistakes
+      // change for this sim) entirely rather than reusing it with a bypass
+      // flag, so an answer-revealed round genuinely can't touch those
+      // counters. Morphs PAY into NEXT ROUND in place instead of replacing
+      // the whole tray.
       showAnswer() {
         if (!S.awaitingPay || S.answerRevealed) return;
         S.answerRevealed = true;
@@ -4284,10 +4294,14 @@ const Sims = {
         const actionsSlot = $('bside-actions-slot'); if (actionsSlot) actionsSlot.innerHTML = '';
         renderAnswerSpread(computeAnswerChips(S.payTarget));
         const panel = $('bside-comm-panel');
-        if (panel) panel.innerHTML = `<div class="comm-tray">
-          <div class="bpay-answer-tray-msg">정답을 확인했습니다 — 이 라운드는 채점에서 제외됩니다.</div>
-          <button class="comm-pay-btn bpay-next-round-btn" onclick="Sims.baccaratSide.nextRound()">NEXT ROUND</button>
-        </div>`;
+        if (panel) {
+          panel.querySelectorAll('.bpay-chip-btn').forEach(b => b.disabled = true);
+          const payBtn = panel.querySelector('.comm-pay-btn');
+          if (payBtn) {
+            payBtn.textContent = 'NEXT ROUND';
+            payBtn.onclick = () => Sims.baccaratSide.nextRound();
+          }
+        }
       },
 
       nextRound() {
