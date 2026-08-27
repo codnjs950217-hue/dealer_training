@@ -4644,21 +4644,26 @@ body {
    icon-then-label shape as UNDO's own "↩ UNDO" so they read as a matched
    pair of correction actions, not one plain-text/one-iconed. Added a
    shared `min-width` here so the two are the same WIDTH too, not just
-   the same height/padding/font/radius — sized generously enough that
-   "↺ RESET" (the longer of the two labels) sits at this floor rather
-   than growing past it, so UNDO (shorter) pads out to match exactly
-   rather than the two settling at different content-driven widths. */
+   the same height/padding/font/radius — sized so "↺ RESET" (the longer
+   of the two labels) sits at this floor rather than growing past it, so
+   UNDO (shorter) pads out to match exactly rather than the two settling
+   at different content-driven widths.
+   Rev 3 (2026-08-27, same day, explicit ask: "가로길이 좀 줄여줘"):
+   rev 2's `min-width`/horizontal padding read as too wide — both trimmed
+   down together (narrowing padding alone wouldn't have shrunk anything,
+   since RESET's own content width was already close to rev 2's
+   min-width floor). Height/font-size/border-radius/colors untouched. */
 .rpay-undo-row .comm-undo-btn,
 .rpay-undo-row .comm-all-reset-btn,
 .pay-actions-row .comm-undo-btn,
 .pay-actions-row .comm-all-reset-btn {
   min-height: var(--tap-h);
-  min-width: clamp(80px,17vw,104px);
+  min-width: clamp(60px,12vw,78px);
   display: flex; align-items: center; justify-content: center;
   border-radius: 5px;
   border-width: 1px;
   font-size: var(--bf-sm); font-weight: 700; letter-spacing: .3px;
-  padding: clamp(.36rem,.85vh,.5rem) clamp(.6rem,1.3vw,.8rem);
+  padding: clamp(.36rem,.85vh,.5rem) clamp(.45rem,1vw,.6rem);
   background: rgba(40,55,90,.65);
   border-color: rgba(140,180,255,.4);
   color: rgba(195,220,255,.95);
