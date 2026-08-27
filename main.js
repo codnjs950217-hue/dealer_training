@@ -3424,7 +3424,7 @@ const Sims = {
         <div id="bpay-order-warn" class="bpay-order-warn"><span>저액 칩스부터 세팅하세요</span></div>
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
-            <div class="comm-slot">
+            <div class="comm-slot${c.key === '5K' ? ' comm-slot-5k' : ''}">
               <input type="hidden" id="bpay-ci-${c.key}" value="0">
               <div class="bpay-chip-btns">
                 ${c.key === '5K' ? '' : `
@@ -3872,7 +3872,7 @@ const Sims = {
       panel.innerHTML = `<div class="comm-tray">
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
-            <div class="comm-slot">
+            <div class="comm-slot${c.key === '5K' ? ' comm-slot-5k' : ''}">
               <input type="hidden" id="bside-ci-${c.key}" value="0">
               <div class="bpay-chip-btns">
                 ${c.key === '5K' ? '' : `

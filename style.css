@@ -4266,6 +4266,26 @@ body {
   flex: 1; min-width: 0;
   box-shadow: inset 0 2px 6px rgba(0,0,0,.4);
 }
+/* 5K (2026-08-27, explicit ask: "5K 칩을 왼쪽으로 이동하여 10K 칩과 더
+   가깝게 배치") — now the last chip slot before PAY, and (per the
+   previous rev) down to just its ×1 button since its ×5 was dropped.
+   Content-sized instead of sharing an equal `flex:1` grow-share with the
+   other 5 slots, so it takes only as much width as its one remaining
+   chip needs — visually pulling it toward 10K's slot on its left instead
+   of sitting centered in a slot as wide as its 2-button neighbors. The
+   freed grow-share isn't claimed here; `.comm-pay-slot`'s own widened
+   `min-width` right below is what actually uses it (the other 5 slots
+   stay plain `flex:1`, unmodified, per explicit "다른 칩 위치는 변경하지
+   말 것"). */
+.comm-slot-5k {
+  flex: 0 0 auto;
+  min-width: calc(var(--ch-md) + .5rem);
+  /* The base .comm-slot border-right (a faint divider shared by every
+     chip column) is dropped here — .comm-pay-slot's own border-left,
+     right below, is the real "5K↔PAY" gold divider the ask wants, and
+     leaving both would double up right next to each other. */
+  border-right: none;
+}
 .comm-slot-chip {
   width: var(--ch-md); height: var(--ch-md); border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -4550,12 +4570,22 @@ body {
    share what's left), reading as the tray's one clearly-primary action
    the way `.rpay-tray-total`-style CTAs do elsewhere in this app. Same
    gradient/color/shadow recipe as before — only size grew (min-width,
-   padding, font-size). */
+   padding, font-size).
+   Rev 2 (2026-08-27, same day, explicit ask): widened further — `min-
+   width` bumped again — and given a visible gold `border-left` to read
+   as its own separate region from the chip slots ("PAY 영역을 별도
+   영역처럼 구분"), not just a wider version of the same tray. This is the
+   "5K와 PAY 사이 금색 구분선" from that same ask — paired with
+   `.comm-slot-5k`'s own `border-right:none` right above so there isn't a
+   doubled-up line at the same boundary. Height/style/function
+   untouched — `.comm-tray-slots { align-items:stretch }` still sizes
+   this to the row's existing height, nothing here changes that. */
 .comm-pay-slot {
   display: flex; flex-direction: column; align-items: stretch; flex-shrink: 0; gap: .25rem;
-  padding: .4rem .3rem .4rem .2rem;
+  padding: .4rem .3rem .4rem .3rem;
   background: rgba(0,0,0,.28);
-  min-width: clamp(72px,12vw,104px);
+  min-width: clamp(96px,15vw,140px);
+  border-left: 2px solid rgba(230,190,90,.65);
 }
 .comm-pay-btn {
   flex: 1;
