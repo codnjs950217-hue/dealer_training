@@ -4099,6 +4099,20 @@ body {
 .bpay-hint-btn:hover {
   background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.4);
 }
+/* Commission/Half Pay only (2026-08-27, explicit ask, scoped by user
+   choice — Option Bet's icon deliberately left alone, see the comment
+   block above about it anchoring to the unzoomed pane): moved down below
+   the BANKER oval instead of the shared top-left corner, `left` untouched.
+   `top` is computed, not eyeballed — `.bpay-pos`'s own `.3rem` padding-top
+   (style.css ~3546) puts the oval's top edge that far down, the oval's own
+   `min-height: clamp(44px,8vh,62px)` (border-box, so this IS its full
+   rendered height — ~3559) is its bottom edge, then a `.5rem` gap before
+   the icon. `#bpay-content .bpay-positions` overrides the base rule to
+   `overflow:visible` (~3905), so this doesn't risk getting clipped even
+   if the estimate runs a little long. */
+#bpay-content .bpay-hint-btn {
+  top: calc(.3rem + clamp(44px,8vh,62px) + .5rem);
+}
 
 /* Chip-tray disabled state (💡 rev 2, 2026-08-27) — once the answer's
    revealed, the whole tray underneath (denomination buttons AND PAY) stays
