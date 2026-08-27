@@ -655,7 +655,10 @@ const Views = {
             <button class="comm-all-reset-btn" id="rpay-allreset-btn" onclick="Sims.roulettePay.resetPay()">↺ RESET</button>
             <div id="rpay-chip-warn-banner" style="visibility:hidden" class="rpay-chip-warn">⚠ 머니칩스와 함께 세팅하세요</div>
           </div>
-          <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
+          <div class="rpay-pay-zone-wrap">
+            <button class="bpay-hint-btn" id="rpay-hint-btn" onclick="Sims.roulettePay.showAnswer()" title="정답 보기" aria-label="정답 보기">💡</button>
+            <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
+          </div>
           <div class="rpay-tray-row" id="rpay-comm-panel"></div>
         </div>
       </div>
@@ -4422,6 +4425,32 @@ const Sims = {
       return { chips: { [color.key]: count }, total: color.val * count };
     }
 
+    // Answer reveal (💡, 2026-08-27) — same mechanism as the baccarat
+    // payout pages' own computeAnswerChips(): greedy largest-denom-first
+    // breakdown of the target, valid here because MONEY_CHIPS' values
+    // (1M/100K/10K/5K) and S.totalTarget are both always exact multiples
+    // of 5,000 — every spot's `total` is `color.val (always 5000) *
+    // count`, and `pays` is an integer, so `total * pays` (and the sum
+    // across all winning spots) stays a multiple of 5000 all the way
+    // through. Returns a chips object shaped exactly like S.payChips
+    // (color always 0 — the correct amount is shown purely in cash chips,
+    // never the round's color chip, since color/5K share the same 5,000
+    // face value and picking one over the other isn't "the" answer) so
+    // showAnswer() can hand it straight to updateTray()/updatePayZone()
+    // and reuse their existing chip-pile rendering for free.
+    function computeAnswerChips(target) {
+      let rem = target;
+      // Explicit-zero for every key, matching showTray()'s own
+      // S.payChips shape exactly (not just the nonzero denoms) — cheap
+      // insurance against any future code that assumes the full key set.
+      const chips = { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
+      MONEY_CHIPS.forEach(c => {
+        const cnt = Math.floor(rem / c.val);
+        if (cnt > 0) { chips[c.key] = cnt; rem -= cnt * c.val; }
+      });
+      return chips;
+    }
+
     const BET_LABEL = { Straight:'Straight', Split:'Split', Corner:'Corner', Street:'Street', SixNum:'Square' };
 
     function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
@@ -4643,6 +4672,17 @@ const Sims = {
 
       S.payChips = { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
       S.history = [];
+      // Fresh hand, fresh answer-reveal state — showAnswer() hides
+      // #rpay-hint-btn and S.answerRevealed gates it against a 2nd
+      // reveal; both need resetting here same as baccarat's own
+      // showCommTray()/showPayTray(). The NEXT HAND row showAnswer()
+      // inserts lives OUTSIDE this panel (see that method's own comment),
+      // so a plain `panel.innerHTML = ...` rebuild below won't clear it
+      // for free — remove it explicitly.
+      S.answerRevealed = false;
+      const hintBtn = $('rpay-hint-btn');
+      if (hintBtn) hintBtn.style.display = '';
+      document.querySelector('.rpay-next-round-row')?.remove();
 
       const ccStk = (bodyClass, lbl) =>
         `<button class="rpay-tray-chip-btn" onclick="Sims.roulettePay.addChip('color',${lbl.slice(1)})">
@@ -4863,7 +4903,7 @@ const Sims = {
         S = { winNum: null, spots: [], spotIdx: 0, rounds: keepRounds, score: 0, mistakes: 0, lastNum: null, roundColor: null,
               payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
               history: [], difficulty: 'easy', awaitingPay: false, nextTimer: null,
-              timerStart: null, timerInterval: null };
+              timerStart: null, timerInterval: null, answerRevealed: false };
         if ($('rpay-rounds')) $('rpay-rounds').textContent = String(keepRounds);
         hasStarted = false;
         this._setControlsVisible(false);
@@ -4892,7 +4932,7 @@ const Sims = {
         S = { winNum: null, spots: [], spotIdx: 0, rounds: prevRounds, score: 0, mistakes: 0, lastNum: null, roundColor: null,
               payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
               history: [], difficulty: level, awaitingPay: false, nextTimer: null,
-              timerStart: null, timerInterval: null };
+              timerStart: null, timerInterval: null, answerRevealed: false };
         ['easy','medium','hard'].forEach(d => {
           const btn = document.getElementById(`rpay-diff-${d}`);
           if (btn) btn.classList.toggle('rpay-diff-active', d === level);
@@ -5072,6 +5112,47 @@ const Sims = {
           tbl.appendChild(ov2);
           S.nextTimer = setTimeout(() => { ov2.remove(); Sims.roulettePay.deal(); }, 1400);
         }
+      },
+
+      // 💡 (2026-08-27) — same approach as the baccarat payout pages'
+      // own copies: skips submitPay() entirely (the only place Rounds/
+      // Score/Mistakes change here) rather than reusing it with a bypass
+      // flag, so an answer-revealed round genuinely can't touch those
+      // counters. Reuses updateTray()/updatePayZone()'s existing chip-
+      // pile rendering by temporarily pointing S.payChips at the computed
+      // answer, instead of building a second rendering path.
+      showAnswer() {
+        if (!S.awaitingPay || S.answerRevealed) return;
+        S.answerRevealed = true;
+        const hintBtn = $('rpay-hint-btn'); if (hintBtn) hintBtn.style.display = 'none';
+        // UNDO/RESET aren't rebuilt each round here (unlike baccarat's
+        // dynamic actionsSlot) — reuse the existing show/hide toggle
+        // instead of adding new disabled-state CSS for them. deal()
+        // already calls _setControlsVisible(true) for every fresh round,
+        // so no explicit re-show is needed on the way back out.
+        this._setControlsVisible(false);
+        S.payChips = computeAnswerChips(S.totalTarget || 0);
+        updateTray();
+        const panel = $('rpay-comm-panel');
+        if (panel) panel.querySelectorAll('.rpay-tray-chip-btn, .comm-pay-btn').forEach(b => b.disabled = true);
+        // Inserted as a sibling right after the pay-zone wrapper (not
+        // inside #rpay-pay-zone itself, which has `overflow:hidden` and
+        // gets its innerHTML fully rebuilt by updateTray() calls) so it
+        // survives and sits directly above the tray, same slot baccarat's
+        // Commission/Half Pay uses for its own NEXT HAND row.
+        const zoneWrap = document.querySelector('.rpay-pay-zone-wrap');
+        if (zoneWrap) zoneWrap.insertAdjacentHTML('afterend', `<div class="bpay-next-round-row rpay-next-round-row">
+          <button class="bac-cta-btn" onclick="Sims.roulettePay.nextRound()">NEXT HAND</button>
+        </div>`);
+      },
+
+      // Advances the hand WITHOUT going through submitPay()'s success path
+      // (the only place Rounds/Score increment) — this is what actually
+      // keeps an answer-revealed round out of the stats, not just the UI
+      // change above.
+      nextRound() {
+        if (S.nextTimer) { clearTimeout(S.nextTimer); S.nextTimer = null; }
+        this.deal();
       },
     };
   })(),

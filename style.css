@@ -1316,6 +1316,20 @@ body {
   from { opacity: 0; transform: translateY(4px) scale(.96); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
+/* Wrapper (2026-08-27, 💡 feature) — exists ONLY to give #rpay-hint-btn a
+   `position:relative` anchor that isn't affected by anything ABOVE it in
+   `.rpay-right-col` (`.rpay-timer`/`.rpay-undo-row`'s heights are both
+   responsive/clamp()-based, so computing an absolute offset from them the
+   way Commission/Half Pay's own 💡 does relative to BANKER would have
+   been fragile here). Took over `#rpay-pay-zone`'s own `flex:1;
+   min-height:0` role — `#rpay-pay-zone` itself is unchanged below and
+   still fills 100% of this wrapper since it's the sole flex child, so
+   nothing about its own sizing/behavior actually changed. */
+.rpay-pay-zone-wrap {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  position: relative;
+}
 .rpay-pay-zone {
   min-width: 0; min-height: 0;
   padding: .5rem .2rem .3rem;
@@ -4219,8 +4233,11 @@ body {
 /* Chip-tray disabled state (💡 rev 2, 2026-08-27) — once the answer's
    revealed, the whole tray underneath (denomination buttons AND PAY) stays
    mounted (not torn down/replaced) but goes inert: dimmed + unclickable
-   via the native `disabled` attribute set in showAnswer(). */
+   via the native `disabled` attribute set in showAnswer(). `.rpay-tray-
+   chip-btn` added when the same 💡 mechanism came to the roulette payout
+   page — its tray buttons use that class instead of `.bpay-chip-btn`. */
 .bpay-chip-btn:disabled,
+.rpay-tray-chip-btn:disabled,
 .comm-pay-btn:disabled {
   opacity: .35;
   filter: grayscale(.5);
@@ -4657,10 +4674,26 @@ body {
   min-height: calc(var(--tap-h) + .25rem);
   position: relative;
 }
+/* Rev (2026-08-27, explicit ask: "undo버튼이랑 reset버튼 오른쪽으로
+   몰아넣고") — matches baccarat's `.pay-actions-row` look (UNDO+RESET
+   grouped together at the row's right edge, see that class's own
+   comment) instead of roulette's own previous `space-between` spread.
+   Moved the chip-warn banner to `order:-1` (was `1`, sitting BETWEEN
+   UNDO and RESET) so it's first/leftmost, then gave it `margin-right:
+   auto` — the classic flex trick that soaks up all the row's free space
+   on this one item, pushing everything AFTER it (UNDO, RESET) to the far
+   right as a group. `.rpay-undo-row`'s own `justify-content:space-
+   between` is now moot (the auto margin consumes all free space first,
+   nothing left for justify-content to distribute) — left as-is rather
+   than removed, since it's harmless and changing it risks nothing but
+   isn't necessary either. RESET's existing `order:2` (shared rule,
+   further down) still applies and is harmless — it was really there for
+   this row's OLD 3-item order fight (undo/warn/reset), now redundant but
+   not wrong (2 still sorts after warn's -1 and undo's default 0). */
 .rpay-undo-row .rpay-chip-warn {
-  margin: 0;
+  margin: 0 auto 0 0;
   white-space: nowrap;
-  order: 1;
+  order: -1;
 }
 /* UNDO / RESET — flat, identical shape/size, no inherited 3D bevel.
    Shared verbatim with the baccarat pages' `.pay-actions-row` (2026-08-27
