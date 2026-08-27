@@ -4322,13 +4322,17 @@ body {
    .bpay-chip-btn-disc/-stackwrap markup (showCommTray(), main.js) keeps
    its original single total-amount text, not asked to change here.
    Chip look (ghost stack, colors, border, shadow) is untouched — only
-   the face text goes from one line to two (amount / ×5) to fit both
-   inside the same disc size. */
+   the face text itself changed. REV 2 (2026-08-27): switched from a
+   2-line stack (amount over ×5) to ONE line, per explicit "위아래 두줄로
+   말고 한줄로만" — `flex-direction: row` (the wrapper's default, so
+   just dropping the `column` override), tight `gap`, and smaller/
+   tightened-letter-spacing fonts so "100M×5" (the longest of the 6
+   labels) still fits across the ~34-42px disc on a single line. */
 #bside-content .bpay-chip-btn-disc-x5 {
-  flex-direction: column; gap: 1px; line-height: 1;
+  flex-direction: row; gap: .5px; line-height: 1;
 }
-#bside-content .bpay-x5-amt { font-size: clamp(7.5px, 1.15vw, 9.5px); font-weight: 900; }
-#bside-content .bpay-x5-mult { font-size: clamp(7px, 1.05vw, 8.5px); font-weight: 800; opacity: .88; }
+#bside-content .bpay-x5-amt { font-size: clamp(6px, .95vw, 7.5px); font-weight: 900; letter-spacing: -.2px; }
+#bside-content .bpay-x5-mult { font-size: clamp(5.5px, .85vw, 7px); font-weight: 800; opacity: .88; }
 /* No longer referenced by any markup as of rev 4 (2026-08-24) — the
    amount text moved onto the chip disc itself (.bpay-chip-btn-disc,
    above) instead of a separate label row. Left in place, same
