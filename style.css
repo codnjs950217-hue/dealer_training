@@ -3936,7 +3936,10 @@ body {
 #bpay-content .rpay-hint-text {
   position: absolute;
   top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
+  /* Rev 3 (2026-08-27, same day, explicit ask: "지금보다 조금만 위로") —
+     dead-center (-50%) still read as low to the user, so nudged up an
+     extra .8rem past center rather than re-deriving a new "true" center. */
+  transform: translate(-50%, calc(-50% - .8rem));
   width: 100%;
   box-sizing: border-box;
   margin: 0;
