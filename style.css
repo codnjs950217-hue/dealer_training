@@ -4634,16 +4634,26 @@ body {
   white-space: nowrap;
   order: 1;
 }
-/* UNDO / ALL RESET — flat, identical shape/size, no inherited 3D bevel.
+/* UNDO / RESET — flat, identical shape/size, no inherited 3D bevel.
    Shared verbatim with the baccarat pages' `.pay-actions-row` (2026-08-27
    — see that class's own comment, style.css) since both are the same
-   UNDO+ALL RESET pairing; extending the selector list here instead of
-   duplicating the block keeps one source of truth for this shared look. */
+   UNDO+RESET pairing; extending the selector list here instead of
+   duplicating the block keeps one source of truth for this shared look.
+   Rev 2 (2026-08-27, same day, explicit ask): "ALL RESET" → "↺ RESET"
+   (main.js, all 3 render sites — roulette + both baccarat pages), same
+   icon-then-label shape as UNDO's own "↩ UNDO" so they read as a matched
+   pair of correction actions, not one plain-text/one-iconed. Added a
+   shared `min-width` here so the two are the same WIDTH too, not just
+   the same height/padding/font/radius — sized generously enough that
+   "↺ RESET" (the longer of the two labels) sits at this floor rather
+   than growing past it, so UNDO (shorter) pads out to match exactly
+   rather than the two settling at different content-driven widths. */
 .rpay-undo-row .comm-undo-btn,
 .rpay-undo-row .comm-all-reset-btn,
 .pay-actions-row .comm-undo-btn,
 .pay-actions-row .comm-all-reset-btn {
   min-height: var(--tap-h);
+  min-width: clamp(80px,17vw,104px);
   display: flex; align-items: center; justify-content: center;
   border-radius: 5px;
   border-width: 1px;

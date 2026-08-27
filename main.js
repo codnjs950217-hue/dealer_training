@@ -652,7 +652,7 @@ const Views = {
           <div class="rpay-timer" id="rpay-timer">—</div>
           <div class="rpay-undo-row">
             <button class="comm-undo-btn" id="rpay-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
-            <button class="comm-all-reset-btn" id="rpay-allreset-btn" onclick="Sims.roulettePay.resetPay()">ALL RESET</button>
+            <button class="comm-all-reset-btn" id="rpay-allreset-btn" onclick="Sims.roulettePay.resetPay()">↺ RESET</button>
             <div id="rpay-chip-warn-banner" style="visibility:hidden" class="rpay-chip-warn">⚠ 머니칩스와 함께 세팅하세요</div>
           </div>
           <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
@@ -3424,7 +3424,7 @@ const Sims = {
       // tray's one primary action.
       if (actionsSlot) actionsSlot.innerHTML = `
         <button class="comm-undo-btn" onclick="Sims.baccaratPay.undo()">↩ UNDO</button>
-        <button class="comm-all-reset-btn" onclick="Sims.baccaratPay.resetAll()">ALL RESET</button>`;
+        <button class="comm-all-reset-btn" onclick="Sims.baccaratPay.resetAll()">↺ RESET</button>`;
       panel.innerHTML = `<div class="comm-tray">
         <div id="bpay-order-warn" class="bpay-order-warn"><span>저액 칩스부터 세팅하세요</span></div>
         <div class="comm-tray-slots">
@@ -3893,7 +3893,7 @@ const Sims = {
       // secondary, out-of-the-way ones.
       if (actionsSlot) actionsSlot.innerHTML = `
         <button class="comm-undo-btn" onclick="Sims.baccaratSide.undo()">↩ UNDO</button>
-        <button class="comm-all-reset-btn" onclick="Sims.baccaratSide.resetAll()">ALL RESET</button>`;
+        <button class="comm-all-reset-btn" onclick="Sims.baccaratSide.resetAll()">↺ RESET</button>`;
       panel.innerHTML = `<div class="comm-tray">
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
