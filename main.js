@@ -3624,20 +3624,19 @@ const Sims = {
         startCommAt(S.commIdx - 1);
       },
 
-      // 💡 (2026-08-27, rev 3 2026-08-27). Explicit requirements: shows the
+      // 💡 (2026-08-27, rev 4 2026-08-27). Explicit requirements: shows the
       // correct chip layout for THIS target, but the round must NOT count
       // toward Rounds/Score/Mistakes — so this skips submitComm() and
       // startCommAt() entirely (the only places that touch those counters)
       // rather than reusing them with a bypass flag.
       // Rev 2: the chip tray underneath is left exactly as showCommTray()
       // built it (no innerHTML replacement) — only disabled.
-      // Rev 3: explicit follow-up — NEXT ROUND must sit ABOVE where PAY is,
-      // not swapped in on top of it. PAY itself now stays put and just
-      // gets `disabled` alongside the denomination buttons; NEXT ROUND is a
-      // separate row prepended above `.comm-tray` (a sibling, not a child —
-      // `.comm-tray` has `overflow:hidden`, so anything meant to sit above
-      // it has to live outside that box), right-aligned to roughly track
-      // PAY's own position at the tray's right edge.
+      // Rev 3/4: NEXT ROUND is a separate row prepended above `.comm-tray`
+      // (a sibling, not a child — `.comm-tray` has `overflow:hidden`, so
+      // anything meant to sit above it has to live outside that box); PAY
+      // stays put underneath, just `disabled`. Positioning/color (right-
+      // aligned gold in rev 3, centered bright-yellow in rev 4) all lives
+      // in style.css's `.bpay-next-round-row`/`-btn` rules — nothing here.
       showAnswer() {
         if (!S.awaitingPay || S.answerRevealed) return;
         S.answerRevealed = true;
@@ -4282,13 +4281,14 @@ const Sims = {
         showNextHand();
       },
 
-      // 💡 (2026-08-27, rev 3 2026-08-27) — same approach as
+      // 💡 (2026-08-27, rev 4 2026-08-27) — same approach as
       // Sims.baccaratPay's own copy (see that copy's comment for the rev
-      // 2/3 rationale): skips submitPay() (the only place Rounds/Score/
+      // 2/3/4 rationale): skips submitPay() (the only place Rounds/Score/
       // Mistakes change for this sim) entirely rather than reusing it with
       // a bypass flag, so an answer-revealed round genuinely can't touch
       // those counters. NEXT ROUND is prepended above `.comm-tray` as its
-      // own row (PAY stays put, disabled) rather than swapped in on PAY.
+      // own row (PAY stays put, disabled) rather than swapped in on PAY;
+      // centering/color are style.css concerns, not this markup's.
       showAnswer() {
         if (!S.awaitingPay || S.answerRevealed) return;
         S.answerRevealed = true;
