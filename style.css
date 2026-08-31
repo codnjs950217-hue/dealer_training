@@ -1426,7 +1426,58 @@ body {
   overflow: hidden;
   flex: 1;
   align-items: center;
-  justify-content: flex-start;
+  /* flex-end (was flex-start, 2026-08-31, explicit ask) — the chip pile's
+     bottom edge now anchors to the bottom of this box and stays fixed
+     there; growth (bigger chips, more of them) extends UPWARD instead of
+     downward toward the tray. Paired with fitPayZone()'s own
+     transform-origin change to 'bottom center' (main.js) so the scale-
+     down safety net (rare now that the pile is bigger, see the scoped
+     `--ch-lg`/`--ch-sm` overrides below) keeps the same bottom edge fixed
+     too, not just the unscaled layout box. */
+  justify-content: flex-end;
+}
+/* 2026-08-31, explicit ask: enlarge the pay-zone's own chip/stack visuals
+   (~35% bigger) — scoped to `.rpay-pay-zone` via a LOCAL redefinition of
+   `--ch-lg`/`--ch-sm` (not the shared design-system vars other pages, and
+   this page's own bet-spot markers `.rpay-spot-chip`, also use — see
+   `--ch-lg`'s own definition comment) so only the payout pile grows.
+   Live betting AND the revealed answer both render through this one
+   element (`updatePayZone()`), so both get bigger for free with this one
+   change. `calc(<original clamp()> * 1.35)` preserves each dimension's
+   existing responsive min/fluid/max SHAPE, just scaled uniformly, rather
+   than hand-picking new bounds that could drift out of proportion with
+   each other. `main.js`'s `makeStackGroup()` has matching
+   `STK_W`/`STK_H`/`colStep`/`rowStep` constants scaled by the same 1.35
+   (`PZ_SCALE`) — the two MUST move together, since those control the
+   pixel offsets between stacks within a group while `--ch-lg` controls
+   each stack's own rendered size; only one side changing makes stacks
+   visually overlap or gap wrong. Also NOT holding this size back for
+   fear of crowding UNDO/RESET (explicit ask) — `fitPayZone()`'s existing
+   shrink-to-fit safety net (unchanged logic, still active) is what
+   handles the rare case this bigger natural size doesn't fit, not a
+   smaller base size chosen defensively up front. */
+.rpay-pay-zone {
+  --ch-lg: calc(clamp(38px, 4.8vw, 48px) * 1.35);
+  --ch-sm: calc(clamp(24px, 3vw, 29px) * 1.35);
+}
+.rpay-pay-zone .rpay-chip-stack-face {
+  height: calc(clamp(13px, 1.8vw, 16px) * 1.35);
+  margin-bottom: calc(-7px * 1.35);
+}
+.rpay-pay-zone .rpay-chip-stack-body {
+  height: calc(clamp(50px, 6.5vw, 64px) * 1.35);
+}
+.rpay-pay-zone .rpay-mini-stack .rpay-chip-stack-body {
+  height: calc(clamp(22px, 3.5vw, 31px) * 1.35);
+}
+.rpay-pay-zone .rpay-cc-disc-mc,
+.rpay-pay-zone .rpay-stack-disc-mc {
+  width: calc(clamp(28px, 3.8vw, 34px) * 1.35);
+  height: calc(clamp(28px, 3.8vw, 34px) * 1.35);
+  font-size: calc(clamp(.48rem, .75vw, .6rem) * 1.35);
+}
+.rpay-pay-zone .rpay-cc-disc {
+  font-size: calc(var(--bf-xs) * 1.35);
 }
 /* 2026-08-31, explicit ask: the revealed answer's chip pile was rendering
    visibly SMALLER than a real in-progress bet — `fitPayZone()` shrinks

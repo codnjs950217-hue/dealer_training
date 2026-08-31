@@ -4801,12 +4801,23 @@ const Sims = {
         [[3, 0], [2, 1], [4, 1], [1, 2], [3, 2], [5, 2], [0, 3], [2, 3], [4, 3]],                  // 9: 8-stack diamond unchanged + 1 stack nested left of bottom row
         [[3, 0], [2, 1], [4, 1], [1, 2], [3, 2], [5, 2], [0, 3], [2, 3], [4, 3], [6, 3]],          // 10: complete 1-2-3-4 triangular pyramid
       ];
-      const STK_W = 38, STK_H = 33;
+      // Scale factor (2026-08-31, explicit ask: enlarge the pay-zone's
+      // own chip/stack visuals, bottom baseline held, growing upward) —
+      // applied here to the absolute-positioning offsets between stacks
+      // within a group, and matched by the same 1.35 multiplier on the
+      // CSS side (`.rpay-pay-zone`'s own scoped `--ch-lg`/`--ch-sm`
+      // redefinition + stack body/face height overrides, style.css).
+      // Both sides MUST move together — this only controls layout
+      // spacing; `.rpay-chip-stack`'s own rendered size comes from CSS
+      // `var(--ch-lg)`, so if just one side changes, stacks visually
+      // overlap or gap incorrectly.
+      const PZ_SCALE = 1.35;
+      const STK_W = 38 * PZ_SCALE, STK_H = 33 * PZ_SCALE;
 
       function makeStackGroup(c, label, count) {
         const layout = STACK_LAYOUTS[Math.min(count, 10)];
-        const colStep = 16;
-        const rowStep = 14;
+        const colStep = 16 * PZ_SCALE;
+        const rowStep = 14 * PZ_SCALE;
         const maxCol = Math.max(...layout.map(p => p[0]));
         const maxRow = Math.max(...layout.map(p => p[1]));
         const cw = maxCol * colStep + STK_W;
@@ -4918,7 +4929,15 @@ const Sims = {
       const scale = Math.max(0, Math.min(1, availW / naturalW, availH / naturalH));
       if (scale > 0 && isFinite(scale)) {
         inner.style.transform = `scale(${scale})`;
-        inner.style.transformOrigin = 'top center';
+        // 'bottom center' (was 'top center', 2026-08-31) — matches
+        // .rpay-pay-zone's own justify-content:flex-end (style.css):
+        // transform doesn't affect an element's LAYOUT box, so flex
+        // positions the pile using its pre-scale size regardless, but the
+        // VISUAL bottom edge needs to stay put as it shrinks too (explicit
+        // ask: "하단 위치는 그대로 유지"). Scaling from the bottom keeps
+        // that edge fixed and lets the top edge move instead, consistent
+        // with "grows/shrinks upward from a fixed bottom baseline."
+        inner.style.transformOrigin = 'bottom center';
       }
     }
 
