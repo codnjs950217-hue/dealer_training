@@ -4135,64 +4135,60 @@ body {
   padding: 0 0 clamp(.2rem,.6vh,.35rem);
 }
 
-/* Answer-reveal (💡, 2026-08-27) — Commission/Half Pay/Option Bet all get
-   a small "show the answer" icon pinned to the top-left of their own
-   betting area. Commission/Half Pay: a plain child of `.bpay-positions`
-   (now `position:relative` for this).
-   Option Bet, rev 3 (2026-08-27, explicit ask: "칩스세팅구역 기준 왼쪽
-   상단"): moved from being the first child of `.bside-layout-pane` (top-
-   left of the BETTING layout, left side) to the first child of
-   `.bside-chipset-pane` instead (top-left of the CHIP-SETTING pane, right
-   side — already `position:relative`, no extra CSS needed for the
-   anchor). This is a strict improvement on the original "must not live
-   inside `#bside-zoom-stage`, which gets panned/scaled by zoomToKey()"
-   constraint from the very first version — `.bside-chipset-pane` is a
-   completely separate pane from the zoom stage (never panned/scaled at
-   all), so the icon stays fixed-size-fixed-corner even more robustly than
-   before. `.pay-actions-row` (UNDO/ALL RESET) is a normal-flow sibling
-   right after it in the same pane, right-aligned (`justify-content:
-   flex-end`) — the icon's absolute top-left positioning and that row's
-   right-aligned content shouldn't collide, but this wasn't visually
-   verified (see the sandbox limitation noted elsewhere).
-   Rev 2 (2026-08-27, same day, explicit ask): dropped the standalone
-   dark `.table-refresh-btn`-style look — it read as a separate/foreign UI
-   element next to UNDO/ALL RESET. Adopted their exact box model
-   (`min-height:var(--tap-h)`, same padding/border-width/border-radius —
-   see `.pay-actions-row .comm-undo-btn`/`.comm-all-reset-btn` further
-   down) so it read as the same utility-button family, just repurposed:
-   icon only (no text), gold-toned (not blue/red).
-   Rev 4 (2026-08-27, same day, explicit ask): went further the OTHER
-   direction — rev 2 made it look like a same-family BUTTON; this ask was
-   for a plain small ICON instead ("버튼처럼 보이기보다 작은 유틸리티
-   아이콘처럼"). Border and background dropped entirely (`border:none`,
-   `background:none`) — nothing left to visually read as a button
-   boundary, so it should sit on the felt/BANKER-oval background the same
-   way `.table-refresh-btn`'s bare corner icons elsewhere in this app do.
-   `min-height`/`padding` from rev 2 are kept AS-IS on purpose (explicit
-   "클릭 영역은 현재 크기 유지") even though there's no visible box anymore
-   — the tap target is still there, just invisible. Color kept gold
-   (`--gold-light`) though real-world 💡 already reads yellow regardless
-   of CSS `color` on platforms with color emoji fonts — this only
-   visibly matters on monochrome-glyph fallbacks.
-   Rev 5 (2026-08-27, same day, explicit ask): glyph sized up again, ~43%
-   over rev 4's size (`* 1.4` → `* 2`, within the requested 40-50% "from
-   current" range — cumulative with rev 4, not measured from the
-   original pre-rev-4 size). `left` nudged further left, twice now —
-   `clamp(4px,1vw,8px)` → `clamp(2px,.5vw,4px)` here, then a same-day
-   follow-up ("전부다" — explicitly all 3 pages) → `clamp(0px,.2vw,2px)`.
-   Both applied to this SHARED base rule (not a page-scoped override like
-   the BANKER-relative position tweak in "Commission/Half Pay only"
-   below, a different, page-specific concern) — moves Commission/Half
-   Pay's and Option Bet's icon left together every time. The old dark
-   contact-shadow
-   (`drop-shadow(0 1px 3px rgba(0,0,0,.5))`) is replaced with a genuine
-   gold GLOW (`drop-shadow(0 0 3px rgba(232,201,109,.5))`, 0-offset =
-   glow not a directional shadow) per explicit "아주 약한 Glow 또는
-   하이라이트만" — kept deliberately faint (low blur radius, .5 alpha) and
-   STATIC (no keyframe animation, no pulsing) per "과도한 애니메이션 사용
-   금지". Hover only nudges the SAME glow slightly stronger, no
-   `brightness()` boost anymore (rev 4 had one) — explicit ask was for
-   recognizable-but-understated, not eye-catching/inviting. */
+/* Answer-reveal (💡, 2026-08-27; relocated + labeled 2026-08-31) —
+   Commission/Half Pay/Option Bet all get a "💡 정답보기" button, in NORMAL
+   DOCUMENT FLOW directly above their own chip tray, left-aligned, instead
+   of the earlier corner-pinned `position:absolute` icon (history of that
+   version kept below for context). `.bpay-hint-row` is the flow wrapper:
+   Commission/Half Pay places it between `#bpay-spread-section` (the
+   problem prompt) and `#bpay-comm-panel` (the chip tray); Option Bet
+   places it right after `#bside-spread-section` inside
+   `.bside-chipset-pane` — the SAME slot `showAnswer()` already appends its
+   own NEXT HAND row into once revealed (see that function's rev 13
+   comment below), so reusing it means normal-flow spacing already keeps
+   this clear of every neighboring element with no absolute-position math
+   needed, and the two never collide (the row hides itself the instant
+   NEXT HAND takes its place).
+   Also newly gated behind round-start (2026-08-31): `#bpay-hint-row`/
+   `#bside-hint-row` now start `display:none` in the markup and are only
+   revealed once `showCommTray()`/`showPayTray()` builds the actual
+   problem for the round (Sims.baccaratPay.deal()/Sims.baccaratSide.deal()
+   both explicitly hide it again first) — previously the icon was visible
+   immediately on page mount, before any problem existed to solve.
+   Sizing note: the label added 2026-08-31 meant the old icon-only
+   `font-size: calc(var(--bf-sm) * 2)` (rev 5 below) was retired in favor
+   of separate `.bpay-hint-icon`/`.bpay-hint-label` sizes so the text
+   doesn't inherit the icon's oversized scale.
+   ---- Pre-2026-08-31 history (corner-icon era) ----
+   Rev 2 (2026-08-27): dropped the standalone dark `.table-refresh-btn`-
+   style look — it read as a separate/foreign UI element next to UNDO/ALL
+   RESET. Adopted their exact box model (`min-height:var(--tap-h)`, same
+   padding/border-width/border-radius) so it read as the same utility-
+   button family, just repurposed: icon only (no text), gold-toned.
+   Rev 4 (2026-08-27): went the OTHER direction — this ask was for a plain
+   small ICON instead ("버튼처럼 보이기보다 작은 유틸리티 아이콘처럼").
+   Border and background dropped entirely. Color kept gold
+   (`--gold-light`).
+   Rev 5 (2026-08-27): glyph sized up ~43% (`* 1.4` → `* 2`). `left`
+   nudged further left twice, ending `clamp(0px,.2vw,2px)`. Old dark
+   contact-shadow replaced with a genuine gold GLOW
+   (`drop-shadow(0 0 3px rgba(232,201,109,.5))`) per explicit "아주 약한
+   Glow 또는 하이라이트만" — kept deliberately faint and STATIC (no
+   keyframe animation) per "과도한 애니메이션 사용 금지". That glow
+   philosophy (faint, static, hover only nudges it slightly stronger) is
+   carried forward unchanged into the current flow-positioned version. */
+.bpay-hint-row {
+  display: flex;
+  justify-content: flex-start;
+  padding: .1rem 0 .35rem;
+  flex: 0 0 auto;
+}
+/* Base rule still doubles as roulette's own `#rpay-hint-btn` (a bare
+   icon-only button anchored to the top of `.rpay-right-col`, NOT inside
+   `.bpay-hint-row` — untouched by this revision), so the old
+   `position:absolute` corner-pin stays here unchanged; `.bpay-hint-row
+   .bpay-hint-btn` right below cancels it back to normal flow for the
+   labeled Commission/Half Pay + Option Bet buttons only. */
 .bpay-hint-btn {
   position: absolute;
   top: clamp(4px,1vh,8px); left: clamp(0px,.2vw,2px);
@@ -4209,24 +4205,18 @@ body {
   filter: drop-shadow(0 0 3px rgba(232,201,109,.5));
   transition: filter .12s, transform .12s;
 }
+.bpay-hint-row .bpay-hint-btn {
+  position: static;
+  gap: .32rem;
+  padding: clamp(.3rem,.7vh,.4rem) clamp(.55rem,1.1vw,.7rem);
+  font-size: initial;
+}
+.bpay-hint-icon { font-size: clamp(1rem,2.2vw,1.3rem); }
+.bpay-hint-label { font-size: clamp(.62rem,1.3vw,.75rem); font-weight: 700; letter-spacing: .2px; white-space: nowrap; }
 .bpay-hint-btn:hover {
   filter: drop-shadow(0 0 5px rgba(232,201,109,.75));
 }
 .bpay-hint-btn:active { transform: scale(.9); }
-/* Commission/Half Pay only (2026-08-27, explicit ask, scoped by user
-   choice — Option Bet's icon deliberately left alone, see the comment
-   block above about it anchoring to the unzoomed pane): moved down below
-   the BANKER oval instead of the shared top-left corner, `left` untouched.
-   `top` is computed, not eyeballed — `.bpay-pos`'s own `.3rem` padding-top
-   (style.css ~3546) puts the oval's top edge that far down, the oval's own
-   `min-height: clamp(44px,8vh,62px)` (border-box, so this IS its full
-   rendered height — ~3559) is its bottom edge, then a `.5rem` gap before
-   the icon. `#bpay-content .bpay-positions` overrides the base rule to
-   `overflow:visible` (~3905), so this doesn't risk getting clipped even
-   if the estimate runs a little long. */
-#bpay-content .bpay-hint-btn {
-  top: calc(.3rem + clamp(44px,8vh,62px) + .5rem);
-}
 
 /* Chip-tray disabled state (💡 rev 2, 2026-08-27) — once the answer's
    revealed, the whole tray underneath (denomination buttons AND PAY) stays

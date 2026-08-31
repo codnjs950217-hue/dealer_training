@@ -688,7 +688,6 @@ const Views = {
       <div id="bpay-content">
         <div class="baccarat-table">
           <div class="bpay-positions">
-            <button class="bpay-hint-btn" id="bpay-hint-btn" onclick="Sims.baccaratPay.showAnswer()" title="정답 보기" aria-label="정답 보기">💡</button>
             ${[1].map(i => `
               <div class="bpay-pos" id="bpay-pos-${i}">
                 <div class="bpay-oval bpay-b-oval" id="bpay-b-${i}">
@@ -699,6 +698,9 @@ const Views = {
           </div>
           <div class="pay-actions-row" id="bpay-actions-slot"></div>
           <div class="bpay-spread-section" id="bpay-spread-section" style="display:flex"></div>
+          <div class="bpay-hint-row" id="bpay-hint-row" style="display:none">
+            <button class="bpay-hint-btn" id="bpay-hint-btn" onclick="Sims.baccaratPay.showAnswer()" title="정답 보기" aria-label="정답 보기"><span class="bpay-hint-icon">💡</span><span class="bpay-hint-label">정답보기</span></button>
+          </div>
           <div class="bpay-comm-panel" id="bpay-comm-panel"></div>
         </div>
       </div>
@@ -746,9 +748,11 @@ const Views = {
               </div>
             </div>
             <div class="bside-chipset-pane">
-              <button class="bpay-hint-btn" id="bside-hint-btn" onclick="Sims.baccaratSide.showAnswer()" title="정답 보기" aria-label="정답 보기">💡</button>
               <div class="pay-actions-row" id="bside-actions-slot"></div>
               <div class="bpay-spread-section" id="bside-spread-section" style="display:none"></div>
+              <div class="bpay-hint-row" id="bside-hint-row" style="display:none">
+                <button class="bpay-hint-btn" id="bside-hint-btn" onclick="Sims.baccaratSide.showAnswer()" title="정답 보기" aria-label="정답 보기"><span class="bpay-hint-icon">💡</span><span class="bpay-hint-label">정답보기</span></button>
+              </div>
             </div>
           </div>
           <div class="bpay-start-overlay" id="bside-start-overlay">
@@ -3417,10 +3421,10 @@ const Sims = {
       // which also zeroes S.history each time it (re)builds the tray.
       S.history = [];
       // Fresh hand, fresh answer-reveal state — showAnswer() hides this
-      // button and S.answerRevealed gates it against a 2nd reveal.
+      // row and S.answerRevealed gates it against a 2nd reveal.
       S.answerRevealed = false;
-      const hintBtn = $('bpay-hint-btn');
-      if (hintBtn) hintBtn.style.display = '';
+      const hintRow = $('bpay-hint-row');
+      if (hintRow) hintRow.style.display = '';
       // UNDO + ALL RESET live in their own slot (.pay-actions-row), not the
       // PAY rack — same relocation as Option Bet's showPayTray() and the
       // roulette payout page's own UNDO/ALL RESET row; PAY stays the
@@ -3566,6 +3570,10 @@ const Sims = {
         const pos = positions(); if (pos) pos.classList.remove('paying');
         S.awaitingPay = true; S.commIdx = 0; S.commTarget = 0;
         $('bpay-rounds').textContent = S.rounds;
+        // Hidden until this round's tray is actually built (showCommTray()
+        // reveals it again) — keeps it off-screen during the brief pre-deal
+        // gap instead of appearing before there's a problem to solve.
+        const hintRow = $('bpay-hint-row'); if (hintRow) hintRow.style.display = 'none';
         for (let j = 1; j <= 1; j++) {
           const p = $(`bpay-pos-${j}`); if (p) p.classList.remove('active');
           const bOval = $(`bpay-b-${j}`); if (bOval) bOval.classList.remove('has-bet');
@@ -3677,7 +3685,7 @@ const Sims = {
       showAnswer() {
         if (!S.awaitingPay || S.answerRevealed) return;
         S.answerRevealed = true;
-        const hintBtn = $('bpay-hint-btn'); if (hintBtn) hintBtn.style.display = 'none';
+        const hintRow = $('bpay-hint-row'); if (hintRow) hintRow.style.display = 'none';
         const actionsSlot = $('bpay-actions-slot'); if (actionsSlot) actionsSlot.innerHTML = '';
         renderAnswerSpread(computeAnswerChips(S.commTarget));
         const panel = $('bpay-comm-panel');
@@ -3902,8 +3910,8 @@ const Sims = {
       S.history = [];
       // Fresh hand, fresh answer-reveal state.
       S.answerRevealed = false;
-      const hintBtn = $('bside-hint-btn');
-      if (hintBtn) hintBtn.style.display = '';
+      const hintRow = $('bside-hint-row');
+      if (hintRow) hintRow.style.display = '';
       // UNDO + ALL RESET live in their own slot (.pay-actions-row, in the
       // baccaratPaySim() template), not the PAY rack — same relocation the
       // roulette payout page already uses for its own UNDO/ALL RESET row,
@@ -4233,6 +4241,10 @@ const Sims = {
       deal() {
         const startOverlay = $('bside-start-overlay');
         if (startOverlay) startOverlay.style.display = 'none';
+        // Hidden until this round's tray is actually built (showPayTray()
+        // reveals it again) — keeps it off-screen during the brief pre-deal
+        // gap instead of appearing before there's a problem to solve.
+        const hintRow = $('bside-hint-row'); if (hintRow) hintRow.style.display = 'none';
         S.awaitingPay = true;
         $('bside-rounds').textContent = S.rounds;
         clearHighlights();
@@ -4367,7 +4379,7 @@ const Sims = {
       showAnswer() {
         if (!S.awaitingPay || S.answerRevealed) return;
         S.answerRevealed = true;
-        const hintBtn = $('bside-hint-btn'); if (hintBtn) hintBtn.style.display = 'none';
+        const hintRow = $('bside-hint-row'); if (hintRow) hintRow.style.display = 'none';
         const actionsSlot = $('bside-actions-slot'); if (actionsSlot) actionsSlot.innerHTML = '';
         renderAnswerSpread(computeAnswerChips(S.payTarget));
         const panel = $('bside-comm-panel');
