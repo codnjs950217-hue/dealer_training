@@ -4710,6 +4710,12 @@ const Sims = {
       S.answerRevealed = false;
       const hintBtn = $('rpay-hint-btn');
       if (hintBtn) hintBtn.style.display = '';
+      // Undo showAnswer()'s own .rpay-pay-zone-answer toggle (see that
+      // method + the class's own CSS comment) — a fresh round needs the
+      // bottom padding reserved again since the hint button/warn banner
+      // can both be visible during normal betting.
+      const zoneEl = $('rpay-pay-zone');
+      if (zoneEl) zoneEl.classList.remove('rpay-pay-zone-answer');
       document.querySelector('.rpay-next-round-row')?.remove();
 
       const ccStk = (bodyClass, lbl) =>
@@ -5160,6 +5166,20 @@ const Sims = {
         // already calls _setControlsVisible(true) for every fresh round,
         // so no explicit re-show is needed on the way back out.
         this._setControlsVisible(false);
+        // The hint button and chip-warn banner (both anchored to the
+        // bottom of #rpay-pay-zone's reserved padding, see .rpay-pay-
+        // zone's own CSS comment) are provably never shown once the
+        // answer is revealed — the button is hidden two lines up, and
+        // the warning banner's own condition (120+ color chips with no
+        // money chips) can't fire on a computed answer (color-only
+        // answers cap at 100 chips; money-chip answers use 0 color
+        // chips). That reserved space is pure waste here, and it was
+        // shrinking fitPayZone()'s budget enough to visibly scale the
+        // revealed pile down smaller than a real in-game bet — added
+        // before calling updateTray() so the very first fit measures the
+        // reclaimed room, not the stale reserved one.
+        const zoneEl = $('rpay-pay-zone');
+        if (zoneEl) zoneEl.classList.add('rpay-pay-zone-answer');
         S.payChips = computeAnswerChips(S.totalTarget || 0);
         updateTray();
         const panel = $('rpay-comm-panel');

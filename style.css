@@ -1388,6 +1388,23 @@ body {
   align-items: center;
   justify-content: flex-start;
 }
+/* 2026-08-31, explicit ask: the revealed answer's chip pile was rendering
+   visibly SMALLER than a real in-progress bet — `fitPayZone()` shrinks
+   #rpay-pz-inner to fit whatever's left after the padding above, and the
+   reservation for the hint button/warn banner (both provably hidden once
+   an answer is showing, see Sims.roulettePay.showAnswer()'s own comment)
+   was eating into that budget for no reason during this state. Toggled
+   by showAnswer()/showTray() (`classList.add`/`remove('rpay-pay-zone-
+   answer')`) — reverts bottom padding to the plain `.3rem` this element
+   had before either of those two floated elements existed, giving
+   fitPayZone() back its full original budget so the revealed pile renders
+   at the same natural, unscaled size real betting does (no "shrunk
+   preview" look). Two classes on one element beats the base rule's single
+   class on specificity, so this doesn't need `!important` or file-order
+   games. */
+.rpay-pay-zone.rpay-pay-zone-answer {
+  padding-bottom: .3rem;
+}
 .rpay-pz-row { display: flex; align-items: center; gap: .3rem; }
 .rpay-pz-stack { display: flex; flex-direction: row; flex-wrap: nowrap; }
 .rpay-pz-disc {
