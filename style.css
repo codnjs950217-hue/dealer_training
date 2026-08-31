@@ -4357,8 +4357,43 @@ body {
   justify-content: center;
   padding: 0 .45rem .5rem;
 }
+/* Rev 14 (2026-08-31, explicit ask) — recolored off the base `.bac-cta-
+   btn` gold gradient, which read as part of the gold `.comm-tray` chip
+   tray sitting right below it rather than a distinct action. Scoped here
+   (not touched on the base rule) for the same reason rev 12's width
+   override was scoped: the drawing page's own START/NEXT HAND button
+   must stay exactly as-is — see this block's own long-standing comment
+   above about not reflexively re-adding page-specific overrides without
+   checking whether the base button was also meant to change. Dark navy
+   fill (not this app's felt green or any existing named color — a new,
+   deliberately neutral casino tone), thin gold border (the one gold
+   accent kept, ties it back to the casino palette without recreating the
+   tray's own gold fill), white text. `box-shadow`/`:hover`/`:active` are
+   fully replaced (not layered on top of the base rule's), dropping the
+   base's inset bevel highlights and glow entirely — flat single drop
+   shadow only, no 3D/glow, per explicit "과도한 입체 효과 및 발광 효과
+   제거". `filter:none` on hover/active cancels the base rule's
+   `brightness()` pulse, replaced by a plain background-color shift so
+   the recolor doesn't get washed out by a brightness multiply. Position/
+   size (row centering, `width:auto` from rev 12, and every `.bac-cta-
+   btn` box-model property this doesn't explicitly touch — padding, font-
+   size, min-height, border-radius) are untouched. */
 .bpay-next-round-row .bac-cta-btn {
   width: auto;
+  background: linear-gradient(180deg, #17294c 0%, #0d1830 100%);
+  color: #fff;
+  border: 1px solid var(--gold);
+  box-shadow: 0 2px 6px rgba(0,0,0,.35);
+}
+.bpay-next-round-row .bac-cta-btn:hover {
+  background: linear-gradient(180deg, #1e3560 0%, #101c38 100%);
+  border-color: var(--gold-light);
+  filter: none;
+  box-shadow: 0 3px 9px rgba(0,0,0,.4);
+}
+.bpay-next-round-row .bac-cta-btn:active {
+  filter: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,.3);
 }
 /* Rev 13 (2026-08-27, same day, explicit ask, Option Bet only) — moved
    OFF `#bside-comm-panel` (see main.js's showAnswer() comment for why)
