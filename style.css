@@ -1317,14 +1317,20 @@ body {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 /* Wrapper (2026-08-27, 💡 feature) — originally existed to anchor
-   #rpay-hint-btn. That button has moved twice since: first to the top of
-   `.rpay-right-col` (2026-08-31), then to its current spot as `#rpay-
-   hint-row`, a normal-flow sibling directly below this wrapper and above
-   `#rpay-comm-panel` (2026-08-31, same day — see `.bpay-hint-row` in this
-   file for the current shared-with-baccarat design) — no longer lives in
-   here either way. This wrapper is kept purely for `#rpay-pay-zone`'s own
-   `flex:1; min-height:0` sizing — unchanged below, still fills 100% of
-   this wrapper as its sole flex child. */
+   #rpay-hint-btn. Went through two intermediate normal-flow homes since
+   (both later reverted — see git history for the "min-bet row" era): each
+   one added a genuinely NEW flow row to `.rpay-right-col`, a fixed-height
+   column with no slack, which pushed UNDO/RESET and this wrapper's own
+   `flex:1` share down/smaller — reported as broken (UNDO/RESET dropped,
+   prompt text squeezed against/clipped by the tray). Settled 2026-08-31,
+   rev 2: `#rpay-hint-btn` is now a `position:absolute` CHILD of THIS
+   wrapper (`.rpay-hint-btn-float`, see near `.bpay-hint-btn` in this
+   file), anchored to the wrapper's own bottom-left corner — costs this
+   wrapper (and therefore the whole column) ZERO additional height, since
+   absolutely-positioned children never affect their containing block's
+   size. `#rpay-pay-zone`'s own `padding-bottom` (right below) is enlarged
+   to match the button's footprint so `fitPayZone()` naturally keeps the
+   bet-spot content clear of it — see that rule's own comment. */
 .rpay-pay-zone-wrap {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column;
@@ -1332,7 +1338,17 @@ body {
 }
 .rpay-pay-zone {
   min-width: 0; min-height: 0;
-  padding: .5rem .2rem .3rem;
+  /* Bottom padding reserves room for `.rpay-hint-btn-float` (see that
+     class + `.rpay-pay-zone-wrap`'s own comment) — sized to the button's
+     actual footprint (`min-height: calc(var(--tap-h) - 10px)`, its
+     button.css rule) plus a `.5rem` gap, computed not eyeballed so it
+     can't drift out of sync with the button's own size. `fitPayZone()`
+     (main.js) reads this element's `clientHeight - paddingTop -
+     paddingBottom` as its available height budget, so this directly
+     shrinks the space bet-spot content is scaled to fit within — the
+     content is guaranteed to stay clear of the button by construction,
+     not by estimation. */
+  padding: .5rem .2rem calc(var(--tap-h) - 10px + .5rem);
   display: flex; flex-direction: column; gap: .22rem;
   /* No scrollbar, ever — tall chip stacks are shrink-to-fit via a JS-applied
      transform on #rpay-pz-inner (see fitPayZone() in main.js) instead of
@@ -1356,20 +1372,36 @@ body {
   text-shadow: 0 1px 3px rgba(0,0,0,.7); white-space: nowrap;
 }
 .rpay-tray-row { flex-shrink: 0; }
-/* 2026-08-31: moved out of #rpay-comm-panel (where it sat above the chip
-   tray) into a standalone row in `.rpay-right-col`, between the timer and
-   UNDO/RESET — that spot was needed for `#rpay-hint-row` (the new "✅
-   정답보기" button, see `.bpay-hint-row`) directly above the tray instead.
-   `flex-shrink:0` added since it's now a plain flex item in that column,
-   not nested content sized by its old parent. */
+/* 2026-08-31, rev 2 — the standalone `.rpay-min-bet-lbl` ROW tried first
+   (see git history) pushed UNDO/RESET and the pay-zone content down,
+   since `.rpay-right-col` has NO slack — it's a fixed-height column
+   (`overflow:hidden`, sized by the viewport via its flex-row ancestors),
+   so any genuinely NEW flow row necessarily steals height from
+   `.rpay-pay-zone-wrap` (the only `flex:1` element that can absorb it).
+   Fix: MIN BET is now a FLEX SIBLING of `.rpay-timer` inside a shared
+   `.rpay-timer-row`, not its own row — `.rpay-timer` is far taller
+   (`min-height` ~2.3-3rem+) than this label (~1 line, .58rem), so the
+   row's own height is governed entirely by the timer and adding the
+   label costs ZERO additional column height by construction, no pixel
+   math required. `align-items:flex-end` puts the label at the timer
+   box's own baseline instead of vertically centered against its full
+   height. */
+.rpay-timer-row {
+  display: flex;
+  align-items: flex-end;
+  gap: .3rem;
+  flex-shrink: 0;
+}
+.rpay-timer-row .rpay-timer { flex: 1; min-width: 0; }
 .rpay-min-bet-lbl {
   font-size: .58rem;
   font-weight: 600;
   color: rgba(255,210,80,.48);
   letter-spacing: .5px;
-  padding-left: .2rem;
-  margin: .1rem 0 .15rem;
+  line-height: 1.2;
+  white-space: nowrap;
   flex-shrink: 0;
+  padding-bottom: .5rem;
 }
 
 /* Roulette pay zone — chip stack (20개 = 1 full stack) */
@@ -4146,23 +4178,29 @@ body {
 
 /* Answer-reveal ("✓ 정답보기", 2026-08-27; relocated + labeled 2026-08-31;
    restyled as a real button 2026-08-31; roulette joined 2026-08-31;
-   de-emphasized to a muted gray 2026-08-31) — Commission/Half Pay/Option
+   de-emphasized to a muted gray 2026-08-31; roulette moved OFF the shared
+   flow wrapper 2026-08-31, same day, rev 2) — Commission/Half Pay/Option
    Bet/Roulette (all 4 payout-practice pages) get an identical "✓
-   정답보기" button, in NORMAL DOCUMENT FLOW directly above their own chip
-   tray, left-aligned. `.bpay-hint-row` is the flow wrapper, always
-   `display:none` in the markup until the round's tray is actually built:
-     - Commission/Half Pay: `#bpay-hint-row` between `#bpay-spread-
-       section` (the prompt) and `#bpay-comm-panel` (the tray).
-     - Option Bet: `#bside-hint-row` right after `#bside-spread-section`
-       inside `.bside-chipset-pane` — the SAME slot `showAnswer()` already
-       appends its NEXT HAND row into once revealed, so the two never
-       collide (the row hides itself the instant NEXT HAND takes its
-       place).
-     - Roulette: `#rpay-hint-row` between `.rpay-pay-zone-wrap` (the
-       problem) and `#rpay-comm-panel` (the tray) — same `insertAdjacentHTML
-       ('afterend', ...)` NEXT HAND slot pattern as Option Bet.
-   No bare (non-`.bpay-hint-row`) usage of `.bpay-hint-btn` exists anymore
-   — all 4 pages route through this one styled rule.
+   정답보기" button, always `display:none` until the round's tray is
+   actually built. Two different positioning mechanisms now, by
+   necessity:
+     - Commission/Half Pay/Option Bet: NORMAL DOCUMENT FLOW via
+       `.bpay-hint-row`, directly above their own chip tray, left-aligned.
+       `#bpay-hint-row` sits between `#bpay-spread-section` (the prompt)
+       and `#bpay-comm-panel` (the tray); `#bside-hint-row` sits right
+       after `#bside-spread-section` inside `.bside-chipset-pane` — the
+       SAME slot `showAnswer()` already appends its NEXT HAND row into
+       once revealed, so the two never collide.
+     - Roulette: `#rpay-hint-btn` is `position:absolute` (via
+       `.rpay-hint-btn-float`, below) inside `.rpay-pay-zone-wrap`, NOT
+       flow-positioned — roulette's `.rpay-right-col` is a fixed-height
+       column with no slack, so a genuinely new flow row there pushed
+       UNDO/RESET and the pay-zone content down/squeezed (reported and
+       fixed same day, see `.rpay-pay-zone-wrap`'s own comment). Baccarat's
+       3 pages have more give in their layouts and were never reported
+       broken, so they keep the simpler flow approach.
+   `.bpay-hint-btn` itself (color/shape) is identical everywhere — only
+   the POSITIONING mechanism differs per page's own layout constraints.
    Color/size rev (2026-08-31, explicit ask): this is a low-priority
    LEARNING AID, not a primary action like PAY — the previous dark-green/
    gold "real button" treatment (still visually loud, matching the app's
@@ -4213,6 +4251,21 @@ body {
 }
 .bpay-hint-btn:hover .bpay-hint-icon { color: rgba(220,220,220,.95); }
 .bpay-hint-btn:active { transform: scale(.95); }
+/* Roulette only (2026-08-31) — overrides the base rule's `position:static`
+   back to `absolute`, anchored to `.rpay-pay-zone-wrap` (already
+   `position:relative`) at its bottom-left corner: "칩트레이 바로 위
+   왼쪽" without costing the column any flow height (see that wrapper's
+   own comment for why this replaced an earlier normal-flow attempt).
+   Same specificity as the base `.bpay-hint-btn` rule (one class each) —
+   must stay AFTER it in file order to win the cascade; don't reorder
+   this block above the base rule. Baccarat's 3 pages are untouched —
+   none of their `.bpay-hint-row`-wrapped buttons carry this class. */
+.rpay-hint-btn-float {
+  position: absolute;
+  left: .2rem;
+  bottom: .15rem;
+  z-index: 5;
+}
 
 /* Chip-tray disabled state (💡 rev 2, 2026-08-27) — once the answer's
    revealed, the whole tray underneath (denomination buttons AND PAY) stays
