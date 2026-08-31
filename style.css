@@ -1312,9 +1312,26 @@ body {
   pointer-events: none;
   animation: rpayWarnPop .22s ease-out forwards;
 }
+/* `translateX(-50%)` is baked into BOTH keyframes here (2026-08-31,
+   bugfix) — `.rpay-chip-warn-below`'s own static `transform:
+   translateX(-50%)` (the actual horizontal-centering trick) was being
+   silently overridden by this very animation: a CSS animation's own
+   `transform` keyframe value always wins over any other rule setting
+   `transform` on the same element, and with `animation-fill-mode:
+   forwards` (set on `.rpay-chip-warn`) the `to` keyframe's value is held
+   forever after the animation finishes — so the banner was rendering
+   with `transform: translateY(0) scale(1)` ONLY, never translated left
+   by half its own width, landing with its LEFT EDGE (not its center) at
+   the computed `left` position. That's what read as "shifted right" no
+   matter how correctly `left` itself was computed (main.js's
+   getBoundingClientRect() measurement was always accurate — this
+   transform conflict was the actual bug, not the `left` value). Safe to
+   bake in unconditionally: `.rpay-chip-warn`/this keyframe rule has
+   exactly one consumer, `#rpay-chip-warn-banner`, which always needs
+   horizontal centering. */
 @keyframes rpayWarnPop {
-  from { opacity: 0; transform: translateY(4px) scale(.96); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateX(-50%) translateY(4px) scale(.96); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 }
 /* 2026-08-31 — moved out of `.rpay-undo-row` (top-left, near MIN BET) to
    sit below the payout chip-stack display instead, per explicit ask.
@@ -1339,9 +1356,22 @@ body {
    `getBoundingClientRect()` on every call and sets `warnBanner.style.
    left` directly in px, so this stays correct regardless of whether the
    timer and the wrap actually share the same rendered width (not
-   assumed equal via CSS %, measured). `transform:translateX(-50%)`
-   still does the actual self-centering around whichever `left` (CSS
-   fallback or JS-set px) is currently in effect. */
+   assumed equal via CSS %, measured).
+   Rev 3 (2026-08-31, same day, BUGFIX): the `transform:translateX(-50%)`
+   below was NEVER actually applying — `.rpay-chip-warn`'s own
+   `rpayWarnPop` animation (`forwards` fill-mode) sets `transform` in its
+   keyframes, which permanently wins over this static declaration for the
+   whole time the element exists post-animation. The banner had been
+   rendering with its LEFT EDGE (not center) at whatever `left` was
+   computed — this, not the `left` value itself, was the actual cause of
+   it looking shifted right regardless of which container `left` was
+   measured against. Fixed by baking `translateX(-50%)` into
+   `rpayWarnPop`'s own keyframes instead (see that rule). The
+   `transform` line below is now DEAD in practice (always overridden by
+   the animation) — kept only as a defensive fallback for the
+   hypothetical case the animation is ever removed without checking this
+   comment; if `rpayWarnPop` is touched again, keep `translateX(-50%)` in
+   its keyframes or this banner goes right-shifted again. */
 .rpay-chip-warn-below {
   position: absolute;
   left: 50%; /* fallback only — main.js overrides this in px, see comment above */
