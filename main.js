@@ -4867,7 +4867,25 @@ const Sims = {
       const colorChipCount = S.payChips.color || 0;
       const moneyChipUsed = MONEY_CHIPS.some(mc => (S.payChips[mc.key] || 0) > 0);
       const warnBanner = document.getElementById('rpay-chip-warn-banner');
-      if (warnBanner) warnBanner.style.visibility = (colorChipCount >= 120 && !moneyChipUsed) ? 'visible' : 'hidden';
+      if (warnBanner) {
+        warnBanner.style.visibility = (colorChipCount >= 120 && !moneyChipUsed) ? 'visible' : 'hidden';
+        // Horizontally centered on the TIMER's own axis (explicit ask),
+        // not on `.rpay-pay-zone-wrap` (the banner's own positioning
+        // container, which the timer isn't guaranteed to share the exact
+        // width of at every viewport) — measured directly via
+        // getBoundingClientRect() rather than assumed equal via CSS %,
+        // so this stays correct regardless of any width difference
+        // between the two. Recomputed on every updatePayZone() call
+        // (cheap — this page has few elements) rather than only when the
+        // banner becomes visible, so it's never stale.
+        const timerEl = document.getElementById('rpay-timer');
+        const wrapEl = document.querySelector('.rpay-pay-zone-wrap');
+        if (timerEl && wrapEl) {
+          const timerRect = timerEl.getBoundingClientRect();
+          const wrapRect = wrapEl.getBoundingClientRect();
+          warnBanner.style.left = `${(timerRect.left + timerRect.width / 2) - wrapRect.left}px`;
+        }
+      }
 
       zone.innerHTML = parts.length
         ? `<div id="rpay-pz-inner" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:18px;padding-top:.6rem">${parts.join('')}</div>`

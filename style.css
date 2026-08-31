@@ -1317,24 +1317,34 @@ body {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 /* 2026-08-31 — moved out of `.rpay-undo-row` (top-left, near MIN BET) to
-   sit directly below-center of the answer/payout chip-stack display
-   instead, per explicit ask. `position:absolute` inside `.rpay-pay-zone-
-   wrap` (already `position:relative`, same anchor `.rpay-hint-btn-float`
-   uses) costs the column zero flow height, same reasoning as that
-   button's own placement. `left:50%; transform:translateX(-50%)` centers
-   it horizontally under the stack; `bottom` matches the hint button's own
-   offset so the two sit in the same visual band at the bottom of the pay
-   zone (button at the left, this banner centered — they can be visible
-   at the same time: the button shows whenever a hand is awaiting payout,
-   this banner shows whenever 120+ color chips are staged with no money
-   chips, an overlapping but independent condition). `#rpay-pay-zone`'s
-   own `padding-bottom` (near `.rpay-pay-zone-wrap`) already reserves room
-   for the taller of the two. `visibility` (not `display`) is still what
-   JS toggles (unchanged, updatePayZone()/init()), so this element stays
-   in the DOM at this position at all times, just invisible when hidden. */
+   sit below the payout chip-stack display instead, per explicit ask.
+   `position:absolute` inside `.rpay-pay-zone-wrap` (already `position:
+   relative`, same anchor `.rpay-hint-btn-float` uses) costs the column
+   zero flow height, same reasoning as that button's own placement.
+   `bottom` matches the hint button's own offset so the two sit in the
+   same visual band at the bottom of the pay zone (button at the left,
+   this banner centered — they can be visible at the same time: the
+   button shows whenever a hand is awaiting payout, this banner shows
+   whenever 120+ color chips are staged with no money chips, an
+   overlapping but independent condition). `#rpay-pay-zone`'s own
+   `padding-bottom` (near `.rpay-pay-zone-wrap`) already reserves room for
+   the taller of the two. `visibility` (not `display`) is still what JS
+   toggles, so this element stays in the DOM at this position at all
+   times, just invisible when hidden.
+   Rev 2 (2026-08-31, same day, explicit ask): horizontal centering
+   changed from `left:50%` (centered on `.rpay-pay-zone-wrap`, the chip-
+   stack area) to the TIMER's own horizontal center axis instead — the
+   `left` value here is now just a fallback; `updatePayZone()` (main.js)
+   measures `#rpay-timer`'s and `.rpay-pay-zone-wrap`'s
+   `getBoundingClientRect()` on every call and sets `warnBanner.style.
+   left` directly in px, so this stays correct regardless of whether the
+   timer and the wrap actually share the same rendered width (not
+   assumed equal via CSS %, measured). `transform:translateX(-50%)`
+   still does the actual self-centering around whichever `left` (CSS
+   fallback or JS-set px) is currently in effect. */
 .rpay-chip-warn-below {
   position: absolute;
-  left: 50%;
+  left: 50%; /* fallback only — main.js overrides this in px, see comment above */
   bottom: .15rem;
   transform: translateX(-50%);
   white-space: nowrap;
