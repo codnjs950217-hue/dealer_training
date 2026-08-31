@@ -656,11 +656,11 @@ const Views = {
           <div class="rpay-undo-row">
             <button class="comm-undo-btn" id="rpay-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
             <button class="comm-all-reset-btn" id="rpay-allreset-btn" onclick="Sims.roulettePay.resetPay()">↺ RESET</button>
-            <div id="rpay-chip-warn-banner" style="visibility:hidden" class="rpay-chip-warn">⚠ 머니칩스와 함께 세팅하세요</div>
           </div>
           <div class="rpay-pay-zone-wrap">
             <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
             <button class="bpay-hint-btn rpay-hint-btn-float" id="rpay-hint-btn" style="display:none" onclick="Sims.roulettePay.showAnswer()" title="정답 보기" aria-label="정답 보기"><span class="bpay-hint-icon">✓</span><span class="bpay-hint-label">정답보기</span></button>
+            <div id="rpay-chip-warn-banner" style="visibility:hidden" class="rpay-chip-warn rpay-chip-warn-below">⚠ 머니칩스와 함께 세팅하세요</div>
           </div>
           <div class="rpay-tray-row" id="rpay-comm-panel"></div>
         </div>

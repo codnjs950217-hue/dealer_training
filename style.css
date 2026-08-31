@@ -1316,6 +1316,30 @@ body {
   from { opacity: 0; transform: translateY(4px) scale(.96); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
+/* 2026-08-31 — moved out of `.rpay-undo-row` (top-left, near MIN BET) to
+   sit directly below-center of the answer/payout chip-stack display
+   instead, per explicit ask. `position:absolute` inside `.rpay-pay-zone-
+   wrap` (already `position:relative`, same anchor `.rpay-hint-btn-float`
+   uses) costs the column zero flow height, same reasoning as that
+   button's own placement. `left:50%; transform:translateX(-50%)` centers
+   it horizontally under the stack; `bottom` matches the hint button's own
+   offset so the two sit in the same visual band at the bottom of the pay
+   zone (button at the left, this banner centered — they can be visible
+   at the same time: the button shows whenever a hand is awaiting payout,
+   this banner shows whenever 120+ color chips are staged with no money
+   chips, an overlapping but independent condition). `#rpay-pay-zone`'s
+   own `padding-bottom` (near `.rpay-pay-zone-wrap`) already reserves room
+   for the taller of the two. `visibility` (not `display`) is still what
+   JS toggles (unchanged, updatePayZone()/init()), so this element stays
+   in the DOM at this position at all times, just invisible when hidden. */
+.rpay-chip-warn-below {
+  position: absolute;
+  left: 50%;
+  bottom: .15rem;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 6;
+}
 /* Wrapper (2026-08-27, 💡 feature) — originally existed to anchor
    #rpay-hint-btn. Went through two intermediate normal-flow homes since
    (both later reverted — see git history for the "min-bet row" era): each
@@ -1338,17 +1362,23 @@ body {
 }
 .rpay-pay-zone {
   min-width: 0; min-height: 0;
-  /* Bottom padding reserves room for `.rpay-hint-btn-float` (see that
-     class + `.rpay-pay-zone-wrap`'s own comment) — sized to the button's
-     actual footprint (`min-height: calc(var(--tap-h) - 10px)`, its
-     button.css rule) plus a `.5rem` gap, computed not eyeballed so it
-     can't drift out of sync with the button's own size. `fitPayZone()`
-     (main.js) reads this element's `clientHeight - paddingTop -
-     paddingBottom` as its available height budget, so this directly
-     shrinks the space bet-spot content is scaled to fit within — the
-     content is guaranteed to stay clear of the button by construction,
-     not by estimation. */
-  padding: .5rem .2rem calc(var(--tap-h) - 10px + .5rem);
+  /* Bottom padding reserves room for `.rpay-hint-btn-float` AND (as of
+     2026-08-31) `.rpay-chip-warn-below` — both anchored to the same
+     bottom band of `.rpay-pay-zone-wrap`, see those classes' own
+     comments. Sized to the hint button's own footprint (`min-height:
+     calc(var(--tap-h) - 10px)`, its button.css rule) plus a `.7rem` gap
+     (was `.5rem` before the warning banner joined this band — bumped for
+     extra headroom since the banner's own box, `.rpay-chip-warn`'s
+     padding+font-size+border, runs a little taller than the button in
+     the worst case, and estimating both to the pixel isn't reliable
+     without in-browser measurement). `fitPayZone()` (main.js) reads this
+     element's `clientHeight - paddingTop - paddingBottom` as its
+     available height budget, so this directly shrinks the space bet-spot
+     content is scaled to fit within — the content is guaranteed to stay
+     clear of both by construction, not by estimation, though the exact
+     gap size between content and the two floated elements is still an
+     estimate (not visually verified — see [[reference_sandbox_no_fonts]]). */
+  padding: .5rem .2rem calc(var(--tap-h) - 10px + .7rem);
   display: flex; flex-direction: column; gap: .22rem;
   /* No scrollbar, ever — tall chip stacks are shrink-to-fit via a JS-applied
      transform on #rpay-pz-inner (see fitPayZone() in main.js) instead of
@@ -4714,33 +4744,24 @@ body {
 .comm-all-reset-btn:active { transform: scale(.95); }
 
 .rpay-undo-row {
-  display: flex; align-items: center; justify-content: space-between; gap: .4rem;
+  display: flex; align-items: center; justify-content: flex-end; gap: .4rem;
   padding: .15rem 0 .1rem;
   flex-shrink: 0;
   min-height: calc(var(--tap-h) + .25rem);
   position: relative;
 }
 /* Rev (2026-08-27, explicit ask: "undo버튼이랑 reset버튼 오른쪽으로
-   몰아넣고") — matches baccarat's `.pay-actions-row` look (UNDO+RESET
-   grouped together at the row's right edge, see that class's own
-   comment) instead of roulette's own previous `space-between` spread.
-   Moved the chip-warn banner to `order:-1` (was `1`, sitting BETWEEN
-   UNDO and RESET) so it's first/leftmost, then gave it `margin-right:
-   auto` — the classic flex trick that soaks up all the row's free space
-   on this one item, pushing everything AFTER it (UNDO, RESET) to the far
-   right as a group. `.rpay-undo-row`'s own `justify-content:space-
-   between` is now moot (the auto margin consumes all free space first,
-   nothing left for justify-content to distribute) — left as-is rather
-   than removed, since it's harmless and changing it risks nothing but
-   isn't necessary either. RESET's existing `order:2` (shared rule,
-   further down) still applies and is harmless — it was really there for
-   this row's OLD 3-item order fight (undo/warn/reset), now redundant but
-   not wrong (2 still sorts after warn's -1 and undo's default 0). */
-.rpay-undo-row .rpay-chip-warn {
-  margin: 0 auto 0 0;
-  white-space: nowrap;
-  order: -1;
-}
+   몰아넣고") groups UNDO+RESET at the row's right edge. Originally done
+   via the chip-warn banner living IN this row (`order:-1; margin-right:
+   auto` soaking up free space, `justify-content:space-between` left moot)
+   — that banner moved OUT of this row entirely 2026-08-31 (now anchored
+   to `.rpay-pay-zone-wrap` instead, bottom-center below the chip-stack
+   display; see `.rpay-chip-warn-below`), so with only 2 items left here
+   (UNDO, RESET) the auto-margin trick has nothing to apply to. Simplified
+   to a plain `justify-content:flex-end` — same visual result, no longer
+   dependent on a 3rd item's own margin. RESET's `order:2` (shared rule,
+   further down) is now genuinely a no-op with only these 2 items present
+   (UNDO's default `order:0` already sorts first) but harmless to leave. */
 /* UNDO / RESET — flat, identical shape/size, no inherited 3D bevel.
    Shared verbatim with the baccarat pages' `.pay-actions-row` (2026-08-27
    — see that class's own comment, style.css) since both are the same
