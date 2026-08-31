@@ -648,6 +648,7 @@ const Views = {
           </div>
         </div>
         <div class="rpay-right-col">
+          <button class="bpay-hint-btn" id="rpay-hint-btn" style="display:none" onclick="Sims.roulettePay.showAnswer()" title="정답 보기" aria-label="정답 보기">💡</button>
           <div class="rpay-deco-wheel" aria-hidden="true"><div class="rpay-deco-wheel-inner">${buildWheel()}</div></div>
           <div class="rpay-timer" id="rpay-timer">—</div>
           <div class="rpay-undo-row">
@@ -656,7 +657,6 @@ const Views = {
             <div id="rpay-chip-warn-banner" style="visibility:hidden" class="rpay-chip-warn">⚠ 머니칩스와 함께 세팅하세요</div>
           </div>
           <div class="rpay-pay-zone-wrap">
-            <button class="bpay-hint-btn" id="rpay-hint-btn" onclick="Sims.roulettePay.showAnswer()" title="정답 보기" aria-label="정답 보기">💡</button>
             <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
           </div>
           <div class="rpay-tray-row" id="rpay-comm-panel"></div>
@@ -4907,6 +4907,8 @@ const Sims = {
         if ($('rpay-rounds')) $('rpay-rounds').textContent = String(keepRounds);
         hasStarted = false;
         this._setControlsVisible(false);
+        const hintBtn = $('rpay-hint-btn');
+        if (hintBtn) hintBtn.style.display = 'none';
 
         // Re-fit the chip pile (no HTML rebuild, just re-measure/re-scale)
         // whenever the pay zone's own box size changes — e.g. an orientation

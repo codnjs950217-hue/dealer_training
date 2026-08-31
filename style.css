@@ -1316,15 +1316,13 @@ body {
   from { opacity: 0; transform: translateY(4px) scale(.96); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-/* Wrapper (2026-08-27, 💡 feature) — exists ONLY to give #rpay-hint-btn a
-   `position:relative` anchor that isn't affected by anything ABOVE it in
-   `.rpay-right-col` (`.rpay-timer`/`.rpay-undo-row`'s heights are both
-   responsive/clamp()-based, so computing an absolute offset from them the
-   way Commission/Half Pay's own 💡 does relative to BANKER would have
-   been fragile here). Took over `#rpay-pay-zone`'s own `flex:1;
-   min-height:0` role — `#rpay-pay-zone` itself is unchanged below and
-   still fills 100% of this wrapper since it's the sole flex child, so
-   nothing about its own sizing/behavior actually changed. */
+/* Wrapper (2026-08-27, 💡 feature) — originally existed to anchor
+   #rpay-hint-btn; the icon moved to the top of `.rpay-right-col` (2026-08-31,
+   so it sits above the timer instead of vertically centered mid-column and
+   stays hidden on the pre-Start screen) and no longer lives in here. This
+   wrapper is kept purely for `#rpay-pay-zone`'s own `flex:1; min-height:0`
+   sizing — unchanged below, still fills 100% of this wrapper as its sole
+   flex child. */
 .rpay-pay-zone-wrap {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column;
