@@ -648,9 +648,9 @@ const Views = {
           </div>
         </div>
         <div class="rpay-right-col">
-          <button class="bpay-hint-btn" id="rpay-hint-btn" style="display:none" onclick="Sims.roulettePay.showAnswer()" title="정답 보기" aria-label="정답 보기">💡</button>
           <div class="rpay-deco-wheel" aria-hidden="true"><div class="rpay-deco-wheel-inner">${buildWheel()}</div></div>
           <div class="rpay-timer" id="rpay-timer">—</div>
+          <div class="rpay-min-bet-lbl">MIN BET &nbsp;5,000</div>
           <div class="rpay-undo-row">
             <button class="comm-undo-btn" id="rpay-undo-btn" onclick="Sims.roulettePay.undo()">↩ UNDO</button>
             <button class="comm-all-reset-btn" id="rpay-allreset-btn" onclick="Sims.roulettePay.resetPay()">↺ RESET</button>
@@ -658,6 +658,9 @@ const Views = {
           </div>
           <div class="rpay-pay-zone-wrap">
             <div class="rpay-pay-zone" id="rpay-pay-zone"></div>
+          </div>
+          <div class="bpay-hint-row" id="rpay-hint-row" style="display:none">
+            <button class="bpay-hint-btn" id="rpay-hint-btn" onclick="Sims.roulettePay.showAnswer()" title="정답 보기" aria-label="정답 보기"><span class="bpay-hint-icon">✅</span><span class="bpay-hint-label">정답보기</span></button>
           </div>
           <div class="rpay-tray-row" id="rpay-comm-panel"></div>
         </div>
@@ -4685,15 +4688,15 @@ const Sims = {
       S.payChips = { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
       S.history = [];
       // Fresh hand, fresh answer-reveal state — showAnswer() hides
-      // #rpay-hint-btn and S.answerRevealed gates it against a 2nd
+      // #rpay-hint-row and S.answerRevealed gates it against a 2nd
       // reveal; both need resetting here same as baccarat's own
       // showCommTray()/showPayTray(). The NEXT HAND row showAnswer()
       // inserts lives OUTSIDE this panel (see that method's own comment),
       // so a plain `panel.innerHTML = ...` rebuild below won't clear it
       // for free — remove it explicitly.
       S.answerRevealed = false;
-      const hintBtn = $('rpay-hint-btn');
-      if (hintBtn) hintBtn.style.display = '';
+      const hintRow = $('rpay-hint-row');
+      if (hintRow) hintRow.style.display = '';
       document.querySelector('.rpay-next-round-row')?.remove();
 
       const ccStk = (bodyClass, lbl) =>
@@ -4706,7 +4709,6 @@ const Sims = {
         </button>`;
 
       panel.innerHTML = `
-        <div class="rpay-min-bet-lbl">MIN BET &nbsp;5,000</div>
         <div class="comm-tray rpay-btray">
           <div class="comm-tray-slots">
             <div class="rpay-tray-group">
@@ -4919,8 +4921,8 @@ const Sims = {
         if ($('rpay-rounds')) $('rpay-rounds').textContent = String(keepRounds);
         hasStarted = false;
         this._setControlsVisible(false);
-        const hintBtn = $('rpay-hint-btn');
-        if (hintBtn) hintBtn.style.display = 'none';
+        const hintRow = $('rpay-hint-row');
+        if (hintRow) hintRow.style.display = 'none';
 
         // Re-fit the chip pile (no HTML rebuild, just re-measure/re-scale)
         // whenever the pay zone's own box size changes — e.g. an orientation
@@ -5138,7 +5140,7 @@ const Sims = {
       showAnswer() {
         if (!S.awaitingPay || S.answerRevealed) return;
         S.answerRevealed = true;
-        const hintBtn = $('rpay-hint-btn'); if (hintBtn) hintBtn.style.display = 'none';
+        const hintRow = $('rpay-hint-row'); if (hintRow) hintRow.style.display = 'none';
         // UNDO/RESET aren't rebuilt each round here (unlike baccarat's
         // dynamic actionsSlot) — reuse the existing show/hide toggle
         // instead of adding new disabled-state CSS for them. deal()

@@ -1317,12 +1317,14 @@ body {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 /* Wrapper (2026-08-27, 💡 feature) — originally existed to anchor
-   #rpay-hint-btn; the icon moved to the top of `.rpay-right-col` (2026-08-31,
-   so it sits above the timer instead of vertically centered mid-column and
-   stays hidden on the pre-Start screen) and no longer lives in here. This
-   wrapper is kept purely for `#rpay-pay-zone`'s own `flex:1; min-height:0`
-   sizing — unchanged below, still fills 100% of this wrapper as its sole
-   flex child. */
+   #rpay-hint-btn. That button has moved twice since: first to the top of
+   `.rpay-right-col` (2026-08-31), then to its current spot as `#rpay-
+   hint-row`, a normal-flow sibling directly below this wrapper and above
+   `#rpay-comm-panel` (2026-08-31, same day — see `.bpay-hint-row` in this
+   file for the current shared-with-baccarat design) — no longer lives in
+   here either way. This wrapper is kept purely for `#rpay-pay-zone`'s own
+   `flex:1; min-height:0` sizing — unchanged below, still fills 100% of
+   this wrapper as its sole flex child. */
 .rpay-pay-zone-wrap {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column;
@@ -1354,13 +1356,20 @@ body {
   text-shadow: 0 1px 3px rgba(0,0,0,.7); white-space: nowrap;
 }
 .rpay-tray-row { flex-shrink: 0; }
+/* 2026-08-31: moved out of #rpay-comm-panel (where it sat above the chip
+   tray) into a standalone row in `.rpay-right-col`, between the timer and
+   UNDO/RESET — that spot was needed for `#rpay-hint-row` (the new "✅
+   정답보기" button, see `.bpay-hint-row`) directly above the tray instead.
+   `flex-shrink:0` added since it's now a plain flex item in that column,
+   not nested content sized by its old parent. */
 .rpay-min-bet-lbl {
   font-size: .58rem;
   font-weight: 600;
   color: rgba(255,210,80,.48);
   letter-spacing: .5px;
   padding-left: .2rem;
-  margin-bottom: .1rem;
+  margin: .1rem 0 .15rem;
+  flex-shrink: 0;
 }
 
 /* Roulette pay zone — chip stack (20개 = 1 full stack) */
@@ -4135,96 +4144,42 @@ body {
   padding: 0 0 clamp(.2rem,.6vh,.35rem);
 }
 
-/* Answer-reveal (💡, 2026-08-27; relocated + labeled 2026-08-31) —
-   Commission/Half Pay/Option Bet all get a "💡 정답보기" button, in NORMAL
-   DOCUMENT FLOW directly above their own chip tray, left-aligned, instead
-   of the earlier corner-pinned `position:absolute` icon (history of that
-   version kept below for context). `.bpay-hint-row` is the flow wrapper:
-   Commission/Half Pay places it between `#bpay-spread-section` (the
-   problem prompt) and `#bpay-comm-panel` (the chip tray); Option Bet
-   places it right after `#bside-spread-section` inside
-   `.bside-chipset-pane` — the SAME slot `showAnswer()` already appends its
-   own NEXT HAND row into once revealed (see that function's rev 13
-   comment below), so reusing it means normal-flow spacing already keeps
-   this clear of every neighboring element with no absolute-position math
-   needed, and the two never collide (the row hides itself the instant
-   NEXT HAND takes its place).
-   Also newly gated behind round-start (2026-08-31): `#bpay-hint-row`/
-   `#bside-hint-row` now start `display:none` in the markup and are only
-   revealed once `showCommTray()`/`showPayTray()` builds the actual
-   problem for the round (Sims.baccaratPay.deal()/Sims.baccaratSide.deal()
-   both explicitly hide it again first) — previously the icon was visible
-   immediately on page mount, before any problem existed to solve.
-   Sizing note: the label added 2026-08-31 meant the old icon-only
-   `font-size: calc(var(--bf-sm) * 2)` (rev 5 below) was retired in favor
-   of separate `.bpay-hint-icon`/`.bpay-hint-label` sizes so the text
-   doesn't inherit the icon's oversized scale.
-   ---- Pre-2026-08-31 history (corner-icon era) ----
-   Rev 2 (2026-08-27): dropped the standalone dark `.table-refresh-btn`-
-   style look — it read as a separate/foreign UI element next to UNDO/ALL
-   RESET. Adopted their exact box model (`min-height:var(--tap-h)`, same
-   padding/border-width/border-radius) so it read as the same utility-
-   button family, just repurposed: icon only (no text), gold-toned.
-   Rev 4 (2026-08-27): went the OTHER direction — this ask was for a plain
-   small ICON instead ("버튼처럼 보이기보다 작은 유틸리티 아이콘처럼").
-   Border and background dropped entirely. Color kept gold
-   (`--gold-light`).
-   Rev 5 (2026-08-27): glyph sized up ~43% (`* 1.4` → `* 2`). `left`
-   nudged further left twice, ending `clamp(0px,.2vw,2px)`. Old dark
-   contact-shadow replaced with a genuine gold GLOW
-   (`drop-shadow(0 0 3px rgba(232,201,109,.5))`) per explicit "아주 약한
-   Glow 또는 하이라이트만" — kept deliberately faint and STATIC (no
-   keyframe animation) per "과도한 애니메이션 사용 금지". That glow
-   philosophy (faint, static, hover only nudges it slightly stronger) is
-   carried forward unchanged into the current flow-positioned version. */
+/* Answer-reveal ("✅ 정답보기", 2026-08-27; relocated + labeled 2026-08-31;
+   restyled as a real button 2026-08-31; roulette joined 2026-08-31) —
+   Commission/Half Pay/Option Bet/Roulette (all 4 payout-practice pages)
+   get an identical "✅ 정답보기" button, in NORMAL DOCUMENT FLOW directly
+   above their own chip tray, left-aligned: a rounded-rectangle button,
+   dark green fill, gold border, bright gold text, NO glow/blur — sized a
+   notch smaller than the UNDO/RESET buttons above it (same design
+   LANGUAGE — border-radius/box-shadow:none/flat-color-transition shape —
+   but a visible size class down, so it reads as the smaller, secondary,
+   learning-aid action it is, not a game control). `.bpay-hint-row` is the
+   flow wrapper, always `display:none` in the markup until the round's
+   tray is actually built:
+     - Commission/Half Pay: `#bpay-hint-row` between `#bpay-spread-
+       section` (the prompt) and `#bpay-comm-panel` (the tray).
+     - Option Bet: `#bside-hint-row` right after `#bside-spread-section`
+       inside `.bside-chipset-pane` — the SAME slot `showAnswer()` already
+       appends its NEXT HAND row into once revealed, so the two never
+       collide (the row hides itself the instant NEXT HAND takes its
+       place).
+     - Roulette: `#rpay-hint-row` between `.rpay-pay-zone-wrap` (the
+       problem) and `#rpay-comm-panel` (the tray) — same `insertAdjacentHTML
+       ('afterend', ...)` NEXT HAND slot pattern as Option Bet.
+   `.bpay-hint-icon`/`.bpay-hint-label` are both ~1em — icon and label read
+   as one cohesive button label, not an icon with a caption underneath.
+   No bare (non-`.bpay-hint-row`) usage of `.bpay-hint-btn` exists anymore
+   — all 4 pages route through this one styled rule; don't reintroduce a
+   `position:absolute` fallback for it without checking every page again. */
 .bpay-hint-row {
   display: flex;
   justify-content: flex-start;
   padding: .15rem 0 .5rem;
   flex: 0 0 auto;
 }
-/* Base rule still doubles as roulette's own `#rpay-hint-btn` (a bare
-   icon-only button anchored to the top of `.rpay-right-col`, NOT inside
-   `.bpay-hint-row` — untouched by this revision), so the old
-   `position:absolute` corner-pin stays here unchanged; `.bpay-hint-row
-   .bpay-hint-btn` right below cancels it back to normal flow for the
-   labeled Commission/Half Pay + Option Bet buttons only. */
 .bpay-hint-btn {
-  position: absolute;
-  top: clamp(4px,1vh,8px); left: clamp(0px,.2vw,2px);
-  z-index: 20;
-  display: flex; align-items: center; justify-content: center;
-  min-height: var(--tap-h);
-  padding: clamp(.36rem,.85vh,.5rem) clamp(.6rem,1.3vw,.8rem);
-  border: none;
-  background: none;
-  color: var(--gold-light);
-  font-size: calc(var(--bf-sm) * 2);
-  line-height: 1;
-  cursor: pointer;
-  filter: drop-shadow(0 0 3px rgba(232,201,109,.5));
-  transition: filter .12s, transform .12s;
-}
-/* Rev 18 (2026-08-31) — Commission/Half Pay/Option Bet's button restyled
-   from a bare icon+text floating on the felt into an actual button: dark
-   green fill + gold border (rounded rectangle), no glow/blur — explicit
-   ask was that the old glow/no-background look read as "몽환적이거나 떠
-   있는" rather than a clickable control. Deliberately sized a notch
-   SMALLER than `.pay-actions-row .comm-undo-btn`/`.comm-all-reset-btn`
-   right above it (smaller `min-height`/`min-width`/`font-size`, same
-   `border-radius`/`box-shadow:none`/flat-color transition shape) — same
-   design LANGUAGE as UNDO/RESET (so it still reads as a real button, not
-   a decoration) but visibly a size class down, so it doesn't compete with
-   them as a "game control" — reads as the smaller, secondary, learning-
-   aid action it is. Colors are new (dark green `--felt`-family fill, gold
-   `--gold`/`--gold-light` border/text) rather than reusing UNDO's blue or
-   RESET's red, since this is neither of those two actions. `filter:none`
-   on both base and `:hover` explicitly cancels the base rule's glow
-   `drop-shadow` (kept for roulette's own `#rpay-hint-btn`, see the
-   comment above the base rule) — this button gets a real background/
-   border for contrast instead of a glow. */
-.bpay-hint-row .bpay-hint-btn {
   position: static;
+  display: flex; align-items: center; justify-content: center;
   gap: .3rem;
   min-height: calc(var(--tap-h) - 6px);
   min-width: clamp(56px,10.5vw,72px);
@@ -4235,23 +4190,19 @@ body {
   font-size: calc(var(--bf-sm) * .92);
   font-weight: 700; letter-spacing: .3px;
   padding: clamp(.28rem,.65vh,.4rem) clamp(.4rem,.9vw,.55rem);
+  line-height: 1;
+  cursor: pointer;
   box-shadow: none;
-  filter: none;
   transition: background-color .12s, border-color .12s, color .12s;
 }
 .bpay-hint-icon { font-size: 1.05em; line-height: 1; }
 .bpay-hint-label { font-size: 1em; font-weight: 700; letter-spacing: .3px; white-space: nowrap; }
 .bpay-hint-btn:hover {
-  filter: drop-shadow(0 0 5px rgba(232,201,109,.75));
-}
-.bpay-hint-row .bpay-hint-btn:hover {
   background: rgba(24,82,51,.95);
   border-color: var(--gold-light);
   color: #fff6d9;
-  filter: none;
 }
-.bpay-hint-btn:active { transform: scale(.9); }
-.bpay-hint-row .bpay-hint-btn:active { transform: scale(.95); }
+.bpay-hint-btn:active { transform: scale(.95); }
 
 /* Chip-tray disabled state (💡 rev 2, 2026-08-27) — once the answer's
    revealed, the whole tray underneath (denomination buttons AND PAY) stays
