@@ -4440,25 +4440,38 @@ const Sims = {
       return { chips: { [color.key]: count }, total: color.val * count };
     }
 
-    // Answer reveal (💡, 2026-08-27) — same mechanism as the baccarat
-    // payout pages' own computeAnswerChips(): greedy largest-denom-first
-    // breakdown of the target, valid here because MONEY_CHIPS' values
-    // (1M/100K/10K/5K) and S.totalTarget are both always exact multiples
-    // of 5,000 — every spot's `total` is `color.val (always 5000) *
-    // count`, and `pays` is an integer, so `total * pays` (and the sum
-    // across all winning spots) stays a multiple of 5000 all the way
-    // through. Returns a chips object shaped exactly like S.payChips
-    // (color always 0 — the correct amount is shown purely in cash chips,
-    // never the round's color chip, since color/5K share the same 5,000
-    // face value and picking one over the other isn't "the" answer) so
-    // showAnswer() can hand it straight to updateTray()/updatePayZone()
-    // and reuse their existing chip-pile rendering for free.
+    // Answer reveal (💡, 2026-08-27; color-chip/stack threshold added
+    // 2026-08-31) — same mechanism as the baccarat payout pages' own
+    // computeAnswerChips(): greedy largest-denom-first breakdown of the
+    // target, valid here because MONEY_CHIPS' values (1M/100K/10K/5K) and
+    // S.totalTarget are both always exact multiples of 5,000 — every
+    // spot's `total` is `color.val (always 5000) * count`, and `pays` is
+    // an integer, so `total * pays` (and the sum across all winning
+    // spots) stays a multiple of 5000 all the way through. Returns a
+    // chips object shaped exactly like S.payChips so showAnswer() can
+    // hand it straight to updateTray()/updatePayZone() and reuse their
+    // existing chip-pile rendering for free.
+    //
+    // Dealer-training ask: bets of 5 stacks (1 Stack = 20 Color Chips, so
+    // 5 Stacks = 100 chips = 500,000) or less must be shown ENTIRELY in
+    // Color Chips, never converted to Money Chips — the trainee is meant
+    // to internalize the 1-stack-=-20-chips convention, which a money-
+    // chip substitution would short-circuit. Above that threshold the
+    // original cash-chip breakdown is unchanged (a 500,000+ payout isn't
+    // the "small bet" this rule targets).
+    const CC_VAL = COLOR_CHIPS[0].val; // 5,000 — every color chip shares this face value
+    const CC_PER_STACK = 20;
+    const CC_ONLY_MAX_STACKS = 5;
     function computeAnswerChips(target) {
-      let rem = target;
       // Explicit-zero for every key, matching showTray()'s own
       // S.payChips shape exactly (not just the nonzero denoms) — cheap
       // insurance against any future code that assumes the full key set.
       const chips = { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 };
+      if (target <= CC_ONLY_MAX_STACKS * CC_PER_STACK * CC_VAL) {
+        chips.color = target / CC_VAL; // exact — target is always a multiple of 5,000
+        return chips;
+      }
+      let rem = target;
       MONEY_CHIPS.forEach(c => {
         const cnt = Math.floor(rem / c.val);
         if (cnt > 0) { chips[c.key] = cnt; rem -= cnt * c.val; }
