@@ -699,7 +699,7 @@ const Views = {
           <div class="pay-actions-row" id="bpay-actions-slot"></div>
           <div class="bpay-spread-section" id="bpay-spread-section" style="display:flex"></div>
           <div class="bpay-hint-row" id="bpay-hint-row" style="display:none">
-            <button class="bpay-hint-btn" id="bpay-hint-btn" onclick="Sims.baccaratPay.showAnswer()" title="정답 보기" aria-label="정답 보기"><span class="bpay-hint-icon">💡</span><span class="bpay-hint-label">정답보기</span></button>
+            <button class="bpay-hint-btn" id="bpay-hint-btn" onclick="Sims.baccaratPay.showAnswer()" title="정답 보기" aria-label="정답 보기"><span class="bpay-hint-icon">✅</span><span class="bpay-hint-label">정답보기</span></button>
           </div>
           <div class="bpay-comm-panel" id="bpay-comm-panel"></div>
         </div>
@@ -751,7 +751,7 @@ const Views = {
               <div class="pay-actions-row" id="bside-actions-slot"></div>
               <div class="bpay-spread-section" id="bside-spread-section" style="display:none"></div>
               <div class="bpay-hint-row" id="bside-hint-row" style="display:none">
-                <button class="bpay-hint-btn" id="bside-hint-btn" onclick="Sims.baccaratSide.showAnswer()" title="정답 보기" aria-label="정답 보기"><span class="bpay-hint-icon">💡</span><span class="bpay-hint-label">정답보기</span></button>
+                <button class="bpay-hint-btn" id="bside-hint-btn" onclick="Sims.baccaratSide.showAnswer()" title="정답 보기" aria-label="정답 보기"><span class="bpay-hint-icon">✅</span><span class="bpay-hint-label">정답보기</span></button>
               </div>
             </div>
           </div>
