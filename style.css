@@ -1378,30 +1378,39 @@ body {
    (`overflow:hidden`, sized by the viewport via its flex-row ancestors),
    so any genuinely NEW flow row necessarily steals height from
    `.rpay-pay-zone-wrap` (the only `flex:1` element that can absorb it).
-   Fix: MIN BET is now a FLEX SIBLING of `.rpay-timer` inside a shared
-   `.rpay-timer-row`, not its own row — `.rpay-timer` is far taller
-   (`min-height` ~2.3-3rem+) than this label (~1 line, .58rem), so the
-   row's own height is governed entirely by the timer and adding the
-   label costs ZERO additional column height by construction, no pixel
-   math required. `align-items:flex-end` puts the label at the timer
-   box's own baseline instead of vertically centered against its full
-   height. */
+   Rev 3 (2026-08-31, same day, explicit ask): moved from beside the timer
+   (rev 2's flex-sibling trick) to directly BELOW it, outside the timer's
+   own box, left-aligned with its left edge. `.rpay-timer-row` is now just
+   a `position:relative` wrapper — its own height comes ONLY from
+   `.rpay-timer` (its sole normal-flow child; MIN BET is `position:
+   absolute`, removed from flow), so the wrapper's height, and therefore
+   the whole column's flex arithmetic, is UNCHANGED from having `.rpay-
+   timer` alone — same zero-cost guarantee as rev 2, different anchor.
+   `top:100%; left:0` on the label places it flush against the timer
+   box's own bottom-left corner, entirely outside its border/padding box.
+   This does bleed a few px into the small gap before `.rpay-undo-row`
+   (and marginally into that row's own top edge, which has empty space
+   above its vertically-centered buttons) — `pointer-events:none` added
+   defensively so this label can never intercept a click even if it
+   visually overlaps that row; not verified in-browser (see
+   [[reference_sandbox_no_fonts]]), kept deliberately tiny/tight-
+   line-height to minimize how far it bleeds. */
 .rpay-timer-row {
-  display: flex;
-  align-items: flex-end;
-  gap: .3rem;
+  position: relative;
   flex-shrink: 0;
 }
-.rpay-timer-row .rpay-timer { flex: 1; min-width: 0; }
 .rpay-min-bet-lbl {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 1px;
   font-size: .58rem;
   font-weight: 600;
   color: rgba(255,210,80,.48);
   letter-spacing: .5px;
-  line-height: 1.2;
+  line-height: 1;
   white-space: nowrap;
-  flex-shrink: 0;
-  padding-bottom: .5rem;
+  pointer-events: none;
 }
 
 /* Roulette pay zone — chip stack (20개 = 1 full stack) */
