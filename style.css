@@ -4144,18 +4144,13 @@ body {
   padding: 0 0 clamp(.2rem,.6vh,.35rem);
 }
 
-/* Answer-reveal ("✅ 정답보기", 2026-08-27; relocated + labeled 2026-08-31;
-   restyled as a real button 2026-08-31; roulette joined 2026-08-31) —
-   Commission/Half Pay/Option Bet/Roulette (all 4 payout-practice pages)
-   get an identical "✅ 정답보기" button, in NORMAL DOCUMENT FLOW directly
-   above their own chip tray, left-aligned: a rounded-rectangle button,
-   dark green fill, gold border, bright gold text, NO glow/blur — sized a
-   notch smaller than the UNDO/RESET buttons above it (same design
-   LANGUAGE — border-radius/box-shadow:none/flat-color-transition shape —
-   but a visible size class down, so it reads as the smaller, secondary,
-   learning-aid action it is, not a game control). `.bpay-hint-row` is the
-   flow wrapper, always `display:none` in the markup until the round's
-   tray is actually built:
+/* Answer-reveal ("✓ 정답보기", 2026-08-27; relocated + labeled 2026-08-31;
+   restyled as a real button 2026-08-31; roulette joined 2026-08-31;
+   de-emphasized to a muted gray 2026-08-31) — Commission/Half Pay/Option
+   Bet/Roulette (all 4 payout-practice pages) get an identical "✓
+   정답보기" button, in NORMAL DOCUMENT FLOW directly above their own chip
+   tray, left-aligned. `.bpay-hint-row` is the flow wrapper, always
+   `display:none` in the markup until the round's tray is actually built:
      - Commission/Half Pay: `#bpay-hint-row` between `#bpay-spread-
        section` (the prompt) and `#bpay-comm-panel` (the tray).
      - Option Bet: `#bside-hint-row` right after `#bside-spread-section`
@@ -4166,11 +4161,24 @@ body {
      - Roulette: `#rpay-hint-row` between `.rpay-pay-zone-wrap` (the
        problem) and `#rpay-comm-panel` (the tray) — same `insertAdjacentHTML
        ('afterend', ...)` NEXT HAND slot pattern as Option Bet.
-   `.bpay-hint-icon`/`.bpay-hint-label` are both ~1em — icon and label read
-   as one cohesive button label, not an icon with a caption underneath.
    No bare (non-`.bpay-hint-row`) usage of `.bpay-hint-btn` exists anymore
-   — all 4 pages route through this one styled rule; don't reintroduce a
-   `position:absolute` fallback for it without checking every page again. */
+   — all 4 pages route through this one styled rule.
+   Color/size rev (2026-08-31, explicit ask): this is a low-priority
+   LEARNING AID, not a primary action like PAY — the previous dark-green/
+   gold "real button" treatment (still visually loud, matching the app's
+   own gold CTA language) was judged too prominent. Now flat neutral gray
+   throughout: dark-gray fill (`#4A4A4A` family, NOT any `--gold`/`--felt`
+   var — deliberately outside this app's casino-gold/felt-green palette so
+   it doesn't compete with real game actions for attention), thin light-
+   gray border (was 1.5px gold, now 1px light gray), light-gray icon/
+   white-ish text (was gold-on-gold). The ✓ character (was ✅, a color
+   emoji whose rendered color ignores CSS `color` on most platforms) was
+   chosen specifically because a plain glyph DOES respect `color` — the
+   gray theme wouldn't apply to a color emoji. Sized down again from rev
+   18 (smaller `min-height`/`min-width`/`font-size`/padding) — "작은
+   크기의 보조 버튼" — same shape/transition mechanics as before, just a
+   visible notch smaller. `filter`/`box-shadow` still `none` (no glow/
+   blur, unchanged intent from rev 18, just now literally colorless too). */
 .bpay-hint-row {
   display: flex;
   justify-content: flex-start;
@@ -4180,28 +4188,30 @@ body {
 .bpay-hint-btn {
   position: static;
   display: flex; align-items: center; justify-content: center;
-  gap: .3rem;
-  min-height: calc(var(--tap-h) - 6px);
-  min-width: clamp(56px,10.5vw,72px);
-  border-radius: 6px;
-  border: 1.5px solid var(--gold);
-  background: rgba(18,64,40,.88);
-  color: var(--gold-light);
-  font-size: calc(var(--bf-sm) * .92);
-  font-weight: 700; letter-spacing: .3px;
-  padding: clamp(.28rem,.65vh,.4rem) clamp(.4rem,.9vw,.55rem);
+  gap: .28rem;
+  min-height: calc(var(--tap-h) - 10px);
+  min-width: clamp(48px,9vw,62px);
+  border-radius: 5px;
+  border: 1px solid rgba(200,200,200,.35);
+  background: rgba(74,74,74,.82);
+  color: rgba(235,235,235,.9);
+  font-size: calc(var(--bf-sm) * .8);
+  font-weight: 600; letter-spacing: .2px;
+  padding: clamp(.22rem,.5vh,.32rem) clamp(.32rem,.7vw,.45rem);
   line-height: 1;
   cursor: pointer;
   box-shadow: none;
+  filter: none;
   transition: background-color .12s, border-color .12s, color .12s;
 }
-.bpay-hint-icon { font-size: 1.05em; line-height: 1; }
-.bpay-hint-label { font-size: 1em; font-weight: 700; letter-spacing: .3px; white-space: nowrap; }
+.bpay-hint-icon { font-size: 1em; line-height: 1; color: rgba(200,200,200,.85); }
+.bpay-hint-label { font-size: 1em; font-weight: 600; letter-spacing: .2px; white-space: nowrap; }
 .bpay-hint-btn:hover {
-  background: rgba(24,82,51,.95);
-  border-color: var(--gold-light);
-  color: #fff6d9;
+  background: rgba(90,90,90,.92);
+  border-color: rgba(220,220,220,.5);
+  color: #fff;
 }
+.bpay-hint-btn:hover .bpay-hint-icon { color: rgba(220,220,220,.95); }
 .bpay-hint-btn:active { transform: scale(.95); }
 
 /* Chip-tray disabled state (💡 rev 2, 2026-08-27) — once the answer's
