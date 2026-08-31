@@ -4180,7 +4180,7 @@ body {
 .bpay-hint-row {
   display: flex;
   justify-content: flex-start;
-  padding: .1rem 0 .35rem;
+  padding: .15rem 0 .5rem;
   flex: 0 0 auto;
 }
 /* Base rule still doubles as roulette's own `#rpay-hint-btn` (a bare
@@ -4205,18 +4205,53 @@ body {
   filter: drop-shadow(0 0 3px rgba(232,201,109,.5));
   transition: filter .12s, transform .12s;
 }
+/* Rev 18 (2026-08-31) — Commission/Half Pay/Option Bet's button restyled
+   from a bare icon+text floating on the felt into an actual button: dark
+   green fill + gold border (rounded rectangle), no glow/blur — explicit
+   ask was that the old glow/no-background look read as "몽환적이거나 떠
+   있는" rather than a clickable control. Deliberately sized a notch
+   SMALLER than `.pay-actions-row .comm-undo-btn`/`.comm-all-reset-btn`
+   right above it (smaller `min-height`/`min-width`/`font-size`, same
+   `border-radius`/`box-shadow:none`/flat-color transition shape) — same
+   design LANGUAGE as UNDO/RESET (so it still reads as a real button, not
+   a decoration) but visibly a size class down, so it doesn't compete with
+   them as a "game control" — reads as the smaller, secondary, learning-
+   aid action it is. Colors are new (dark green `--felt`-family fill, gold
+   `--gold`/`--gold-light` border/text) rather than reusing UNDO's blue or
+   RESET's red, since this is neither of those two actions. `filter:none`
+   on both base and `:hover` explicitly cancels the base rule's glow
+   `drop-shadow` (kept for roulette's own `#rpay-hint-btn`, see the
+   comment above the base rule) — this button gets a real background/
+   border for contrast instead of a glow. */
 .bpay-hint-row .bpay-hint-btn {
   position: static;
-  gap: .32rem;
-  padding: clamp(.3rem,.7vh,.4rem) clamp(.55rem,1.1vw,.7rem);
-  font-size: initial;
+  gap: .3rem;
+  min-height: calc(var(--tap-h) - 6px);
+  min-width: clamp(56px,10.5vw,72px);
+  border-radius: 6px;
+  border: 1.5px solid var(--gold);
+  background: rgba(18,64,40,.88);
+  color: var(--gold-light);
+  font-size: calc(var(--bf-sm) * .92);
+  font-weight: 700; letter-spacing: .3px;
+  padding: clamp(.28rem,.65vh,.4rem) clamp(.4rem,.9vw,.55rem);
+  box-shadow: none;
+  filter: none;
+  transition: background-color .12s, border-color .12s, color .12s;
 }
-.bpay-hint-icon { font-size: clamp(1rem,2.2vw,1.3rem); }
-.bpay-hint-label { font-size: clamp(.62rem,1.3vw,.75rem); font-weight: 700; letter-spacing: .2px; white-space: nowrap; }
+.bpay-hint-icon { font-size: 1.05em; line-height: 1; }
+.bpay-hint-label { font-size: 1em; font-weight: 700; letter-spacing: .3px; white-space: nowrap; }
 .bpay-hint-btn:hover {
   filter: drop-shadow(0 0 5px rgba(232,201,109,.75));
 }
+.bpay-hint-row .bpay-hint-btn:hover {
+  background: rgba(24,82,51,.95);
+  border-color: var(--gold-light);
+  color: #fff6d9;
+  filter: none;
+}
 .bpay-hint-btn:active { transform: scale(.9); }
+.bpay-hint-row .bpay-hint-btn:active { transform: scale(.95); }
 
 /* Chip-tray disabled state (💡 rev 2, 2026-08-27) — once the answer's
    revealed, the whole tray underneath (denomination buttons AND PAY) stays
