@@ -1479,6 +1479,33 @@ body {
 .rpay-pay-zone .rpay-cc-disc {
   font-size: calc(var(--bf-xs) * 1.35);
 }
+/* Rev 2 (2026-08-31, same day, explicit ask) — `justify-content:flex-end`
+   above packs the pile flush against `.rpay-pay-zone`'s PADDING edge,
+   which is only ~32-42px above the true bottom (`padding-bottom`'s own
+   reservation for the hint button/warn banner, see `.rpay-pay-zone`'s
+   main rule). That's a much SMALLER gap than the pile used to have
+   before this whole feature existed, when small top-anchored (`flex-
+   start`) chips left a large chunk of `.rpay-pay-zone-wrap`'s `flex:1`
+   box empty below them — reported as "the chip stack dropped down,
+   closer to the tray" even though the pile's own SIZE only grew (its
+   container never moved). Fixed with `margin-bottom` (NOT more
+   `padding-bottom` on `.rpay-pay-zone` — that would shrink
+   `fitPayZone()`'s own `availH` budget, since it reads `clientHeight -
+   paddingTop - paddingBottom`, undoing the enlarge-the-chips ask from
+   the previous rev). `margin` on a flex item adds space between it and
+   the container edge under `justify-content:flex-end` exactly like
+   padding would, but ISN'T read by `fitPayZone()`'s measurement
+   (`scrollHeight` doesn't include external margin) — so this recreates
+   a comfortable, FIXED gap above the tray/reserved zone without costing
+   any of the growth room the previous rev added. Value is a reasoned
+   estimate (not visually measured against the pre-feature original,
+   which varied per round anyway since it depended on how much of the
+   old small pile's height happened to fill the box) — if still too
+   close to the tray, raise this; if there's now too much dead space
+   above the pile before it starts growing upward, lower it. */
+#rpay-pz-inner {
+  margin-bottom: clamp(.8rem, 3vh, 1.4rem);
+}
 /* 2026-08-31, explicit ask: the revealed answer's chip pile was rendering
    visibly SMALLER than a real in-progress bet — `fitPayZone()` shrinks
    #rpay-pz-inner to fit whatever's left after the padding above, and the
