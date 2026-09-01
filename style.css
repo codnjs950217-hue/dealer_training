@@ -3229,6 +3229,16 @@ body {
   transform: rotate(90deg);
   animation: none;
 }
+/* Step 1 (COUNTING) shows a static hand, not a live deal — Card1/Card2
+   already appear instantly with no animation of their own, so the 3rd
+   card sliding in over .35s made it read as arriving separately/later
+   instead of the 3-card hand appearing all at once ("세장이면 세장 한번에
+   딱 떴으면 좋겠어", explicit ask). Step 3's real draw (doPlayerDraw()/
+   doBankerDraw()) keeps the slide-in — it's an actual live draw there,
+   the animation is earned. */
+.bac-counting-mode .bac-card-sideways {
+  animation: none;
+}
 
 .bac-third-slot {
   display: flex; align-items: flex-end; justify-content: center; flex-shrink: 0;
