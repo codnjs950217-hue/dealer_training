@@ -607,6 +607,10 @@ const Views = {
               <div id="bac-result"></div>
             </div>
           </div>
+          <!-- STEP 1 (COUNTING) only — hidden by default (style.css),
+               shown directly above the answer options via
+               .bac-counting-mode. Static text, no JS needed. -->
+          <div class="bac-count-prompt">카드 총합의 카운팅 값을 선택하세요.</div>
           <div class="bac-exp-row bac-exp-row-3col">
             <div class="bac-exp-cell" id="bac-exp-big6"></div>
             <div class="bac-exp-cell" id="bac-tie-btn"></div>

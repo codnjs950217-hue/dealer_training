@@ -2725,6 +2725,24 @@ body {
   flex: 1 1 0;
   min-height: var(--bac-capsule-h);
 }
+/* STEP 1 (COUNTING)'s instruction line — hidden everywhere else (Step 3
+   uses this same row for the real BIG6/TIE/SMALL6 side bets), shown via
+   .bac-counting-mode below. Sits in .bac-exp-grid's own flex column so
+   it picks up the SAME --bac-row-gap spacing as every other row instead
+   of needing its own margin — that's what makes it read as sitting in
+   the natural gap right above the answer buttons rather than a bolted-
+   on label. Deliberately small/muted (not bold, low-opacity warm
+   ivory) so it stays a caption, never competing with the cards or the
+   buttons it's introducing. */
+.bac-count-prompt { display: none; }
+.bac-counting-mode .bac-count-prompt {
+  display: block;
+  text-align: center;
+  font-size: clamp(.62rem, 1.4vh, .74rem);
+  font-weight: 600;
+  letter-spacing: .3px;
+  color: rgba(255, 232, 190, .55);
+}
 /* WIN's cell fixed to --bac-win-w so PLAYER WIN/BANKER WIN and the
    BIG/TIE/SMALL rows below all line up on the same left/right edges.
    min-height (matching --bac-pair-circle-d, same as .bac-win-oval's
