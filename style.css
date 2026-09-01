@@ -3916,25 +3916,25 @@ body {
   display: none;
 }
 /* Arrow beside each STEP button, pointing back at it, visible only
-   during the landing state. Rev2 per explicit follow-up ("너무 작고
-   존재감 부족") — a solid CSS-drawn triangle (border trick) instead of
-   a text glyph, ~2x the old glyph's footprint in each dimension and
-   immune to font-weight/rendering differences a "←" character would
-   have; filter:drop-shadow (not box-shadow, which would just glow the
-   invisible 0×0 box's bounding rect) follows the triangle's actual
-   silhouette for the glow. Separate DOM elements (not a ::after on
-   .bac-step-btn itself) because that button has its own
-   overflow:hidden (the SIMULATION-label overflow fix), which would
-   clip a pseudo-element positioned outside its own box — these live as
-   siblings of the 3 buttons inside .bac-step-panel (already
-   position:relative) instead, each pinned to its button's vertical
-   third via fixed top %s (the 3 buttons are always equal flex:1
-   heights). Pulse now also scales slightly (not opacity-only) for a
+   during the landing state. Rev3 per explicit follow-up — rev2's
+   border-trick shape was still just a plain triangle/pointer, not an
+   actual "화살표" (arrow: a shaft + a head, like ←), so this is now a
+   real inline SVG arrow icon (shaft rectangle fused to a triangular
+   head — see the <path> in Views.baccaratSim(), main.js) instead of a
+   CSS border triangle. Vector, so it stays crisp at any size/DPI
+   without depending on a font glyph's own weight/rendering. Separate
+   DOM elements (not a ::after on .bac-step-btn itself) because that
+   button has its own overflow:hidden (the SIMULATION-label overflow
+   fix), which would clip a pseudo-element positioned outside its own
+   box — these live as siblings of the 3 buttons inside .bac-step-panel
+   (already position:relative) instead, each pinned to its button's
+   vertical third via fixed top %s (the 3 buttons are always equal
+   flex:1 heights). Pulse scales slightly (not opacity-only) for a
    fuller "breathing" read, and never dims past .55 opacity so presence
-   holds through the whole cycle, not just at the peak — same 2.2s
-   ease-in-out duration as .bac-step-btn's own pulse below so the two
-   move in lockstep ("하나의 인터랙션 요소처럼"), since both animations
-   start on the same class-toggle tick. */
+   holds through the whole cycle — same 2.2s ease-in-out duration as
+   .bac-step-btn's own pulse below so the two move in lockstep ("하나의
+   인터랙션 요소처럼"), since both animations start on the same
+   class-toggle tick. */
 .bac-step-arrow { display: none; }
 .bac-step-panel-no-selection .bac-step-arrow {
   display: block;
@@ -3942,14 +3942,16 @@ body {
   left: 100%;
   margin-left: .4rem;
   transform: translateY(-50%);
-  width: 0; height: 0;
-  border-top: 20px solid transparent;
-  border-bottom: 20px solid transparent;
-  border-right: 30px solid var(--gold-light);
-  filter: drop-shadow(0 0 9px rgba(201,168,76,.75));
   animation: bacStepArrowPulse 2.2s ease-in-out infinite;
   pointer-events: none;
   z-index: 10;
+}
+.bac-step-arrow svg {
+  display: block;
+  width: 46px;
+  height: 28px;
+  fill: var(--gold-light);
+  filter: drop-shadow(0 0 9px rgba(201,168,76,.75));
 }
 .bac-step-arrow-1 { top: calc(100% / 6); }
 .bac-step-arrow-2 { top: 50%; }

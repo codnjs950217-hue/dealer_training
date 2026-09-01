@@ -550,9 +550,9 @@ const Views = {
           <span class="bac-step-num">STEP 3</span>
           <span class="bac-step-lbl">FULL<br>SIMULATION</span>
         </button>
-        <div class="bac-step-arrow bac-step-arrow-1" aria-hidden="true"></div>
-        <div class="bac-step-arrow bac-step-arrow-2" aria-hidden="true"></div>
-        <div class="bac-step-arrow bac-step-arrow-3" aria-hidden="true"></div>
+        <div class="bac-step-arrow bac-step-arrow-1" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M40 8 L40 16 L16 16 L16 24 L0 12 L16 0 L16 8 Z"/></svg></div>
+        <div class="bac-step-arrow bac-step-arrow-2" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M40 8 L40 16 L16 16 L16 24 L0 12 L16 0 L16 8 Z"/></svg></div>
+        <div class="bac-step-arrow bac-step-arrow-3" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M40 8 L40 16 L16 16 L16 24 L0 12 L16 0 L16 8 Z"/></svg></div>
       </div>
       <div class="baccarat-table">
         <div class="table-stats-overlay">
