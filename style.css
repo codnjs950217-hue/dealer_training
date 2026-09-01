@@ -2269,7 +2269,18 @@ body {
   background: rgba(255,255,255,.05);
   border: 3px solid #1b5e35;
   border-right: none;
-  border-radius: 0;
+  /* Both LEFT corners rounded on every button now, not just the outer
+     silhouette's (was :first-child-only top-left / :last-child-only
+     bottom-left, leaving STEP2's corners — and STEP1's bottom/STEP3's
+     top — square). Explicit ask: "스텝버튼들 왼쪽 모서리가 둥글둥글해야하는데
+     STEP1 윗부분만 둥글고 나머지는 다 각지네". A button with `border-top:none`
+     (2nd/3rd, below) still rounds cleanly — the left border simply
+     curves into the corner and stops, with no top edge continuing,
+     which reads as a normal rounded-left-corner shape either way. */
+  border-top-left-radius: 18px;
+  border-bottom-left-radius: 18px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
   color: rgba(255,255,255,.42);
   cursor: pointer;
   padding: clamp(.3rem,.8vh,.5rem) .2rem;
@@ -2297,8 +2308,6 @@ body {
   transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .22s ease;
 }
 .bac-step-btn:not(:first-child) { border-top: none; }
-.bac-step-btn:first-child { border-top-left-radius: 18px; }
-.bac-step-btn:last-child  { border-bottom-left-radius: 18px; }
 .bac-step-btn:hover:not(.bac-step-active) {
   background: rgba(255,255,255,.1); color: rgba(255,255,255,.72);
 }
