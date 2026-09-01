@@ -2832,8 +2832,16 @@ const Sims = {
     }
     function genCountQuiz() {
       if (S.deck.length < 5) S.deck = createBacDeck();
-      const handSize = Math.random() < 0.5 ? 2 : 3;
-      const cards = Array.from({ length: handSize }, () => S.deck.pop());
+      // Real Baccarat only draws a 3rd card when the 2-card total is NOT
+      // a "natural" 8/9 — both hands stand immediately on a natural, no
+      // draw is ever possible. So deal the first 2 cards first and only
+      // even roll for a 3rd when they're not a natural; a natural always
+      // forces a 2-card hand, matching real game flow (no more "6+2=8
+      // plus a 3rd card" situations that can't occur at a real table).
+      const firstTwo = [S.deck.pop(), S.deck.pop()];
+      const isNatural = pts(firstTwo) === 8 || pts(firstTwo) === 9;
+      const handSize = (!isNatural && Math.random() < 0.5) ? 3 : 2;
+      const cards = handSize === 3 ? [...firstTwo, S.deck.pop()] : firstTwo;
       // Which zone the hand is dealt into (Player XOR Banker) also
       // decides its 3rd-card layout for free, since that's exactly what
       // Views.baccaratSim()'s markup already encodes: PLAYER's third
