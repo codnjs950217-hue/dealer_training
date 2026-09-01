@@ -2210,11 +2210,14 @@ body {
    here just lets it actually shrink instead of overflowing on the
    content it holds). Not used by baccaratPaySim/roulettePaySim, which
    share the .baccarat-table class but not this wrapper. */
-/* --bac-sim-gap is the panel↔table seam width AND (negated, below) the
-   active tab's bridge distance — one variable so they can never drift
-   out of sync: the bridge has to cancel this exact gap to land flush
-   on the table's edge with zero leftover seam. */
-.bac-sim-body { display: flex; flex: 1; min-height: 0; gap: clamp(.4rem,1vw,.7rem); --bac-sim-gap: clamp(.4rem,1vw,.7rem); }
+/* No gap — the step panel's right edge and the table's left edge meet
+   at exactly one line ("오른쪽 레이아웃의 왼쪽 끝선이랑 스텝버튼의 오른쪽
+   끝선이 적당히 만나는 지점이 있어야해", explicit ask). Replaces the
+   earlier "negative-margin overlap bridges a gap" approach (every
+   .bac-step-btn used to reach past this gap into the table, tuned
+   across several revisions to hide the seam) — that whole mechanism is
+   gone now; the two components simply touch, no gap and no overlap. */
+.bac-sim-body { display: flex; flex: 1; min-height: 0; gap: 0; }
 .bac-sim-body .baccarat-table { flex: 1; min-width: 0; }
 
 .bac-step-panel {
@@ -2283,14 +2286,12 @@ body {
      (below) is the actual fix, letting SIMULATION break mid-word
      instead of ever needing to overflow in the first place. */
   overflow: hidden;
-  /* EVERY tab — active or not — physically touches/overlaps the table
-     (same bridge as the active tab uses, see .bac-step-active below);
-     no floating gap on any of them, and no distance-based "recede" cue
-     either now that fill color alone carries that job. z-index:1 keeps
-     every tab painting above the table where they overlap it; the
-     active tab bumps to z-index:2 only so a hover/transition never lets
-     an inactive neighbor's edge peek above it. */
-  margin-right: calc(-1 * var(--bac-sim-gap) - 4px);
+  /* Every tab's right edge touches the table's left edge exactly (0
+     gap, 0 overlap — see .bac-sim-body's gap:0 above). z-index:1 keeps
+     every tab painting above the table at that shared line; the active
+     tab bumps to z-index:2 only so a hover/transition never lets an
+     inactive neighbor's edge peek above it. */
+  margin-right: 0;
   box-shadow: inset 0 2px 12px rgba(0,0,0,.35), var(--shadow);
   z-index: 1;
   transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .22s ease;
@@ -2344,21 +2345,14 @@ body {
      visibly continuous everywhere else. */
   background: var(--felt);
   color: #fff; cursor: default; z-index: 2;
-  /* Bigger overlap than the base rule's -4px (below the table's own
-     border-radius: 18px, plus a few px of safety margin). Needed since
-     the panel is now top-anchored (see .bac-step-panel's align-self)
-     so STEP 1's tab can be flush against the table's TOP edge, right
-     where the table's own border curves away into its rounded corner
-     instead of running straight — a flat 4px overlap doesn't reach far
-     enough to cover that curve, leaving a sliver of the table's own
-     border visible AT the corner even though its color matches
-     exactly. 18px+ of overlap fully encloses the quarter-circle void
-     regardless of which tab ends up flush against it. Scoped to only
-     the ACTIVE tab (not the base rule) — inactive tabs keep the small
-     -4px overlap, since a bigger one would just widen the strip where
-     their own (unmatched, plain green) border bleeds onto the table's
-     counting-mode gold border in Step 1. */
-  margin-right: calc(-1 * var(--bac-sim-gap) - 20px);
+  /* No extra overlap anymore — the active tab meets the table at the
+     same exact shared line every tab does now (base rule's
+     margin-right:0). The corner-overlap trick this used to need (-20px,
+     to cover the table's own border-radius curve at STEP1's shared top
+     corner) is gone along with the overlap approach itself; the two
+     components now just touch there instead of fusing into one
+     continuous outline — a deliberate trade per explicit ask, not an
+     oversight if a hairline is visible right at that one corner. */
 }
 .bac-step-btn.bac-step-active .bac-step-num { color: #7ce8a6; }
 /* STEP 1's active tab breaks from the shared green fill above — its own
