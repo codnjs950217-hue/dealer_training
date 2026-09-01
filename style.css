@@ -111,8 +111,8 @@
      fluorescent — see .bac-counting-mode / #bac-step-btn-1.bac-step-
      active in style.css, both of which reference these same two values
      so the table and its active tab can never drift out of sync. */
-  --counting-felt: linear-gradient(150deg, #3f2f12 0%, #1c1408 100%);
-  --counting-border: #8a6a28;
+  --counting-felt: linear-gradient(150deg, #5c451c 0%, #2c2010 100%);
+  --counting-border: #ab8636;
   --text: #e8e0d0;
   --text-dim: #8a8878;
   --card-red: #c62828;
