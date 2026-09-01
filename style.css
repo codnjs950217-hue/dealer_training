@@ -2785,25 +2785,6 @@ body {
   flex: 1 1 0;
   min-height: var(--bac-capsule-h);
 }
-/* STEP 1 (COUNTING)'s instruction line — hidden everywhere else (Step 3
-   uses this same row for the real BIG6/TIE/SMALL6 side bets). Reordered
-   to sit directly above the cards (not the answer buttons) via
-   .bac-counting-mode's .bac-exp-grid unboxing below — see that section
-   for why. Deliberately muted (not bold, low-opacity warm ivory) so —
-   even sized up — it stays a caption, never competing with the cards. */
-.bac-count-prompt { display: none; }
-.bac-counting-mode .bac-count-prompt {
-  display: block;
-  text-align: center;
-  /* Bumped per direct ask ("문제 문구 크기 좀더 키워줘") — was clamp(.8rem,2vh,1rem). */
-  font-size: clamp(1rem, 2.5vh, 1.25rem);
-  font-weight: 600;
-  letter-spacing: .3px;
-  color: rgba(255, 232, 190, .55);
-  /* +~25% per explicit ask ("현재보다 약 20~30% 정도 여유로운 세로 간격") —
-     was clamp(.6rem,1.8vh,1rem). */
-  margin-bottom: clamp(.75rem, 2.25vh, 1.25rem);
-}
 /* WIN's cell fixed to --bac-win-w so PLAYER WIN/BANKER WIN and the
    BIG/TIE/SMALL rows below all line up on the same left/right edges.
    min-height (matching --bac-pair-circle-d, same as .bac-win-oval's
@@ -3070,31 +3051,33 @@ body {
      recentering an already-full-height block. */
   justify-content: center;
 }
-/* Reading-flow reorder ("문제 문구 → 카드 → 답안 버튼", explicit ask): the
-   answer buttons (#bac-exp-big6/-tie/-small6, reused as Step 1's 3
-   options) live inside .bac-exp-grid, a SIBLING of .bac-field (the
-   cards) that renders BEFORE it — so by default the buttons sit above
-   the cards, not below. .bac-count-prompt is also inside .bac-exp-grid,
-   right before that same button row.
+/* Reading-flow reorder ("카드 → 답안 버튼", explicit ask): the answer
+   buttons (#bac-exp-big6/-tie/-small6, reused as Step 1's 3 options)
+   live inside .bac-exp-grid, a SIBLING of .bac-field (the cards) that
+   renders BEFORE it — so by default the buttons sit above the cards,
+   not below.
    display:contents un-boxes .bac-exp-grid itself so its children
-   (pairwrap, the prompt, the 2 option rows) become direct flex items of
+   (pairwrap, the 2 option rows) become direct flex items of
    .baccarat-table ALONGSIDE .bac-field, letting them be reordered
    against it individually — impossible while nested in exp-grid's own
    box. Custom properties set on .bac-exp-grid (--bac-win-w etc.) still
    inherit through display:contents, so the button row's sizing is
-   unaffected. Natural DOM order already has the prompt before .bac-
-   field, so only the answer-button row needs an explicit order bump to
-   land AFTER the cards; pairwrap and the (always-empty in Step 1) BIG7/
-   SUPER7/SMALL7 row are hidden outright so they don't reserve their own
-   blank space in the new, tighter [prompt/cards/buttons] stack. */
+   unaffected. Only the answer-button row needs an explicit order bump
+   to land AFTER the cards; pairwrap is still hidden outright below
+   (display:none doesn't remove it from the DOM, so it still works as
+   the sibling-combinator anchor the next two rules key off of — that
+   anchor role used to belong to .bac-count-prompt, now removed) and
+   the (always-empty in Step 1) BIG7/SUPER7/SMALL7 row is likewise
+   hidden so neither reserves its own blank space in the [cards/
+   buttons] stack. */
 .bac-counting-mode .bac-exp-grid {
   display: contents;
 }
 .bac-counting-mode .bac-exp-pairwrap,
-.bac-counting-mode .bac-count-prompt + .bac-exp-row-3col ~ .bac-exp-row-3col {
+.bac-counting-mode .bac-exp-pairwrap + .bac-exp-row-3col ~ .bac-exp-row-3col {
   display: none;
 }
-.bac-counting-mode .bac-count-prompt + .bac-exp-row-3col {
+.bac-counting-mode .bac-exp-pairwrap + .bac-exp-row-3col {
   order: 2;
   /* Fixed-width row (--bac-win-w) — under the table's default
      align-items:stretch (kept as-is so .bac-field still stretches full
@@ -3866,6 +3849,43 @@ body {
   background: rgba(0,0,0,.72);
   display: flex; align-items: center; justify-content: center;
   z-index: 50; border-radius: 21px;
+}
+/* One-time "level start" overlay, shown by showStepIntro() (main.js) on
+   every STEP transition, before that step's real content builds. Same
+   full-cover-the-table technique as .mistake-overlay above, but a
+   softer translucent fill (lets the felt underneath — gold in Step 1,
+   green in Step 2/3 — tint through, "현재 테마 색상 유지" without needing
+   a separate color per step) and pure opacity fade, no scale/pop
+   ("과도한 애니메이션 금지") — a level-intro card, not a popup or a
+   mistake interruption. z-index above .mistake-overlay since a stray
+   mistake from the PREVIOUS step could theoretically still be
+   mid-fade-out when this appears. */
+.bac-step-intro-overlay {
+  position: absolute; inset: -3px;
+  background: rgba(8,14,10,.86);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .5rem;
+  z-index: 55; border-radius: 21px;
+  padding: 1rem;
+  text-align: center;
+  opacity: 0;
+  transition: opacity .35s ease;
+  pointer-events: none;
+}
+.bac-step-intro-overlay.bac-step-intro-show { opacity: 1; }
+.bac-step-intro-title {
+  font-size: clamp(1.25rem, 3.4vh, 1.85rem);
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--gold-light);
+  text-shadow: 0 0 16px rgba(201,168,76,.25);
+}
+.bac-step-intro-desc {
+  font-size: clamp(.8rem, 2vh, 1rem);
+  font-weight: 500;
+  line-height: 1.55;
+  color: rgba(255,255,255,.78);
+  max-width: 80%;
 }
 @keyframes mistakePop {
   0%   { transform: scale(.4); opacity: 0; }

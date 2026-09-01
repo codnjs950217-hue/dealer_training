@@ -607,10 +607,12 @@ const Views = {
               <div id="bac-result"></div>
             </div>
           </div>
-          <!-- STEP 1 (COUNTING) only — hidden by default (style.css),
-               shown directly above the answer options via
-               .bac-counting-mode. Static text, no JS needed. -->
-          <div class="bac-count-prompt">Q. 현재 카드의 카운팅 값은?</div>
+          <!-- STEP 1 (COUNTING) in-game explanation text was removed —
+               that context now lives only in the one-time showStepIntro()
+               overlay shown on STEP entry (see selectStep() in main.js).
+               The pairwrap above (empty in Step 1) is this row's sibling
+               anchor for style.css's .bac-exp-pairwrap + .bac-exp-row-3col
+               ordering/hiding rules, now that .bac-count-prompt is gone. -->
           <div class="bac-exp-row bac-exp-row-3col">
             <div class="bac-exp-cell" id="bac-exp-big6"></div>
             <div class="bac-exp-cell" id="bac-tie-btn"></div>
@@ -2331,6 +2333,29 @@ const Sims = {
       setTimeout(() => { ov.remove(); retryFn(); }, 1600);
     }
 
+    // One-time "level start" overlay shown on every STEP transition (not
+    // per-question) — title + description fade in, hold, fade out, then
+    // onDone() runs the step's actual setup. Same appended-to-.baccarat-
+    // table technique as showMistake()'s overlay, but opacity-only
+    // transitions (no scale/pop) per explicit "과도한 애니메이션 금지".
+    function showStepIntro(title, desc, onDone) {
+      const tbl = document.querySelector('.baccarat-table');
+      if (!tbl) { onDone(); return; }
+      const ov = document.createElement('div');
+      ov.className = 'bac-step-intro-overlay';
+      ov.innerHTML = `<div class="bac-step-intro-title">${title}</div><div class="bac-step-intro-desc">${desc}</div>`;
+      tbl.appendChild(ov);
+      // Added in a separate frame so the initial opacity:0 actually
+      // paints before .bac-step-intro-show's opacity:1 kicks the CSS
+      // transition off — adding both classes in the same tick would let
+      // the browser coalesce them into one paint with no visible fade.
+      requestAnimationFrame(() => ov.classList.add('bac-step-intro-show'));
+      setTimeout(() => {
+        ov.classList.remove('bac-step-intro-show');
+        setTimeout(() => { ov.remove(); onDone(); }, 350);
+      }, 1700);
+    }
+
     // Forced-PAIR-first guard: fired by every WIN/TIE/BIG/SMALL/SUPER7/
     // DRAW/CONFIRM handler below when S.pairDone is still false. Counts a
     // Mistake (same as showMistake()) but is deliberately NOT
@@ -2980,39 +3005,62 @@ const Sims = {
       // in-page mode switch (see startCounting() above); STEP 3 (FULL
       // SIMULATION) is this page's original content, restored via the
       // same reset init() itself does on a fresh, non-restart entry.
+      //
+      // Every transition now shows a one-time showStepIntro() overlay
+      // (title + description, fade in/hold/fade out) BEFORE the step's
+      // actual setup runs — "매 문제마다 안내 문구를 표시하지 않고... STEP
+      // 변경 시에만 1회 표시". Tab highlighting (and S.step itself) update
+      // immediately on click, not after the overlay, so a repeat click on
+      // the same tab is still correctly blocked by the guard above even
+      // while the overlay is still showing; only the actual content
+      // rebuild (startCounting()/the placeholder toast/the Step 3 teardown
+      // + init()) is deferred into the overlay's onDone callback. STEP 2
+      // deliberately does NOT update S.step/tab state (unchanged from
+      // before — it has no real content to switch into yet), so its
+      // overlay+toast can still repeat on every click exactly like the
+      // toast alone used to.
       selectStep(n) {
         if (n === S.step) return;
-        if (n === 2) {
-          const panel = $('bac-step-panel');
-          if (!panel) return;
-          const existing = panel.querySelector('.bac-step-soon-toast');
-          if (existing) existing.remove();
-          const t = document.createElement('div');
-          t.className = 'bac-step-soon-toast';
-          t.textContent = '준비 중입니다';
-          panel.appendChild(t);
-          setTimeout(() => t.remove(), 1500);
-          return;
+        if (n !== 2) {
+          S.step = n;
+          [1, 2, 3].forEach(i => {
+            const b = $(`bac-step-btn-${i}`);
+            if (b) b.classList.toggle('bac-step-active', i === n);
+          });
         }
-        S.step = n;
-        [1, 2, 3].forEach(i => {
-          const b = $(`bac-step-btn-${i}`);
-          if (b) b.classList.toggle('bac-step-active', i === n);
+        const intro = {
+          1: ['STEP 1 • COUNTING', '현재 카드의 카운팅 값을 계산하여<br>정답을 선택하세요.'],
+          2: ['STEP 2 • DRAWING', '플레이어 또는 뱅커의<br>드로우 여부를 판단하세요.'],
+          3: ['STEP 3 • FULL SIMULATION', '실제 바카라 진행 절차를 따라<br>게임을 시뮬레이션하세요.'],
+        }[n];
+        showStepIntro(intro[0], intro[1], () => {
+          if (n === 2) {
+            const panel = $('bac-step-panel');
+            if (!panel) return;
+            const existing = panel.querySelector('.bac-step-soon-toast');
+            if (existing) existing.remove();
+            const t = document.createElement('div');
+            t.className = 'bac-step-soon-toast';
+            t.textContent = '준비 중입니다';
+            panel.appendChild(t);
+            setTimeout(() => t.remove(), 1500);
+            return;
+          }
+          if (n === 1) { startCounting(); return; }
+          // n === 3: leave counting mode's DOM (cards/3rd-card slots/option
+          // buttons, plus the layout it toggled — .bac-counting-mode and
+          // the winning zone's .bac-zone-active) clean before init()
+          // rebuilds Step 3's own START-screen state.
+          $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
+          const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
+          const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
+          const fbE = $('bac-count-feedback'); if (fbE) fbE.innerHTML = '';
+          const tbl = document.querySelector('.baccarat-table');
+          if (tbl) tbl.classList.remove('bac-counting-mode');
+          document.querySelectorAll('.bac-banker-zone, .bac-player-zone').forEach(z => z.classList.remove('bac-zone-active'));
+          clearInlineBtns(); clearPairBtns(); setPairPhaseFocus(false);
+          this.init(false);
         });
-        if (n === 1) { startCounting(); return; }
-        // n === 3: leave counting mode's DOM (cards/3rd-card slots/option
-        // buttons, plus the layout it toggled — .bac-counting-mode and
-        // the winning zone's .bac-zone-active) clean before init()
-        // rebuilds Step 3's own START-screen state.
-        $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
-        const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
-        const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
-        const fbE = $('bac-count-feedback'); if (fbE) fbE.innerHTML = '';
-        const tbl = document.querySelector('.baccarat-table');
-        if (tbl) tbl.classList.remove('bac-counting-mode');
-        document.querySelectorAll('.bac-banker-zone, .bac-player-zone').forEach(z => z.classList.remove('bac-zone-active'));
-        clearInlineBtns(); clearPairBtns(); setPairPhaseFocus(false);
-        this.init(false);
       },
 
       // Correct answers briefly highlight the chosen button green, then
