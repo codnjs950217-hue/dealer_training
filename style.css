@@ -3887,6 +3887,54 @@ body {
   color: rgba(255,255,255,.78);
   max-width: 80%;
 }
+/* Once-per-page-entry "pick a STEP" guide, shown by showPageIntro()
+   (main.js) — explicit ask: point the trainee at the STEP panel before
+   they've chosen anything, distinct from .bac-step-intro-overlay above
+   (which only ever fires AFTER a step is picked). Unlike that one, this
+   IS clickable (dismisses on click; default pointer-events, not none)
+   since dismissing on tap is one of the two explicit exit paths — the
+   other being picking a step at all (selectStep() calls
+   pageIntroDismiss() itself). z-index above .bac-step-intro-overlay
+   since, in principle, both dismiss paths are user-driven and could
+   race, though in practice selectStep() always dismisses this one
+   first so they don't actually end up stacked. */
+.bac-page-intro-overlay {
+  position: absolute; inset: -3px;
+  background: rgba(8,14,10,.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 56; border-radius: 21px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .4s ease;
+}
+.bac-page-intro-overlay.bac-page-intro-show { opacity: 1; }
+.bac-page-intro-text {
+  font-size: clamp(.85rem, 2.1vh, 1.05rem);
+  font-weight: 600;
+  line-height: 1.6;
+  text-align: center;
+  max-width: 75%;
+  color: rgba(255,255,255,.88);
+  background: rgba(20,16,8,.55);
+  border: 1px solid rgba(201,168,76,.35);
+  border-radius: 14px;
+  padding: 1rem 1.4rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+}
+/* Pulsing gold glow on the STEP panel itself while the guide above is
+   showing — "STEP 버튼 영역은 은은하게 Glow 또는 Pulse 효과", "사용자의
+   시선이 자연스럽게 STEP 영역으로 이동". Targets each .bac-step-btn
+   individually (not the panel container, which has no border-radius/
+   shadow of its own — every visual edge belongs to the buttons) so the
+   glow still respects each button's own rounded corners; layered ON
+   TOP of (not replacing) each button's existing resting box-shadow. */
+@keyframes bacStepPanelPulse {
+  0%, 100% { box-shadow: inset 0 2px 12px rgba(0,0,0,.35), var(--shadow); }
+  50%      { box-shadow: inset 0 2px 12px rgba(0,0,0,.35), var(--shadow), 0 0 20px 3px rgba(201,168,76,.6); }
+}
+.bac-step-panel-highlight .bac-step-btn {
+  animation: bacStepPanelPulse 1.6s ease-in-out infinite;
+}
 @keyframes mistakePop {
   0%   { transform: scale(.4); opacity: 0; }
   60%  { transform: scale(1.15); }

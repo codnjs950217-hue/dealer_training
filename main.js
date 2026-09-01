@@ -2235,6 +2235,11 @@ const Sims = {
 
     let S = {};
     let flipId = 0;
+    // Set by showPageIntro() (the once-per-page-entry "pick a STEP" guide)
+    // while it's showing, cleared once dismissed — a plain closure var
+    // rather than an S property since it's transient UI state, not game
+    // state, and S itself gets wholesale-reassigned on every init().
+    let pageIntroDismiss = null;
 
     const $ = id => document.getElementById(id);
     const msg     = t => { const e = $('bac-msg'); if (e) { e.textContent = t; e.style.color = ''; } };
@@ -2354,6 +2359,37 @@ const Sims = {
         ov.classList.remove('bac-step-intro-show');
         setTimeout(() => { ov.remove(); onDone(); }, 350);
       }, 1700);
+    }
+
+    // Once-per-page-entry "pick a STEP" guide — dims the table (click
+    // anywhere on it to dismiss) and adds a pulsing glow to the whole
+    // .bac-step-panel to draw the eye toward it, per explicit ask ("STEP
+    // 버튼 영역은 은은하게 Glow 또는 Pulse 효과", "사용자의 시선이 자연스럽게
+    // STEP 영역으로 이동"). Dismissed by either a click on the dim layer
+    // OR by actually picking a step — selectStep() below calls
+    // pageIntroDismiss() itself, first thing, before doing anything else
+    // — and never shown again this same page entry either way. Only
+    // called from init()'s fresh/non-restart branch (an in-app restart
+    // isn't a new page "진입"). Never overlaps with showStepIntro() above:
+    // that one only ever fires from inside selectStep(), which always
+    // dismisses this guide first.
+    function showPageIntro() {
+      const tbl = document.querySelector('.baccarat-table');
+      const panel = document.querySelector('.bac-step-panel');
+      if (!tbl || !panel) return;
+      const ov = document.createElement('div');
+      ov.className = 'bac-page-intro-overlay';
+      ov.innerHTML = `<div class="bac-page-intro-text">← 원하는 STEP을 선택하여<br>바카라 카드 드로잉을 연습하세요.</div>`;
+      tbl.appendChild(ov);
+      panel.classList.add('bac-step-panel-highlight');
+      requestAnimationFrame(() => ov.classList.add('bac-page-intro-show'));
+      pageIntroDismiss = () => {
+        ov.classList.remove('bac-page-intro-show');
+        panel.classList.remove('bac-step-panel-highlight');
+        setTimeout(() => ov.remove(), 400);
+        pageIntroDismiss = null;
+      };
+      ov.addEventListener('click', pageIntroDismiss);
     }
 
     // Forced-PAIR-first guard: fired by every WIN/TIE/BIG/SMALL/SUPER7/
@@ -2998,6 +3034,9 @@ const Sims = {
           this.deal();
         } else {
           enableDraw();
+          // Fresh page entry only (not a restart) — "Card Drawing 진입 시
+          // 1회 표시".
+          showPageIntro();
         }
       },
 
@@ -3020,6 +3059,10 @@ const Sims = {
       // overlay+toast can still repeat on every click exactly like the
       // toast alone used to.
       selectStep(n) {
+        // Picking ANY step (even re-clicking the already-active one)
+        // counts as "acknowledged" the pick-a-step guide, if it's still
+        // showing.
+        if (pageIntroDismiss) pageIntroDismiss();
         if (n === S.step) return;
         if (n !== 2) {
           S.step = n;
