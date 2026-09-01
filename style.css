@@ -5886,9 +5886,16 @@ body {
    after .bac-circle-btn so this font-size wins over its (also
    !important) one at equal specificity. */
 .bac-count-opt-btn {
-  background: rgba(255,255,255,.08);
+  /* Small gold tint added per direct ask ("버튼에 약간 골드색 넣어줄수있어") —
+     background rgba(255,255,255,.08)→a faint warm-gold rgba, digit color
+     #fff→var(--gold-light). Kept minimal on purpose: a previous, much
+     bigger redesign of this same button (taller, gradient fill, box-
+     shadow bevel, stronger hover) was rejected on sight ("그지같아") and
+     reverted same day — this is deliberately just a color nudge, not a
+     retry of that. */
+  background: rgba(201,168,76,.1);
   border: 2px solid rgba(201,168,76,.4);
-  color: #fff;
+  color: var(--gold-light);
   font-weight: 800;
   font-size: clamp(1.05rem,3vh,1.55rem) !important;
   cursor: pointer;
