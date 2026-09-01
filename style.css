@@ -2279,6 +2279,24 @@ body {
 .bac-step-btn:hover:not(.bac-step-active) {
   background: rgba(255,255,255,.1); color: rgba(255,255,255,.72);
 }
+/* Inactive tabs' border tracks the table's CURRENT color family too
+   (green normally, bronze/gold in Step 1), not just the active tab's —
+   otherwise, in Counting mode, tab2/tab3 keep the plain green #1b5e35
+   border right next to a gold table and a gold active tab, which reads
+   as "these don't belong to the same frame" even though the active
+   tab itself fuses perfectly ("스텝버튼이랑 레이아웃이랑 왜 자연스럽게 안
+   이어져", follow-up after the active-tab corner fix — the corner WAS
+   fixed, this is a separate color-consistency gap). Recession is still
+   carried entirely by fill/text opacity (unchanged here), exactly like
+   the original all-green scheme where every tab always shared the
+   table's one border color regardless of active state — this restores
+   that same parity for the gold variant instead of introducing new
+   dimming logic. :has() (already used elsewhere in this file) reaches
+   sideways from the table to its .bac-step-panel sibling since plain
+   CSS has no "previous sibling" selector. */
+.bac-sim-body:has(.baccarat-table.bac-counting-mode) .bac-step-btn:not(.bac-step-active) {
+  border-color: var(--counting-border);
+}
 .bac-step-num {
   font-size: clamp(.56rem,1.3vw,.66rem); font-weight: 800; letter-spacing: .6px;
   color: rgba(255,255,255,.4); text-transform: uppercase;
