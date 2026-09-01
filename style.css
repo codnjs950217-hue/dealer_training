@@ -2265,21 +2265,19 @@ body {
 .bac-step-btn.bac-step-active {
   background: var(--felt-light);
   border-color: #2fae63;
-  /* Bridges the panel↔table seam (negative = exactly cancels
-     .bac-sim-body's own --bac-sim-gap) so this tab's flat right edge
-     touches the felt with zero seam — reads as one continuous shape
-     with the table rather than a button sitting beside it. Bigger
-     left-corner radius than the inactive default (below) so the curve
-     leans toward the table's own 18px, not the sharper sidebar-box
-     look this replaces. */
-  margin-right: calc(-1 * var(--bac-sim-gap));
+  /* Bridges the panel↔table seam AND overlaps 4px past it (negative =
+     .bac-sim-body's own --bac-sim-gap, PLUS the table's own 3px
+     border-width) so this tab paints over that border for its own
+     height instead of just touching it — touching alone still left the
+     table's dark 3px edge visible as a hard line right at the join.
+     z-index:2 (below) makes sure the tab paints above the table there.
+     Bigger left-corner radius than the inactive default (below) so the
+     curve leans toward the table's own 18px, not the sharper sidebar-
+     box look this replaces. */
+  margin-right: calc(-1 * var(--bac-sim-gap) - 4px);
   border-top-left-radius: 16px; border-bottom-left-radius: 16px;
   box-shadow: inset 0 0 10px rgba(47,174,99,.28), 2px 0 14px rgba(0,0,0,.3);
   color: #fff; cursor: default; z-index: 2;
-}
-.bac-step-btn.bac-step-active::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-  background: #7ce8a6;
 }
 .bac-step-btn.bac-step-active .bac-step-num { color: #7ce8a6; }
 
