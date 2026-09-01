@@ -2223,11 +2223,15 @@ body {
   /* Explicit (not max-) height so the 3 flex:1 buttons below still get a
      definite box to divide — an auto/max-height here falls back to
      content-based sizing and the flex:1 children collapse to near
-     nothing. 85% + align-self:center gives ~15% less vertical footprint
-     than the full table height, with the freed space split evenly
-     above/below, without touching button padding, font sizes, or the
-     gap/flex:1 ratio between the 3 buttons. */
-  height: 85%; align-self: center;
+     nothing. Still 85% of the table's height (keeps the ~15% smaller
+     button footprint from that follow-up ask), but top-anchored
+     (align-self:flex-start, was center) instead of vertically centered
+     — centering split the freed space above/below, which left the
+     panel's own top edge starting lower than the table's, reading as
+     two separate frames with corners starting at different heights.
+     Top-anchoring puts ALL the freed space at the bottom instead, so
+     the panel's top edge now lines up exactly with the table's. */
+  height: 85%; align-self: flex-start;
   /* Tab-strip look, not a sidebar-menu list: tabs sit flush against each
      other (gap:0, dividers via border only) with a flat edge facing the
      table so the strip reads as one connected unit pointing at it, only
