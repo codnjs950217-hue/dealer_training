@@ -2785,32 +2785,6 @@ body {
   flex: 1 1 0;
   min-height: var(--bac-capsule-h);
 }
-/* STEP 1 (COUNTING)'s "CHALLENGE" badge — sits above .bac-count-prompt
-   (explicit ask: "설명문이 아니라 퀴즈 문제처럼", modeled on Brilliant/
-   Duolingo/DataCamp-style challenge labels). A LABEL, not a button —
-   deliberately flat (no gradient/inset-highlight bevel, unlike
-   .bac-count-opt-btn's raised-button treatment) so it never reads as
-   clickable; just a small pill, a soft outer glow standing in for
-   emphasis instead of any 3D cue. align-self:center keeps it
-   content-sized (shrink-to-fit) instead of stretching full-width like
-   .bac-count-prompt below it does — same reason the answer-button row
-   needs the same property (see its own note). */
-.bac-count-badge { display: none; }
-.bac-counting-mode .bac-count-badge {
-  display: inline-block;
-  align-self: center;
-  padding: .22rem .8rem;
-  border-radius: 999px;
-  background: rgba(201,168,76,.14);
-  border: 1px solid rgba(201,168,76,.45);
-  color: var(--gold-light);
-  font-size: clamp(.56rem, 1.3vh, .68rem);
-  font-weight: 700;
-  letter-spacing: 1.8px;
-  text-transform: uppercase;
-  box-shadow: 0 0 10px rgba(201,168,76,.18);
-  margin-bottom: clamp(.3rem, .9vh, .5rem);
-}
 /* STEP 1 (COUNTING)'s instruction line — hidden everywhere else (Step 3
    uses this same row for the real BIG6/TIE/SMALL6 side bets). Reordered
    to sit directly above the cards (not the answer buttons) via
