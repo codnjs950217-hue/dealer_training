@@ -2812,12 +2812,12 @@ const Sims = {
 
     // ---- STEP 1: COUNTING TRAINING ----
     // Beginner drill for the point system itself (0-9, units digit only)
-    // — NOT the win/draw judging Step 3 (below) teaches. Shows 2 cards on
-    // one side only (Player XOR Banker — the existing always-visible
-    // BANKER/PLAYER zone labels are what tell the trainee which one, no
-    // extra prompt needed) and asks for the resulting total via a
-    // 3-choice multiple choice. Reuses bval()/pts() above verbatim so the
-    // "correct" answer can never drift from Step 3's own scoring.
+    // — NOT the win/draw judging Step 3 (below) teaches. Shows 2 or 3
+    // cards on one side only (Player XOR Banker — the existing always-
+    // visible BANKER/PLAYER zone labels are what tell the trainee which
+    // one, no extra prompt needed) and asks for the resulting total via
+    // a 3-choice multiple choice. Reuses bval()/pts() above verbatim so
+    // the "correct" answer can never drift from Step 3's own scoring.
     function bjVal(c) {
       // Blackjack-style values (A=11, 10/J/Q/K=10) — one of the standard
       // beginner mix-ups this drill's wrong answers are built from,
@@ -2827,33 +2827,57 @@ const Sims = {
       return +c.rank;
     }
     function genCountQuiz() {
-      if (S.deck.length < 4) S.deck = createBacDeck();
-      const c1 = S.deck.pop(), c2 = S.deck.pop();
+      if (S.deck.length < 5) S.deck = createBacDeck();
+      const handSize = Math.random() < 0.5 ? 2 : 3;
+      const cards = Array.from({ length: handSize }, () => S.deck.pop());
+      // Which zone the hand is dealt into (Player XOR Banker) also
+      // decides its 3rd-card layout for free, since that's exactly what
+      // Views.baccaratSim()'s markup already encodes: PLAYER's third
+      // slot (#bac-ph3) sits AFTER its 2-card wrap — pattern A,
+      // [Card1][Card2][Third] — while BANKER's (#bac-bh3) sits BEFORE
+      // it — pattern B, [Third][Card1][Card2]. Randomizing `side` here
+      // is therefore also what randomizes which pattern the trainee
+      // sees, hand to hand — no separate pattern flag needed.
       const side = Math.random() < 0.5 ? 'player' : 'banker';
-      const correct = pts([c1, c2]);
-      const v1 = bval(c1), v2 = bval(c2);
+      const correct = pts(cards);
+      const vals = cards.map(bval);
+      const rawSum = vals.reduce((a, b) => a + b, 0);
+      const bjSum = cards.reduce((s, c) => s + bjVal(c), 0);
       // Wrong-answer candidates, each a real beginner mistake rather than
-      // a random number: the raw (un-dropped) two-digit sum, the
-      // blackjack-style sum, or just one card's value alone (forgetting
-      // the other card exists). Falls back to a random 0-9 filler only
-      // if a hand doesn't produce enough distinct mistakes on its own
-      // (e.g. both cards already sum under 10 with no face/ace involved).
+      // a random number: the raw (un-dropped) sum, the blackjack-style
+      // sum, any single card's value alone (forgetting the others
+      // exist), and — 3-card hands only — the 2-card total with the
+      // drawn 3rd card forgotten entirely. Falls back to a random 0-9
+      // filler only if a hand doesn't produce enough distinct mistakes
+      // on its own.
       const cand = new Set();
-      [v1 + v2, bjVal(c1) + bjVal(c2), v1, v2].forEach(x => { if (x !== correct) cand.add(x); });
+      [rawSum, bjSum, ...vals].forEach(x => { if (x !== correct) cand.add(x); });
+      if (handSize === 3) {
+        const ignoreThird = pts(cards.slice(0, 2));
+        if (ignoreThird !== correct) cand.add(ignoreThird);
+      }
       while (cand.size < 2) {
         const r = Math.floor(Math.random() * 10);
         if (r !== correct) cand.add(r);
       }
       const options = shuffle([correct, ...shuffle([...cand]).slice(0, 2)]);
-      return { c1, c2, side, correct, options };
+      return { cards, side, correct, options };
     }
     function renderCountQuiz() {
       const q = genCountQuiz();
       S.countQuiz = q;
-      $('bac-ph').innerHTML = q.side === 'player' ? cardHTML(q.c1) + cardHTML(q.c2) : '';
-      $('bac-bh').innerHTML = q.side === 'banker' ? cardHTML(q.c1) + cardHTML(q.c2) : '';
-      const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
-      const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
+      const [c1, c2, c3] = q.cards;
+      const mainHtml = cardHTML(c1) + cardHTML(c2);
+      // Third card: same sideways-rotated presentation Step 3 deals into
+      // this exact slot (.bac-card-sideways wrapping a .flip-card, see
+      // doPlayerDraw()/doBankerDraw() above) — just rendered statically
+      // instead of via the flip-reveal animation, to match how this
+      // drill already shows its other cards.
+      const thirdHtml = c3 ? `<div class="bac-card-sideways"><div class="flip-card">${cardHTML(c3)}</div></div>` : '';
+      $('bac-ph').innerHTML = q.side === 'player' ? mainHtml : '';
+      $('bac-bh').innerHTML = q.side === 'banker' ? mainHtml : '';
+      const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = q.side === 'player' ? thirdHtml : '';
+      const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = q.side === 'banker' ? thirdHtml : '';
       clearInlineBtns();
       clearPairBtns();
       // Reuses the BIG6/TIE/SMALL6 row's 3 cells as generic option
