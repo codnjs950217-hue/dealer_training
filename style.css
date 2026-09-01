@@ -2224,12 +2224,23 @@ body {
      the outer two corners of the whole group rounded (below). */
   display: flex; flex-direction: column; gap: 0;
 }
+/* Border/radius/shadow below are DELIBERATELY copied verbatim from the
+   .blackjack-table,.baccarat-table rule (top of this section: border:
+   3px solid #1b5e35; border-radius: 18px; box-shadow: inset 0 2px 12px
+   rgba(0,0,0,.35), var(--shadow) i.e. 0 4px 24px rgba(0,0,0,.55)) — not
+   a new palette. Per explicit feedback the two areas read as separate
+   components because their frame styles didn't match; using the exact
+   same stroke color/width, corner radius, and inset+outer shadow
+   recipe on every tab is what makes the step strip read as part of the
+   SAME table frame instead of a menu bolted beside it. The only thing
+   that still tells a tab apart from the table (or an inactive tab from
+   the active one) is fill color — never border/shadow. */
 .bac-step-btn {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: .2rem; text-align: center;
   background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.14);
+  border: 3px solid #1b5e35;
   border-right: none;
   border-radius: 0;
   color: rgba(255,255,255,.42);
@@ -2238,26 +2249,21 @@ body {
   position: relative;
   /* EVERY tab — active or not — physically touches/overlaps the table
      (same bridge as the active tab uses, see .bac-step-active below);
-     no floating gap on any of them. What tells inactive apart is color
-     + a cast shadow, not distance: a sheet of paper laid ON TOP of
-     another sheet still touches it, it just doesn't blend into it. The
-     active tab additionally matches the table's own fill exactly (and
-     drops this shadow) so IT reads as fused/one piece — inactive tabs
-     deliberately keep their own dark color so they read as a separate
-     layer resting against the table, not merged with it. z-index:1
-     keeps every tab painting above the table where they overlap it;
-     the active tab bumps to z-index:2 only so a hover/transition never
-     lets an inactive neighbor's edge peek above it. */
+     no floating gap on any of them, and no distance-based "recede" cue
+     either now that fill color alone carries that job. z-index:1 keeps
+     every tab painting above the table where they overlap it; the
+     active tab bumps to z-index:2 only so a hover/transition never lets
+     an inactive neighbor's edge peek above it. */
   margin-right: calc(-1 * var(--bac-sim-gap) - 4px);
-  box-shadow: 2px 0 6px rgba(0,0,0,.35);
+  box-shadow: inset 0 2px 12px rgba(0,0,0,.35), var(--shadow);
   z-index: 1;
   transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .22s ease;
 }
 .bac-step-btn:not(:first-child) { border-top: none; }
-.bac-step-btn:first-child { border-top-left-radius: 16px; }
-.bac-step-btn:last-child  { border-bottom-left-radius: 16px; }
+.bac-step-btn:first-child { border-top-left-radius: 18px; }
+.bac-step-btn:last-child  { border-bottom-left-radius: 18px; }
 .bac-step-btn:hover:not(.bac-step-active) {
-  background: rgba(255,255,255,.1); color: rgba(255,255,255,.72); border-color: rgba(255,255,255,.3);
+  background: rgba(255,255,255,.1); color: rgba(255,255,255,.72);
 }
 .bac-step-num {
   font-size: clamp(.56rem,1.3vw,.66rem); font-weight: 800; letter-spacing: .6px;
@@ -2270,17 +2276,12 @@ body {
   /* Exactly the table's own fill (was --felt-light, a visibly lighter
      shade than the table's --felt — that mismatch was the real "still
      awkward" seam, fixed per direct feedback by matching the color
-     exactly). The base rule's cast shadow is what makes an INACTIVE tab
-     read as a separate sheet resting against the table; dropping it
-     here (in favor of just the inset glow) is what makes THIS one read
-     as fused with it instead — same overlap/z-index as every other
-     tab, only the color + shadow differ. Bigger left-corner radius than
-     the shared default (above) so the curve leans toward the table's
-     own 18px, not the sharper sidebar-box look this replaces. */
+     exactly). Border/radius/shadow are already identical to every
+     other tab (and the table) via the base rule above — active is a
+     pure fill-color swap, nothing else, which is what makes ITS join
+     with the table specifically disappear while the frame system stays
+     visibly continuous everywhere else. */
   background: var(--felt);
-  border-color: #2fae63;
-  border-top-left-radius: 16px; border-bottom-left-radius: 16px;
-  box-shadow: inset 0 0 10px rgba(47,174,99,.28);
   color: #fff; cursor: default; z-index: 2;
 }
 .bac-step-btn.bac-step-active .bac-step-num { color: #7ce8a6; }
