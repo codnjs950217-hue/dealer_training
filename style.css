@@ -2205,7 +2205,15 @@ body {
 
 .bac-step-panel {
   flex-shrink: 0; position: relative;
-  width: clamp(58px,10vw,96px);
+  width: clamp(50px,8.5vw,82px);
+  /* Explicit (not max-) height so the 3 flex:1 buttons below still get a
+     definite box to divide — an auto/max-height here falls back to
+     content-based sizing and the flex:1 children collapse to near
+     nothing. 85% + align-self:center gives ~15% less vertical footprint
+     than the full table height, with the freed space split evenly
+     above/below, without touching button padding, font sizes, or the
+     gap/flex:1 ratio between the 3 buttons. */
+  height: 85%; align-self: center;
   display: flex; flex-direction: column; gap: clamp(.3rem,.8vh,.55rem);
 }
 .bac-step-btn {
