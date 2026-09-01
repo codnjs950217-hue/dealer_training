@@ -2837,15 +2837,23 @@ const Sims = {
     }
     function genCountQuiz() {
       if (S.deck.length < 5) S.deck = createBacDeck();
-      // Real Baccarat only draws a 3rd card when the 2-card total is NOT
-      // a "natural" 8/9 — both hands stand immediately on a natural, no
-      // draw is ever possible. So deal the first 2 cards first and only
-      // even roll for a 3rd when they're not a natural; a natural always
-      // forces a 2-card hand, matching real game flow (no more "6+2=8
-      // plus a 3rd card" situations that can't occur at a real table).
+      // Real Baccarat draw rule (not just "not a natural"): PLAYER draws a
+      // 3rd card only on a 2-card total of 0-5, standing on 6/7 (and, per
+      // the earlier natural-8/9 fix, on a natural too — but 8/9 already
+      // fall outside 0-5, so one <=5 check now covers both). BANKER's own
+      // rule is conditional on Player's 3rd card in the full game, but
+      // collapses to that EXACT same "draws 0-5, stands 6/7" table
+      // whenever Player stood — which is always true of any Banker hand
+      // this drill can show, since it only ever displays ONE side's 2/3
+      // cards in isolation and never claims anything about the other
+      // side's hand. So a hand this drill generates is never a real-rule
+      // violation regardless of side: totals 6/7 (previously wrongly
+      // allowed a 3rd card here — e.g. 6+A=7 already stands, no draw
+      // possible) now correctly force a 2-card hand for BOTH sides, not
+      // just naturals.
       const firstTwo = [S.deck.pop(), S.deck.pop()];
-      const isNatural = pts(firstTwo) === 8 || pts(firstTwo) === 9;
-      const handSize = (!isNatural && Math.random() < 0.5) ? 3 : 2;
+      const canDrawThird = pts(firstTwo) <= 5;
+      const handSize = (canDrawThird && Math.random() < 0.5) ? 3 : 2;
       const cards = handSize === 3 ? [...firstTwo, S.deck.pop()] : firstTwo;
       // Which zone the hand is dealt into (Player XOR Banker) also
       // decides its 3rd-card layout for free, since that's exactly what
