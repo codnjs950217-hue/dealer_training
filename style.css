@@ -2743,9 +2743,11 @@ body {
   font-weight: 600;
   letter-spacing: .3px;
   color: rgba(255, 232, 190, .55);
-  /* Tightened (was clamp(.3rem,1vh,.5rem)) alongside the card↔button gap
-     below, for the same "one connected quiz area" ask. */
-  margin-bottom: clamp(.2rem, .6vh, .35rem);
+  /* Eased back open a bit ("적당한 간격은 좀 띄워줘" — the previous
+     clamp(.2rem,.6vh,.35rem) read as too cramped) while staying well
+     short of the original clamp(.3rem,1vh,.5rem) this whole clustering
+     pass started from. */
+  margin-bottom: clamp(.4rem, 1.2vh, .65rem);
 }
 /* WIN's cell fixed to --bac-win-w so PLAYER WIN/BANKER WIN and the
    BIG/TIE/SMALL rows below all line up on the same left/right edges.
@@ -3044,10 +3046,11 @@ body {
      width, see its own note below) a definite-width item falls back to
      start-aligned, not centered, so it needs this explicitly. */
   align-self: center;
-  /* Tightened (was clamp(.5rem,1.6vh,.9rem)) — this ask was specifically
-     about shrinking the card↔button gap so the two read as one quiz
-     unit rather than separate screen regions. */
-  margin-top: clamp(.3rem, 1vh, .5rem);
+  /* Eased back open a bit ("적당한 간격은 좀 띄워줘" — the previous
+     clamp(.3rem,1vh,.5rem) read as too cramped) while staying well
+     short of the original clamp(.5rem,1.6vh,.9rem) this whole
+     clustering pass started from. */
+  margin-top: clamp(.5rem, 1.4vh, .75rem);
 }
 /* .bac-field no longer flex-grows to fill whatever height is left over
    in the column — that was the real cause of the "spread across the
