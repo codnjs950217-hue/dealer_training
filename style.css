@@ -2345,19 +2345,14 @@ body {
      visibly continuous everywhere else. */
   background: var(--felt);
   color: #fff; cursor: default; z-index: 2;
-  /* Refinement on rev18's "just touch" rule: the SELECTED tab specifically
-     should read as seamlessly merged into the table it opens — "선택된
-     레이아웃 화면이랑 이음선 없이 매끄럽게 이어지는 느낌", for whichever
-     step is active. Inactive tabs stay at the base rule's margin-right:0
-     (still just touch/recede — that part of rev18 is unchanged and is
-     what keeps them visually receded behind the active one). Only the
-     active tab overlaps the table by enough to fully cover its 18px
-     border-radius corner curve (relevant whenever STEP1 — the only tab
-     that sits at the table's actual top corner, since the panel is
-     top-anchored — is the one active); elsewhere along the table's
-     straight edge the same overlap just paints more of the identical-
-     color fill, invisibly. */
-  margin-right: -20px;
+  /* No extra overlap anymore — the active tab meets the table at the
+     same exact shared line every tab does now (base rule's
+     margin-right:0). The corner-overlap trick this used to need (-20px,
+     to cover the table's own border-radius curve at STEP1's shared top
+     corner) is gone along with the overlap approach itself; the two
+     components now just touch there instead of fusing into one
+     continuous outline — a deliberate trade per explicit ask, not an
+     oversight if a hairline is visible right at that one corner. */
 }
 .bac-step-btn.bac-step-active .bac-step-num { color: #7ce8a6; }
 /* STEP 1's active tab breaks from the shared green fill above — its own
