@@ -3105,6 +3105,28 @@ body {
      was clamp(.7rem,2vh,1.1rem). */
   margin-top: clamp(.9rem, 2.5vh, 1.4rem);
 }
+/* Correct-answer feedback ("✓ CORRECT!") — explicit ask: small, green,
+   sits right below the answer buttons, no toast/popup. Empty by
+   default (main.js only ever fills it in on a correct answerCount(),
+   clearing it again at the start of the next renderCountQuiz()) —
+   :empty collapses it out of the layout entirely so it takes zero
+   space/margin until there's actually a message to show, instead of
+   leaving a permanent gap under the buttons. order:3 (button row is
+   order:2) guarantees it renders after them regardless of exact DOM
+   position. Deliberately small/muted, no background/border/glow — a
+   plain green line of text, matching the same green already used for
+   .bac-count-opt-correct rather than inventing a new "celebration"
+   treatment; never meant to outshine the cards or the buttons. */
+.bac-count-feedback:empty { display: none; }
+.bac-counting-mode .bac-count-feedback {
+  order: 3;
+  text-align: center;
+  margin-top: clamp(.4rem, 1.2vh, .6rem);
+  font-size: clamp(.7rem, 1.6vh, .85rem);
+  font-weight: 700;
+  letter-spacing: .3px;
+  color: #7ce8a6;
+}
 /* .bac-field no longer flex-grows to fill whatever height is left over
    in the column — that was the real cause of the "spread across the
    whole screen" feeling: the prompt/buttons stayed their own natural

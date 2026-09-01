@@ -616,6 +616,11 @@ const Views = {
             <div class="bac-exp-cell" id="bac-tie-btn"></div>
             <div class="bac-exp-cell" id="bac-exp-small6"></div>
           </div>
+          <!-- STEP 1 (COUNTING) only — correct-answer feedback, set/cleared
+               by answerCount()/renderCountQuiz() in JS. Empty by default
+               (:empty collapses it in style.css), so it takes no space
+               until a correct answer briefly fills it in. -->
+          <div class="bac-count-feedback" id="bac-count-feedback"></div>
           <div class="bac-exp-row bac-exp-row-3col">
             <div class="bac-exp-cell" id="bac-exp-big7"></div>
             <div class="bac-exp-cell" id="bac-exp-super7"></div>
@@ -2904,6 +2909,7 @@ const Sims = {
       if (bankerZone) bankerZone.classList.toggle('bac-zone-active', q.side === 'banker');
       clearInlineBtns();
       clearPairBtns();
+      const fbE = $('bac-count-feedback'); if (fbE) fbE.innerHTML = '';
       renderCountOptions();
     }
     // Draws the 3 option buttons for the CURRENT S.countQuiz without
@@ -2993,6 +2999,7 @@ const Sims = {
         $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
         const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
         const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
+        const fbE = $('bac-count-feedback'); if (fbE) fbE.innerHTML = '';
         const tbl = document.querySelector('.baccarat-table');
         if (tbl) tbl.classList.remove('bac-counting-mode');
         document.querySelectorAll('.bac-banker-zone, .bac-player-zone').forEach(z => z.classList.remove('bac-zone-active'));
@@ -3020,6 +3027,7 @@ const Sims = {
             b.disabled = true;
             if (+b.textContent === correct) b.classList.add('bac-count-opt-correct');
           });
+          const fbE = $('bac-count-feedback'); if (fbE) fbE.innerHTML = '✓ CORRECT!';
           setTimeout(() => renderCountQuiz(), 700);
         } else {
           showMistake(() => renderCountOptions());
