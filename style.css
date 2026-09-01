@@ -2297,6 +2297,21 @@ body {
      visibly continuous everywhere else. */
   background: var(--felt);
   color: #fff; cursor: default; z-index: 2;
+  /* Bigger overlap than the base rule's -4px (below the table's own
+     border-radius: 18px, plus a few px of safety margin). Needed since
+     the panel is now top-anchored (see .bac-step-panel's align-self)
+     so STEP 1's tab can be flush against the table's TOP edge, right
+     where the table's own border curves away into its rounded corner
+     instead of running straight — a flat 4px overlap doesn't reach far
+     enough to cover that curve, leaving a sliver of the table's own
+     border visible AT the corner even though its color matches
+     exactly. 18px+ of overlap fully encloses the quarter-circle void
+     regardless of which tab ends up flush against it. Scoped to only
+     the ACTIVE tab (not the base rule) — inactive tabs keep the small
+     -4px overlap, since a bigger one would just widen the strip where
+     their own (unmatched, plain green) border bleeds onto the table's
+     counting-mode gold border in Step 1. */
+  margin-right: calc(-1 * var(--bac-sim-gap) - 20px);
 }
 .bac-step-btn.bac-step-active .bac-step-num { color: #7ce8a6; }
 /* STEP 1's active tab breaks from the shared green fill above — its own
