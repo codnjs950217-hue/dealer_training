@@ -2236,22 +2236,26 @@ body {
   cursor: pointer;
   padding: clamp(.3rem,.8vh,.5rem) .2rem;
   position: relative;
-  /* margin-right is the depth cue: inactive tabs recede from the table
-     (below) so they read as tucked behind it; the active tab cancels
-     that same distance (--bac-sim-gap, negated) to fuse with the
-     table's edge instead. Same-duration transition on both so a step
-     switch reads as one tab sliding forward while the others settle
-     back, not a page swap. */
-  transition: background .2s ease, border-color .2s ease, color .2s ease,
-              margin-right .22s ease, box-shadow .22s ease;
+  /* EVERY tab — active or not — physically touches/overlaps the table
+     (same bridge as the active tab uses, see .bac-step-active below);
+     no floating gap on any of them. What tells inactive apart is color
+     + a cast shadow, not distance: a sheet of paper laid ON TOP of
+     another sheet still touches it, it just doesn't blend into it. The
+     active tab additionally matches the table's own fill exactly (and
+     drops this shadow) so IT reads as fused/one piece — inactive tabs
+     deliberately keep their own dark color so they read as a separate
+     layer resting against the table, not merged with it. z-index:1
+     keeps every tab painting above the table where they overlap it;
+     the active tab bumps to z-index:2 only so a hover/transition never
+     lets an inactive neighbor's edge peek above it. */
+  margin-right: calc(-1 * var(--bac-sim-gap) - 4px);
+  box-shadow: 2px 0 6px rgba(0,0,0,.35);
+  z-index: 1;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .22s ease;
 }
 .bac-step-btn:not(:first-child) { border-top: none; }
 .bac-step-btn:first-child { border-top-left-radius: 16px; }
 .bac-step-btn:last-child  { border-bottom-left-radius: 16px; }
-.bac-step-btn:not(.bac-step-active) {
-  margin-right: var(--bac-sim-gap);
-  box-shadow: inset -6px 0 10px -8px rgba(0,0,0,.6);
-}
 .bac-step-btn:hover:not(.bac-step-active) {
   background: rgba(255,255,255,.1); color: rgba(255,255,255,.72); border-color: rgba(255,255,255,.3);
 }
@@ -2264,22 +2268,17 @@ body {
 }
 .bac-step-btn.bac-step-active {
   /* Exactly the table's own fill (was --felt-light, a visibly lighter
-     shade than the table's --felt — that mismatch, plus the old outer
-     drop-shadow below, was the "still awkward" seam: fixed per direct
-     feedback by matching the color exactly and dropping any shadow
-     that could draw a line across the join). */
+     shade than the table's --felt — that mismatch was the real "still
+     awkward" seam, fixed per direct feedback by matching the color
+     exactly). The base rule's cast shadow is what makes an INACTIVE tab
+     read as a separate sheet resting against the table; dropping it
+     here (in favor of just the inset glow) is what makes THIS one read
+     as fused with it instead — same overlap/z-index as every other
+     tab, only the color + shadow differ. Bigger left-corner radius than
+     the shared default (above) so the curve leans toward the table's
+     own 18px, not the sharper sidebar-box look this replaces. */
   background: var(--felt);
   border-color: #2fae63;
-  /* Bridges the panel↔table seam AND overlaps 4px past it (negative =
-     .bac-sim-body's own --bac-sim-gap, PLUS the table's own 3px
-     border-width) so this tab paints over that border for its own
-     height instead of just touching it — touching alone still left the
-     table's dark 3px edge visible as a hard line right at the join.
-     z-index:2 (below) makes sure the tab paints above the table there.
-     Bigger left-corner radius than the inactive default (below) so the
-     curve leans toward the table's own 18px, not the sharper sidebar-
-     box look this replaces. */
-  margin-right: calc(-1 * var(--bac-sim-gap) - 4px);
   border-top-left-radius: 16px; border-bottom-left-radius: 16px;
   box-shadow: inset 0 0 10px rgba(47,174,99,.28);
   color: #fff; cursor: default; z-index: 2;
