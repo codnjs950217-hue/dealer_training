@@ -5651,6 +5651,30 @@ body {
   font-size: clamp(.5rem,1.3vh,.62rem) !important;
 }
 
+/* STEP 1 (COUNTING) multiple-choice answer buttons — reuses .bac-felt-
+   circle/.bac-circle-btn for the same capsule shape/sizing as BIG6/TIE/
+   SMALL6 (whose cells this drill borrows), just its own color (neutral
+   gold-on-dark, not a banker/player/tie identity) and a bigger digit
+   since there's no BIG/SMALL sub-label under it. !important + placed
+   after .bac-circle-btn so this font-size wins over its (also
+   !important) one at equal specificity. */
+.bac-count-opt-btn {
+  background: rgba(255,255,255,.08);
+  border: 2px solid rgba(201,168,76,.4);
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(1.05rem,3vh,1.55rem) !important;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.bac-count-opt-btn:hover:not(:disabled) {
+  background: rgba(201,168,76,.18); border-color: var(--gold);
+}
+.bac-count-opt-btn:disabled { cursor: default; }
+.bac-count-opt-btn.bac-count-opt-correct {
+  background: rgba(47,174,99,.35); border-color: #2fae63; color: #7ce8a6;
+}
+
 /* ============================================================
    THP COMPARISON SIM
    ============================================================ */

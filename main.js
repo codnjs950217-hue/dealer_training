@@ -2810,13 +2810,83 @@ const Sims = {
       </div>`;
     }
 
+    // ---- STEP 1: COUNTING TRAINING ----
+    // Beginner drill for the point system itself (0-9, units digit only)
+    // — NOT the win/draw judging Step 3 (below) teaches. Shows 2 cards on
+    // one side only (Player XOR Banker — the existing always-visible
+    // BANKER/PLAYER zone labels are what tell the trainee which one, no
+    // extra prompt needed) and asks for the resulting total via a
+    // 3-choice multiple choice. Reuses bval()/pts() above verbatim so the
+    // "correct" answer can never drift from Step 3's own scoring.
+    function bjVal(c) {
+      // Blackjack-style values (A=11, 10/J/Q/K=10) — one of the standard
+      // beginner mix-ups this drill's wrong answers are built from,
+      // since baccarat's are A=1, 10/J/Q/K=0 (bval() above).
+      if (['10','J','Q','K'].includes(c.rank)) return 10;
+      if (c.rank === 'A') return 11;
+      return +c.rank;
+    }
+    function genCountQuiz() {
+      if (S.deck.length < 4) S.deck = createBacDeck();
+      const c1 = S.deck.pop(), c2 = S.deck.pop();
+      const side = Math.random() < 0.5 ? 'player' : 'banker';
+      const correct = pts([c1, c2]);
+      const v1 = bval(c1), v2 = bval(c2);
+      // Wrong-answer candidates, each a real beginner mistake rather than
+      // a random number: the raw (un-dropped) two-digit sum, the
+      // blackjack-style sum, or just one card's value alone (forgetting
+      // the other card exists). Falls back to a random 0-9 filler only
+      // if a hand doesn't produce enough distinct mistakes on its own
+      // (e.g. both cards already sum under 10 with no face/ace involved).
+      const cand = new Set();
+      [v1 + v2, bjVal(c1) + bjVal(c2), v1, v2].forEach(x => { if (x !== correct) cand.add(x); });
+      while (cand.size < 2) {
+        const r = Math.floor(Math.random() * 10);
+        if (r !== correct) cand.add(r);
+      }
+      const options = shuffle([correct, ...shuffle([...cand]).slice(0, 2)]);
+      return { c1, c2, side, correct, options };
+    }
+    function renderCountQuiz() {
+      const q = genCountQuiz();
+      S.countQuiz = q;
+      $('bac-ph').innerHTML = q.side === 'player' ? cardHTML(q.c1) + cardHTML(q.c2) : '';
+      $('bac-bh').innerHTML = q.side === 'banker' ? cardHTML(q.c1) + cardHTML(q.c2) : '';
+      const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
+      const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
+      clearInlineBtns();
+      clearPairBtns();
+      // Reuses the BIG6/TIE/SMALL6 row's 3 cells as generic option
+      // slots — same cells, same capsule shape/sizing Step 3 already
+      // uses there, just this drill's own class/handler instead of
+      // BIG6/TIE/SMALL6's.
+      const cellIds = ['bac-exp-big6', 'bac-tie-btn', 'bac-exp-small6'];
+      q.options.forEach((opt, i) => {
+        setBtn(cellIds[i], `<button class="bac-count-opt-btn bac-felt-circle bac-circle-btn" onclick="Sims.baccarat.answerCount(${opt})">${opt}</button>`);
+      });
+    }
+    function startCounting() {
+      S.deck = createBacDeck();
+      S.rounds = 0; S.score = 0; S.mistakes = 0;
+      $('bac-rounds').textContent = S.rounds;
+      $('bac-score').textContent = S.score;
+      $('bac-mistakes').textContent = S.mistakes;
+      const pp = $('bac-pay-panel'); if (pp) pp.style.display = 'none';
+      renderCountQuiz();
+    }
+
     return {
       init(isRestart) {
         const wasMidHand = isRestart && S && S.ph && S.ph.length > 0 && S.winner === null;
         const keepRounds   = isRestart && S ? S.rounds + (wasMidHand ? 1 : 0) : 0;
         const keepScore    = isRestart && S ? S.score    : 0;
         const keepMistakes = isRestart && S ? S.mistakes : 0;
-        S = { deck: createBacDeck(), ph: [], bh: [], pThird: null,
+        // navigate()/reload() always re-render Views.baccaratSim() from
+        // scratch (Step 3 hardcoded active in that markup), so init()
+        // always lands on Step 3 regardless of which step was active
+        // before — only in-page selectStep() taps switch steps without a
+        // full re-render.
+        S = { deck: createBacDeck(), ph: [], bh: [], pThird: null, step: 3,
               rounds: keepRounds, score: keepScore, mistakes: keepMistakes, winner: null, bets: [] };
         $('bac-rounds').textContent = S.rounds;
         $('bac-score').textContent = S.score;
@@ -2829,21 +2899,58 @@ const Sims = {
         }
       },
 
-      // STEP 1 (COUNTING) / STEP 2 (DRAWING) aren't built yet — this page
-      // itself IS Step 3 (FULL SIMULATION). Clicking 1/2 just shows a
-      // "coming soon" toast next to the step panel and leaves the current
-      // hand untouched; clicking the already-active Step 3 is a no-op.
+      // STEP 2 (DRAWING) isn't built yet. STEP 1 (COUNTING) is a real
+      // in-page mode switch (see startCounting() above); STEP 3 (FULL
+      // SIMULATION) is this page's original content, restored via the
+      // same reset init() itself does on a fresh, non-restart entry.
       selectStep(n) {
-        if (n === 3) return;
-        const panel = $('bac-step-panel');
-        if (!panel) return;
-        const existing = panel.querySelector('.bac-step-soon-toast');
-        if (existing) existing.remove();
-        const t = document.createElement('div');
-        t.className = 'bac-step-soon-toast';
-        t.textContent = '준비 중입니다';
-        panel.appendChild(t);
-        setTimeout(() => t.remove(), 1500);
+        if (n === S.step) return;
+        if (n === 2) {
+          const panel = $('bac-step-panel');
+          if (!panel) return;
+          const existing = panel.querySelector('.bac-step-soon-toast');
+          if (existing) existing.remove();
+          const t = document.createElement('div');
+          t.className = 'bac-step-soon-toast';
+          t.textContent = '준비 중입니다';
+          panel.appendChild(t);
+          setTimeout(() => t.remove(), 1500);
+          return;
+        }
+        S.step = n;
+        [1, 2, 3].forEach(i => {
+          const b = $(`bac-step-btn-${i}`);
+          if (b) b.classList.toggle('bac-step-active', i === n);
+        });
+        if (n === 1) { startCounting(); return; }
+        // n === 3: leave counting mode's DOM (cards/option buttons) clean
+        // before init() rebuilds Step 3's own START-screen state.
+        $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
+        clearInlineBtns(); clearPairBtns(); setPairPhaseFocus(false);
+        this.init(false);
+      },
+
+      // Wrong answers use the exact same MISTAKE overlay as Step 3
+      // (showMistake()) — same counter, same visual, same "shows the
+      // mistake, then moves on" flow, just retrying with a new question
+      // instead of the same hand. Correct answers briefly highlight the
+      // chosen button green, then auto-advance — no NEXT HAND click.
+      answerCount(value) {
+        if (!S.countQuiz) return;
+        const correct = S.countQuiz.correct;
+        S.countQuiz = null;
+        if (value === correct) {
+          S.score++; S.rounds++;
+          $('bac-score').textContent = S.score;
+          $('bac-rounds').textContent = S.rounds;
+          document.querySelectorAll('.bac-count-opt-btn').forEach(b => {
+            b.disabled = true;
+            if (+b.textContent === correct) b.classList.add('bac-count-opt-correct');
+          });
+          setTimeout(() => renderCountQuiz(), 700);
+        } else {
+          showMistake(() => renderCountQuiz());
+        }
       },
 
       deal() {
