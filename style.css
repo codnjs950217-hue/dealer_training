@@ -2776,9 +2776,9 @@ body {
   font-weight: 600;
   letter-spacing: .3px;
   color: rgba(255, 232, 190, .55);
-  /* Opened up again per direct follow-up ("문구랑 카드랑 보기 버튼들 간격 좀
-     띄워줘") — was clamp(.4rem,1.2vh,.65rem). */
-  margin-bottom: clamp(.6rem, 1.8vh, 1rem);
+  /* +~25% per explicit ask ("현재보다 약 20~30% 정도 여유로운 세로 간격") —
+     was clamp(.6rem,1.8vh,1rem). */
+  margin-bottom: clamp(.75rem, 2.25vh, 1.25rem);
 }
 /* WIN's cell fixed to --bac-win-w so PLAYER WIN/BANKER WIN and the
    BIG/TIE/SMALL rows below all line up on the same left/right edges.
@@ -3077,9 +3077,9 @@ body {
      width, see its own note below) a definite-width item falls back to
      start-aligned, not centered, so it needs this explicitly. */
   align-self: center;
-  /* Opened up again per direct follow-up ("문구랑 카드랑 보기 버튼들 간격 좀
-     띄워줘") — was clamp(.5rem,1.4vh,.75rem). */
-  margin-top: clamp(.7rem, 2vh, 1.1rem);
+  /* +~25% per explicit ask ("현재보다 약 20~30% 정도 여유로운 세로 간격") —
+     was clamp(.7rem,2vh,1.1rem). */
+  margin-top: clamp(.9rem, 2.5vh, 1.4rem);
 }
 /* .bac-field no longer flex-grows to fill whatever height is left over
    in the column — that was the real cause of the "spread across the
