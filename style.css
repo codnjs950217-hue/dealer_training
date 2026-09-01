@@ -2261,6 +2261,18 @@ body {
   cursor: pointer;
   padding: clamp(.3rem,.8vh,.5rem) .2rem;
   position: relative;
+  /* STEP 3's label is "FULL"+"SIMULATION" (.bac-step-lbl below already
+     hard-breaks between them) — "SIMULATION" alone is a single
+     unbreakable 10-char word that can be wider than this button's own
+     ~50-82px width at small viewports. Without this, a word longer than
+     its container doesn't wrap — it overflows the box, and since this
+     button already sits flush against (and z-index-above) the table via
+     the negative margin-right below, that overflow rendered as text
+     spilling visibly onto the table felt ("레이아웃 침범"). overflow:
+     hidden here is the safety net; .bac-step-lbl's overflow-wrap
+     (below) is the actual fix, letting SIMULATION break mid-word
+     instead of ever needing to overflow in the first place. */
+  overflow: hidden;
   /* EVERY tab — active or not — physically touches/overlaps the table
      (same bridge as the active tab uses, see .bac-step-active below);
      no floating gap on any of them, and no distance-based "recede" cue
@@ -2303,6 +2315,13 @@ body {
 }
 .bac-step-lbl {
   font-size: clamp(.54rem,1.2vw,.64rem); font-weight: 700; letter-spacing: .2px; line-height: 1.15;
+  /* "SIMULATION" (STEP 3's label, after its own hard <br> from "FULL")
+     is a single word that can be wider than this narrow (~50-82px)
+     button — without this it doesn't wrap, it overflows the box
+     instead (see .bac-step-btn's overflow:hidden note above). This
+     lets it break mid-word onto its own extra line rather than ever
+     needing to spill outside the button. */
+  overflow-wrap: break-word;
 }
 .bac-step-btn.bac-step-active {
   /* Exactly the table's own fill (was --felt-light, a visibly lighter
