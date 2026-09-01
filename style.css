@@ -2200,7 +2200,11 @@ body {
    here just lets it actually shrink instead of overflowing on the
    content it holds). Not used by baccaratPaySim/roulettePaySim, which
    share the .baccarat-table class but not this wrapper. */
-.bac-sim-body { display: flex; flex: 1; min-height: 0; gap: clamp(.4rem,1vw,.7rem); }
+/* --bac-sim-gap is the panel↔table seam width AND (negated, below) the
+   active tab's bridge distance — one variable so they can never drift
+   out of sync: the bridge has to cancel this exact gap to land flush
+   on the table's edge with zero leftover seam. */
+.bac-sim-body { display: flex; flex: 1; min-height: 0; gap: clamp(.4rem,1vw,.7rem); --bac-sim-gap: clamp(.4rem,1vw,.7rem); }
 .bac-sim-body .baccarat-table { flex: 1; min-width: 0; }
 
 .bac-step-panel {
@@ -2224,21 +2228,32 @@ body {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: .2rem; text-align: center;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.14);
   border-right: none;
   border-radius: 0;
-  color: rgba(255,255,255,.5);
+  color: rgba(255,255,255,.42);
   cursor: pointer;
   padding: clamp(.3rem,.8vh,.5rem) .2rem;
-  transition: background .15s, border-color .15s, color .15s;
   position: relative;
+  /* margin-right is the depth cue: inactive tabs recede from the table
+     (below) so they read as tucked behind it; the active tab cancels
+     that same distance (--bac-sim-gap, negated) to fuse with the
+     table's edge instead. Same-duration transition on both so a step
+     switch reads as one tab sliding forward while the others settle
+     back, not a page swap. */
+  transition: background .2s ease, border-color .2s ease, color .2s ease,
+              margin-right .22s ease, box-shadow .22s ease;
 }
 .bac-step-btn:not(:first-child) { border-top: none; }
-.bac-step-btn:first-child { border-top-left-radius: 10px; }
-.bac-step-btn:last-child  { border-bottom-left-radius: 10px; }
-.bac-step-btn:hover {
-  background: rgba(255,255,255,.11); color: rgba(255,255,255,.78); border-color: rgba(255,255,255,.32);
+.bac-step-btn:first-child { border-top-left-radius: 16px; }
+.bac-step-btn:last-child  { border-bottom-left-radius: 16px; }
+.bac-step-btn:not(.bac-step-active) {
+  margin-right: var(--bac-sim-gap);
+  box-shadow: inset -6px 0 10px -8px rgba(0,0,0,.6);
+}
+.bac-step-btn:hover:not(.bac-step-active) {
+  background: rgba(255,255,255,.1); color: rgba(255,255,255,.72); border-color: rgba(255,255,255,.3);
 }
 .bac-step-num {
   font-size: clamp(.56rem,1.3vw,.66rem); font-weight: 800; letter-spacing: .6px;
@@ -2250,11 +2265,17 @@ body {
 .bac-step-btn.bac-step-active {
   background: var(--felt-light);
   border-color: #2fae63;
-  /* No outer ring (that read as a floating badge, sidebar-style) — an
-     inset glow plus a bright left-edge accent bar instead, the classic
-     "selected tab" tell instead of a lit-up menu item. */
-  box-shadow: inset 0 0 10px rgba(47,174,99,.28);
-  color: #fff; cursor: default; z-index: 1;
+  /* Bridges the panel↔table seam (negative = exactly cancels
+     .bac-sim-body's own --bac-sim-gap) so this tab's flat right edge
+     touches the felt with zero seam — reads as one continuous shape
+     with the table rather than a button sitting beside it. Bigger
+     left-corner radius than the inactive default (below) so the curve
+     leans toward the table's own 18px, not the sharper sidebar-box
+     look this replaces. */
+  margin-right: calc(-1 * var(--bac-sim-gap));
+  border-top-left-radius: 16px; border-bottom-left-radius: 16px;
+  box-shadow: inset 0 0 10px rgba(47,174,99,.28), 2px 0 14px rgba(0,0,0,.3);
+  color: #fff; cursor: default; z-index: 2;
 }
 .bac-step-btn.bac-step-active::before {
   content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
