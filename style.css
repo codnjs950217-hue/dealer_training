@@ -2261,15 +2261,14 @@ body {
   cursor: pointer;
   padding: clamp(.3rem,.8vh,.5rem) .2rem;
   position: relative;
-  /* Inactive tabs stop at the panel↔table gap instead of overlapping it
-     — a real browser-tab cue ("비활성 탭은 약간 안쪽으로 들어간 느낌",
-     explicit ask): distance now ALSO marks a tab as receded, not just
-     fill color, on purpose superseding the older "every tab touches,
-     color alone distinguishes" rule (see the active rule below for the
-     bridge that still connects the SELECTED tab). z-index:1 keeps every
-     tab painting above the table where it's still adjacent to it; the
-     active tab bumps to z-index:2. */
-  margin-right: 0;
+  /* EVERY tab — active or not — physically touches/overlaps the table
+     (same bridge as the active tab uses, see .bac-step-active below);
+     no floating gap on any of them, and no distance-based "recede" cue
+     either now that fill color alone carries that job. z-index:1 keeps
+     every tab painting above the table where they overlap it; the
+     active tab bumps to z-index:2 only so a hover/transition never lets
+     an inactive neighbor's edge peek above it. */
+  margin-right: calc(-1 * var(--bac-sim-gap) - 4px);
   box-shadow: inset 0 2px 12px rgba(0,0,0,.35), var(--shadow);
   z-index: 1;
   transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .22s ease;
@@ -2309,47 +2308,28 @@ body {
   /* Exactly the table's own fill (was --felt-light, a visibly lighter
      shade than the table's --felt — that mismatch was the real "still
      awkward" seam, fixed per direct feedback by matching the color
-     exactly). Border stroke/shadow recipe otherwise still matches the
-     table's own (base rule above) — active is fill + the geometry
-     below, which is what makes ITS join with the table specifically
-     disappear while the frame system stays visibly continuous
-     everywhere else. */
+     exactly). Border/radius/shadow are already identical to every
+     other tab (and the table) via the base rule above — active is a
+     pure fill-color swap, nothing else, which is what makes ITS join
+     with the table specifically disappear while the frame system stays
+     visibly continuous everywhere else. */
   background: var(--felt);
   color: #fff; cursor: default; z-index: 2;
-  /* Bigger overlap than the base rule's 0 (below the table's own
+  /* Bigger overlap than the base rule's -4px (below the table's own
      border-radius: 18px, plus a few px of safety margin). Needed since
-     the panel is top-anchored (see .bac-step-panel's align-self) so
-     STEP 1's tab can be flush against the table's TOP edge, right
+     the panel is now top-anchored (see .bac-step-panel's align-self)
+     so STEP 1's tab can be flush against the table's TOP edge, right
      where the table's own border curves away into its rounded corner
-     instead of running straight — a flat few-px overlap doesn't reach
-     far enough to cover that curve, leaving a sliver of the table's own
-     border visible AT the corner even though its color matches exactly.
-     18px+ of overlap fully encloses the quarter-circle void regardless
-     of which tab ends up flush against it. */
+     instead of running straight — a flat 4px overlap doesn't reach far
+     enough to cover that curve, leaving a sliver of the table's own
+     border visible AT the corner even though its color matches
+     exactly. 18px+ of overlap fully encloses the quarter-circle void
+     regardless of which tab ends up flush against it. Scoped to only
+     the ACTIVE tab (not the base rule) — inactive tabs keep the small
+     -4px overlap, since a bigger one would just widen the strip where
+     their own (unmatched, plain green) border bleeds onto the table's
+     counting-mode gold border in Step 1. */
   margin-right: calc(-1 * var(--bac-sim-gap) - 20px);
-  /* Protrudes past the panel's own left edge — the "선택된 탭만 앞으로
-     돌출" cue, read against the base rule's inactive tabs which stay
-     flush with the panel's nominal boundary (no margin-left). Combined
-     with the bigger overlap above, the active tab is now visibly bigger
-     on BOTH sides than its inactive neighbors, not just differently
-     colored. */
-  margin-left: -6px;
-  /* :not(:first-child) strips border-top on the base rule (relies on
-     the tab above's own border-bottom as the divider) — restore it
-     here so a protruding STEP2/STEP3 reads as a complete, self-
-     contained tab rather than bleeding into the one above it. No
-     visible effect on STEP1 (already has its own top border via
-     :first-child, this is just a redundant same-value re-declare). */
-  border-top: 3px solid #1b5e35;
-  /* Rounds BOTH left corners regardless of position in the stack — the
-     "browser tab" silhouette, distinct from an inactive tab's flat
-     rectangle. STEP1's top-left specifically gets put back to 18px
-     below (ID-scoped override) since it has to keep matching the
-     table's own corner radius for the fusion trick above to work;
-     bottom-left stays 12px even for STEP1 since nothing else needs to
-     align with that corner. */
-  border-top-left-radius: 12px;
-  border-bottom-left-radius: 12px;
 }
 .bac-step-btn.bac-step-active .bac-step-num { color: #7ce8a6; }
 /* STEP 1's active tab breaks from the shared green fill above — its own
@@ -2364,14 +2344,6 @@ body {
   background: var(--counting-felt);
   border-color: var(--counting-border);
   box-shadow: inset 0 2px 12px rgba(0,0,0,.4), 0 0 14px rgba(201,168,76,.16), var(--shadow);
-  /* Overrides the generic active rule's 12px "browser tab" rounding
-     back to 18px for this one corner only — STEP1 is always flush
-     against the table's TOP edge (panel is top-anchored), so its
-     top-left radius has to keep matching the table's own 18px exactly
-     for the corner-overlap trick above to fully hide the seam. Only
-     reachable via this ID selector's higher specificity; bottom-left
-     stays the generic 12px since nothing else aligns with that one. */
-  border-top-left-radius: 18px;
 }
 #bac-step-btn-1.bac-step-active .bac-step-num { color: var(--gold-light); }
 
