@@ -2192,6 +2192,61 @@ body {
 
 .baccarat-table { position: relative; }
 
+/* Card Drawing page (Views.baccaratSim()) only — STEP 1/2/3 selector
+   sitting OUTSIDE the green felt, to its left. .bac-sim-body turns the
+   page into a row so .baccarat-table naturally gives up the width the
+   panel takes (its own flex:1/min-height:0 from the shared
+   .blackjack-table,.baccarat-table rule above still apply; min-width:0
+   here just lets it actually shrink instead of overflowing on the
+   content it holds). Not used by baccaratPaySim/roulettePaySim, which
+   share the .baccarat-table class but not this wrapper. */
+.bac-sim-body { display: flex; flex: 1; min-height: 0; gap: clamp(.4rem,1vw,.7rem); }
+.bac-sim-body .baccarat-table { flex: 1; min-width: 0; }
+
+.bac-step-panel {
+  flex-shrink: 0; position: relative;
+  width: clamp(58px,10vw,96px);
+  display: flex; flex-direction: column; gap: clamp(.3rem,.8vh,.55rem);
+}
+.bac-step-btn {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .2rem; text-align: center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 10px;
+  color: rgba(255,255,255,.5);
+  cursor: pointer;
+  padding: clamp(.3rem,.8vh,.5rem) .2rem;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.bac-step-btn:hover {
+  background: rgba(255,255,255,.11); color: rgba(255,255,255,.78); border-color: rgba(255,255,255,.32);
+}
+.bac-step-num {
+  font-size: clamp(.56rem,1.3vw,.66rem); font-weight: 800; letter-spacing: .6px;
+  color: rgba(255,255,255,.4); text-transform: uppercase;
+}
+.bac-step-lbl {
+  font-size: clamp(.54rem,1.2vw,.64rem); font-weight: 700; letter-spacing: .2px; line-height: 1.15;
+}
+.bac-step-btn.bac-step-active {
+  background: var(--felt-light);
+  border-color: #2fae63;
+  box-shadow: 0 0 0 1px rgba(47,174,99,.4), inset 0 0 10px rgba(47,174,99,.28);
+  color: #fff; cursor: default;
+}
+.bac-step-btn.bac-step-active .bac-step-num { color: #7ce8a6; }
+
+.bac-step-soon-toast {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  background: rgba(0,0,0,.85); color: #fff;
+  font-size: .66rem; font-weight: 600; white-space: nowrap;
+  padding: .35rem .6rem; border-radius: 6px;
+  pointer-events: none; z-index: 20;
+  box-shadow: 0 2px 8px rgba(0,0,0,.4);
+}
+
 /* Baccarat-only card size override (does not affect other pages) */
 .baccarat-sim {
   --card-w-lg: clamp(58px, 15.5vh, 100px);

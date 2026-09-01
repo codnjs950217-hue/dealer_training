@@ -529,6 +529,21 @@ const Views = {
 
   baccaratSim: () => `
     <div class="sim-page baccarat-sim notranslate" translate="no">
+      <div class="bac-sim-body">
+      <div class="bac-step-panel" id="bac-step-panel">
+        <button class="bac-step-btn" id="bac-step-btn-1" onclick="Sims.baccarat.selectStep(1)">
+          <span class="bac-step-num">STEP 1</span>
+          <span class="bac-step-lbl">COUNTING</span>
+        </button>
+        <button class="bac-step-btn" id="bac-step-btn-2" onclick="Sims.baccarat.selectStep(2)">
+          <span class="bac-step-num">STEP 2</span>
+          <span class="bac-step-lbl">DRAWING</span>
+        </button>
+        <button class="bac-step-btn bac-step-active" id="bac-step-btn-3" onclick="Sims.baccarat.selectStep(3)">
+          <span class="bac-step-num">STEP 3</span>
+          <span class="bac-step-lbl">FULL<br>SIMULATION</span>
+        </button>
+      </div>
       <div class="baccarat-table">
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="bac-rounds">0</strong></span>
@@ -622,6 +637,7 @@ const Views = {
             <div class="bac-third-slot" id="bac-ph3"></div>
           </div>
         </div>
+      </div>
       </div>
       <div class="bac-pay-panel" id="bac-pay-panel" style="display:none"></div>
     </div>`,
@@ -2811,6 +2827,23 @@ const Sims = {
         } else {
           enableDraw();
         }
+      },
+
+      // STEP 1 (COUNTING) / STEP 2 (DRAWING) aren't built yet — this page
+      // itself IS Step 3 (FULL SIMULATION). Clicking 1/2 just shows a
+      // "coming soon" toast next to the step panel and leaves the current
+      // hand untouched; clicking the already-active Step 3 is a no-op.
+      selectStep(n) {
+        if (n === 3) return;
+        const panel = $('bac-step-panel');
+        if (!panel) return;
+        const existing = panel.querySelector('.bac-step-soon-toast');
+        if (existing) existing.remove();
+        const t = document.createElement('div');
+        t.className = 'bac-step-soon-toast';
+        t.textContent = '준비 중입니다';
+        panel.appendChild(t);
+        setTimeout(() => t.remove(), 1500);
       },
 
       deal() {
