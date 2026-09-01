@@ -2936,6 +2936,41 @@ body {
 .bac-lbl-banker { right: 24px; }
 .bac-lbl-player { left: 24px; }
 
+/* ---- BACCARAT: STEP 1 COUNTING MODE (simplified field) ---- */
+/* Toggled on .baccarat-table by Sims.baccarat's startCounting()/
+   selectStep(3) — see main.js. This drill has no Player/Banker
+   distinction, so its label/divider/split-zone layout is stripped down
+   to "cards, centered" while reusing the exact same DOM (#bac-ph/-bh/
+   -ph3/-bh3, .bac-card-sideways) and card-face styling Step 3 uses. */
+.bac-counting-mode {
+  /* Bigger cards ("화면 중앙에 더 크게 표시") — overrides .baccarat-sim's
+     own --card-w-lg/-h-lg for everything inside .baccarat-table only. */
+  --card-w-lg: clamp(72px, 20vh, 128px);
+  --card-h-lg: clamp(98px, 27vh, 176px);
+}
+.bac-counting-mode .bac-zone-lbl,
+.bac-counting-mode .bac-field-divider {
+  display: none;
+}
+.bac-counting-mode .bac-banker-zone,
+.bac-counting-mode .bac-player-zone {
+  padding: 0;
+}
+/* Only the zone the current question actually uses (.bac-zone-active,
+   toggled per-question in renderCountQuiz()) stays in the layout — the
+   other collapses out of the row entirely, so the used one's flex:1
+   fills the whole field width and its own justify-content:center below
+   lands its cards in the middle of the screen instead of at whichever
+   edge that zone used to pack toward next to the (now-removed) divider. */
+.bac-counting-mode .bac-banker-zone:not(.bac-zone-active),
+.bac-counting-mode .bac-player-zone:not(.bac-zone-active) {
+  display: none;
+}
+.bac-counting-mode .bac-banker-zone.bac-zone-active,
+.bac-counting-mode .bac-player-zone.bac-zone-active {
+  justify-content: center;
+}
+
 /* ---- BACCARAT: WIN HEADER + ANNOUNCE ---- */
 
 @keyframes bacResultFadeIn {

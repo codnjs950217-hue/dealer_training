@@ -2878,6 +2878,18 @@ const Sims = {
       $('bac-bh').innerHTML = q.side === 'banker' ? mainHtml : '';
       const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = q.side === 'player' ? thirdHtml : '';
       const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = q.side === 'banker' ? thirdHtml : '';
+      // This drill has no Player/Banker concept — `side` here only still
+      // picks which zone's DOM slot-order (see genCountQuiz()'s own
+      // comment) renders the 3rd card on which end. .bac-counting-mode
+      // (set by startCounting()) hides the PLAYER/BANKER labels and the
+      // center divider via CSS; .bac-zone-active is what that same CSS
+      // uses to hide the OTHER (unused) zone entirely and center the
+      // used one across the full width, so only one card group ever
+      // shows, always in the middle of the screen.
+      const playerZone = document.querySelector('.bac-player-zone');
+      const bankerZone = document.querySelector('.bac-banker-zone');
+      if (playerZone) playerZone.classList.toggle('bac-zone-active', q.side === 'player');
+      if (bankerZone) bankerZone.classList.toggle('bac-zone-active', q.side === 'banker');
       clearInlineBtns();
       clearPairBtns();
       // Reuses the BIG6/TIE/SMALL6 row's 3 cells as generic option
@@ -2896,6 +2908,11 @@ const Sims = {
       $('bac-score').textContent = S.score;
       $('bac-mistakes').textContent = S.mistakes;
       const pp = $('bac-pay-panel'); if (pp) pp.style.display = 'none';
+      // .bac-counting-mode (style.css) strips PLAYER/BANKER labels + the
+      // center divider and enlarges the card size — this drill is pure
+      // "read the cards, name the total", not a Player-vs-Banker layout.
+      const tbl = document.querySelector('.baccarat-table');
+      if (tbl) tbl.classList.add('bac-counting-mode');
       renderCountQuiz();
     }
 
@@ -2947,9 +2964,16 @@ const Sims = {
           if (b) b.classList.toggle('bac-step-active', i === n);
         });
         if (n === 1) { startCounting(); return; }
-        // n === 3: leave counting mode's DOM (cards/option buttons) clean
-        // before init() rebuilds Step 3's own START-screen state.
+        // n === 3: leave counting mode's DOM (cards/3rd-card slots/option
+        // buttons, plus the layout it toggled — .bac-counting-mode and
+        // the winning zone's .bac-zone-active) clean before init()
+        // rebuilds Step 3's own START-screen state.
         $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
+        const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
+        const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
+        const tbl = document.querySelector('.baccarat-table');
+        if (tbl) tbl.classList.remove('bac-counting-mode');
+        document.querySelectorAll('.bac-banker-zone, .bac-player-zone').forEach(z => z.classList.remove('bac-zone-active'));
         clearInlineBtns(); clearPairBtns(); setPairPhaseFocus(false);
         this.init(false);
       },
