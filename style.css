@@ -3907,17 +3907,34 @@ body {
 .baccarat-table.bac-no-step .bac-no-step-msg {
   display: flex; flex: 1;
   align-items: center; justify-content: center;
-  text-align: center;
   padding: 1rem;
-  /* Bumped per direct ask ("문구 크기 좀더 키워주고") — was clamp(.95rem,2.4vh,1.2rem). */
-  font-size: clamp(1.15rem, 2.9vh, 1.5rem);
-  font-weight: 600;
-  line-height: 1.8;
-  color: rgba(255,255,255,.9);
   /* "배경은 검정색" — this element is flex:1, filling the whole empty
      table area in this state, so a black background here reads as the
      entire landing area going black rather than a small text card. */
   background: #000;
+}
+/* Small translucent "glass" card behind the text itself — explicit
+   follow-up ask: the text shouldn't just float on the black fill
+   above with no surface of its own ("배경 없이 떠 있는 느낌"), but this
+   card is deliberately light/low-opacity/blurred rather than another
+   opaque panel, so it reads as a soft guide/hint surface, not a
+   second popup stacked on the first background ("카드나 팝업 느낌이
+   아니라 가벼운 안내 패널 느낌"). Sized to the text (inline content box,
+   not flex:1) per the ask's own mockup — a tight box hugging the 3
+   lines, not spanning the table. */
+.bac-no-step-panel {
+  text-align: center;
+  padding: 1.1rem 1.7rem;
+  /* Bumped per earlier direct ask ("문구 크기 좀더 키워주고") — was clamp(.95rem,2.4vh,1.2rem). */
+  font-size: clamp(1.15rem, 2.9vh, 1.5rem);
+  font-weight: 600;
+  line-height: 1.8;
+  color: rgba(255,255,255,.92);
+  background: rgba(255,255,255,.14);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.3);
 }
 /* Everything else in the table — cards, PLAYER/BANKER labels, the
    center divider, every result/answer button — lives inside .bac-exp-

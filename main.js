@@ -562,8 +562,12 @@ const Views = {
         </div>
         <!-- "No step selected" landing message — hidden by default
              (style.css), shown only while .baccarat-table carries
-             .bac-no-step (see Sims.baccarat's showNoStepState()). -->
-        <div class="bac-no-step-msg" id="bac-no-step-msg">원하는 STEP을 선택하여<br>바카라 카드 드로잉을 연습하세요.</div>
+             .bac-no-step (see Sims.baccarat's showNoStepState()). The
+             inner .bac-no-step-panel is a small translucent glass card
+             sized to the text itself (not the full flex:1 area .bac-
+             no-step-msg fills) — explicit ask: a light backing surface
+             for the text, not another full-bleed dark fill. -->
+        <div class="bac-no-step-msg" id="bac-no-step-msg"><div class="bac-no-step-panel">원하는 STEP을 선택하여<br>바카라 카드 드로잉을 연습하세요.</div></div>
         <!-- EXPERIMENTAL layout (real-table-felt reference), compact
              variant: PLAYER WIN and BANKER WIN each stay solo in their
              row's normal flow (so they center to exactly the same
