@@ -103,6 +103,16 @@
   --felt-light: #124028;
   --gold: #c9a84c;
   --gold-light: #e8c96d;
+  /* Step 1 (COUNTING)'s own identity — a muted bronze/mustard "gold
+     felt" distinct from every other page's green --felt, so the color
+     alone tells a trainee they're in Counting mode vs Drawing/Full
+     Simulation. Deliberately dark and desaturated (bronze, not a bright
+     yellow surface) so it reads as premium casino gold rather than
+     fluorescent — see .bac-counting-mode / #bac-step-btn-1.bac-step-
+     active in style.css, both of which reference these same two values
+     so the table and its active tab can never drift out of sync. */
+  --counting-felt: linear-gradient(150deg, #3f2f12 0%, #1c1408 100%);
+  --counting-border: #8a6a28;
   --text: #e8e0d0;
   --text-dim: #8a8878;
   --card-red: #c62828;
@@ -2285,6 +2295,20 @@ body {
   color: #fff; cursor: default; z-index: 2;
 }
 .bac-step-btn.bac-step-active .bac-step-num { color: #7ce8a6; }
+/* STEP 1's active tab breaks from the shared green fill above — its own
+   bronze/mustard identity (--counting-felt/--counting-border, :root),
+   the exact same two variables .bac-counting-mode puts on the table
+   itself, so the tab and the Counting Training screen fuse into one
+   gold surface instead of the usual green. Targeted by id (not a class)
+   since only STEP 1 ever needs this swap; STEP 2/3's active tab falls
+   through to the plain green rule above untouched. Must come after the
+   shared rule above so its background/border-color/glow win. */
+#bac-step-btn-1.bac-step-active {
+  background: var(--counting-felt);
+  border-color: var(--counting-border);
+  box-shadow: inset 0 2px 12px rgba(0,0,0,.4), 0 0 14px rgba(201,168,76,.16), var(--shadow);
+}
+#bac-step-btn-1.bac-step-active .bac-step-num { color: var(--gold-light); }
 
 .bac-step-soon-toast {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
@@ -2947,6 +2971,17 @@ body {
      own --card-w-lg/-h-lg for everything inside .baccarat-table only. */
   --card-w-lg: clamp(72px, 20vh, 128px);
   --card-h-lg: clamp(98px, 27vh, 176px);
+  /* Distinct mode identity ("Counting Training인지 실전 Baccarat 모드인지
+     색상만 보아도 인지") — swaps the table's fill/border from the shared
+     green --felt/#1b5e35 to the bronze/mustard --counting-felt/
+     --counting-border defined in :root, same specificity+source-order
+     override the --card-w-lg swap above already relies on. Step 2/3
+     never get this class, so they keep the plain green table untouched.
+     #bac-step-btn-1.bac-step-active (below) mirrors these same two
+     variables so the active STEP 1 tab fuses into this exact fill. */
+  background: var(--counting-felt);
+  border-color: var(--counting-border);
+  box-shadow: inset 0 2px 12px rgba(0,0,0,.4), 0 0 26px rgba(201,168,76,.16), var(--shadow);
 }
 .bac-counting-mode .bac-zone-lbl,
 .bac-counting-mode .bac-field-divider {
