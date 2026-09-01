@@ -3106,19 +3106,24 @@ body {
   margin-top: clamp(.9rem, 2.5vh, 1.4rem);
 }
 /* Correct-answer feedback ("✓ CORRECT!") — explicit ask: small, green,
-   sits right below the answer buttons, no toast/popup. Empty by
-   default (main.js only ever fills it in on a correct answerCount(),
-   clearing it again at the start of the next renderCountQuiz()) —
-   :empty collapses it out of the layout entirely so it takes zero
-   space/margin until there's actually a message to show, instead of
-   leaving a permanent gap under the buttons. order:3 (button row is
-   order:2) guarantees it renders after them regardless of exact DOM
-   position. Deliberately small/muted, no background/border/glow — a
-   plain green line of text, matching the same green already used for
-   .bac-count-opt-correct rather than inventing a new "celebration"
-   treatment; never meant to outshine the cards or the buttons. */
+   sits right below the answer buttons, no toast/popup. Outside Step 1
+   it's always empty, so :empty's display:none keeps it fully out of
+   the layout there. INSIDE Step 1, though, it's no longer collapsed
+   when empty — it reserves its own height (visibility:hidden) at all
+   times, only toggling to visible when it has text ("CORRECT 뜰때마다
+   기존 UI 위치들 안움직였으면 좋겠어", follow-up: collapsing/uncollapsing
+   this element changed the whole [prompt/cards/buttons] cluster's total
+   height, and since that cluster is vertically centered, every other
+   element shifted position each time this one appeared/disappeared).
+   order:3 (button row is order:2) guarantees it renders after them
+   regardless of exact DOM position. Deliberately small/muted, no
+   background/border/glow — a plain green line of text, matching the
+   same green already used for .bac-count-opt-correct rather than
+   inventing a new "celebration" treatment; never meant to outshine the
+   cards or the buttons. */
 .bac-count-feedback:empty { display: none; }
 .bac-counting-mode .bac-count-feedback {
+  display: block;
   order: 3;
   text-align: center;
   margin-top: clamp(.4rem, 1.2vh, .6rem);
@@ -3126,6 +3131,10 @@ body {
   font-weight: 700;
   letter-spacing: .3px;
   color: #7ce8a6;
+  visibility: hidden;
+}
+.bac-counting-mode .bac-count-feedback:not(:empty) {
+  visibility: visible;
 }
 /* .bac-field no longer flex-grows to fill whatever height is left over
    in the column — that was the real cause of the "spread across the
