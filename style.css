@@ -2214,7 +2214,11 @@ body {
      above/below, without touching button padding, font sizes, or the
      gap/flex:1 ratio between the 3 buttons. */
   height: 85%; align-self: center;
-  display: flex; flex-direction: column; gap: clamp(.3rem,.8vh,.55rem);
+  /* Tab-strip look, not a sidebar-menu list: tabs sit flush against each
+     other (gap:0, dividers via border only) with a flat edge facing the
+     table so the strip reads as one connected unit pointing at it, only
+     the outer two corners of the whole group rounded (below). */
+  display: flex; flex-direction: column; gap: 0;
 }
 .bac-step-btn {
   flex: 1; min-height: 0;
@@ -2222,12 +2226,17 @@ body {
   gap: .2rem; text-align: center;
   background: rgba(255,255,255,.06);
   border: 1px solid rgba(255,255,255,.16);
-  border-radius: 10px;
+  border-right: none;
+  border-radius: 0;
   color: rgba(255,255,255,.5);
   cursor: pointer;
   padding: clamp(.3rem,.8vh,.5rem) .2rem;
   transition: background .15s, border-color .15s, color .15s;
+  position: relative;
 }
+.bac-step-btn:not(:first-child) { border-top: none; }
+.bac-step-btn:first-child { border-top-left-radius: 10px; }
+.bac-step-btn:last-child  { border-bottom-left-radius: 10px; }
 .bac-step-btn:hover {
   background: rgba(255,255,255,.11); color: rgba(255,255,255,.78); border-color: rgba(255,255,255,.32);
 }
@@ -2241,8 +2250,15 @@ body {
 .bac-step-btn.bac-step-active {
   background: var(--felt-light);
   border-color: #2fae63;
-  box-shadow: 0 0 0 1px rgba(47,174,99,.4), inset 0 0 10px rgba(47,174,99,.28);
-  color: #fff; cursor: default;
+  /* No outer ring (that read as a floating badge, sidebar-style) — an
+     inset glow plus a bright left-edge accent bar instead, the classic
+     "selected tab" tell instead of a lit-up menu item. */
+  box-shadow: inset 0 0 10px rgba(47,174,99,.28);
+  color: #fff; cursor: default; z-index: 1;
+}
+.bac-step-btn.bac-step-active::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: #7ce8a6;
 }
 .bac-step-btn.bac-step-active .bac-step-num { color: #7ce8a6; }
 
