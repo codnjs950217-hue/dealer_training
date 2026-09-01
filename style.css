@@ -3887,53 +3887,65 @@ body {
   color: rgba(255,255,255,.78);
   max-width: 80%;
 }
-/* Once-per-page-entry "pick a STEP" guide, shown by showPageIntro()
-   (main.js) — explicit ask: point the trainee at the STEP panel before
-   they've chosen anything, distinct from .bac-step-intro-overlay above
-   (which only ever fires AFTER a step is picked). Unlike that one, this
-   IS clickable (dismisses on click; default pointer-events, not none)
-   since dismissing on tap is one of the two explicit exit paths — the
-   other being picking a step at all (selectStep() calls
-   pageIntroDismiss() itself). z-index above .bac-step-intro-overlay
-   since, in principle, both dismiss paths are user-driven and could
-   race, though in practice selectStep() always dismisses this one
-   first so they don't actually end up stacked. */
-.bac-page-intro-overlay {
-  position: absolute; inset: -3px;
-  background: rgba(8,14,10,.7);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 56; border-radius: 21px;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity .4s ease;
-}
-.bac-page-intro-overlay.bac-page-intro-show { opacity: 1; }
-.bac-page-intro-text {
-  font-size: clamp(.85rem, 2.1vh, 1.05rem);
-  font-weight: 600;
-  line-height: 1.6;
+/* "Pick a STEP" landing state — Card Drawing opens with no step
+   selected at all (explicit ask, supersedes the earlier dismissible-
+   overlay attempt). Sims.baccarat's showNoStepState()/hideNoStepState()
+   (main.js) just toggle these two classes; there's no separate overlay
+   element or DOM creation — .bac-no-step-msg and the 3 .bac-step-arrow
+   elements are already static markup in Views.baccaratSim(), hidden by
+   default and revealed only while these classes are present. */
+.bac-no-step-msg { display: none; }
+.baccarat-table.bac-no-step .bac-no-step-msg {
+  display: flex; flex: 1;
+  align-items: center; justify-content: center;
   text-align: center;
-  max-width: 75%;
-  color: rgba(255,255,255,.88);
-  background: rgba(20,16,8,.55);
-  border: 1px solid rgba(201,168,76,.35);
-  border-radius: 14px;
-  padding: 1rem 1.4rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  padding: 1rem;
+  font-size: clamp(.95rem, 2.4vh, 1.2rem);
+  font-weight: 600;
+  line-height: 1.8;
+  color: rgba(255,255,255,.82);
 }
-/* Pulsing gold glow on the STEP panel itself while the guide above is
-   showing — "STEP 버튼 영역은 은은하게 Glow 또는 Pulse 효과", "사용자의
-   시선이 자연스럽게 STEP 영역으로 이동". Targets each .bac-step-btn
-   individually (not the panel container, which has no border-radius/
-   shadow of its own — every visual edge belongs to the buttons) so the
-   glow still respects each button's own rounded corners; layered ON
-   TOP of (not replacing) each button's existing resting box-shadow. */
-@keyframes bacStepPanelPulse {
-  0%, 100% { box-shadow: inset 0 2px 12px rgba(0,0,0,.35), var(--shadow); }
-  50%      { box-shadow: inset 0 2px 12px rgba(0,0,0,.35), var(--shadow), 0 0 20px 3px rgba(201,168,76,.6); }
+/* Everything else in the table — cards, PLAYER/BANKER labels, the
+   center divider, every result/answer button — lives inside .bac-exp-
+   grid or .bac-field, so hiding those two wholesale is what gives the
+   "게임 요소 없이 깨끗한 빈 상태" (no cards, no answer buttons, no
+   PLAYER/BANKER text, no center line) the landing state asks for,
+   without needing to enumerate every individual element. */
+.baccarat-table.bac-no-step .bac-exp-grid,
+.baccarat-table.bac-no-step .bac-field {
+  display: none;
 }
-.bac-step-panel-highlight .bac-step-btn {
-  animation: bacStepPanelPulse 1.6s ease-in-out infinite;
+/* Small arrow beside each STEP button, pointing back at it, visible
+   only during the landing state — explicit ask: bright color, soft
+   glow, slow brighten/dim pulse, to draw the eye toward the panel.
+   Separate DOM elements (not a ::after on .bac-step-btn itself)
+   because that button has its own overflow:hidden (the SIMULATION-
+   label overflow fix), which would clip a pseudo-element positioned
+   outside its own box — these live as siblings of the 3 buttons inside
+   .bac-step-panel (already position:relative) instead, each pinned to
+   its button's vertical third via nth-nothing-needed fixed top %s
+   (the 3 buttons are always equal flex:1 heights). */
+.bac-step-arrow { display: none; }
+.bac-step-panel-no-selection .bac-step-arrow {
+  display: block;
+  position: absolute;
+  left: 100%;
+  margin-left: .3rem;
+  transform: translateY(-50%);
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--gold-light);
+  text-shadow: 0 0 12px rgba(201,168,76,.8);
+  animation: bacStepArrowPulse 2.2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+.bac-step-arrow-1 { top: calc(100% / 6); }
+.bac-step-arrow-2 { top: 50%; }
+.bac-step-arrow-3 { top: calc(100% / 6 * 5); }
+@keyframes bacStepArrowPulse {
+  0%, 100% { opacity: .3; }
+  50%      { opacity: 1; }
 }
 @keyframes mistakePop {
   0%   { transform: scale(.4); opacity: 0; }

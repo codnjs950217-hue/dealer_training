@@ -530,6 +530,13 @@ const Views = {
   baccaratSim: () => `
     <div class="sim-page baccarat-sim notranslate" translate="no">
       <div class="bac-sim-body">
+      <!-- No step starts active — Card Drawing now lands on the "pick a
+           STEP" empty state (see Sims.baccarat's showNoStepState()/
+           init()) instead of defaulting into Step 3. The 3 arrow divs
+           are separate elements (not ::after on .bac-step-btn itself)
+           because that button has its own overflow:hidden (the
+           SIMULATION-label overflow fix) which would clip a
+           pseudo-element positioned outside its own box. -->
       <div class="bac-step-panel" id="bac-step-panel">
         <button class="bac-step-btn" id="bac-step-btn-1" onclick="Sims.baccarat.selectStep(1)">
           <span class="bac-step-num">STEP 1</span>
@@ -539,10 +546,13 @@ const Views = {
           <span class="bac-step-num">STEP 2</span>
           <span class="bac-step-lbl">DRAWING</span>
         </button>
-        <button class="bac-step-btn bac-step-active" id="bac-step-btn-3" onclick="Sims.baccarat.selectStep(3)">
+        <button class="bac-step-btn" id="bac-step-btn-3" onclick="Sims.baccarat.selectStep(3)">
           <span class="bac-step-num">STEP 3</span>
           <span class="bac-step-lbl">FULL<br>SIMULATION</span>
         </button>
+        <div class="bac-step-arrow bac-step-arrow-1" aria-hidden="true">←</div>
+        <div class="bac-step-arrow bac-step-arrow-2" aria-hidden="true">←</div>
+        <div class="bac-step-arrow bac-step-arrow-3" aria-hidden="true">←</div>
       </div>
       <div class="baccarat-table">
         <div class="table-stats-overlay">
@@ -550,6 +560,10 @@ const Views = {
           <span>Score: <strong id="bac-score">0</strong></span>
           <span>Mistake: <strong id="bac-mistakes">0</strong></span>
         </div>
+        <!-- "No step selected" landing message — hidden by default
+             (style.css), shown only while .baccarat-table carries
+             .bac-no-step (see Sims.baccarat's showNoStepState()). -->
+        <div class="bac-no-step-msg" id="bac-no-step-msg">원하는 STEP을 선택하여<br>바카라 카드 드로잉을 연습하세요.</div>
         <!-- EXPERIMENTAL layout (real-table-felt reference), compact
              variant: PLAYER WIN and BANKER WIN each stay solo in their
              row's normal flow (so they center to exactly the same
@@ -2235,11 +2249,6 @@ const Sims = {
 
     let S = {};
     let flipId = 0;
-    // Set by showPageIntro() (the once-per-page-entry "pick a STEP" guide)
-    // while it's showing, cleared once dismissed — a plain closure var
-    // rather than an S property since it's transient UI state, not game
-    // state, and S itself gets wholesale-reassigned on every init().
-    let pageIntroDismiss = null;
 
     const $ = id => document.getElementById(id);
     const msg     = t => { const e = $('bac-msg'); if (e) { e.textContent = t; e.style.color = ''; } };
@@ -2361,35 +2370,28 @@ const Sims = {
       }, 1700);
     }
 
-    // Once-per-page-entry "pick a STEP" guide — dims the table (click
-    // anywhere on it to dismiss) and adds a pulsing glow to the whole
-    // .bac-step-panel to draw the eye toward it, per explicit ask ("STEP
-    // 버튼 영역은 은은하게 Glow 또는 Pulse 효과", "사용자의 시선이 자연스럽게
-    // STEP 영역으로 이동"). Dismissed by either a click on the dim layer
-    // OR by actually picking a step — selectStep() below calls
-    // pageIntroDismiss() itself, first thing, before doing anything else
-    // — and never shown again this same page entry either way. Only
-    // called from init()'s fresh/non-restart branch (an in-app restart
-    // isn't a new page "진입"). Never overlaps with showStepIntro() above:
-    // that one only ever fires from inside selectStep(), which always
-    // dismisses this guide first.
-    function showPageIntro() {
+    // "Pick a STEP" landing state — Card Drawing now opens with NO step
+    // selected at all (explicit ask: STEP 1/2/3 all inactive, table
+    // genuinely empty — no cards, no result buttons, no PLAYER/BANKER
+    // labels, no center divider). Unlike the earlier dismissible-overlay
+    // attempt (superseded), there's no separate "content underneath" to
+    // reveal by clicking away — .bac-no-step (table) / .bac-step-panel-
+    // no-selection (panel) just gate what's visible via CSS, toggled by
+    // these two, and the state persists until a step is actually picked.
+    // The .bac-no-step-msg text and the 3 .bac-step-arrow elements are
+    // static markup (Views.baccaratSim()) that these classes reveal —
+    // no innerHTML/DOM creation needed, unlike showStepIntro() above.
+    function showNoStepState() {
       const tbl = document.querySelector('.baccarat-table');
       const panel = document.querySelector('.bac-step-panel');
-      if (!tbl || !panel) return;
-      const ov = document.createElement('div');
-      ov.className = 'bac-page-intro-overlay';
-      ov.innerHTML = `<div class="bac-page-intro-text">← 원하는 STEP을 선택하여<br>바카라 카드 드로잉을 연습하세요.</div>`;
-      tbl.appendChild(ov);
-      panel.classList.add('bac-step-panel-highlight');
-      requestAnimationFrame(() => ov.classList.add('bac-page-intro-show'));
-      pageIntroDismiss = () => {
-        ov.classList.remove('bac-page-intro-show');
-        panel.classList.remove('bac-step-panel-highlight');
-        setTimeout(() => ov.remove(), 400);
-        pageIntroDismiss = null;
-      };
-      ov.addEventListener('click', pageIntroDismiss);
+      if (tbl) tbl.classList.add('bac-no-step');
+      if (panel) panel.classList.add('bac-step-panel-no-selection');
+    }
+    function hideNoStepState() {
+      const tbl = document.querySelector('.baccarat-table');
+      const panel = document.querySelector('.bac-step-panel');
+      if (tbl) tbl.classList.remove('bac-no-step');
+      if (panel) panel.classList.remove('bac-step-panel-no-selection');
     }
 
     // Forced-PAIR-first guard: fired by every WIN/TIE/BIG/SMALL/SUPER7/
@@ -3020,11 +3022,12 @@ const Sims = {
         const keepScore    = isRestart && S ? S.score    : 0;
         const keepMistakes = isRestart && S ? S.mistakes : 0;
         // navigate()/reload() always re-render Views.baccaratSim() from
-        // scratch (Step 3 hardcoded active in that markup), so init()
-        // always lands on Step 3 regardless of which step was active
-        // before — only in-page selectStep() taps switch steps without a
-        // full re-render.
-        S = { deck: createBacDeck(), ph: [], bh: [], pThird: null, step: 3,
+        // scratch, landing on the "pick a STEP" empty state (no step
+        // pre-selected — explicit ask) regardless of which step was
+        // active before; only in-page selectStep() taps pick a step.
+        // Restart (↺) is only ever reachable from within Step 3 itself,
+        // so it still goes straight back into Step 3, same as before.
+        S = { deck: createBacDeck(), ph: [], bh: [], pThird: null, step: isRestart ? 3 : null,
               rounds: keepRounds, score: keepScore, mistakes: keepMistakes, winner: null, bets: [] };
         $('bac-rounds').textContent = S.rounds;
         $('bac-score').textContent = S.score;
@@ -3033,10 +3036,7 @@ const Sims = {
           // In-app restart: skip the START/Next Hand button screen and deal right away.
           this.deal();
         } else {
-          enableDraw();
-          // Fresh page entry only (not a restart) — "Card Drawing 진입 시
-          // 1회 표시".
-          showPageIntro();
+          showNoStepState();
         }
       },
 
@@ -3059,10 +3059,11 @@ const Sims = {
       // overlay+toast can still repeat on every click exactly like the
       // toast alone used to.
       selectStep(n) {
-        // Picking ANY step (even re-clicking the already-active one)
-        // counts as "acknowledged" the pick-a-step guide, if it's still
-        // showing.
-        if (pageIntroDismiss) pageIntroDismiss();
+        // Picking STEP 1 or STEP 3 dismisses the "pick a STEP" landing
+        // state. STEP 2 is excluded — it has no real content to switch
+        // into (still just a toast below), so if the landing state was
+        // showing, leaving it up avoids a dead-end blank table.
+        if (n !== 2) hideNoStepState();
         if (n === S.step) return;
         if (n !== 2) {
           S.step = n;
@@ -3092,8 +3093,13 @@ const Sims = {
           if (n === 1) { startCounting(); return; }
           // n === 3: leave counting mode's DOM (cards/3rd-card slots/option
           // buttons, plus the layout it toggled — .bac-counting-mode and
-          // the winning zone's .bac-zone-active) clean before init()
-          // rebuilds Step 3's own START-screen state.
+          // the winning zone's .bac-zone-active) clean, then rebuild
+          // Step 3's own START-screen state fresh. Deliberately NOT
+          // this.init(false) anymore — that now lands on the "pick a
+          // STEP" empty state (step:null), which would immediately
+          // undo the very selection this callback exists to fulfill.
+          // Same reset init() itself does on a truly fresh entry, just
+          // inlined here with step hardcoded to 3.
           $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
           const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
           const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
@@ -3102,7 +3108,12 @@ const Sims = {
           if (tbl) tbl.classList.remove('bac-counting-mode');
           document.querySelectorAll('.bac-banker-zone, .bac-player-zone').forEach(z => z.classList.remove('bac-zone-active'));
           clearInlineBtns(); clearPairBtns(); setPairPhaseFocus(false);
-          this.init(false);
+          S = { deck: createBacDeck(), ph: [], bh: [], pThird: null, step: 3,
+                rounds: 0, score: 0, mistakes: 0, winner: null, bets: [] };
+          $('bac-rounds').textContent = S.rounds;
+          $('bac-score').textContent = S.score;
+          $('bac-mistakes').textContent = S.mistakes;
+          enableDraw();
         });
       },
 
