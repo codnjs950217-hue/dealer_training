@@ -2263,7 +2263,12 @@ body {
   font-size: clamp(.54rem,1.2vw,.64rem); font-weight: 700; letter-spacing: .2px; line-height: 1.15;
 }
 .bac-step-btn.bac-step-active {
-  background: var(--felt-light);
+  /* Exactly the table's own fill (was --felt-light, a visibly lighter
+     shade than the table's --felt — that mismatch, plus the old outer
+     drop-shadow below, was the "still awkward" seam: fixed per direct
+     feedback by matching the color exactly and dropping any shadow
+     that could draw a line across the join). */
+  background: var(--felt);
   border-color: #2fae63;
   /* Bridges the panel↔table seam AND overlaps 4px past it (negative =
      .bac-sim-body's own --bac-sim-gap, PLUS the table's own 3px
@@ -2276,7 +2281,7 @@ body {
      box look this replaces. */
   margin-right: calc(-1 * var(--bac-sim-gap) - 4px);
   border-top-left-radius: 16px; border-bottom-left-radius: 16px;
-  box-shadow: inset 0 0 10px rgba(47,174,99,.28), 2px 0 14px rgba(0,0,0,.3);
+  box-shadow: inset 0 0 10px rgba(47,174,99,.28);
   color: #fff; cursor: default; z-index: 2;
 }
 .bac-step-btn.bac-step-active .bac-step-num { color: #7ce8a6; }
