@@ -2726,14 +2726,11 @@ body {
   min-height: var(--bac-capsule-h);
 }
 /* STEP 1 (COUNTING)'s instruction line — hidden everywhere else (Step 3
-   uses this same row for the real BIG6/TIE/SMALL6 side bets), shown via
-   .bac-counting-mode below. Sits in .bac-exp-grid's own flex column so
-   it picks up the SAME --bac-row-gap spacing as every other row for
-   the gap ABOVE it; margin-bottom below adds extra room only on the
-   button-facing side, on top of that shared gap. Deliberately muted
-   (not bold, low-opacity warm ivory) so — even sized up — it stays a
-   caption, never competing with the cards or the buttons it's
-   introducing. */
+   uses this same row for the real BIG6/TIE/SMALL6 side bets). Reordered
+   to sit directly above the cards (not the answer buttons) via
+   .bac-counting-mode's .bac-exp-grid unboxing below — see that section
+   for why. Deliberately muted (not bold, low-opacity warm ivory) so —
+   even sized up — it stays a caption, never competing with the cards. */
 .bac-count-prompt { display: none; }
 .bac-counting-mode .bac-count-prompt {
   display: block;
@@ -2742,7 +2739,7 @@ body {
   font-weight: 600;
   letter-spacing: .3px;
   color: rgba(255, 232, 190, .55);
-  margin-bottom: clamp(.35rem, 1.2vh, .6rem);
+  margin-bottom: clamp(.3rem, 1vh, .5rem);
 }
 /* WIN's cell fixed to --bac-win-w so PLAYER WIN/BANKER WIN and the
    BIG/TIE/SMALL rows below all line up on the same left/right edges.
@@ -3002,6 +2999,44 @@ body {
   border-color: var(--counting-border);
   box-shadow: inset 0 2px 12px rgba(0,0,0,.4), 0 0 26px rgba(201,168,76,.16), var(--shadow);
 }
+/* Reading-flow reorder ("문제 문구 → 카드 → 답안 버튼", explicit ask): the
+   answer buttons (#bac-exp-big6/-tie/-small6, reused as Step 1's 3
+   options) live inside .bac-exp-grid, a SIBLING of .bac-field (the
+   cards) that renders BEFORE it — so by default the buttons sit above
+   the cards, not below. .bac-count-prompt is also inside .bac-exp-grid,
+   right before that same button row.
+   display:contents un-boxes .bac-exp-grid itself so its children
+   (pairwrap, the prompt, the 2 option rows) become direct flex items of
+   .baccarat-table ALONGSIDE .bac-field, letting them be reordered
+   against it individually — impossible while nested in exp-grid's own
+   box. Custom properties set on .bac-exp-grid (--bac-win-w etc.) still
+   inherit through display:contents, so the button row's sizing is
+   unaffected. Natural DOM order already has the prompt before .bac-
+   field, so only the answer-button row needs an explicit order bump to
+   land AFTER the cards; pairwrap and the (always-empty in Step 1) BIG7/
+   SUPER7/SMALL7 row are hidden outright so they don't reserve their own
+   blank space in the new, tighter [prompt/cards/buttons] stack. */
+.bac-counting-mode .bac-exp-grid {
+  display: contents;
+}
+.bac-counting-mode .bac-exp-pairwrap,
+.bac-counting-mode .bac-count-prompt + .bac-exp-row-3col ~ .bac-exp-row-3col {
+  display: none;
+}
+.bac-counting-mode .bac-count-prompt + .bac-exp-row-3col {
+  order: 2;
+  /* Fixed-width row (--bac-win-w) — under the table's default
+     align-items:stretch (kept as-is so .bac-field still stretches full
+     width, see its own note below) a definite-width item falls back to
+     start-aligned, not centered, so it needs this explicitly. */
+  align-self: center;
+  margin-top: clamp(.5rem, 1.6vh, .9rem);
+}
+/* .bac-field keeps the table's default align-items:stretch (untouched
+   here) rather than switching the table to align-items:center, which
+   would also shrink .bac-field to its content width and break the
+   full-width stretch its BANKER/PLAYER zones' flex:1 centering (see
+   the grid rules further below) depends on. */
 .bac-counting-mode .bac-zone-lbl,
 .bac-counting-mode .bac-field-divider {
   display: none;
