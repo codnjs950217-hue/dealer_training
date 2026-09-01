@@ -2219,7 +2219,14 @@ body {
 
 .bac-step-panel {
   flex-shrink: 0; position: relative;
-  width: clamp(50px,8.5vw,82px);
+  /* Widened (was clamp(50px,8.5vw,82px)) so STEP 3's "SIMULATION" has
+     room to fit on its own line without wrapping/overflowing at the
+     floor width — the actual fix for the text-overflow issue, per
+     direct ask, instead of relying only on overflow-wrap to catch it
+     after the fact (that stays too, as a safety net). .baccarat-table
+     is flex:1 in the same row, so it automatically gives up exactly
+     this much width in return — no separate change needed there. */
+  width: clamp(80px,11vw,108px);
   /* Explicit (not max-) height so the 3 flex:1 buttons below still get a
      definite box to divide — an auto/max-height here falls back to
      content-based sizing and the flex:1 children collapse to near
