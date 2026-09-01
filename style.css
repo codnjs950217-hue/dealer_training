@@ -5904,27 +5904,47 @@ body {
    after .bac-circle-btn so this font-size wins over its (also
    !important) one at equal specificity. */
 .bac-count-opt-btn {
-  /* Small gold tint added per direct ask ("버튼에 약간 골드색 넣어줄수있어") —
-     background rgba(255,255,255,.08)→a faint warm-gold rgba, digit color
-     #fff→var(--gold-light). Kept minimal on purpose: a previous, much
-     bigger redesign of this same button (taller, gradient fill, box-
-     shadow bevel, stronger hover) was rejected on sight ("그지같아") and
-     reverted same day — this is deliberately just a color nudge, not a
-     retry of that. */
-  background: rgba(201,168,76,.1);
-  border: 2px solid rgba(201,168,76,.4);
+  /* Rev2 of the "make this look clickable" ask — the FIRST attempt
+     (taller capsule, generic white-to-transparent gradient, plain
+     hover/active) was rejected on sight ("그지같아") and reverted; this
+     time the user gave an exact, itemized spec (mustard/gold-family
+     gradient — light top, dark bottom; shallow shadow; subtle inset
+     bevel; brighter+glow hover; pushed-in active) instead of leaving it
+     to guesswork, so this follows that spec point-for-point rather than
+     re-guessing. Height/size untouched (not requested this time) — this
+     pass is about depth/material only. */
+  background: linear-gradient(180deg, rgba(232,201,109,.32) 0%, rgba(138,106,40,.32) 100%);
+  border: 2px solid rgba(201,168,76,.5);
   color: var(--gold-light);
   font-weight: 800;
   font-size: clamp(1.05rem,3vh,1.55rem) !important;
   cursor: pointer;
-  transition: background .15s, border-color .15s;
+  /* Shallow drop shadow (raised off the felt) + inset highlight along
+     the top edge + inset shade along the bottom edge — a light bevel,
+     not a deep 3D button. */
+  box-shadow: 0 2px 4px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.22), inset 0 -2px 3px rgba(0,0,0,.22);
+  transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, transform .1s ease;
 }
 .bac-count-opt-btn:hover:not(:disabled) {
-  background: rgba(201,168,76,.18); border-color: var(--gold);
+  /* Brighter fill + a soft gold glow — no scale-up (the "살짝 커지거나
+     Glow" choice was made in favor of glow, closer to "고급스럽고
+     깔끔한" than a size pop). */
+  background: linear-gradient(180deg, rgba(232,201,109,.48) 0%, rgba(138,106,40,.4) 100%);
+  border-color: var(--gold-light);
+  box-shadow: 0 2px 6px rgba(0,0,0,.4), 0 0 10px rgba(201,168,76,.35), inset 0 1px 0 rgba(255,255,255,.28), inset 0 -2px 3px rgba(0,0,0,.2);
+}
+.bac-count-opt-btn:active:not(:disabled) {
+  /* Pressed-in feel: nudges down 1px, gradient direction flips (dark
+     now reads "up top" like light is coming from below the pressed
+     face), shadow goes fully inset — no more raised edge. */
+  transform: translateY(1px);
+  background: linear-gradient(180deg, rgba(138,106,40,.4) 0%, rgba(232,201,109,.28) 100%);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.45);
 }
 .bac-count-opt-btn:disabled { cursor: default; }
 .bac-count-opt-btn.bac-count-opt-correct {
   background: rgba(47,174,99,.35); border-color: #2fae63; color: #7ce8a6;
+  transform: none;
 }
 
 /* ============================================================
