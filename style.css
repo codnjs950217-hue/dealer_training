@@ -2237,14 +2237,14 @@ body {
      definite box to divide — an auto/max-height here falls back to
      content-based sizing and the flex:1 children collapse to near
      nothing. Still 85% of the table's height (keeps the ~15% smaller
-     button footprint from that follow-up ask), but top-anchored
-     (align-self:flex-start, was center) instead of vertically centered
-     — centering split the freed space above/below, which left the
-     panel's own top edge starting lower than the table's, reading as
-     two separate frames with corners starting at different heights.
-     Top-anchoring puts ALL the freed space at the bottom instead, so
-     the panel's top edge now lines up exactly with the table's. */
-  height: 85%; align-self: flex-start;
+     button footprint from that follow-up ask). align-self:center per
+     direct ask ("스텝버튼들 위아래 기준 중간정렬") — was flex-start
+     (top-anchored), from an earlier fix that lined the panel's top edge
+     up with the table's for a corner-fusion trick; that overlap
+     mechanism has since been removed entirely (tabs now just touch the
+     table, no overlap — see .bac-sim-body's gap:0), so nothing depends
+     on top-anchoring anymore and centering is safe to restore. */
+  height: 85%; align-self: center;
   /* Tab-strip look, not a sidebar-menu list: tabs sit flush against each
      other (gap:0, dividers via border only) with a flat edge facing the
      table so the strip reads as one connected unit pointing at it, only
