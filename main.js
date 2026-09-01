@@ -2892,6 +2892,16 @@ const Sims = {
       if (bankerZone) bankerZone.classList.toggle('bac-zone-active', q.side === 'banker');
       clearInlineBtns();
       clearPairBtns();
+      renderCountOptions();
+    }
+    // Draws the 3 option buttons for the CURRENT S.countQuiz without
+    // touching cards/S.countQuiz itself — used both for a fresh question
+    // (renderCountQuiz() above) and to re-arm the same question after a
+    // wrong answer (answerCount() below), so a mistake never changes the
+    // hand the trainee is being asked about.
+    function renderCountOptions() {
+      const q = S.countQuiz;
+      if (!q) return;
       // Reuses the BIG6/TIE/SMALL6 row's 3 cells as generic option
       // slots — same cells, same capsule shape/sizing Step 3 already
       // uses there, just this drill's own class/handler instead of
@@ -2978,16 +2988,19 @@ const Sims = {
         this.init(false);
       },
 
-      // Wrong answers use the exact same MISTAKE overlay as Step 3
-      // (showMistake()) — same counter, same visual, same "shows the
-      // mistake, then moves on" flow, just retrying with a new question
-      // instead of the same hand. Correct answers briefly highlight the
-      // chosen button green, then auto-advance — no NEXT HAND click.
+      // Correct answers briefly highlight the chosen button green, then
+      // auto-advance to a brand-new hand (Score/Rounds++) — no NEXT HAND
+      // click. Wrong answers use the exact same MISTAKE overlay as Step 3
+      // (showMistake(), Mistakes++) but retry the SAME hand/question —
+      // S.countQuiz is deliberately left untouched (only cleared on a
+      // correct answer) and the retry calls renderCountOptions() instead
+      // of renderCountQuiz(), so the cards on screen never change and the
+      // trainee must answer the same hand correctly before moving on.
       answerCount(value) {
         if (!S.countQuiz) return;
         const correct = S.countQuiz.correct;
-        S.countQuiz = null;
         if (value === correct) {
+          S.countQuiz = null;
           S.score++; S.rounds++;
           $('bac-score').textContent = S.score;
           $('bac-rounds').textContent = S.rounds;
@@ -2997,7 +3010,7 @@ const Sims = {
           });
           setTimeout(() => renderCountQuiz(), 700);
         } else {
-          showMistake(() => renderCountQuiz());
+          showMistake(() => renderCountOptions());
         }
       },
 
