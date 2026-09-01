@@ -5883,39 +5883,23 @@ body {
    SMALL6 (whose cells this drill borrows), just its own color (neutral
    gold-on-dark, not a banker/player/tie identity) and a bigger digit
    since there's no BIG/SMALL sub-label under it. !important + placed
-   after .bac-circle-btn so this font-size/height wins over its (also
-   !important) ones at equal specificity.
-   Made more clearly "clickable" per explicit ask ("배경과 너무 비슷하여
-   클릭 가능한 요소라는 느낌이 약함") — taller, a stronger border, a subtle
-   raised-button gradient + shadow, and a stronger hover response — while
-   deliberately staying muted/small next to the cards (no glow, no scale-
-   up, no bright fill): a nudge toward "button", not a new focal point. */
+   after .bac-circle-btn so this font-size wins over its (also
+   !important) one at equal specificity. */
 .bac-count-opt-btn {
-  height: clamp(36px, 9.5vh, 46px) !important;
-  background: linear-gradient(180deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.05) 100%);
-  border: 3px solid rgba(201,168,76,.55);
+  background: rgba(255,255,255,.08);
+  border: 2px solid rgba(201,168,76,.4);
   color: #fff;
   font-weight: 800;
   font-size: clamp(1.05rem,3vh,1.55rem) !important;
-  text-shadow: 0 1px 3px rgba(0,0,0,.6);
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.14);
-  transition: background .15s, border-color .15s, box-shadow .15s, transform .1s;
+  transition: background .15s, border-color .15s;
 }
 .bac-count-opt-btn:hover:not(:disabled) {
-  background: linear-gradient(180deg, rgba(201,168,76,.32) 0%, rgba(201,168,76,.14) 100%);
-  border-color: var(--gold-light);
-  box-shadow: 0 3px 8px rgba(0,0,0,.4), 0 0 10px rgba(201,168,76,.3), inset 0 1px 0 rgba(255,255,255,.2);
-  transform: translateY(-1px);
-}
-.bac-count-opt-btn:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 1px 3px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.1);
+  background: rgba(201,168,76,.18); border-color: var(--gold);
 }
 .bac-count-opt-btn:disabled { cursor: default; }
 .bac-count-opt-btn.bac-count-opt-correct {
   background: rgba(47,174,99,.35); border-color: #2fae63; color: #7ce8a6;
-  transform: none;
 }
 
 /* ============================================================
