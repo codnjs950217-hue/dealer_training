@@ -2743,7 +2743,9 @@ body {
   font-weight: 600;
   letter-spacing: .3px;
   color: rgba(255, 232, 190, .55);
-  margin-bottom: clamp(.3rem, 1vh, .5rem);
+  /* Tightened (was clamp(.3rem,1vh,.5rem)) alongside the card↔button gap
+     below, for the same "one connected quiz area" ask. */
+  margin-bottom: clamp(.2rem, .6vh, .35rem);
 }
 /* WIN's cell fixed to --bac-win-w so PLAYER WIN/BANKER WIN and the
    BIG/TIE/SMALL rows below all line up on the same left/right edges.
@@ -3002,6 +3004,14 @@ body {
   background: var(--counting-felt);
   border-color: var(--counting-border);
   box-shadow: inset 0 2px 12px rgba(0,0,0,.4), 0 0 26px rgba(201,168,76,.16), var(--shadow);
+  /* Clusters prompt+cards+buttons into one compact group instead of
+     letting them spread across the table's full height ("서로 너무 멀리
+     떨어져 있어 시선 이동이 큼", explicit ask). justify-content:center on
+     this column flex centers that group as a whole; .bac-field giving
+     up its flex:1 grow (below) is what makes the group compact enough
+     for centering to actually pull it together rather than just
+     recentering an already-full-height block. */
+  justify-content: center;
 }
 /* Reading-flow reorder ("문제 문구 → 카드 → 답안 버튼", explicit ask): the
    answer buttons (#bac-exp-big6/-tie/-small6, reused as Step 1's 3
@@ -3034,7 +3044,25 @@ body {
      width, see its own note below) a definite-width item falls back to
      start-aligned, not centered, so it needs this explicitly. */
   align-self: center;
-  margin-top: clamp(.5rem, 1.6vh, .9rem);
+  /* Tightened (was clamp(.5rem,1.6vh,.9rem)) — this ask was specifically
+     about shrinking the card↔button gap so the two read as one quiz
+     unit rather than separate screen regions. */
+  margin-top: clamp(.3rem, 1vh, .5rem);
+}
+/* .bac-field no longer flex-grows to fill whatever height is left over
+   in the column — that was the real cause of the "spread across the
+   whole screen" feeling: the prompt/buttons stayed their own natural
+   size while .bac-field's box stretched to consume all remaining
+   table height, so the actual card art (centered inside that oversized
+   box) ended up far from both. Content-sized instead, so it's only as
+   tall as the cards themselves, letting justify-content:center above
+   actually cluster all three pieces together. Width is untouched
+   (align-items:stretch on the table still stretches it full-width, so
+   the BANKER/PLAYER zone centering fix elsewhere is unaffected — only
+   the main/vertical axis size changed). */
+.bac-counting-mode .bac-field {
+  flex: 0 0 auto;
+  margin-top: 0;
 }
 /* .bac-field keeps the table's default align-items:stretch (untouched
    here) rather than switching the table to align-items:center, which
