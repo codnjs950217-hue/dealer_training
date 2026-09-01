@@ -2795,7 +2795,8 @@ body {
 .bac-counting-mode .bac-count-prompt {
   display: block;
   text-align: center;
-  font-size: clamp(.8rem, 2vh, 1rem);
+  /* Bumped per direct ask ("문제 문구 크기 좀더 키워줘") — was clamp(.8rem,2vh,1rem). */
+  font-size: clamp(1rem, 2.5vh, 1.25rem);
   font-weight: 600;
   letter-spacing: .3px;
   color: rgba(255, 232, 190, .55);
