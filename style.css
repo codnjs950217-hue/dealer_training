@@ -3862,17 +3862,17 @@ body {
 }
 /* One-time "level start" overlay, shown by showStepIntro() (main.js) on
    every STEP transition, before that step's real content builds. Same
-   full-cover-the-table technique as .mistake-overlay above, but a
-   softer translucent fill (lets the felt underneath — gold in Step 1,
-   green in Step 2/3 — tint through, "현재 테마 색상 유지" without needing
-   a separate color per step) and pure opacity fade, no scale/pop
+   full-cover-the-table technique as .mistake-overlay above. Fully
+   opaque fill (2026-09-02 — was a translucent rgba(8,14,10,.86) that
+   let the felt underneath show through faintly, explicit complaint:
+   "뒤에 배경 아무것도 없이... 지금은 약간씩 뭐가 비치거든") — no scale/pop
    ("과도한 애니메이션 금지") — a level-intro card, not a popup or a
    mistake interruption. z-index above .mistake-overlay since a stray
    mistake from the PREVIOUS step could theoretically still be
    mid-fade-out when this appears. */
 .bac-step-intro-overlay {
   position: absolute; inset: -3px;
-  background: rgba(8,14,10,.86);
+  background: #05070a;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: .5rem;
   z-index: 55; border-radius: 21px;
