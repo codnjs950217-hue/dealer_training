@@ -2349,11 +2349,19 @@ const Sims = {
       clearInlineBtns();
       const tbl = document.querySelector('.baccarat-table');
       if (!tbl) return;
+      // Skips retryFn() if the trainee switched to a DIFFERENT STEP
+      // while this 1.6s overlay was showing — without this, a stale
+      // retry (re-painting whichever step's quiz was active when the
+      // mistake happened) would repaint on top of the NEW step's DOM
+      // after the switch. No-op in the overwhelmingly common case (same
+      // step the whole time), so this changes nothing about how any
+      // step's own mistake-retry behaves while actually on that step.
+      const stepAtCall = S.step;
       const ov = document.createElement('div');
       ov.className = 'mistake-overlay';
       ov.innerHTML = `<div class="mistake-text${msg === 'OVER DRAW' ? ' overdraw-text' : ''}">${msg}</div>`;
       tbl.appendChild(ov);
-      setTimeout(() => { ov.remove(); retryFn(); }, 1600);
+      setTimeout(() => { ov.remove(); if (S.step === stepAtCall) retryFn(); }, 1600);
     }
 
     // One-time "level start" overlay shown on every STEP transition (not
@@ -3074,7 +3082,22 @@ const Sims = {
     // casing needed; when the correct answer genuinely is 'stand' (a
     // natural, or both hands settling), EITHER oval is a legitimate
     // correct pick since both hands truly stand simultaneously.
+    // Every function below that repaints DOM guards on `S.step !== 2`
+    // first. Reason: dealSequence()/addCard() (Step 3's own shared
+    // animation helpers, reused here) schedule several setTimeout calls
+    // that are NOT individually cancelable, and finishDrawingHand()'s
+    // own auto-advance timer only covers ITS OWN 700ms wait — none of
+    // that is torn down by resetStepDom() when the trainee switches
+    // steps mid-animation/mid-pause. Without this guard, a stale
+    // Step 2 callback firing after the trainee already left for Step 1
+    // would repaint #bac-ph3/#bac-bh3/#bac-tie-btn/etc with PLAYER DRAW/
+    // BANKER WIN content on top of Step 1's own DOM — exactly the bug
+    // reported ("스텝1 카운팅에 플레이어 드로우 버튼 나오는거 뭐야??").
+    // `S.step` is updated synchronously the instant selectStep() runs
+    // (before the step-intro overlay even starts), so it's already
+    // correct by the time any of these stale callbacks could fire later.
     function showDrawJudgment() {
+      if (S.step !== 2) return;
       setBtn('bac-bh3', drawActionBtnHtml('draw-banker', 'BANKER<br>DRAW'));
       setBtn('bac-ph3', drawActionBtnHtml('draw-player', 'PLAYER<br>DRAW'));
       setBtn('bac-draw-player-win', drawWinBtnHtml('player'));
@@ -3084,17 +3107,20 @@ const Sims = {
     // now holds the real revealed card, not a button, so PLAYER WIN no
     // longer applies — only BANKER WIN vs BANKER DRAW remain possible.
     function showBankerDrawJudgment() {
+      if (S.step !== 2) return;
       setBtn('bac-bh3', drawActionBtnHtml('draw-banker', 'BANKER<br>DRAW'));
       setBtn('bac-draw-banker-win', drawWinBtnHtml('banker'));
       setBtn('bac-draw-player-win', '');
     }
     function finishDrawingHand() {
+      if (S.step !== 2) return;
       S.score++; S.rounds++;
       $('bac-score').textContent = S.score;
       $('bac-rounds').textContent = S.rounds;
       S.drawHandTimer = setTimeout(() => dealDrawingHand(), 700);
     }
     function dealDrawingHand() {
+      if (S.step !== 2) return;
       if (S.deck.length < 20) S.deck = createBacDeck();
       S.ph = []; S.bh = []; S.pThird = null;
       $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
