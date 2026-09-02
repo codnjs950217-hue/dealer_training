@@ -2251,37 +2251,36 @@ body {
      the outer two corners of the whole group rounded (below). */
   display: flex; flex-direction: column; gap: 0;
 }
-/* Border/radius/shadow below are DELIBERATELY copied verbatim from the
-   .blackjack-table,.baccarat-table rule (top of this section: border:
-   3px solid #1b5e35; border-radius: 18px; box-shadow: inset 0 2px 12px
-   rgba(0,0,0,.35), var(--shadow) i.e. 0 4px 24px rgba(0,0,0,.55)) — not
-   a new palette. Per explicit feedback the two areas read as separate
-   components because their frame styles didn't match; using the exact
-   same stroke color/width, corner radius, and inset+outer shadow
-   recipe on every tab is what makes the step strip read as part of the
-   SAME table frame instead of a menu bolted beside it. The only thing
-   that still tells a tab apart from the table (or an inactive tab from
-   the active one) is fill color — never border/shadow. */
+/* Redesign (2026-09-02, explicit ask): move away from the old "fuse
+   with whichever table color is currently live" tab system entirely —
+   the 3 buttons now each carry a FIXED, always-on color identity
+   matching their own learning page (STEP1 yellow / STEP2 navy /
+   STEP3 green), regardless of which step is active or what the table
+   looks like right now. Thick shared borders are gone; each button is
+   its own dark-navy panel with a soft identity-colored inner glow (not
+   an outward neon bleed — box-shadow's `inset`) plus a left accent bar.
+   Geometry (flex sizing, padding, rounded-left/flat-right corners
+   meeting the table) is UNTOUCHED per explicit "버튼 크기는 조정하지않을거야"
+   — only fill/border/shadow/color changed. */
+#bac-step-btn-1 { --step-color: #f0c860; --step-glow-lo: rgba(240,200,96,.16); --step-glow-hi: rgba(240,200,96,.5); }
+#bac-step-btn-2 { --step-color: #4f7fe6; --step-glow-lo: rgba(79,127,230,.16); --step-glow-hi: rgba(79,127,230,.5); }
+#bac-step-btn-3 { --step-color: #5fdb8f; --step-glow-lo: rgba(95,219,143,.16); --step-glow-hi: rgba(95,219,143,.5); }
 .bac-step-btn {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: .2rem; text-align: center;
-  background: rgba(255,255,255,.05);
-  border: 3px solid #1b5e35;
-  border-right: none;
+  background: linear-gradient(165deg, #141b2e 0%, #0a0e1a 100%);
+  border: none;
   /* Both LEFT corners rounded on every button now, not just the outer
      silhouette's (was :first-child-only top-left / :last-child-only
      bottom-left, leaving STEP2's corners — and STEP1's bottom/STEP3's
      top — square). Explicit ask: "스텝버튼들 왼쪽 모서리가 둥글둥글해야하는데
-     STEP1 윗부분만 둥글고 나머지는 다 각지네". A button with `border-top:none`
-     (2nd/3rd, below) still rounds cleanly — the left border simply
-     curves into the corner and stops, with no top edge continuing,
-     which reads as a normal rounded-left-corner shape either way. */
+     STEP1 윗부분만 둥글고 나머지는 다 각지네". */
   border-top-left-radius: 18px;
   border-bottom-left-radius: 18px;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
-  color: rgba(255,255,255,.42);
+  color: rgba(255,255,255,.55);
   cursor: pointer;
   padding: clamp(.3rem,.8vh,.5rem) .2rem;
   position: relative;
@@ -2300,38 +2299,55 @@ body {
   /* Every tab's right edge touches the table's left edge exactly (0
      gap, 0 overlap — see .bac-sim-body's gap:0 above). z-index:1 keeps
      every tab painting above the table at that shared line; the active
-     tab bumps to z-index:2 only so a hover/transition never lets an
-     inactive neighbor's edge peek above it. */
+     tab bumps to z-index:2, hover bumps further so its slight lift
+     never gets clipped under a flush neighbor. */
   margin-right: 0;
-  box-shadow: inset 0 2px 12px rgba(0,0,0,.35), var(--shadow);
+  /* Thin hairline between the 3 stacked buttons (NOT a thick border —
+     that's what got removed) so they still read as 3 distinct panels
+     even with border:none on the box itself. */
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  box-shadow: inset 0 0 16px var(--step-glow-lo), 0 3px 10px rgba(0,0,0,.4);
   z-index: 1;
-  transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .22s ease;
+  animation: bacStepGlowBreathe 3.6s ease-in-out infinite;
+  transition: background .2s ease, color .2s ease, box-shadow .25s ease, transform .2s ease;
 }
-.bac-step-btn:not(:first-child) { border-top: none; }
+.bac-step-btn:last-child { border-bottom: none; }
+/* Slow, smooth "breathing" inner glow — deliberately NOT a blink/flash:
+   only the inset glow's spread + var(--step-glow-lo/-hi) alpha move
+   across a long (3.6s) ease-in-out cycle, so it reads as a gentle pulse
+   rather than a flicker. --step-glow-lo/-hi are per-button custom
+   properties (set above by id) already carrying that step's own hue —
+   the active-state rule below only brightens THOSE properties, so this
+   one keyframe animation automatically runs stronger for whichever
+   step is currently selected without needing separate active keyframes. */
+@keyframes bacStepGlowBreathe {
+  0%, 100% { box-shadow: inset 0 0 14px var(--step-glow-lo), 0 3px 10px rgba(0,0,0,.4); }
+  50%      { box-shadow: inset 0 0 28px var(--step-glow-hi), 0 3px 10px rgba(0,0,0,.4); }
+}
+/* Left accent bar — a thin colored strip in each step's own identity
+   color, always visible (dimmer when inactive, fuller when active),
+   giving each button a clear visual "tab" of its page's color without
+   needing a full colored border. */
+.bac-step-btn::before {
+  content: '';
+  position: absolute; left: 0; top: 10%; bottom: 10%; width: 4px;
+  background: var(--step-color);
+  border-radius: 2px;
+  box-shadow: 0 0 8px var(--step-glow-hi);
+  opacity: .5;
+  transition: opacity .2s ease, box-shadow .25s ease;
+}
 .bac-step-btn:hover:not(.bac-step-active) {
-  background: rgba(255,255,255,.1); color: rgba(255,255,255,.72);
+  background: linear-gradient(165deg, #1c2740 0%, #0d1220 100%);
+  color: rgba(255,255,255,.85);
+  transform: translateY(-2px);
+  box-shadow: inset 0 0 24px var(--step-glow-hi), 0 6px 16px rgba(0,0,0,.5);
+  z-index: 3;
 }
-/* Inactive tabs' border tracks the table's CURRENT color family too
-   (green normally, bronze/gold in Step 1), not just the active tab's —
-   otherwise, in Counting mode, tab2/tab3 keep the plain green #1b5e35
-   border right next to a gold table and a gold active tab, which reads
-   as "these don't belong to the same frame" even though the active
-   tab itself fuses perfectly ("스텝버튼이랑 레이아웃이랑 왜 자연스럽게 안
-   이어져", follow-up after the active-tab corner fix — the corner WAS
-   fixed, this is a separate color-consistency gap). Recession is still
-   carried entirely by fill/text opacity (unchanged here), exactly like
-   the original all-green scheme where every tab always shared the
-   table's one border color regardless of active state — this restores
-   that same parity for the gold variant instead of introducing new
-   dimming logic. :has() (already used elsewhere in this file) reaches
-   sideways from the table to its .bac-step-panel sibling since plain
-   CSS has no "previous sibling" selector. */
-.bac-sim-body:has(.baccarat-table.bac-counting-mode) .bac-step-btn:not(.bac-step-active) {
-  border-color: var(--counting-border);
-}
+.bac-step-btn:hover:not(.bac-step-active)::before { opacity: .8; }
 .bac-step-num {
   font-size: clamp(.56rem,1.3vw,.66rem); font-weight: 800; letter-spacing: .6px;
-  color: rgba(255,255,255,.4); text-transform: uppercase;
+  color: inherit; text-transform: uppercase;
 }
 .bac-step-lbl {
   font-size: clamp(.54rem,1.2vw,.64rem); font-weight: 700; letter-spacing: .2px; line-height: 1.15;
@@ -2344,40 +2360,22 @@ body {
   overflow-wrap: break-word;
 }
 .bac-step-btn.bac-step-active {
-  /* Exactly the table's own fill (was --felt-light, a visibly lighter
-     shade than the table's --felt — that mismatch was the real "still
-     awkward" seam, fixed per direct feedback by matching the color
-     exactly). Border/radius/shadow are already identical to every
-     other tab (and the table) via the base rule above — active is a
-     pure fill-color swap, nothing else, which is what makes ITS join
-     with the table specifically disappear while the frame system stays
-     visibly continuous everywhere else. */
-  background: var(--felt);
   color: #fff; cursor: default; z-index: 2;
-  /* No extra overlap anymore — the active tab meets the table at the
-     same exact shared line every tab does now (base rule's
-     margin-right:0). The corner-overlap trick this used to need (-20px,
-     to cover the table's own border-radius curve at STEP1's shared top
-     corner) is gone along with the overlap approach itself; the two
-     components now just touch there instead of fusing into one
-     continuous outline — a deliberate trade per explicit ask, not an
-     oversight if a hairline is visible right at that one corner. */
 }
-.bac-step-btn.bac-step-active .bac-step-num { color: #7ce8a6; }
-/* STEP 1's active tab breaks from the shared green fill above — its own
-   bronze/mustard identity (--counting-felt/--counting-border, :root),
-   the exact same two variables .bac-counting-mode puts on the table
-   itself, so the tab and the Counting Training screen fuse into one
-   gold surface instead of the usual green. Targeted by id (not a class)
-   since only STEP 1 ever needs this swap; STEP 2/3's active tab falls
-   through to the plain green rule above untouched. Must come after the
-   shared rule above so its background/border-color/glow win. */
-#bac-step-btn-1.bac-step-active {
-  background: var(--counting-felt);
-  border-color: var(--counting-border);
-  box-shadow: inset 0 2px 12px rgba(0,0,0,.4), 0 0 14px rgba(201,168,76,.16), var(--shadow);
+/* Active brightens this button's own identity glow (both the breathing
+   glow and the accent bar) rather than swapping to a different fill
+   color — keeps the fixed per-step color identity intact instead of
+   overriding it with e.g. the table's live felt. Needs an id+class
+   compound selector (not just .bac-step-active) because a bare id rule
+   (#bac-step-btn-N, above) outranks a plain class rule in specificity —
+   without the id here this override would silently lose the cascade. */
+#bac-step-btn-1.bac-step-active,
+#bac-step-btn-2.bac-step-active,
+#bac-step-btn-3.bac-step-active {
+  --step-glow-lo: var(--step-glow-hi);
 }
-#bac-step-btn-1.bac-step-active .bac-step-num { color: var(--gold-light); }
+.bac-step-btn.bac-step-active .bac-step-num { color: var(--step-color); }
+.bac-step-btn.bac-step-active::before { opacity: 1; }
 
 .bac-step-soon-toast {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
@@ -3046,8 +3044,11 @@ body {
      --counting-border defined in :root, same specificity+source-order
      override the --card-w-lg swap above already relies on. Step 2/3
      never get this class, so they keep the plain green table untouched.
-     #bac-step-btn-1.bac-step-active (below) mirrors these same two
-     variables so the active STEP 1 tab fuses into this exact fill. */
+     (STEP 1's tab button no longer mirrors this fill directly — since
+     the 2026-09-02 redesign each STEP button carries its own fixed
+     yellow/navy/green identity color independent of the table's own
+     live background, see #bac-step-btn-1/2/3 in the STEP TABLE LAYOUT
+     section above.) */
   background: var(--counting-felt);
   border-color: var(--counting-border);
   box-shadow: inset 0 2px 12px rgba(0,0,0,.4), 0 0 26px rgba(201,168,76,.16), var(--shadow);
@@ -3899,10 +3900,10 @@ body {
 /* "Pick a STEP" landing state — Card Drawing opens with no step
    selected at all (explicit ask, supersedes the earlier dismissible-
    overlay attempt). Sims.baccarat's showNoStepState()/hideNoStepState()
-   (main.js) just toggle these two classes; there's no separate overlay
-   element or DOM creation — .bac-no-step-msg and the 3 .bac-step-arrow
-   elements are already static markup in Views.baccaratSim(), hidden by
-   default and revealed only while these classes are present. */
+   (main.js) just toggle .bac-no-step on the table; there's no separate
+   overlay element or DOM creation — .bac-no-step-msg is already static
+   markup in Views.baccaratSim(), hidden by default and revealed only
+   while that class is present. */
 .bac-no-step-msg { display: none; }
 .baccarat-table.bac-no-step .bac-no-step-msg {
   display: flex; flex: 1;
@@ -3946,71 +3947,13 @@ body {
 .baccarat-table.bac-no-step .bac-field {
   display: none;
 }
-/* Arrow beside each STEP button, pointing back at it, visible only
-   during the landing state. Rev3 per explicit follow-up — rev2's
-   border-trick shape was still just a plain triangle/pointer, not an
-   actual "화살표" (arrow: a shaft + a head, like ←), so this is now a
-   real inline SVG arrow icon (shaft rectangle fused to a triangular
-   head — see the <path> in Views.baccaratSim(), main.js) instead of a
-   CSS border triangle. Vector, so it stays crisp at any size/DPI
-   without depending on a font glyph's own weight/rendering. Separate
-   DOM elements (not a ::after on .bac-step-btn itself) because that
-   button has its own overflow:hidden (the SIMULATION-label overflow
-   fix), which would clip a pseudo-element positioned outside its own
-   box — these live as siblings of the 3 buttons inside .bac-step-panel
-   (already position:relative) instead, each pinned to its button's
-   vertical third via fixed top %s (the 3 buttons are always equal
-   flex:1 heights). Pulse scales slightly (not opacity-only) for a
-   fuller "breathing" read, and never dims past .55 opacity so presence
-   holds through the whole cycle — same 2.2s ease-in-out duration as
-   .bac-step-btn's own pulse below so the two move in lockstep ("하나의
-   인터랙션 요소처럼"), since both animations start on the same
-   class-toggle tick. */
-.bac-step-arrow { display: none; }
-.bac-step-panel-no-selection .bac-step-arrow {
-  display: block;
-  position: absolute;
-  left: 100%;
-  margin-left: .4rem;
-  transform: translateY(-50%);
-  animation: bacStepArrowPulse 2.2s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 10;
-}
-.bac-step-arrow svg {
-  display: block;
-  width: 46px;
-  height: 28px;
-  fill: var(--gold-light);
-  filter: drop-shadow(0 0 9px rgba(201,168,76,.75));
-}
-.bac-step-arrow-1 { top: calc(100% / 6); }
-.bac-step-arrow-2 { top: 50%; }
-.bac-step-arrow-3 { top: calc(100% / 6 * 5); }
-@keyframes bacStepArrowPulse {
-  0%, 100% { opacity: .55; transform: translateY(-50%) scale(1); }
-  50%      { opacity: 1;   transform: translateY(-50%) scale(1.12); }
-}
-/* STEP buttons pulse in sync with their arrows during the landing
-   state — explicit ask: border glow + a slight background brighten, so
-   the arrow and its button read as one combined interaction cue rather
-   than an arrow blinking next to an untouched button. Omitting
-   border-color/box-shadow/background from the 0%/100% keyframes is
-   deliberate: the spec resolves an animated property's missing
-   boundary keyframe from the element's own "underlying" (non-animated)
-   value, so this correctly breathes back to whatever this button's
-   ACTUAL resting style is (plain green border normally) instead of a
-   hardcoded value that could drift out of sync with it. */
-@keyframes bacStepBtnPulse {
-  50% {
-    border-color: var(--gold-light);
-    box-shadow: inset 0 2px 12px rgba(0,0,0,.35), var(--shadow), 0 0 16px 2px rgba(201,168,76,.5);
-    background: rgba(255,255,255,.13);
-  }
-}
-.bac-step-panel-no-selection .bac-step-btn {
-  animation: bacStepBtnPulse 2.2s ease-in-out infinite;
-}
+/* The pointer arrows previously shown here during the landing state
+   (SVG shaft+head icons, one per button) were removed 2026-09-02 —
+   explicit ask. Each STEP button now carries its own always-on
+   identity-colored glow/pulse (see #bac-step-btn-1/2/3 and
+   @keyframes bacStepGlowBreathe above) that does this job permanently,
+   in every state, not just while no step is picked — so no
+   landing-state-only replacement animation was added here. */
 @keyframes mistakePop {
   0%   { transform: scale(.4); opacity: 0; }
   60%  { transform: scale(1.15); }

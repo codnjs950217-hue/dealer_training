@@ -532,11 +532,10 @@ const Views = {
       <div class="bac-sim-body">
       <!-- No step starts active — Card Drawing now lands on the "pick a
            STEP" empty state (see Sims.baccarat's showNoStepState()/
-           init()) instead of defaulting into Step 3. The 3 arrow divs
-           are separate elements (not ::after on .bac-step-btn itself)
-           because that button has its own overflow:hidden (the
-           SIMULATION-label overflow fix) which would clip a
-           pseudo-element positioned outside its own box. -->
+           init()) instead of defaulting into Step 3. Each button carries
+           its own always-on color identity (yellow/navy/green — see
+           style.css's #bac-step-btn-1/2/3 custom properties) instead of
+           a pointer arrow. -->
       <div class="bac-step-panel" id="bac-step-panel">
         <button class="bac-step-btn" id="bac-step-btn-1" onclick="Sims.baccarat.selectStep(1)">
           <span class="bac-step-num">STEP 1</span>
@@ -550,9 +549,6 @@ const Views = {
           <span class="bac-step-num">STEP 3</span>
           <span class="bac-step-lbl">FULL<br>SIMULATION</span>
         </button>
-        <div class="bac-step-arrow bac-step-arrow-1" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M40 8 L40 16 L16 16 L16 24 L0 12 L16 0 L16 8 Z"/></svg></div>
-        <div class="bac-step-arrow bac-step-arrow-2" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M40 8 L40 16 L16 16 L16 24 L0 12 L16 0 L16 8 Z"/></svg></div>
-        <div class="bac-step-arrow bac-step-arrow-3" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M40 8 L40 16 L16 16 L16 24 L0 12 L16 0 L16 8 Z"/></svg></div>
       </div>
       <div class="baccarat-table">
         <div class="table-stats-overlay">
@@ -2379,23 +2375,21 @@ const Sims = {
     // genuinely empty — no cards, no result buttons, no PLAYER/BANKER
     // labels, no center divider). Unlike the earlier dismissible-overlay
     // attempt (superseded), there's no separate "content underneath" to
-    // reveal by clicking away — .bac-no-step (table) / .bac-step-panel-
-    // no-selection (panel) just gate what's visible via CSS, toggled by
-    // these two, and the state persists until a step is actually picked.
-    // The .bac-no-step-msg text and the 3 .bac-step-arrow elements are
-    // static markup (Views.baccaratSim()) that these classes reveal —
-    // no innerHTML/DOM creation needed, unlike showStepIntro() above.
+    // reveal by clicking away — .bac-no-step just gates what's visible
+    // via CSS, toggled here, and the state persists until a step is
+    // actually picked. The .bac-no-step-msg text is static markup
+    // (Views.baccaratSim()) that this class reveals — no innerHTML/DOM
+    // creation needed, unlike showStepIntro() above. (The STEP buttons
+    // themselves no longer change for this state — they carry their own
+    // always-on color identity/glow regardless of whether a step is
+    // picked yet, see style.css.)
     function showNoStepState() {
       const tbl = document.querySelector('.baccarat-table');
-      const panel = document.querySelector('.bac-step-panel');
       if (tbl) tbl.classList.add('bac-no-step');
-      if (panel) panel.classList.add('bac-step-panel-no-selection');
     }
     function hideNoStepState() {
       const tbl = document.querySelector('.baccarat-table');
-      const panel = document.querySelector('.bac-step-panel');
       if (tbl) tbl.classList.remove('bac-no-step');
-      if (panel) panel.classList.remove('bac-step-panel-no-selection');
     }
 
     // Forced-PAIR-first guard: fired by every WIN/TIE/BIG/SMALL/SUPER7/
