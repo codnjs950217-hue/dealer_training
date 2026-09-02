@@ -3060,26 +3060,31 @@ const Sims = {
     function drawWinBtnHtml(side) {
       const cls = side === 'banker' ? 'btn-bac-banker' : 'btn-bac-player';
       const label = side === 'banker' ? 'BANKER WIN' : 'PLAYER WIN';
-      return `<button class="${cls} bac-inline-btn bac-win-oval" onclick="Sims.baccarat.drawAction('stand')">${label}</button>`;
+      // Passes the clicked element through so drawAction() can flash
+      // THIS specific button green on a correct 'stand' call — both WIN
+      // buttons are live at once now (see showDrawJudgment() below), so
+      // there's no longer a single fixed "the" win cell to look up.
+      return `<button class="${cls} bac-inline-btn bac-win-oval" onclick="Sims.baccarat.drawAction('stand', this)">${label}</button>`;
     }
-    // Initial judgment: PLAYER DRAW/BANKER DRAW live in their own
-    // 3rd-card slots; PLAYER WIN (replaces the old generic STAND button)
-    // sits above the Player zone — Player's own draw-or-stand call is
-    // always decidable right away, so this is the only WIN option shown
-    // at this stage (see drawCorrectChoiceInitial() above: whenever the
-    // correct call is 'draw-banker' directly, BANKER DRAW itself — not a
-    // WIN button — already covers it; a separate BANKER WIN here would
-    // never have a sound, always-decidable answer before Player's own
-    // call is known).
+    // Initial judgment: BOTH PLAYER WIN and BANKER WIN show from the
+    // start, above their own zone, alongside PLAYER DRAW/BANKER DRAW in
+    // the 3rd-card slots — explicit ask ("처음부터 PLAYER WIN, BANKER WIN
+    // 버튼은 나와있어야해"). Whichever is clicked, correctness is still
+    // decided purely by drawCorrectChoiceInitial() — clicking the "wrong"
+    // WIN when a draw was actually owed is just a plain MISTAKE (choice
+    // 'stand' fails to match a 'draw-*' correct answer), no special
+    // casing needed; when the correct answer genuinely is 'stand' (a
+    // natural, or both hands settling), EITHER oval is a legitimate
+    // correct pick since both hands truly stand simultaneously.
     function showDrawJudgment() {
       setBtn('bac-bh3', drawActionBtnHtml('draw-banker', 'BANKER<br>DRAW'));
       setBtn('bac-ph3', drawActionBtnHtml('draw-player', 'PLAYER<br>DRAW'));
       setBtn('bac-draw-player-win', drawWinBtnHtml('player'));
-      setBtn('bac-draw-banker-win', '');
+      setBtn('bac-draw-banker-win', drawWinBtnHtml('banker'));
     }
     // Stage 2 (only after Player actually drew): Player's 3rd-card slot
-    // now holds the real revealed card, not a button — BANKER WIN
-    // (above the Banker zone) vs BANKER DRAW remain the only options.
+    // now holds the real revealed card, not a button, so PLAYER WIN no
+    // longer applies — only BANKER WIN vs BANKER DRAW remain possible.
     function showBankerDrawJudgment() {
       setBtn('bac-bh3', drawActionBtnHtml('draw-banker', 'BANKER<br>DRAW'));
       setBtn('bac-draw-banker-win', drawWinBtnHtml('banker'));
@@ -3208,7 +3213,7 @@ const Sims = {
         });
       },
 
-      drawAction(choice) {
+      drawAction(choice, btnEl) {
         const stage2 = S.ph.length === 3;
         const correct = stage2 ? drawCorrectChoiceStage2() : drawCorrectChoiceInitial();
         if (choice !== correct) {
@@ -3223,15 +3228,16 @@ const Sims = {
           // Nothing to animate — disable every option (a hand can sit
           // here for the whole 700ms auto-advance window, unlike the
           // draw branches below which clear their buttons immediately)
-          // and flash the confirmed WIN button green. Stage 2 shows
-          // BANKER WIN, every other case (initial stage) shows PLAYER
-          // WIN — mirrors showDrawJudgment()/showBankerDrawJudgment().
+          // and flash whichever WIN button was ACTUALLY clicked (both
+          // PLAYER WIN and BANKER WIN are live simultaneously at the
+          // initial stage — either is a legitimate correct pick when the
+          // hand genuinely stands pat, so there's no single fixed cell
+          // to look up; btnEl, passed from the oval's own onclick, is
+          // the real source of truth here).
           [$('bac-bh3'), $('bac-ph3'), $('bac-draw-banker-win'), $('bac-draw-player-win')].forEach(el => {
             if (el) el.querySelectorAll('button').forEach(b => b.disabled = true);
           });
-          const winCell = stage2 ? $('bac-draw-banker-win') : $('bac-draw-player-win');
-          const winBtn = winCell ? winCell.querySelector('button') : null;
-          if (winBtn) winBtn.classList.add('bac-draw-correct');
+          if (btnEl) btnEl.classList.add('bac-draw-correct');
           finishDrawingHand();
           return;
         }
