@@ -655,7 +655,11 @@ const Views = {
             <div class="bac-third-slot" id="bac-bh3"></div>
             <div class="bac-hand-wrap bac-bh-wrap" id="bac-bh"></div>
           </div>
-          <div class="bac-field-divider"></div>
+          <!-- STEP 2 (DRAWING) only — STAND judgment button, injected by
+               Sims.baccarat's showDrawJudgment()/showBankerDrawJudgment().
+               Empty (display:contents, style.css) by default so it adds
+               no box of its own to Step 1/3's divider. -->
+          <div class="bac-field-divider"><div class="bac-draw-stand-slot" id="bac-draw-stand"></div></div>
           <div class="bac-player-zone">
             <div class="bac-zone-lbl bac-lbl-player">PLAYER</div>
             <div class="bac-hand-wrap bac-ph-wrap" id="bac-ph"></div>
@@ -3013,6 +3017,104 @@ const Sims = {
       renderCountQuiz();
     }
 
+    // ---- STEP 2 (DRAWING) ----
+    // A dedicated "does this hand need a 3rd card, and which side draws
+    // it" drill — NOT a trimmed-down Step 3. It reuses Step 3's exact
+    // initial-4-card deal (dealSequence() into the same #bac-ph/#bac-bh
+    // targets), the same card rendering, and the same bankerRule()/pts()
+    // draw-rule math and doPlayerDraw()/doBankerDraw() 3rd-card
+    // animations quizInitial()/quizBanker() (Step 3) already use — but
+    // the trainee only ever judges STAND vs PLAYER DRAW vs BANKER DRAW,
+    // never a winner/side-bet/PAIR. .bac-exp-grid (PAIR row + WIN/TIE/
+    // BIG6/etc + CONFIRM) is hidden wholesale for this mode (see
+    // .bac-drawing-mode in style.css) — this drill has none of that.
+    function drawCorrectChoiceInitial() {
+      const pp = pts(S.ph), bp = pts(S.bh);
+      if (pp >= 8 || bp >= 8) return 'stand'; // natural — hand's already over
+      if (pp <= 5) return 'draw-player';
+      if (bankerRule(bp, null)) return 'draw-banker';
+      return 'stand'; // both hands stand pat, no natural
+    }
+    function drawCorrectChoiceStage2() {
+      // Reached only after a correct Player draw — Banker's decision now
+      // depends on Player's actual 3rd card (bankerRule's full table).
+      return bankerRule(pts(S.bh), S.pThird) ? 'draw-banker' : 'stand';
+    }
+    function drawActionBtnHtml(choice, label) {
+      return `<button class="btn-bac-draw bac-draw-slot-btn" onclick="Sims.baccarat.drawAction('${choice}')">${label}</button>`;
+    }
+    // Initial judgment: all 3 options live (PLAYER DRAW/BANKER DRAW in
+    // their own 3rd-card slots, STAND in the field divider between the
+    // two zones — see #bac-draw-stand in Views.baccaratSim()).
+    function showDrawJudgment() {
+      setBtn('bac-bh3', drawActionBtnHtml('draw-banker', 'BANKER<br>DRAW'));
+      setBtn('bac-ph3', drawActionBtnHtml('draw-player', 'PLAYER<br>DRAW'));
+      const standE = $('bac-draw-stand');
+      if (standE) standE.innerHTML = `<button class="btn-bac-draw" onclick="Sims.baccarat.drawAction('stand')">STAND</button>`;
+    }
+    // Stage 2 (only after Player actually drew): Player's 3rd-card slot
+    // now holds the real revealed card, not a button — only BANKER DRAW
+    // vs STAND remain possible.
+    function showBankerDrawJudgment() {
+      setBtn('bac-bh3', drawActionBtnHtml('draw-banker', 'BANKER<br>DRAW'));
+      const standE = $('bac-draw-stand');
+      if (standE) standE.innerHTML = `<button class="btn-bac-draw" onclick="Sims.baccarat.drawAction('stand')">STAND</button>`;
+    }
+    function finishDrawingHand() {
+      S.score++; S.rounds++;
+      $('bac-score').textContent = S.score;
+      $('bac-rounds').textContent = S.rounds;
+      S.drawHandTimer = setTimeout(() => dealDrawingHand(), 700);
+    }
+    function dealDrawingHand() {
+      if (S.deck.length < 20) S.deck = createBacDeck();
+      S.ph = []; S.bh = []; S.pThird = null;
+      $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
+      const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
+      const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
+      const standE = $('bac-draw-stand'); if (standE) standE.innerHTML = '';
+      const cards = [S.deck.pop(), S.deck.pop(), S.deck.pop(), S.deck.pop()];
+      // Same deal order/target mapping as Step 3's deal(): cards[0]=P2,
+      // cards[1]=B1, cards[2]=P1, cards[3]=B2, visual order 4→2→3→1.
+      S.ph = [cards[2], cards[0]];
+      S.bh = [cards[1], cards[3]];
+      dealSequence(cards, ['bac-ph','bac-bh','bac-ph','bac-bh'], () => showDrawJudgment());
+    }
+    function startDrawing() {
+      S.deck = createBacDeck();
+      S.rounds = 0; S.score = 0; S.mistakes = 0;
+      $('bac-rounds').textContent = S.rounds;
+      $('bac-score').textContent = S.score;
+      $('bac-mistakes').textContent = S.mistakes;
+      const pp = $('bac-pay-panel'); if (pp) pp.style.display = 'none';
+      // Unlike .bac-counting-mode, this mode does NOT hide the PLAYER/
+      // BANKER labels or the field divider — explicit ask: keep both
+      // zones and the real table layout exactly as Step 3 shows them.
+      const tbl = document.querySelector('.baccarat-table');
+      if (tbl) tbl.classList.add('bac-drawing-mode');
+      dealDrawingHand();
+    }
+
+    // Shared teardown for switching INTO any step, from any other step —
+    // clears every step's own leftover cards/buttons/mode classes so a
+    // fresh start*()/deal() never has to guess what the previous step
+    // left behind. Replaces what used to be a one-off block inlined into
+    // selectStep()'s n===3 branch (back when 1↔3 were the only real
+    // transitions); now that all 3 steps are real, every direction needs
+    // the same cleanup.
+    function resetStepDom() {
+      if (S.drawHandTimer) { clearTimeout(S.drawHandTimer); S.drawHandTimer = null; }
+      $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
+      const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
+      const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
+      const standE = $('bac-draw-stand'); if (standE) standE.innerHTML = '';
+      const fbE = $('bac-count-feedback'); if (fbE) fbE.innerHTML = '';
+      const tbl = document.querySelector('.baccarat-table');
+      if (tbl) tbl.classList.remove('bac-counting-mode', 'bac-drawing-mode');
+      document.querySelectorAll('.bac-banker-zone, .bac-player-zone').forEach(z => z.classList.remove('bac-zone-active'));
+      clearInlineBtns(); clearPairBtns(); setPairPhaseFocus(false);
+    }
+
     return {
       init(isRestart) {
         const wasMidHand = isRestart && S && S.ph && S.ph.length > 0 && S.winner === null;
@@ -3038,74 +3140,40 @@ const Sims = {
         }
       },
 
-      // STEP 2 (DRAWING) isn't built yet. STEP 1 (COUNTING) is a real
-      // in-page mode switch (see startCounting() above); STEP 3 (FULL
-      // SIMULATION) is this page's original content, restored via the
-      // same reset init() itself does on a fresh, non-restart entry.
-      //
-      // Every transition now shows a one-time showStepIntro() overlay
-      // (title + description, fade in/hold/fade out) BEFORE the step's
-      // actual setup runs — "매 문제마다 안내 문구를 표시하지 않고... STEP
-      // 변경 시에만 1회 표시". Tab highlighting (and S.step itself) update
+      // All 3 steps are real now (2026-09-02 — STEP 2 was a placeholder
+      // toast before). Every transition shows a one-time showStepIntro()
+      // overlay (title + description, fade in/hold/fade out) BEFORE the
+      // step's actual setup runs — "매 문제마다 안내 문구를 표시하지 않고...
+      // STEP 변경 시에만 1회 표시". Tab highlighting/S.step update
       // immediately on click, not after the overlay, so a repeat click on
-      // the same tab is still correctly blocked by the guard above even
+      // the same tab is still correctly blocked by the guard below even
       // while the overlay is still showing; only the actual content
-      // rebuild (startCounting()/the placeholder toast/the Step 3 teardown
-      // + init()) is deferred into the overlay's onDone callback. STEP 2
-      // deliberately does NOT update S.step/tab state (unchanged from
-      // before — it has no real content to switch into yet), so its
-      // overlay+toast can still repeat on every click exactly like the
-      // toast alone used to.
+      // rebuild (resetStepDom() + startCounting()/startDrawing()/deal())
+      // is deferred into the overlay's onDone callback.
       selectStep(n) {
-        // Picking STEP 1 or STEP 3 dismisses the "pick a STEP" landing
-        // state. STEP 2 is excluded — it has no real content to switch
-        // into (still just a toast below), so if the landing state was
-        // showing, leaving it up avoids a dead-end blank table.
-        if (n !== 2) hideNoStepState();
+        hideNoStepState();
         if (n === S.step) return;
-        if (n !== 2) {
-          S.step = n;
-          [1, 2, 3].forEach(i => {
-            const b = $(`bac-step-btn-${i}`);
-            if (b) b.classList.toggle('bac-step-active', i === n);
-          });
-        }
+        S.step = n;
+        [1, 2, 3].forEach(i => {
+          const b = $(`bac-step-btn-${i}`);
+          if (b) b.classList.toggle('bac-step-active', i === n);
+        });
         const intro = {
           1: ['STEP 1 • COUNTING', '현재 카드의 카운팅 값을 계산하여<br>정답을 선택하세요.'],
           2: ['STEP 2 • DRAWING', '플레이어 또는 뱅커의<br>드로우 여부를 판단하세요.'],
           3: ['STEP 3 • FULL SIMULATION', '실제 바카라 진행 절차를 따라<br>게임을 시뮬레이션하세요.'],
         }[n];
         showStepIntro(intro[0], intro[1], () => {
-          if (n === 2) {
-            const panel = $('bac-step-panel');
-            if (!panel) return;
-            const existing = panel.querySelector('.bac-step-soon-toast');
-            if (existing) existing.remove();
-            const t = document.createElement('div');
-            t.className = 'bac-step-soon-toast';
-            t.textContent = '준비 중입니다';
-            panel.appendChild(t);
-            setTimeout(() => t.remove(), 1500);
-            return;
-          }
+          resetStepDom();
           if (n === 1) { startCounting(); return; }
-          // n === 3: leave counting mode's DOM (cards/3rd-card slots/option
-          // buttons, plus the layout it toggled — .bac-counting-mode and
-          // the winning zone's .bac-zone-active) clean, then reset Step 3's
-          // state and deal immediately (no START button — see this.deal()
-          // below). Deliberately NOT this.init(false) anymore — that now
-          // lands on the "pick a STEP" empty state (step:null), which would
-          // immediately undo the very selection this callback exists to
-          // fulfill. Same reset init() itself does on a truly fresh entry,
-          // just inlined here with step hardcoded to 3.
-          $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
-          const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
-          const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
-          const fbE = $('bac-count-feedback'); if (fbE) fbE.innerHTML = '';
-          const tbl = document.querySelector('.baccarat-table');
-          if (tbl) tbl.classList.remove('bac-counting-mode');
-          document.querySelectorAll('.bac-banker-zone, .bac-player-zone').forEach(z => z.classList.remove('bac-zone-active'));
-          clearInlineBtns(); clearPairBtns(); setPairPhaseFocus(false);
+          if (n === 2) { startDrawing(); return; }
+          // n === 3: reset Step 3's state and deal immediately (no START
+          // button — see this.deal() below). Deliberately NOT
+          // this.init(false) anymore — that now lands on the "pick a
+          // STEP" empty state (step:null), which would immediately undo
+          // the very selection this callback exists to fulfill. Same
+          // reset init() itself does on a truly fresh entry, just
+          // inlined here with step hardcoded to 3.
           S = { deck: createBacDeck(), ph: [], bh: [], pThird: null, step: 3,
                 rounds: 0, score: 0, mistakes: 0, winner: null, bets: [] };
           $('bac-rounds').textContent = S.rounds;
@@ -3113,6 +3181,39 @@ const Sims = {
           $('bac-mistakes').textContent = S.mistakes;
           this.deal();
         });
+      },
+
+      drawAction(choice) {
+        const stage2 = S.ph.length === 3;
+        const correct = stage2 ? drawCorrectChoiceStage2() : drawCorrectChoiceInitial();
+        if (choice !== correct) {
+          // OVER DRAW only fits when the correct call was to stand pat
+          // and the trainee tried to draw anyway — same distinction
+          // quizInitial() (Step 3) makes.
+          const isOverDraw = choice.startsWith('draw-') && correct === 'stand';
+          showMistake(() => (stage2 ? showBankerDrawJudgment() : showDrawJudgment()), isOverDraw ? 'OVER DRAW' : 'MISTAKE!');
+          return;
+        }
+        if (correct === 'stand') {
+          // Nothing to animate — disable every option (a hand can sit
+          // here for the whole 700ms auto-advance window, unlike the
+          // draw branches below which clear their buttons immediately)
+          // and flash STAND green as the confirmed correct call.
+          [$('bac-bh3'), $('bac-ph3'), $('bac-draw-stand')].forEach(el => {
+            if (el) el.querySelectorAll('button').forEach(b => b.disabled = true);
+          });
+          const standBtn = document.querySelector('#bac-draw-stand button');
+          if (standBtn) standBtn.classList.add('bac-draw-correct');
+          finishDrawingHand();
+          return;
+        }
+        $('bac-bh3').innerHTML = ''; $('bac-ph3').innerHTML = '';
+        const standE = $('bac-draw-stand'); if (standE) standE.innerHTML = '';
+        if (correct === 'draw-player') {
+          doPlayerDraw(() => showBankerDrawJudgment());
+        } else {
+          doBankerDraw(() => finishDrawingHand());
+        }
       },
 
       // Correct answers briefly highlight the chosen button green, then

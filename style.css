@@ -2381,15 +2381,6 @@ body {
 .bac-step-btn.bac-step-active .bac-step-num { color: var(--step-color); }
 .bac-step-btn.bac-step-active::before { opacity: 1; }
 
-.bac-step-soon-toast {
-  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
-  background: rgba(0,0,0,.85); color: #fff;
-  font-size: .66rem; font-weight: 600; white-space: nowrap;
-  padding: .35rem .6rem; border-radius: 6px;
-  pointer-events: none; z-index: 20;
-  box-shadow: 0 2px 8px rgba(0,0,0,.4);
-}
-
 /* Baccarat-only card size override (does not affect other pages) */
 .baccarat-sim {
   --card-w-lg: clamp(58px, 15.5vh, 100px);
@@ -2693,6 +2684,43 @@ body {
 .bac-field-divider::before {
   content: ''; position: absolute; top: 0; bottom: 0; left: 50%;
   width: 2px; background: rgba(255,255,255,.3); transform: translateX(-50%);
+}
+/* STEP 2 (DRAWING) only — the STAND judgment button lives here (see
+   Sims.baccarat's showDrawJudgment()/showBankerDrawJudgment(), main.js).
+   display:contents means an EMPTY #bac-draw-stand (Step 1/3, or Step 2
+   mid-animation) generates no box of its own — .bac-field-divider's own
+   ::before line and centering are completely unaffected. When it does
+   hold a button, that button becomes a direct flex item of the divider
+   itself, centered the same way any other child would be. */
+.bac-draw-stand-slot { display: contents; }
+/* STAND reuses .btn-bac-draw's shape/interaction states (padding, hover/
+   active lift, the pulse) but needs its own size (this column is only
+   ~56-80px wide, far narrower than the card-slot-sized BANKER/PLAYER
+   DRAW buttons) and its own color identity — a cool blue, distinct from
+   DRAW's neutral charcoal, reading as "no action" rather than a 3rd
+   command sharing DRAW's own visual family. Id-scoped (not a new class)
+   for the same reason #bac-pair-b/#bac-pair-p recolor .btn-bac-pair
+   above: one container, one color, no risk of it leaking onto Step 3's
+   own BANKER/PLAYER DRAW buttons elsewhere on this page. */
+#bac-draw-stand .btn-bac-draw {
+  --btn-hi: 140,190,255; --btn-glow: 30,90,190;
+  background: linear-gradient(180deg, #123a66 0%, #071b30 100%);
+  color: #bcdcff;
+  text-shadow: 0 1px 6px rgba(100,170,255,.4);
+  width: 100%;
+  white-space: normal;
+  font-size: .74rem;
+  padding: clamp(.3rem,.8vh,.45rem) .2rem;
+  min-height: auto;
+}
+/* Brief green confirmation flash on a correct STAND call (drawAction()
+   in main.js) — the two DRAW buttons never need this since the actual
+   3rd-card animation is already visible confirmation on its own. */
+.btn-bac-draw.bac-draw-correct,
+#bac-draw-stand .btn-bac-draw.bac-draw-correct {
+  background: linear-gradient(180deg, #1a6a1a 0%, #0a2e0a 100%);
+  color: #9dffa0;
+  text-shadow: 0 1px 6px rgba(80,220,80,.5);
 }
 .bac-div-lbl {
   position: absolute; top: 50%; transform: translateY(-50%);
@@ -3197,6 +3225,19 @@ body {
 .bac-counting-mode .bac-player-zone.bac-zone-active .bac-third-slot {
   grid-column: 3;
   justify-self: start;
+}
+
+/* ---- BACCARAT: STEP 2 DRAWING MODE (draw-judgment drill) ---- */
+/* Toggled on .baccarat-table by Sims.baccarat's startDrawing()/
+   resetStepDom() (main.js). Unlike .bac-counting-mode above, this mode
+   keeps the PLAYER/BANKER zone split, labels, and field divider exactly
+   as Step 3 shows them (explicit ask: same layout/card size/position/
+   animation as Step 3) — the only change is hiding .bac-exp-grid
+   wholesale (the PAIR row, WIN/TIE/BIG6/etc side-bet grid, and CONFIRM),
+   since this drill never asks the trainee to predict a winner or side
+   bet, only whether/who draws a 3rd card. */
+.bac-drawing-mode .bac-exp-grid {
+  display: none;
 }
 
 /* ---- BACCARAT: WIN HEADER + ANNOUNCE ---- */
