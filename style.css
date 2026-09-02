@@ -2769,6 +2769,13 @@ body {
      of Step 3's real WIN oval size, since this remains a secondary
      judgment cue floating over the card zone, not a full-width bet row. */
   --bac-pair-circle-d: clamp(30px, 6.5vh, 38px);
+  /* Cancels out .bac-field's own translateY(--bac-draw-row-shift) above
+     — this anchor is nested inside .bac-field (via its zone), so
+     without this it would drift down along with the cards/shoe it's
+     deliberately meant to stay put while those move ("윈버튼 그대로
+     두고... 카드들이랑 아래로"). Transforms compose down the tree, so
+     the opposite translateY here exactly zeroes the parent's shift. */
+  transform: translateY(calc(-1 * var(--bac-draw-row-shift)));
 }
 .bac-draw-win-anchor-banker { right: 24px; }
 .bac-draw-win-anchor-player { left: 24px; }
@@ -3323,6 +3330,18 @@ body {
 .bac-drawing-mode {
   background: var(--drawing-felt);
   border-color: var(--drawing-border);
+  /* Shifts the whole card row (shoe + both zones + divider) down a bit
+     — explicit follow-up ask ("슈랑 나머지 카드들이랑 아래로 좀 내려줘")
+     to open up room now that the WIN buttons float above each zone's
+     label. The WIN anchors are nested INSIDE the zones this shifts, so
+     without compensation they'd move down by the same amount — "윈버튼
+     그대로 두고" (leave the WIN buttons where they are) means
+     .bac-draw-win-anchor below applies the exact opposite translateY,
+     canceling this one out so only the cards/shoe actually move. */
+  --bac-draw-row-shift: clamp(1rem, 4vh, 2.2rem);
+}
+.bac-drawing-mode .bac-field {
+  transform: translateY(var(--bac-draw-row-shift));
 }
 
 /* ---- BACCARAT: WIN HEADER + ANNOUNCE ---- */
