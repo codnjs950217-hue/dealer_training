@@ -643,6 +643,17 @@ const Views = {
             <div class="bac-exp-cell" id="bac-exp-small7"></div>
           </div>
         </div>
+        <!-- STEP 2 (DRAWING) only — PLAYER WIN / BANKER WIN judgment
+             buttons, each positioned above its own zone below, reusing
+             Step 3's exact WIN button classes/style (.btn-bac-player/
+             .btn-bac-banker.bac-win-oval). Injected by Sims.baccarat's
+             showDrawJudgment()/showBankerDrawJudgment(); hidden by
+             default (style.css) so Step 1/3 never see it. -->
+        <div class="bac-draw-winrow" id="bac-draw-winrow">
+          <div class="bac-draw-winrow-cell" id="bac-draw-banker-win"></div>
+          <div class="bac-draw-winrow-spacer"></div>
+          <div class="bac-draw-winrow-cell" id="bac-draw-player-win"></div>
+        </div>
         <div class="bac-field">
           <div class="bac-shoe-col">
             <div class="shoe-visual">
@@ -655,11 +666,7 @@ const Views = {
             <div class="bac-third-slot" id="bac-bh3"></div>
             <div class="bac-hand-wrap bac-bh-wrap" id="bac-bh"></div>
           </div>
-          <!-- STEP 2 (DRAWING) only — STAND judgment button, injected by
-               Sims.baccarat's showDrawJudgment()/showBankerDrawJudgment().
-               Empty (display:contents, style.css) by default so it adds
-               no box of its own to Step 1/3's divider. -->
-          <div class="bac-field-divider"><div class="bac-draw-stand-slot" id="bac-draw-stand"></div></div>
+          <div class="bac-field-divider"></div>
           <div class="bac-player-zone">
             <div class="bac-zone-lbl bac-lbl-player">PLAYER</div>
             <div class="bac-hand-wrap bac-ph-wrap" id="bac-ph"></div>
@@ -3024,10 +3031,13 @@ const Sims = {
     // targets), the same card rendering, and the same bankerRule()/pts()
     // draw-rule math and doPlayerDraw()/doBankerDraw() 3rd-card
     // animations quizInitial()/quizBanker() (Step 3) already use — but
-    // the trainee only ever judges STAND vs PLAYER DRAW vs BANKER DRAW,
-    // never a winner/side-bet/PAIR. .bac-exp-grid (PAIR row + WIN/TIE/
-    // BIG6/etc + CONFIRM) is hidden wholesale for this mode (see
-    // .bac-drawing-mode in style.css) — this drill has none of that.
+    // the trainee only ever judges PLAYER WIN/PLAYER DRAW/BANKER DRAW/
+    // BANKER WIN — a real winner/side-bet/PAIR guess is never asked.
+    // .bac-exp-grid (PAIR row + WIN/TIE/BIG6/etc + CONFIRM) is hidden
+    // wholesale for this mode (see .bac-drawing-mode in style.css) —
+    // this drill has none of that; PLAYER WIN/BANKER WIN below are a
+    // separate, purpose-built pair (.bac-draw-winrow), not the hidden
+    // grid's own buttons.
     function drawCorrectChoiceInitial() {
       const pp = pts(S.ph), bp = pts(S.bh);
       if (pp >= 8 || bp >= 8) return 'stand'; // natural — hand's already over
@@ -3043,22 +3053,37 @@ const Sims = {
     function drawActionBtnHtml(choice, label) {
       return `<button class="btn-bac-draw bac-draw-slot-btn" onclick="Sims.baccarat.drawAction('${choice}')">${label}</button>`;
     }
-    // Initial judgment: all 3 options live (PLAYER DRAW/BANKER DRAW in
-    // their own 3rd-card slots, STAND in the field divider between the
-    // two zones — see #bac-draw-stand in Views.baccaratSim()).
+    // PLAYER WIN / BANKER WIN reuse Step 3's exact WIN-button markup/
+    // classes (see winBtns() above) — same oval shape/color/style, just
+    // this drill's own handler and no dim()/pressed() state (there's
+    // nothing to toggle here, CHECK doesn't exist in this mode).
+    function drawWinBtnHtml(side) {
+      const cls = side === 'banker' ? 'btn-bac-banker' : 'btn-bac-player';
+      const label = side === 'banker' ? 'BANKER WIN' : 'PLAYER WIN';
+      return `<button class="${cls} bac-inline-btn bac-win-oval" onclick="Sims.baccarat.drawAction('stand')">${label}</button>`;
+    }
+    // Initial judgment: PLAYER DRAW/BANKER DRAW live in their own
+    // 3rd-card slots; PLAYER WIN (replaces the old generic STAND button)
+    // sits above the Player zone — Player's own draw-or-stand call is
+    // always decidable right away, so this is the only WIN option shown
+    // at this stage (see drawCorrectChoiceInitial() above: whenever the
+    // correct call is 'draw-banker' directly, BANKER DRAW itself — not a
+    // WIN button — already covers it; a separate BANKER WIN here would
+    // never have a sound, always-decidable answer before Player's own
+    // call is known).
     function showDrawJudgment() {
       setBtn('bac-bh3', drawActionBtnHtml('draw-banker', 'BANKER<br>DRAW'));
       setBtn('bac-ph3', drawActionBtnHtml('draw-player', 'PLAYER<br>DRAW'));
-      const standE = $('bac-draw-stand');
-      if (standE) standE.innerHTML = `<button class="btn-bac-draw" onclick="Sims.baccarat.drawAction('stand')">STAND</button>`;
+      setBtn('bac-draw-player-win', drawWinBtnHtml('player'));
+      setBtn('bac-draw-banker-win', '');
     }
     // Stage 2 (only after Player actually drew): Player's 3rd-card slot
-    // now holds the real revealed card, not a button — only BANKER DRAW
-    // vs STAND remain possible.
+    // now holds the real revealed card, not a button — BANKER WIN
+    // (above the Banker zone) vs BANKER DRAW remain the only options.
     function showBankerDrawJudgment() {
       setBtn('bac-bh3', drawActionBtnHtml('draw-banker', 'BANKER<br>DRAW'));
-      const standE = $('bac-draw-stand');
-      if (standE) standE.innerHTML = `<button class="btn-bac-draw" onclick="Sims.baccarat.drawAction('stand')">STAND</button>`;
+      setBtn('bac-draw-banker-win', drawWinBtnHtml('banker'));
+      setBtn('bac-draw-player-win', '');
     }
     function finishDrawingHand() {
       S.score++; S.rounds++;
@@ -3072,7 +3097,7 @@ const Sims = {
       $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
       const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
       const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
-      const standE = $('bac-draw-stand'); if (standE) standE.innerHTML = '';
+      setBtn('bac-draw-banker-win', ''); setBtn('bac-draw-player-win', '');
       const cards = [S.deck.pop(), S.deck.pop(), S.deck.pop(), S.deck.pop()];
       // Same deal order/target mapping as Step 3's deal(): cards[0]=P2,
       // cards[1]=B1, cards[2]=P1, cards[3]=B2, visual order 4→2→3→1.
@@ -3107,7 +3132,7 @@ const Sims = {
       $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
       const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
       const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
-      const standE = $('bac-draw-stand'); if (standE) standE.innerHTML = '';
+      setBtn('bac-draw-banker-win', ''); setBtn('bac-draw-player-win', '');
       const fbE = $('bac-count-feedback'); if (fbE) fbE.innerHTML = '';
       const tbl = document.querySelector('.baccarat-table');
       if (tbl) tbl.classList.remove('bac-counting-mode', 'bac-drawing-mode');
@@ -3198,17 +3223,20 @@ const Sims = {
           // Nothing to animate — disable every option (a hand can sit
           // here for the whole 700ms auto-advance window, unlike the
           // draw branches below which clear their buttons immediately)
-          // and flash STAND green as the confirmed correct call.
-          [$('bac-bh3'), $('bac-ph3'), $('bac-draw-stand')].forEach(el => {
+          // and flash the confirmed WIN button green. Stage 2 shows
+          // BANKER WIN, every other case (initial stage) shows PLAYER
+          // WIN — mirrors showDrawJudgment()/showBankerDrawJudgment().
+          [$('bac-bh3'), $('bac-ph3'), $('bac-draw-banker-win'), $('bac-draw-player-win')].forEach(el => {
             if (el) el.querySelectorAll('button').forEach(b => b.disabled = true);
           });
-          const standBtn = document.querySelector('#bac-draw-stand button');
-          if (standBtn) standBtn.classList.add('bac-draw-correct');
+          const winCell = stage2 ? $('bac-draw-banker-win') : $('bac-draw-player-win');
+          const winBtn = winCell ? winCell.querySelector('button') : null;
+          if (winBtn) winBtn.classList.add('bac-draw-correct');
           finishDrawingHand();
           return;
         }
         $('bac-bh3').innerHTML = ''; $('bac-ph3').innerHTML = '';
-        const standE = $('bac-draw-stand'); if (standE) standE.innerHTML = '';
+        setBtn('bac-draw-banker-win', ''); setBtn('bac-draw-player-win', '');
         if (correct === 'draw-player') {
           doPlayerDraw(() => showBankerDrawJudgment());
         } else {

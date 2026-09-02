@@ -110,8 +110,13 @@
      the single source of truth for STEP1/STEP2's identity color —
      #bac-step-btn-1/2 (below), --counting-border/--drawing-border, and
      the quiz-button rules (.bac-count-opt-btn / .bac-drawing-mode
-     .btn-bac-draw / #bac-draw-stand) all reference these same values so
-     they can't drift apart. STEP3 is deliberately left on its existing
+     .btn-bac-draw for PLAYER/BANKER DRAW) all reference these same
+     values so they can't drift apart. (STEP2's PLAYER WIN/BANKER WIN
+     buttons are the one deliberate exception — see .bac-draw-winrow
+     further down — they reuse Step 3's own authentic banker/player
+     colors verbatim, not this navy accent, per explicit ask to bring
+     Step 3's real WIN-button look into this drill.) STEP3 is
+     deliberately left on its existing
      green/--felt system, untouched, per explicit "step3 내용은 건드리지마".
      Step 1 = a muted, desaturated AMBER (explicitly NOT the app's own
      --gold/--gold-light, which read as a brighter mustard-gold — "과도한
@@ -2701,35 +2706,23 @@ body {
   content: ''; position: absolute; top: 0; bottom: 0; left: 50%;
   width: 2px; background: rgba(255,255,255,.3); transform: translateX(-50%);
 }
-/* STEP 2 (DRAWING) only — the STAND judgment button lives here (see
-   Sims.baccarat's showDrawJudgment()/showBankerDrawJudgment(), main.js).
-   display:contents means an EMPTY #bac-draw-stand (Step 1/3, or Step 2
-   mid-animation) generates no box of its own — .bac-field-divider's own
-   ::before line and centering are completely unaffected. When it does
-   hold a button, that button becomes a direct flex item of the divider
-   itself, centered the same way any other child would be. */
-.bac-draw-stand-slot { display: contents; }
-/* 2026-09-02 redesign: STAND (#bac-draw-stand) AND the PLAYER/BANKER
-   DRAW buttons (.bac-drawing-mode .btn-bac-draw) now share ONE flat
-   navy identity (--drawing-accent, :root) instead of DRAW keeping its
-   old neutral charcoal "console button" bevel while only STAND was
-   blue — explicit design-system ask ("STEP 버튼 색상 = 레이아웃 포인트
-   색상 = 정답 버튼 색상"). Scoped to `.bac-drawing-mode` (Step 2's own
-   table-mode class) and the `#bac-draw-stand` id specifically, so
-   Step 3's own BANKER/PLAYER DRAW buttons elsewhere on this page (same
-   .btn-bac-draw class, no .bac-drawing-mode ancestor) are completely
-   untouched — required per explicit "step3 내용은 건드리지마". Also
-   flattens the shape itself (thinner border, soft fill instead of a
-   gradient bevel, a gentle outer glow instead of inset highlight/shade,
-   a bit more corner rounding) — explicit ask to move away from the
-   heavier "console button"/3D bevel look toward a thinner, modern
-   game-app style. `border`/`box-shadow` here override the shared
-   .btn-bac-draw base rule AND (via the higher-specificity :hover/
-   :active selectors below) the shared console-button hover/active
-   rules further down this file — both only apply to `.btn-bac-draw`
-   plain, which this scoped selector beats regardless of source order. */
-.bac-drawing-mode .btn-bac-draw,
-#bac-draw-stand .btn-bac-draw {
+/* 2026-09-02: PLAYER DRAW/BANKER DRAW (.bac-drawing-mode .btn-bac-draw)
+   share ONE flat navy identity (--drawing-accent, :root) — design-system
+   ask ("STEP 버튼 색상 = 레이아웃 포인트 색상 = 정답 버튼 색상"). Scoped to
+   `.bac-drawing-mode` (Step 2's own table-mode class) so Step 3's own
+   BANKER/PLAYER DRAW buttons elsewhere on this page (same .btn-bac-draw
+   class, no .bac-drawing-mode ancestor) are completely untouched —
+   required per explicit "step3 내용은 건드리지마". Also flattens the
+   shape itself (thinner border, soft fill instead of a gradient bevel,
+   a gentle outer glow instead of inset highlight/shade, a bit more
+   corner rounding) — explicit ask to move away from the heavier
+   "console button"/3D bevel look toward a thinner, modern game-app
+   style. `border`/`box-shadow` here override the shared .btn-bac-draw
+   base rule AND (via the higher-specificity :hover/:active selectors
+   below) the shared console-button hover/active rules further down
+   this file — both only apply to `.btn-bac-draw` plain, which this
+   scoped selector beats regardless of source order. */
+.bac-drawing-mode .btn-bac-draw {
   background: rgba(86,120,176,.14);
   border: 1px solid rgba(86,120,176,.55);
   border-radius: 14px;
@@ -2738,36 +2731,55 @@ body {
   box-shadow: 0 0 14px rgba(86,120,176,.28);
   transition: background .2s ease, border-color .2s ease, box-shadow .25s ease, transform .15s ease;
 }
-#bac-draw-stand .btn-bac-draw {
-  width: 100%;
-  white-space: normal;
-  font-size: .74rem;
-  padding: clamp(.3rem,.8vh,.45rem) .2rem;
-  min-height: auto;
-}
-.bac-drawing-mode .btn-bac-draw:hover,
-#bac-draw-stand .btn-bac-draw:hover {
+.bac-drawing-mode .btn-bac-draw:hover {
   background: rgba(86,120,176,.24);
   border-color: rgba(86,120,176,.85);
   box-shadow: 0 0 20px rgba(86,120,176,.45);
   transform: translateY(-1px);
 }
-.bac-drawing-mode .btn-bac-draw:active,
-#bac-draw-stand .btn-bac-draw:active {
+.bac-drawing-mode .btn-bac-draw:active {
   transform: translateY(1px);
   box-shadow: inset 0 0 10px rgba(86,120,176,.3);
 }
-/* Brief green confirmation flash on a correct STAND call (drawAction()
-   in main.js) — the two DRAW buttons never need this since the actual
-   3rd-card animation is already visible confirmation on its own.
-   Compound selectors (not just .bac-draw-correct) so this reliably
-   outranks the navy rule above regardless of source order. */
-.bac-drawing-mode .btn-bac-draw.bac-draw-correct,
-#bac-draw-stand .btn-bac-draw.bac-draw-correct {
-  background: rgba(47,174,99,.32);
-  border-color: #2fae63;
-  color: #9dffa0;
-  box-shadow: 0 0 16px rgba(47,174,99,.4);
+/* STEP 2 (DRAWING) only — PLAYER WIN / BANKER WIN judgment buttons,
+   each positioned above its own zone (see Sims.baccarat's
+   showDrawJudgment()/showBankerDrawJudgment(), main.js), replacing the
+   earlier single generic STAND button per explicit ask ("stand는
+   제거해"). Hidden outside Step 2; mirrors .bac-field's own column
+   layout (flex:1 banker cell / a spacer matching .bac-field-divider's
+   width / flex:1 player cell) so each button roughly aligns above its
+   real zone below. --bac-pair-circle-d is set locally (normally only
+   defined on .bac-exp-grid, which this row is a SIBLING of, not a
+   descendant of, and which is hidden entirely in this mode anyway) so
+   .bac-win-oval's height still resolves correctly reusing Step 3's
+   exact oval shape/size logic. */
+.bac-draw-winrow { display: none; }
+.bac-drawing-mode .bac-draw-winrow {
+  display: flex;
+  align-items: center;
+  margin-bottom: clamp(.3rem, .8vh, .5rem);
+  --bac-pair-circle-d: clamp(40px, 10.5vh, 46px);
+}
+.bac-draw-winrow-cell { flex: 1; min-width: 0; }
+#bac-draw-banker-win { padding-right: 24px; }
+#bac-draw-player-win { padding-left: 24px; }
+.bac-draw-winrow-spacer { width: clamp(56px,9vw,80px); flex-shrink: 0; }
+/* Brief green confirmation flash on a correct WIN call (drawAction() in
+   main.js) — DRAW never needs this since the actual 3rd-card animation
+   is already visible confirmation on its own. Compound selectors (not
+   just .bac-draw-correct) give this the same specificity tier as the
+   shared .btn-bac-banker/.btn-bac-player :hover rule declared much
+   later in this file (~line 5996) — since the button is disabled right
+   as this class is added, the trainee's cursor is very likely still
+   sitting on it, so that :hover rule (no :not(:disabled) guard) WOULD
+   still win on source order alone without !important here. */
+.btn-bac-banker.bac-draw-correct,
+.btn-bac-player.bac-draw-correct {
+  background: rgba(47,174,99,.32) !important;
+  border-color: #2fae63 !important;
+  color: #9dffa0 !important;
+  box-shadow: 0 0 16px rgba(47,174,99,.4) !important;
+  text-shadow: none !important;
 }
 .bac-div-lbl {
   position: absolute; top: 50%; transform: translateY(-50%);
