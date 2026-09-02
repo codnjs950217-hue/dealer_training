@@ -3925,10 +3925,15 @@ body {
 .bac-no-step-panel {
   text-align: center;
   padding: 1.1rem 1.7rem;
-  font-size: clamp(1.15rem, 2.9vh, 1.5rem);
-  font-weight: 600;
-  line-height: 1.8;
-  color: rgba(255,255,255,.92);
+  /* Lighter/softer type treatment (2026-09-02 — "글씨가 뭔가 너무 투박해요"):
+     dropped weight 600->500, a touch smaller, roomier line-height and a
+     little letter-spacing, and slightly less stark white — reads as a
+     gentle guide line instead of a bold, blocky announcement. */
+  font-size: clamp(1.02rem, 2.6vh, 1.32rem);
+  font-weight: 500;
+  letter-spacing: .2px;
+  line-height: 1.9;
+  color: rgba(255,255,255,.85);
   background: rgba(255,255,255,.06);
   border: 1px solid rgba(255,255,255,.14);
   border-radius: 16px;
