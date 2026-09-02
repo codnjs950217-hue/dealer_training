@@ -2262,9 +2262,13 @@ body {
    Geometry (flex sizing, padding, rounded-left/flat-right corners
    meeting the table) is UNTOUCHED per explicit "버튼 크기는 조정하지않을거야"
    — only fill/border/shadow/color changed. */
-#bac-step-btn-1 { --step-color: #f0c860; --step-glow-lo: rgba(240,200,96,.16); --step-glow-hi: rgba(240,200,96,.5); }
-#bac-step-btn-2 { --step-color: #4f7fe6; --step-glow-lo: rgba(79,127,230,.16); --step-glow-hi: rgba(79,127,230,.5); }
-#bac-step-btn-3 { --step-color: #5fdb8f; --step-glow-lo: rgba(95,219,143,.16); --step-glow-hi: rgba(95,219,143,.5); }
+/* Colors punched up more vivid/saturated per direct follow-up ask
+   ("스텝버튼들 더 색깔 선명하게") — brighter base hues + noticeably higher
+   glow alpha (was .16/.5, now .32/.85) so the identity color reads
+   clearly rather than as a faint tint. */
+#bac-step-btn-1 { --step-color: #ffd23d; --step-glow-lo: rgba(255,210,61,.32); --step-glow-hi: rgba(255,210,61,.85); }
+#bac-step-btn-2 { --step-color: #3f6dff; --step-glow-lo: rgba(63,109,255,.32); --step-glow-hi: rgba(63,109,255,.85); }
+#bac-step-btn-3 { --step-color: #2fe07f; --step-glow-lo: rgba(47,224,127,.32); --step-glow-hi: rgba(47,224,127,.85); }
 .bac-step-btn {
   flex: 1; min-height: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -2334,7 +2338,7 @@ body {
   background: var(--step-color);
   border-radius: 2px;
   box-shadow: 0 0 8px var(--step-glow-hi);
-  opacity: .5;
+  opacity: .75;
   transition: opacity .2s ease, box-shadow .25s ease;
 }
 .bac-step-btn:hover:not(.bac-step-active) {
@@ -3914,10 +3918,10 @@ body {
      state (see .baccarat-table.bac-no-step below), so this element
      stays transparent and just centers the text over that. */
 }
-/* 2026-09-02: the text no longer sits on its own card/shape at all —
-   explicit ask ("문구만 얹어줘. 어떤 도형위에 놓지말고"), replacing the
-   earlier translucent "glass" panel. It's plain centered text directly
-   on the table's own (now gray) surface. */
+/* 2026-09-02: briefly went to plain text with no wrapping shape at all,
+   then a direct follow-up reversed that ("문구는 뭔가 감싸는게 낫긴하겠다")
+   — back to a wrapping card, but simpler/flatter than the original
+   blurred "glass" panel: a subtle bordered card, no backdrop-filter. */
 .bac-no-step-panel {
   text-align: center;
   padding: 1.1rem 1.7rem;
@@ -3925,14 +3929,19 @@ body {
   font-weight: 600;
   line-height: 1.8;
   color: rgba(255,255,255,.92);
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.35);
 }
 /* Table itself goes plain gray (border + fill) for this landing state,
    same shape/radius/shadow as always — only the color family swaps
    from the usual green, per explicit ask ("이 모양 그대로 유지하는데
-   회색테두리와 회색 레이아웃으로"). */
+   회색테두리와 회색 레이아웃으로"). Darkened further on a direct
+   follow-up ("더 어두운 회색 레이아웃이어야해") — was #3a3a3d/#7a7a80. */
 .baccarat-table.bac-no-step {
-  background: #3a3a3d;
-  border-color: #7a7a80;
+  background: #202023;
+  border-color: #55555c;
 }
 /* Rounds/Score/Mistake counters have nothing to show yet — hidden
    while no step is picked (explicit ask). */
