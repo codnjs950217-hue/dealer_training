@@ -643,17 +643,6 @@ const Views = {
             <div class="bac-exp-cell" id="bac-exp-small7"></div>
           </div>
         </div>
-        <!-- STEP 2 (DRAWING) only — PLAYER WIN / BANKER WIN judgment
-             buttons, each positioned above its own zone below, reusing
-             Step 3's exact WIN button classes/style (.btn-bac-player/
-             .btn-bac-banker.bac-win-oval). Injected by Sims.baccarat's
-             showDrawJudgment()/showBankerDrawJudgment(); hidden by
-             default (style.css) so Step 1/3 never see it. -->
-        <div class="bac-draw-winrow" id="bac-draw-winrow">
-          <div class="bac-draw-winrow-cell" id="bac-draw-banker-win"></div>
-          <div class="bac-draw-winrow-spacer"></div>
-          <div class="bac-draw-winrow-cell" id="bac-draw-player-win"></div>
-        </div>
         <div class="bac-field">
           <div class="bac-shoe-col">
             <div class="shoe-visual">
@@ -663,12 +652,21 @@ const Views = {
           </div>
           <div class="bac-banker-zone">
             <div class="bac-zone-lbl bac-lbl-banker">BANKER</div>
+            <!-- STEP 2 (DRAWING) only — BANKER WIN judgment button,
+                 floated above the BANKER label the same way .bac-zone-lbl
+                 itself floats above the cards (same positioned-ancestor/
+                 top:calc() technique). Reuses Step 3's exact WIN button
+                 classes/style (.btn-bac-banker.bac-win-oval). Injected by
+                 Sims.baccarat's showDrawJudgment()/showBankerDrawJudgment();
+                 hidden by default (style.css) so Step 1/3 never see it. -->
+            <div class="bac-draw-win-anchor bac-draw-win-anchor-banker" id="bac-draw-banker-win"></div>
             <div class="bac-third-slot" id="bac-bh3"></div>
             <div class="bac-hand-wrap bac-bh-wrap" id="bac-bh"></div>
           </div>
           <div class="bac-field-divider"></div>
           <div class="bac-player-zone">
             <div class="bac-zone-lbl bac-lbl-player">PLAYER</div>
+            <div class="bac-draw-win-anchor bac-draw-win-anchor-player" id="bac-draw-player-win"></div>
             <div class="bac-hand-wrap bac-ph-wrap" id="bac-ph"></div>
             <div class="bac-third-slot" id="bac-ph3"></div>
           </div>
@@ -3036,8 +3034,8 @@ const Sims = {
     // .bac-exp-grid (PAIR row + WIN/TIE/BIG6/etc + CONFIRM) is hidden
     // wholesale for this mode (see .bac-drawing-mode in style.css) —
     // this drill has none of that; PLAYER WIN/BANKER WIN below are a
-    // separate, purpose-built pair (.bac-draw-winrow), not the hidden
-    // grid's own buttons.
+    // separate, purpose-built pair (.bac-draw-win-anchor, floating above
+    // each zone's own label), not the hidden grid's own buttons.
     function drawCorrectChoiceInitial() {
       const pp = pts(S.ph), bp = pts(S.bh);
       if (pp >= 8 || bp >= 8) return 'stand'; // natural — hand's already over
