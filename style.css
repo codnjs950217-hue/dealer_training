@@ -113,6 +113,13 @@
      so the table and its active tab can never drift out of sync. */
   --counting-felt: linear-gradient(150deg, #5c451c 0%, #2c2010 100%);
   --counting-border: #ab8636;
+  /* Step 2 (DRAWING)'s own identity — dark navy, matching STEP2's own
+     button color (#3f6dff family, style.css's #bac-step-btn-2) instead
+     of the shared green --felt every other page used to fall back to.
+     Same "table + active tab share these exact values" pattern as
+     --counting-felt/--counting-border above — see .bac-drawing-mode. */
+  --drawing-felt: linear-gradient(150deg, #1a2a4d 0%, #0a1120 100%);
+  --drawing-border: #3a5fb0;
   --text: #e8e0d0;
   --text-dim: #8a8878;
   --card-red: #c62828;
@@ -3238,6 +3245,15 @@ body {
    bet, only whether/who draws a 3rd card. */
 .bac-drawing-mode .bac-exp-grid {
   display: none;
+}
+/* Dark navy table identity (2026-09-02 follow-up ask: "step2페이지는
+   다크네이비 레이아웃으로") — unifies this page's own color with STEP2's
+   button color instead of leaving the table on the shared green --felt.
+   Same override mechanism .bac-counting-mode already uses for its gold
+   variant (background/border-color swap via :root custom properties). */
+.bac-drawing-mode {
+  background: var(--drawing-felt);
+  border-color: var(--drawing-border);
 }
 
 /* ---- BACCARAT: WIN HEADER + ANNOUNCE ---- */
