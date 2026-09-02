@@ -2722,24 +2722,40 @@ body {
    below) the shared console-button hover/active rules further down
    this file — both only apply to `.btn-bac-draw` plain, which this
    scoped selector beats regardless of source order. */
+/* Given a light touch of depth on a follow-up ask ("입체감 있었으면
+   좋겠어. 누를수있는건지 잘 모르겠어서") — the fully flat fill read as
+   uncertain-clickable, not a resting-state issue with the color itself.
+   A subtle light-top/dark-bottom gradient + a small drop shadow + a
+   thin inset highlight/shade is enough to cue "raised, pressable"
+   without slipping back into the heavier 3D "console button" bevel this
+   redesign deliberately moved away from. */
 .bac-drawing-mode .btn-bac-draw {
-  background: rgba(86,120,176,.14);
-  border: 1px solid rgba(86,120,176,.55);
+  background: linear-gradient(180deg, rgba(122,152,212,.22) 0%, rgba(86,120,176,.1) 100%);
+  border: 1px solid rgba(86,120,176,.6);
   border-radius: 14px;
   color: #bcd2f0;
   text-shadow: none;
-  box-shadow: 0 0 14px rgba(86,120,176,.28);
+  box-shadow:
+    0 3px 6px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 -2px 4px rgba(0,0,0,.25),
+    0 0 14px rgba(86,120,176,.28);
   transition: background .2s ease, border-color .2s ease, box-shadow .25s ease, transform .15s ease;
 }
 .bac-drawing-mode .btn-bac-draw:hover {
-  background: rgba(86,120,176,.24);
-  border-color: rgba(86,120,176,.85);
-  box-shadow: 0 0 20px rgba(86,120,176,.45);
+  background: linear-gradient(180deg, rgba(122,152,212,.32) 0%, rgba(86,120,176,.16) 100%);
+  border-color: rgba(86,120,176,.9);
+  box-shadow:
+    0 4px 9px rgba(0,0,0,.4),
+    inset 0 1px 0 rgba(255,255,255,.24),
+    inset 0 -2px 4px rgba(0,0,0,.22),
+    0 0 20px rgba(86,120,176,.5);
   transform: translateY(-1px);
 }
 .bac-drawing-mode .btn-bac-draw:active {
   transform: translateY(1px);
-  box-shadow: inset 0 0 10px rgba(86,120,176,.3);
+  background: linear-gradient(180deg, rgba(86,120,176,.16) 0%, rgba(122,152,212,.22) 100%);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.4);
 }
 /* STEP 2 (DRAWING) only — PLAYER WIN / BANKER WIN judgment buttons
    (see Sims.baccarat's showDrawJudgment()/showBankerDrawJudgment(),
