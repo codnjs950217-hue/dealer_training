@@ -3934,8 +3934,11 @@ body {
   letter-spacing: .2px;
   line-height: 1.9;
   color: rgba(255,255,255,.85);
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.14);
+  /* Dark navy card (2026-09-02 follow-up ask), same family as the STEP
+     buttons' own background so the guide text visually belongs with
+     them rather than reading as a separate gray-on-gray UI element. */
+  background: linear-gradient(165deg, #141b2e 0%, #0a0e1a 100%);
+  border: 1px solid rgba(255,255,255,.1);
   border-radius: 16px;
   box-shadow: 0 6px 20px rgba(0,0,0,.35);
 }
