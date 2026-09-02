@@ -3097,13 +3097,13 @@ const Sims = {
           if (n === 1) { startCounting(); return; }
           // n === 3: leave counting mode's DOM (cards/3rd-card slots/option
           // buttons, plus the layout it toggled — .bac-counting-mode and
-          // the winning zone's .bac-zone-active) clean, then rebuild
-          // Step 3's own START-screen state fresh. Deliberately NOT
-          // this.init(false) anymore — that now lands on the "pick a
-          // STEP" empty state (step:null), which would immediately
-          // undo the very selection this callback exists to fulfill.
-          // Same reset init() itself does on a truly fresh entry, just
-          // inlined here with step hardcoded to 3.
+          // the winning zone's .bac-zone-active) clean, then reset Step 3's
+          // state and deal immediately (no START button — see this.deal()
+          // below). Deliberately NOT this.init(false) anymore — that now
+          // lands on the "pick a STEP" empty state (step:null), which would
+          // immediately undo the very selection this callback exists to
+          // fulfill. Same reset init() itself does on a truly fresh entry,
+          // just inlined here with step hardcoded to 3.
           $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
           const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
           const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
@@ -3117,7 +3117,7 @@ const Sims = {
           $('bac-rounds').textContent = S.rounds;
           $('bac-score').textContent = S.score;
           $('bac-mistakes').textContent = S.mistakes;
-          enableDraw();
+          this.deal();
         });
       },
 
