@@ -103,23 +103,27 @@
   --felt-light: #124028;
   --gold: #c9a84c;
   --gold-light: #e8c96d;
-  /* Step 1 (COUNTING)'s own identity — a muted bronze/mustard "gold
-     felt" distinct from every other page's green --felt, so the color
-     alone tells a trainee they're in Counting mode vs Drawing/Full
-     Simulation. Deliberately dark and desaturated (bronze, not a bright
-     yellow surface) so it reads as premium casino gold rather than
-     fluorescent — see .bac-counting-mode / #bac-step-btn-1.bac-step-
-     active in style.css, both of which reference these same two values
-     so the table and its active tab can never drift out of sync. */
+  /* 2026-09-02: each STEP's page now shares exactly ONE accent color
+     with its own STEP button and its own quiz/judgment buttons —
+     "STEP 버튼 색상 = 레이아웃 포인트 색상 = 정답 버튼 색상 = Glow 색상"
+     (explicit design-system ask). --counting-accent/--drawing-accent are
+     the single source of truth for STEP1/STEP2's identity color —
+     #bac-step-btn-1/2 (below), --counting-border/--drawing-border, and
+     the quiz-button rules (.bac-count-opt-btn / .bac-drawing-mode
+     .btn-bac-draw / #bac-draw-stand) all reference these same values so
+     they can't drift apart. STEP3 is deliberately left on its existing
+     green/--felt system, untouched, per explicit "step3 내용은 건드리지마".
+     Step 1 = a muted, desaturated AMBER (explicitly NOT the app's own
+     --gold/--gold-light, which read as a brighter mustard-gold — "과도한
+     금색 느낌은 피할 것"). Step 2 = a calm, muted navy blue (toned down
+     from the STEP button's earlier more electric #3f6dff — "차분하고
+     전문적인 분위기"). */
+  --counting-accent: #d98c3d;
+  --drawing-accent: #5678b0;
   --counting-felt: linear-gradient(150deg, #5c451c 0%, #2c2010 100%);
-  --counting-border: #ab8636;
-  /* Step 2 (DRAWING)'s own identity — dark navy, matching STEP2's own
-     button color (#3f6dff family, style.css's #bac-step-btn-2) instead
-     of the shared green --felt every other page used to fall back to.
-     Same "table + active tab share these exact values" pattern as
-     --counting-felt/--counting-border above — see .bac-drawing-mode. */
+  --counting-border: var(--counting-accent);
   --drawing-felt: linear-gradient(150deg, #1a2a4d 0%, #0a1120 100%);
-  --drawing-border: #3a5fb0;
+  --drawing-border: var(--drawing-accent);
   --text: #e8e0d0;
   --text-dim: #8a8878;
   --card-red: #c62828;
@@ -2269,12 +2273,17 @@ body {
    Geometry (flex sizing, padding, rounded-left/flat-right corners
    meeting the table) is UNTOUCHED per explicit "버튼 크기는 조정하지않을거야"
    — only fill/border/shadow/color changed. */
-/* Colors punched up more vivid/saturated per direct follow-up ask
-   ("스텝버튼들 더 색깔 선명하게") — brighter base hues + noticeably higher
-   glow alpha (was .16/.5, now .32/.85) so the identity color reads
-   clearly rather than as a faint tint. */
-#bac-step-btn-1 { --step-color: #ffd23d; --step-glow-lo: rgba(255,210,61,.32); --step-glow-hi: rgba(255,210,61,.85); }
-#bac-step-btn-2 { --step-color: #3f6dff; --step-glow-lo: rgba(63,109,255,.32); --step-glow-hi: rgba(63,109,255,.85); }
+/* STEP1/STEP2 now source their color from --counting-accent/
+   --drawing-accent (:root, above) — the SAME values the table border
+   and the quiz/judgment buttons use, so all 3 can never drift apart
+   (2026-09-02 design-system unification). This also replaced STEP1's
+   earlier bright yellow (#ffd23d) with a muted amber and STEP2's more
+   electric blue (#3f6dff) with a calmer navy, per that same ask. STEP3
+   keeps its own standalone green (explicitly out of scope — "step3
+   내용은 건드리지마"). Glow alpha (.32/.85) unchanged from the earlier
+   "더 색깔 선명하게" pass. */
+#bac-step-btn-1 { --step-color: var(--counting-accent); --step-glow-lo: rgba(217,140,61,.32); --step-glow-hi: rgba(217,140,61,.85); }
+#bac-step-btn-2 { --step-color: var(--drawing-accent); --step-glow-lo: rgba(86,120,176,.32); --step-glow-hi: rgba(86,120,176,.85); }
 #bac-step-btn-3 { --step-color: #2fe07f; --step-glow-lo: rgba(47,224,127,.32); --step-glow-hi: rgba(47,224,127,.85); }
 .bac-step-btn {
   flex: 1; min-height: 0;
@@ -2700,34 +2709,65 @@ body {
    hold a button, that button becomes a direct flex item of the divider
    itself, centered the same way any other child would be. */
 .bac-draw-stand-slot { display: contents; }
-/* STAND reuses .btn-bac-draw's shape/interaction states (padding, hover/
-   active lift, the pulse) but needs its own size (this column is only
-   ~56-80px wide, far narrower than the card-slot-sized BANKER/PLAYER
-   DRAW buttons) and its own color identity — a cool blue, distinct from
-   DRAW's neutral charcoal, reading as "no action" rather than a 3rd
-   command sharing DRAW's own visual family. Id-scoped (not a new class)
-   for the same reason #bac-pair-b/#bac-pair-p recolor .btn-bac-pair
-   above: one container, one color, no risk of it leaking onto Step 3's
-   own BANKER/PLAYER DRAW buttons elsewhere on this page. */
+/* 2026-09-02 redesign: STAND (#bac-draw-stand) AND the PLAYER/BANKER
+   DRAW buttons (.bac-drawing-mode .btn-bac-draw) now share ONE flat
+   navy identity (--drawing-accent, :root) instead of DRAW keeping its
+   old neutral charcoal "console button" bevel while only STAND was
+   blue — explicit design-system ask ("STEP 버튼 색상 = 레이아웃 포인트
+   색상 = 정답 버튼 색상"). Scoped to `.bac-drawing-mode` (Step 2's own
+   table-mode class) and the `#bac-draw-stand` id specifically, so
+   Step 3's own BANKER/PLAYER DRAW buttons elsewhere on this page (same
+   .btn-bac-draw class, no .bac-drawing-mode ancestor) are completely
+   untouched — required per explicit "step3 내용은 건드리지마". Also
+   flattens the shape itself (thinner border, soft fill instead of a
+   gradient bevel, a gentle outer glow instead of inset highlight/shade,
+   a bit more corner rounding) — explicit ask to move away from the
+   heavier "console button"/3D bevel look toward a thinner, modern
+   game-app style. `border`/`box-shadow` here override the shared
+   .btn-bac-draw base rule AND (via the higher-specificity :hover/
+   :active selectors below) the shared console-button hover/active
+   rules further down this file — both only apply to `.btn-bac-draw`
+   plain, which this scoped selector beats regardless of source order. */
+.bac-drawing-mode .btn-bac-draw,
 #bac-draw-stand .btn-bac-draw {
-  --btn-hi: 140,190,255; --btn-glow: 30,90,190;
-  background: linear-gradient(180deg, #123a66 0%, #071b30 100%);
-  color: #bcdcff;
-  text-shadow: 0 1px 6px rgba(100,170,255,.4);
+  background: rgba(86,120,176,.14);
+  border: 1px solid rgba(86,120,176,.55);
+  border-radius: 14px;
+  color: #bcd2f0;
+  text-shadow: none;
+  box-shadow: 0 0 14px rgba(86,120,176,.28);
+  transition: background .2s ease, border-color .2s ease, box-shadow .25s ease, transform .15s ease;
+}
+#bac-draw-stand .btn-bac-draw {
   width: 100%;
   white-space: normal;
   font-size: .74rem;
   padding: clamp(.3rem,.8vh,.45rem) .2rem;
   min-height: auto;
 }
+.bac-drawing-mode .btn-bac-draw:hover,
+#bac-draw-stand .btn-bac-draw:hover {
+  background: rgba(86,120,176,.24);
+  border-color: rgba(86,120,176,.85);
+  box-shadow: 0 0 20px rgba(86,120,176,.45);
+  transform: translateY(-1px);
+}
+.bac-drawing-mode .btn-bac-draw:active,
+#bac-draw-stand .btn-bac-draw:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 0 10px rgba(86,120,176,.3);
+}
 /* Brief green confirmation flash on a correct STAND call (drawAction()
    in main.js) — the two DRAW buttons never need this since the actual
-   3rd-card animation is already visible confirmation on its own. */
-.btn-bac-draw.bac-draw-correct,
+   3rd-card animation is already visible confirmation on its own.
+   Compound selectors (not just .bac-draw-correct) so this reliably
+   outranks the navy rule above regardless of source order. */
+.bac-drawing-mode .btn-bac-draw.bac-draw-correct,
 #bac-draw-stand .btn-bac-draw.bac-draw-correct {
-  background: linear-gradient(180deg, #1a6a1a 0%, #0a2e0a 100%);
+  background: rgba(47,174,99,.32);
+  border-color: #2fae63;
   color: #9dffa0;
-  text-shadow: 0 1px 6px rgba(80,220,80,.5);
+  box-shadow: 0 0 16px rgba(47,174,99,.4);
 }
 .bac-div-lbl {
   position: absolute; top: 50%; transform: translateY(-50%);
@@ -6120,46 +6160,38 @@ body {
    after .bac-circle-btn so this font-size wins over its (also
    !important) one at equal specificity. */
 .bac-count-opt-btn {
-  /* Rev2 of the "make this look clickable" ask — the FIRST attempt
-     (taller capsule, generic white-to-transparent gradient, plain
-     hover/active) was rejected on sight ("그지같아") and reverted; this
-     time the user gave an exact, itemized spec (mustard/gold-family
-     gradient — light top, dark bottom; shallow shadow; subtle inset
-     bevel; brighter+glow hover; pushed-in active) instead of leaving it
-     to guesswork, so this follows that spec point-for-point rather than
-     re-guessing. Height/size untouched (not requested this time) — this
-     pass is about depth/material only. */
-  background: linear-gradient(180deg, rgba(232,201,109,.32) 0%, rgba(138,106,40,.32) 100%);
-  border: 2px solid rgba(201,168,76,.5);
-  color: var(--gold-light);
+  /* 2026-09-02 redesign: replaces the earlier mustard/gold-family
+     gradient-bevel look (light-top/dark-bottom gradient + inset
+     highlight/shade, a "console button") — explicit ask to move to a
+     thinner, flatter, modern game-app style AND to use this page's own
+     --counting-accent (a muted amber) instead of the app-wide --gold/
+     --gold-light family, which read as "과도한 금색". Soft flat fill +
+     thin border + a gentle outer glow instead of an inset bevel. Same
+     .bac-felt-circle/.bac-circle-btn capsule shape as before —
+     untouched here, this pass is fill/border/shadow only. */
+  background: rgba(217,140,61,.14);
+  border: 1px solid rgba(217,140,61,.55);
+  color: #f3c493;
   font-weight: 800;
   font-size: clamp(1.05rem,3vh,1.55rem) !important;
   cursor: pointer;
-  /* Shallow drop shadow (raised off the felt) + inset highlight along
-     the top edge + inset shade along the bottom edge — a light bevel,
-     not a deep 3D button. */
-  box-shadow: 0 2px 4px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.22), inset 0 -2px 3px rgba(0,0,0,.22);
-  transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, transform .1s ease;
+  box-shadow: 0 0 14px rgba(217,140,61,.28);
+  transition: background .2s ease, border-color .2s ease, box-shadow .25s ease, transform .15s ease;
 }
 .bac-count-opt-btn:hover:not(:disabled) {
-  /* Brighter fill + a soft gold glow — no scale-up (the "살짝 커지거나
-     Glow" choice was made in favor of glow, closer to "고급스럽고
-     깔끔한" than a size pop). */
-  background: linear-gradient(180deg, rgba(232,201,109,.48) 0%, rgba(138,106,40,.4) 100%);
-  border-color: var(--gold-light);
-  box-shadow: 0 2px 6px rgba(0,0,0,.4), 0 0 10px rgba(201,168,76,.35), inset 0 1px 0 rgba(255,255,255,.28), inset 0 -2px 3px rgba(0,0,0,.2);
+  background: rgba(217,140,61,.24);
+  border-color: rgba(217,140,61,.85);
+  box-shadow: 0 0 20px rgba(217,140,61,.45);
+  transform: translateY(-1px);
 }
 .bac-count-opt-btn:active:not(:disabled) {
-  /* Pressed-in feel: nudges down 1px, gradient direction flips (dark
-     now reads "up top" like light is coming from below the pressed
-     face), shadow goes fully inset — no more raised edge. */
   transform: translateY(1px);
-  background: linear-gradient(180deg, rgba(138,106,40,.4) 0%, rgba(232,201,109,.28) 100%);
-  box-shadow: inset 0 2px 5px rgba(0,0,0,.45);
+  box-shadow: inset 0 0 10px rgba(217,140,61,.3);
 }
 .bac-count-opt-btn:disabled { cursor: default; }
 .bac-count-opt-btn.bac-count-opt-correct {
-  background: rgba(47,174,99,.35); border-color: #2fae63; color: #7ce8a6;
+  background: rgba(47,174,99,.32); border-color: #2fae63; color: #9dffa0;
+  box-shadow: 0 0 16px rgba(47,174,99,.4);
   transform: none;
 }
 
