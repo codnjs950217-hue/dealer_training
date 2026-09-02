@@ -4081,11 +4081,21 @@ body {
   color: rgba(255,255,255,.85);
   /* Dark navy card (2026-09-02 follow-up ask), same family as the STEP
      buttons' own background so the guide text visually belongs with
-     them rather than reading as a separate gray-on-gray UI element. */
-  background: linear-gradient(165deg, #141b2e 0%, #0a0e1a 100%);
-  border: 1px solid rgba(255,255,255,.1);
+     them rather than reading as a separate gray-on-gray UI element.
+     Given actual embossed depth on a later follow-up ("문구 도형은 좀
+     입체감있게") — a raised-plaque bevel: a brighter top-left gradient
+     stop (light source cue), an inset highlight along the top edge, an
+     inset shadow along the bottom edge (the two together read as a
+     rounded, embossed surface rather than a flat tinted rectangle), and
+     a stronger outer drop shadow so the card visibly lifts off the
+     gray table behind it. */
+  background: linear-gradient(165deg, #232f52 0%, #0a0e1a 100%);
+  border: 1px solid rgba(255,255,255,.16);
   border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0,0,0,.35);
+  box-shadow:
+    0 10px 26px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -4px 8px rgba(0,0,0,.4);
 }
 /* Table itself goes plain gray (border + fill) for this landing state,
    same shape/radius/shadow as always — only the color family swaps
