@@ -4034,7 +4034,14 @@ body {
    ("과도한 애니메이션 금지") — a level-intro card, not a popup or a
    mistake interruption. z-index above .mistake-overlay since a stray
    mistake from the PREVIOUS step could theoretically still be
-   mid-fade-out when this appears. */
+   mid-fade-out when this appears.
+   The overlay ITSELF no longer fades (2026-09-03) — it's opaque from
+   the instant it's inserted, so the previous step's screen is hidden
+   right away instead of bleeding through during a .35s opacity ramp on
+   both entry and exit (reported bug: clicking a STEP button briefly
+   showed a DIFFERENT step's leftover screen before the intended one
+   settled in). Only the title/desc TEXT fades now — see
+   .bac-step-intro-text below. */
 .bac-step-intro-overlay {
   position: absolute; inset: -3px;
   background: #05070a;
@@ -4043,11 +4050,15 @@ body {
   z-index: 55; border-radius: 21px;
   padding: 1rem;
   text-align: center;
-  opacity: 0;
-  transition: opacity .35s ease;
   pointer-events: none;
 }
-.bac-step-intro-overlay.bac-step-intro-show { opacity: 1; }
+.bac-step-intro-text {
+  display: flex; flex-direction: column; align-items: center;
+  gap: .5rem;
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+.bac-step-intro-text.bac-step-intro-text-show { opacity: 1; }
 .bac-step-intro-title {
   font-size: clamp(1.25rem, 3.4vh, 1.85rem);
   font-weight: 800;

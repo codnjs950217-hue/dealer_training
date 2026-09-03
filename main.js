@@ -2366,24 +2366,38 @@ const Sims = {
 
     // One-time "level start" overlay shown on every STEP transition (not
     // per-question) — title + description fade in, hold, fade out, then
-    // onDone() runs the step's actual setup. Same appended-to-.baccarat-
-    // table technique as showMistake()'s overlay, but opacity-only
-    // transitions (no scale/pop) per explicit "과도한 애니메이션 금지".
+    // the overlay is removed to reveal the step underneath. Same
+    // appended-to-.baccarat-table technique as showMistake()'s overlay.
+    //
+    // The overlay's own background is opaque from the instant it's
+    // inserted (no fade on the overlay itself, only on its text — see
+    // .bac-step-intro-overlay/.bac-step-intro-text in style.css), so
+    // onDone() — which rebuilds the DOM for the NEW step — runs
+    // immediately, right here, while the old step's screen is already
+    // fully hidden behind the opaque overlay. Previously onDone() ran
+    // only after the ENTIRE ~2s overlay lifecycle (including its own
+    // fade-out), which meant the stale, not-yet-replaced OLD step's
+    // screen bled through during that fade-out — reported as clicking a
+    // STEP button briefly showing a DIFFERENT step before the right one
+    // appeared. Now the swap happens first, so removing the overlay at
+    // the end just reveals the correct step immediately ("바로 보이도록").
     function showStepIntro(title, desc, onDone) {
       const tbl = document.querySelector('.baccarat-table');
       if (!tbl) { onDone(); return; }
       const ov = document.createElement('div');
       ov.className = 'bac-step-intro-overlay';
-      ov.innerHTML = `<div class="bac-step-intro-title">${title}</div><div class="bac-step-intro-desc">${desc}</div>`;
+      ov.innerHTML = `<div class="bac-step-intro-text"><div class="bac-step-intro-title">${title}</div><div class="bac-step-intro-desc">${desc}</div></div>`;
       tbl.appendChild(ov);
+      onDone();
+      const text = ov.querySelector('.bac-step-intro-text');
       // Added in a separate frame so the initial opacity:0 actually
-      // paints before .bac-step-intro-show's opacity:1 kicks the CSS
-      // transition off — adding both classes in the same tick would let
-      // the browser coalesce them into one paint with no visible fade.
-      requestAnimationFrame(() => ov.classList.add('bac-step-intro-show'));
+      // paints before .bac-step-intro-text-show's opacity:1 kicks the
+      // CSS transition off — adding both classes in the same tick would
+      // let the browser coalesce them into one paint with no visible fade.
+      requestAnimationFrame(() => text.classList.add('bac-step-intro-text-show'));
       setTimeout(() => {
-        ov.classList.remove('bac-step-intro-show');
-        setTimeout(() => { ov.remove(); onDone(); }, 350);
+        text.classList.remove('bac-step-intro-text-show');
+        setTimeout(() => ov.remove(), 350);
       }, 1700);
     }
 
@@ -3196,14 +3210,18 @@ const Sims = {
 
       // All 3 steps are real now (2026-09-02 — STEP 2 was a placeholder
       // toast before). Every transition shows a one-time showStepIntro()
-      // overlay (title + description, fade in/hold/fade out) BEFORE the
-      // step's actual setup runs — "매 문제마다 안내 문구를 표시하지 않고...
-      // STEP 변경 시에만 1회 표시". Tab highlighting/S.step update
-      // immediately on click, not after the overlay, so a repeat click on
-      // the same tab is still correctly blocked by the guard below even
-      // while the overlay is still showing; only the actual content
-      // rebuild (resetStepDom() + startCounting()/startDrawing()/deal())
-      // is deferred into the overlay's onDone callback.
+      // overlay (title + description, text fades in/hold/fades out) —
+      // "매 문제마다 안내 문구를 표시하지 않고... STEP 변경 시에만 1회 표시".
+      // Tab highlighting/S.step update immediately on click, not after
+      // the overlay, so a repeat click on the same tab is still
+      // correctly blocked by the guard below even while the overlay is
+      // still showing. The actual content rebuild (resetStepDom() +
+      // startCounting()/startDrawing()/deal()) runs inside
+      // showStepIntro() itself, right after the opaque overlay is
+      // inserted (2026-09-03 fix) — NOT after its full lifecycle — so
+      // the new step's screen is already built and hidden behind the
+      // overlay the whole time, and removing the overlay at the end
+      // reveals it immediately instead of briefly showing the old step.
       selectStep(n) {
         hideNoStepState();
         if (n === S.step) return;
