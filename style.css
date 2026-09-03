@@ -4166,6 +4166,14 @@ body {
   line-height: 1.55;
   color: rgba(255,255,255,.78);
   max-width: 80%;
+  /* Korean line-breaking defaults to breaking between ANY two syllable
+     characters (CJK text doesn't need word-break:break-all to do this —
+     it's the normal UAX#14 behavior), so a word like "계산하여" could
+     wrap mid-word ("계산/하여") whenever the line barely overflows.
+     keep-all restricts breaks to actual spaces, matching how this text
+     is already meant to read (explicit ask: "카운팅값을 계산/하여 이렇게
+     줄이 띄어져있는데 붙여주라"). */
+  word-break: keep-all;
 }
 /* "Pick a STEP" landing state — Card Drawing opens with no step
    selected at all (explicit ask, supersedes the earlier dismissible-
