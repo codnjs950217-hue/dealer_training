@@ -3167,14 +3167,25 @@ const Sims = {
     // classes (see winBtns() above) — same oval shape/color/style, just
     // this drill's own handler and no dim()/pressed() state (there's
     // nothing to toggle here, CHECK doesn't exist in this mode).
-    function drawWinBtnHtml(side) {
+    // `final` (2026-09-03) — after Banker's 3rd card is dealt, the hand
+    // is fully revealed and BOTH totals are known, so unlike every
+    // earlier use of this button (where either oval is accepted as a
+    // plain "stand" signal — see showDrawJudgment()'s own comment),
+    // clicking here is now a REAL winner judgment: routes to
+    // drawFinalWin(side) instead of drawAction('stand'), which checks
+    // the actual pts(S.ph) vs pts(S.bh) comparison. See
+    // showFinalWinJudgment() below.
+    function drawWinBtnHtml(side, final) {
       const cls = side === 'banker' ? 'btn-bac-banker' : 'btn-bac-player';
       const label = side === 'banker' ? 'BANKER WIN' : 'PLAYER WIN';
-      // Passes the clicked element through so drawAction() can flash
-      // THIS specific button green on a correct 'stand' call — both WIN
-      // buttons are live at once now (see showDrawJudgment() below), so
-      // there's no longer a single fixed "the" win cell to look up.
-      return `<button class="${cls} bac-inline-btn bac-win-oval" onclick="Sims.baccarat.drawAction('stand', this)">${label}</button>`;
+      // Passes the clicked element through so drawAction()/drawFinalWin()
+      // can flash THIS specific button green on a correct call — both
+      // WIN buttons are live at once now (see showDrawJudgment() below),
+      // so there's no longer a single fixed "the" win cell to look up.
+      const onclick = final
+        ? `Sims.baccarat.drawFinalWin('${side}', this)`
+        : `Sims.baccarat.drawAction('stand', this)`;
+      return `<button class="${cls} bac-inline-btn bac-win-oval" onclick="${onclick}">${label}</button>`;
     }
     // Initial judgment: BOTH PLAYER WIN and BANKER WIN show from the
     // start, above their own zone, alongside PLAYER DRAW/BANKER DRAW in
@@ -3226,6 +3237,23 @@ const Sims = {
       setBtn('bac-bh3', drawActionBtnHtml('draw-banker', 'BANKER<br>DRAW'));
       setBtn('bac-draw-banker-win', drawWinBtnHtml('banker'));
       setBtn('bac-draw-player-win', drawWinBtnHtml('player'));
+    }
+    // After BANKER's 3rd card is dealt (either straight from the initial
+    // judgment, or after Player already drew — both paths reach this via
+    // drawAction()'s single 'draw-banker' branch), the hand is now fully
+    // revealed: both totals are known and there's genuinely a winner (or
+    // tie) to call. Explicit ask ("뱅커 써드카드 나오고나서 어디 윈인지
+    // 맞추는 과정 있어야지") — this used to skip straight to
+    // finishDrawingHand() with no interaction at all once Banker's card
+    // animation finished. Reuses the same PLAYER WIN/BANKER WIN ovals as
+    // every earlier judgment, but drawWinBtnHtml(side, true) routes them
+    // to drawFinalWin() (below) instead of the 'stand' shortcut, since
+    // the correct answer now genuinely depends on which side's total is
+    // higher, not just "no more cards".
+    function showFinalWinJudgment() {
+      if (S.step !== 2) return;
+      setBtn('bac-draw-banker-win', drawWinBtnHtml('banker', true));
+      setBtn('bac-draw-player-win', drawWinBtnHtml('player', true));
     }
     function finishDrawingHand() {
       if (S.step !== 2) return;
@@ -3410,8 +3438,30 @@ const Sims = {
         if (correct === 'draw-player') {
           doPlayerDraw(() => showBankerDrawJudgment(), 2);
         } else {
-          doBankerDraw(() => finishDrawingHand(), 2);
+          doBankerDraw(() => showFinalWinJudgment(), 2);
         }
+      },
+
+      // The real winner-judgment click after Banker's 3rd card, from
+      // showFinalWinJudgment() above — unlike every earlier WIN-oval
+      // click in this drill (a plain 'stand' signal, either side
+      // accepted), `side` here is checked against the ACTUAL comparison
+      // of both final totals. A genuine tie accepts either side (same
+      // "ambiguous outcome, either pick is fine" philosophy as
+      // drawAction()'s own 'stand' branch) since STEP 2 has no separate
+      // TIE concept to test for.
+      drawFinalWin(side, btnEl) {
+        const pp = pts(S.ph), bp = pts(S.bh);
+        const actualWinner = pp === bp ? 'tie' : (pp > bp ? 'player' : 'banker');
+        if (actualWinner !== 'tie' && actualWinner !== side) {
+          showMistake(() => showFinalWinJudgment());
+          return;
+        }
+        [$('bac-draw-banker-win'), $('bac-draw-player-win')].forEach(el => {
+          if (el) el.querySelectorAll('button').forEach(b => b.disabled = true);
+        });
+        if (btnEl) btnEl.classList.add('bac-draw-correct');
+        finishDrawingHand();
       },
 
       // Correct answers briefly highlight the chosen button green, then
