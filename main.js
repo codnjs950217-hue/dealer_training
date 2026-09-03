@@ -2381,9 +2381,20 @@ const Sims = {
     // STEP button briefly showing a DIFFERENT step before the right one
     // appeared. Now the swap happens first, so removing the overlay at
     // the end just reveals the correct step immediately ("바로 보이도록").
-    function showStepIntro(title, desc, onDone) {
+    // `onDone` runs immediately (hidden behind the opaque overlay — see
+    // the comment above) and should only do work that's safe to happen
+    // invisibly: DOM teardown/rebuild, state resets, mode-class toggles.
+    // `onReveal` (optional) runs AFTER the overlay is fully gone — for
+    // anything the trainee should actually SEE happen, e.g. STEP 2/3's
+    // card-dealing animation (dealSequence()'s flip-in choreography is
+    // ~2.3s, comparable to the overlay's own ~2s lifecycle, so if it
+    // were started inside `onDone` instead, it would run to completion
+    // hidden behind the overlay and the trainee would see an
+    // already-dealt hand pop in instead of watching it deal — explicit
+    // ask, "카드 배부되는것부터 시작되었으면 좋겠어").
+    function showStepIntro(title, desc, onDone, onReveal) {
       const tbl = document.querySelector('.baccarat-table');
-      if (!tbl) { onDone(); return; }
+      if (!tbl) { onDone(); if (onReveal) onReveal(); return; }
       const ov = document.createElement('div');
       ov.className = 'bac-step-intro-overlay';
       ov.innerHTML = `<div class="bac-step-intro-text"><div class="bac-step-intro-title">${title}</div><div class="bac-step-intro-desc">${desc}</div></div>`;
@@ -2397,7 +2408,7 @@ const Sims = {
       requestAnimationFrame(() => text.classList.add('bac-step-intro-text-show'));
       setTimeout(() => {
         text.classList.remove('bac-step-intro-text-show');
-        setTimeout(() => ov.remove(), 350);
+        setTimeout(() => { ov.remove(); if (onReveal) onReveal(); }, 350);
       }, 1700);
     }
 
@@ -3148,6 +3159,11 @@ const Sims = {
       S.bh = [cards[1], cards[3]];
       dealSequence(cards, ['bac-ph','bac-bh','bac-ph','bac-bh'], () => showDrawJudgment());
     }
+    // Setup only — does NOT deal a hand itself. The first hand's actual
+    // dealDrawingHand() call is deferred to selectStep()'s onReveal
+    // (fires once the step-intro overlay is fully gone), so the trainee
+    // watches STEP 2's very first hand deal in instead of it having
+    // already finished hidden behind the overlay.
     function startDrawing() {
       S.deck = createBacDeck();
       S.rounds = 0; S.score = 0; S.mistakes = 0;
@@ -3160,7 +3176,6 @@ const Sims = {
       // zones and the real table layout exactly as Step 3 shows them.
       const tbl = document.querySelector('.baccarat-table');
       if (tbl) tbl.classList.add('bac-drawing-mode');
-      dealDrawingHand();
     }
 
     // Shared teardown for switching INTO any step, from any other step —
@@ -3215,17 +3230,30 @@ const Sims = {
       // Tab highlighting/S.step update immediately on click, not after
       // the overlay, so a repeat click on the same tab is still
       // correctly blocked by the guard below even while the overlay is
-      // still showing. The actual content rebuild (resetStepDom() +
-      // startCounting()/startDrawing()/deal()) runs inside
-      // showStepIntro() itself, right after the opaque overlay is
-      // inserted (2026-09-03 fix) — NOT after its full lifecycle — so
-      // the new step's screen is already built and hidden behind the
-      // overlay the whole time, and removing the overlay at the end
-      // reveals it immediately instead of briefly showing the old step.
+      // still showing.
+      //
+      // The content rebuild is split across showStepIntro()'s two
+      // callbacks: DOM teardown/state-reset/mode-class work
+      // (resetStepDom() + startCounting()/startDrawing()/the Step 3
+      // state reset) happens in onDone, immediately, hidden behind the
+      // opaque overlay (2026-09-03 fix — no old-step bleed-through). The
+      // actual first-hand DEAL (dealDrawingHand()/this.deal()) happens
+      // in onReveal, only once the overlay is fully gone — 2026-09-03
+      // follow-up ("카드 배부되는것부터 시작되었으면 좋겠어"): STEP 2/3
+      // should visibly deal their first hand, not have it already fully
+      // dealt (hidden behind the overlay, which runs ~2s — comparable to
+      // dealSequence()'s own ~2.3s) by the time the trainee can see it.
+      // STEP 1 has no such deal animation (renderCountQuiz() just
+      // renders static cards), so it stays entirely in onDone.
+      // `stepAtClick` guards onReveal against a stale deal firing after
+      // the trainee has since switched to a DIFFERENT step during the
+      // ~2s wait — same category of race the showMistake()/showDrawJudgment()
+      // guards (commit 51929ae) exist for, just for this new deferred call.
       selectStep(n) {
         hideNoStepState();
         if (n === S.step) return;
         S.step = n;
+        const stepAtClick = n;
         [1, 2, 3].forEach(i => {
           const b = $(`bac-step-btn-${i}`);
           if (b) b.classList.toggle('bac-step-active', i === n);
@@ -3239,8 +3267,8 @@ const Sims = {
           resetStepDom();
           if (n === 1) { startCounting(); return; }
           if (n === 2) { startDrawing(); return; }
-          // n === 3: reset Step 3's state and deal immediately (no START
-          // button — see this.deal() below). Deliberately NOT
+          // n === 3: reset Step 3's state only — no START button (the
+          // actual deal is deferred to onReveal below). Deliberately NOT
           // this.init(false) anymore — that now lands on the "pick a
           // STEP" empty state (step:null), which would immediately undo
           // the very selection this callback exists to fulfill. Same
@@ -3251,7 +3279,10 @@ const Sims = {
           $('bac-rounds').textContent = S.rounds;
           $('bac-score').textContent = S.score;
           $('bac-mistakes').textContent = S.mistakes;
-          this.deal();
+        }, () => {
+          if (S.step !== stepAtClick) return;
+          if (n === 2) { dealDrawingHand(); return; }
+          if (n === 3) { this.deal(); return; }
         });
       },
 
