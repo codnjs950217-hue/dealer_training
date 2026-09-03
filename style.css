@@ -1030,13 +1030,6 @@ body {
   border-radius: 6px; pointer-events: none;
 }
 .table-stats-overlay strong { color: rgba(255,255,255,.8); }
-/* STEP 1 (COUNTING) pace-setter stopwatch — explicit ask ("위에 0s이런식
-   으로 초카운트가 되었으면 좋겠어"). Sits in the SAME Rounds/Score/Mistake
-   stats row (main.js), so it inherits that row's plain label styling for
-   free; hidden everywhere else since Step 2/3 have no such timer (see
-   Sims.baccarat's startCountTimer()/renderCountQuiz()). */
-.bac-count-timer-stat { display: none; }
-.bac-counting-mode .bac-count-timer-stat { display: inline; }
 
 /* ---- BLACKJACK / BACCARAT TABLE ---- */
 
@@ -3409,6 +3402,33 @@ body {
 .bac-counting-mode .bac-field {
   flex: 0 0 auto;
   margin-top: 0;
+}
+/* Pace-setter stopwatch — explicit ask ("블랙잭처럼 카드 위에 노란색 글자로"),
+   styled/positioned like Blackjack's own .bj-pay-timer (yellow, sits
+   above the cards). A single element centered on .bac-field itself
+   (not duplicated per zone like .bac-zone-lbl) since only one zone is
+   ever active/visible at a time here — it naturally lands above
+   whichever one that is. Positioned above the (enlarged, this mode's
+   own --card-h-lg) card top edge by a small margin — deliberately less
+   than .bac-zone-lbl's own 1.4rem clearance above, since there's no
+   competing label to clear here and .bac-field sits close under the
+   answer-button row above it (verified via real layout measurements
+   that this offset doesn't collide with that row). */
+.bac-count-timer-card { display: none; }
+.bac-counting-mode .bac-count-timer-card {
+  display: block;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(50% - var(--card-h-lg)/2 - .6rem);
+  z-index: 5;
+  font-size: .82rem;
+  font-weight: 800;
+  color: #ffd700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
 }
 /* .bac-field keeps the table's default align-items:stretch (untouched
    here) rather than switching the table to align-items:center, which

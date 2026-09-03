@@ -555,12 +555,6 @@ const Views = {
           <span>Rounds: <strong id="bac-rounds">0</strong></span>
           <span>Score: <strong id="bac-score">0</strong></span>
           <span>Mistake: <strong id="bac-mistakes">0</strong></span>
-          <!-- STEP 1 (COUNTING) only — pace-setter stopwatch, resets to
-               0s every time a NEW card problem renders (not on a wrong-
-               answer retry, which re-arms the SAME problem). Hidden
-               outside Step 1 via .bac-counting-mode in style.css. See
-               startCountTimer()/renderCountQuiz() in Sims.baccarat. -->
-          <span class="bac-count-timer-stat"><strong id="bac-count-timer">0s</strong></span>
         </div>
         <!-- "No step selected" landing message — hidden by default
              (style.css), shown only while .baccarat-table carries
@@ -650,6 +644,17 @@ const Views = {
           </div>
         </div>
         <div class="bac-field">
+          <!-- STEP 1 (COUNTING) only — pace-setter stopwatch, styled like
+               Blackjack's own .bj-pay-timer (yellow, positioned above the
+               cards) per explicit ask ("블랙잭처럼 카드 위에 노란색 글자로").
+               A single centered element rather than one per zone, since
+               only one zone (.bac-zone-active) ever shows cards at a time
+               in this mode — it naturally sits above whichever is active.
+               Resets to 0s every time a NEW card problem renders (not on
+               a wrong-answer retry, which re-arms the SAME problem).
+               Hidden outside Step 1 via .bac-counting-mode in style.css.
+               See startCountTimer()/renderCountQuiz() in Sims.baccarat. -->
+          <div class="bac-count-timer-card" id="bac-count-timer-wrap"><strong id="bac-count-timer">0s</strong></div>
           <div class="bac-shoe-col">
             <div class="shoe-visual">
               <div class="shoe-label-text">SHOE</div>
