@@ -2506,28 +2506,59 @@ const Sims = {
       setTimeout(() => t.remove(), 1800);
     }
 
-    function dealSequence(cards, targets, onDone) {
+    // `expectedStep` closes a real gap the earlier stale-callback fix
+    // (commit 51929ae) missed: that fix guarded the higher-level
+    // completion callbacks (showDrawJudgment() etc.) but NOT these raw
+    // per-card setTimeout callbacks themselves, which insert card HTML
+    // directly into the SHARED #bac-ph/#bac-bh (and #bac-ph3/#bac-bh3)
+    // elements every step writes into. If the trainee switches to a
+    // DIFFERENT step while a dealSequence() from the step they left is
+    // still mid-flight (its own per-card timers keep firing regardless —
+    // they were never individually cancelled, just unguarded), those
+    // stale timers blindly insertAdjacentHTML() extra card(s) into
+    // whatever the NEW step's screen currently has in those same
+    // elements — reported as STEP 1 suddenly showing a stray vertical/
+    // sideways card that doesn't belong to its own question ("스텝1
+    //카운팅에 세로로 카드 3장 드로잉되는 화면이 발견되지??"). Every callback
+    // below now re-checks `S.step === expectedStep` immediately before
+    // touching the DOM, so a stale insertion/reveal/onDone from a step
+    // the trainee already left is a no-op instead of corrupting the new
+    // step's screen.
+    function dealSequence(cards, targets, onDone, expectedStep) {
       const ids = [];
       cards.forEach((card, i) => {
         const id = ++flipId; ids.push(id);
         setTimeout(() => {
+          if (S.step !== expectedStep) return;
           const el = $(targets[i]);
           if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id));
         }, i * 420);
       });
       setTimeout(() => {
+        if (S.step !== expectedStep) return;
         ids.forEach(id => revealFlip(id));
-        setTimeout(onDone, 650);
+        setTimeout(() => { if (S.step === expectedStep) onDone(); }, 650);
       }, (cards.length - 1) * 420 + 430);
     }
 
+    // STEP 3 (FULL SIMULATION) exclusive — doPlayerDraw()/doBankerDraw()
+    // are the only callers, so the guard is hardcoded to step 3 rather
+    // than taking a parameter like dealSequence() above. The initial
+    // insertAdjacentHTML() itself is synchronous (runs inside the same
+    // click-triggered call as addCard() itself, so S.step can't have
+    // changed by then) — only the deferred reveal/onDone needs guarding,
+    // same reasoning and same reported symptom as dealSequence() above.
     function addCard(hand, elId, onDone, extraClass = '', sideways = false) {
       const card = S.deck.pop();
       hand.push(card);
       const id = ++flipId;
       const el = $(elId);
       if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id, extraClass, sideways));
-      setTimeout(() => { revealFlip(id); setTimeout(onDone, 400); }, 350);
+      setTimeout(() => {
+        if (S.step !== 3) return;
+        revealFlip(id);
+        setTimeout(() => { if (S.step === 3) onDone(); }, 400);
+      }, 350);
       return card;
     }
 
@@ -3185,7 +3216,7 @@ const Sims = {
       // cards[1]=B1, cards[2]=P1, cards[3]=B2, visual order 4→2→3→1.
       S.ph = [cards[2], cards[0]];
       S.bh = [cards[1], cards[3]];
-      dealSequence(cards, ['bac-ph','bac-bh','bac-ph','bac-bh'], () => showDrawJudgment());
+      dealSequence(cards, ['bac-ph','bac-bh','bac-ph','bac-bh'], () => showDrawJudgment(), 2);
     }
     // Setup only — does NOT deal a hand itself. The first hand's actual
     // dealDrawingHand() call is deferred to selectStep()'s onReveal
@@ -3416,7 +3447,7 @@ const Sims = {
           S.initialDealRevealed = true;
           showInitialQuiz();
           showPairQuiz();
-        });
+        }, 3);
       },
 
       quizPair(side) {
