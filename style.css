@@ -2469,6 +2469,21 @@ body {
 #bac-step-btn-3.bac-step-active {
   --step-glow-lo: var(--step-glow-hi);
 }
+/* Flattens the active button's own gradient fill to a solid color —
+   explicit follow-up ("스텝을 선택하면 선택되었다라는 느낌이 확 나질 않아서
+   그 스텝 내부에 있는 그라데이션 효과를 좀 빼줘볼수있어?"): the gradient fill
+   (added earlier the same session, matching each table's own felt) is
+   identical whether a button is active or not, so it wasn't itself
+   carrying any "you're in this one now" signal — only the border-box-
+   shadow/glow was. A flat fill (the same gradient's own LIGHTER stop,
+   so it reads as "brighter"/more present, not just "different") gives
+   the active state one more clearly distinct visual property instead of
+   relying on glow/border alone. Inactive buttons keep their gradient
+   fill untouched. Each id needs its own rule (not a shared class one)
+   since the flat color itself differs per step. */
+#bac-step-btn-1.bac-step-active { background: #5c451c; }
+#bac-step-btn-2.bac-step-active { background: #1a2a4d; }
+#bac-step-btn-3.bac-step-active { background: #1a5c34; }
 .bac-step-btn.bac-step-active .bac-step-num { color: var(--step-color); }
 
 /* Baccarat-only card size override (does not affect other pages) */
