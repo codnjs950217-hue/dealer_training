@@ -3198,18 +3198,21 @@ const Sims = {
       return `<button class="${cls} bac-inline-btn bac-win-oval" onclick="${onclick}">${label}</button>`;
     }
     // TIE, added alongside PLAYER WIN/BANKER WIN — explicit ask ("중간에
-    // TIE버튼 있어야겠다. WIN 버튼 사이에"). Reuses Step 3's exact TIE
-    // circle markup/classes (.btn-bac-tie.bac-felt-circle.bac-circle-btn)
-    // for visual consistency, same `final` routing as drawWinBtnHtml()
-    // above — 'tie' is just another valid `side` value to both
-    // drawAction()'s and drawFinalWin()'s real-winner comparison (see
-    // their own 2026-09-03 correction notes), no special-casing needed
-    // there since a tie is symmetric with player/banker in that check.
+    // TIE버튼 있어야겠다. WIN 버튼 사이에"). Same `.bac-win-oval` PILL shape
+    // as PLAYER WIN/BANKER WIN (2026-09-03 follow-up: "tie버튼 win버튼이랑
+    // 비슷한 모양으로 만들어줘" — was Step 3's round .bac-felt-circle/
+    // .bac-circle-btn capsule before this), same `final` routing as
+    // drawWinBtnHtml() above — 'tie' is just another valid `side` value
+    // to both drawAction()'s and drawFinalWin()'s real-winner comparison
+    // (see their own 2026-09-03 correction notes), no special-casing
+    // needed there since a tie is symmetric with player/banker in that
+    // check. Sizing/glow-pulse override lives in .bac-draw-tie-anchor
+    // .bac-win-oval (style.css), mirroring .bac-draw-win-anchor's own.
     function drawTieBtnHtml(final) {
       const onclick = final
         ? `Sims.baccarat.drawFinalWin('tie', this)`
         : `Sims.baccarat.drawAction('stand', this, 'tie')`;
-      return `<button class="btn-bac-tie bac-inline-btn bac-felt-circle bac-circle-btn" onclick="${onclick}"><span class="bac-circle-num">TIE</span></button>`;
+      return `<button class="btn-bac-tie bac-inline-btn bac-win-oval" onclick="${onclick}">TIE</button>`;
     }
     // Initial judgment: BOTH PLAYER WIN and BANKER WIN show from the
     // start, above their own zone, alongside PLAYER DRAW/BANKER DRAW in

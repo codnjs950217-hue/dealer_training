@@ -2829,30 +2829,23 @@ body {
 /* TIE, added between the two WIN ovals per explicit ask ("중간에
    TIE버튼 있어야겠다. WIN 버튼 사이에") — a separate class rather than
    reusing .bac-draw-win-anchor (that one's 2-card-wide width/left-right
-   offsets only make sense for the two side anchors; TIE needs to be a
-   small circle centered in .bac-field-divider instead, the narrow
-   column between .bac-banker-zone/.bac-player-zone that already sits
-   at the table's horizontal middle). Same vertical alignment (`top`
-   formula) and the same --bac-pair-circle-d as the WIN ovals so it
-   reads as one connected trio at a glance, and the same
+   offsets only make sense for the two side anchors; TIE needs to be
+   centered in .bac-field-divider instead, the narrow column between
+   .bac-banker-zone/.bac-player-zone that already sits at the table's
+   horizontal middle). Same vertical alignment (`top` formula) as the
+   WIN ovals so it reads as one connected trio at a glance, and the same
    .bac-field-shift-cancelling transform (see .bac-draw-win-anchor's own
    comment above) since .bac-field-divider is a sibling subject to the
    identical shift.
-   2026-09-03 fix ("TIE버튼이 왜 중간에 사라지지?" — it wasn't disappearing,
-   it was rendering as a near-invisible ~2px dot the whole time): the
-   TIE button reuses Step 3's exact .bac-circle-btn class, which sizes
-   itself via `width:100% !important` (of ITS OWN PARENT) plus
-   `height: var(--bac-capsule-h) !important` — NOT `--bac-pair-circle-d`
-   (that one only sizes .bac-pair-circle/.bac-win-oval, a different pair
-   of classes this button doesn't have). In Step 3 that works because
-   the parent .bac-exp-cell already has a real width and --bac-capsule-h
-   is set on their shared ancestor .bac-exp-grid. This anchor is outside
-   .bac-exp-grid entirely, so `width:100%` had no definite parent width
-   to resolve against (collapsed to ~0) and --bac-capsule-h was simply
-   unset. Fix: give the anchor itself an explicit `width` AND its own
-   `--bac-capsule-h`, both equal to --bac-pair-circle-d, so the button's
-   100%-width/height:var(--bac-capsule-h) sizing now resolves to the
-   exact same diameter the WIN ovals' height already uses. */
+   2026-09-03: TIE now uses the SAME .bac-win-oval SHAPE as PLAYER WIN/
+   BANKER WIN (pill, not a circle) — explicit follow-up ask ("tie버튼
+   win버튼이랑 비슷한 모양으로 만들어줘"). Was .bac-felt-circle/.bac-circle-
+   btn (a round capsule, Step 3's own TIE shape) — that also caused the
+   2px-collapse bug fixed earlier the same day (.bac-circle-btn sizes via
+   width:100% of a parent that had no definite width here); switching
+   shape family sidesteps that same trap differently — see the width
+   override + .bac-win-oval rule right below, mirroring
+   .bac-draw-win-anchor .bac-win-oval's own override pattern exactly. */
 .bac-draw-tie-anchor { display: none; }
 .bac-drawing-mode .bac-draw-tie-anchor {
   display: flex;
@@ -2863,8 +2856,31 @@ body {
   transform: translate(-50%, calc(-1 * var(--bac-draw-row-shift)));
   z-index: 6;
   --bac-pair-circle-d: clamp(30px, 6.5vh, 38px);
-  width: var(--bac-pair-circle-d);
-  --bac-capsule-h: var(--bac-pair-circle-d);
+  /* Narrower than .bac-draw-win-anchor .bac-win-oval's 110-170px (that
+     width fits a 2-card-wide anchor; this one sits in the much narrower
+     divider column, .bac-field-divider's own overflow:visible lets it
+     bleed slightly past that column's edges without clipping) — "TIE"
+     is also a shorter label than "PLAYER WIN"/"BANKER WIN". */
+  width: clamp(64px, 12vw, 88px);
+}
+/* Overrides .bac-win-oval's own `width:100% !important` to this
+   anchor's own (narrower) width instead of Step 3's 2-card-wide sizing
+   — same technique/reason as .bac-draw-win-anchor .bac-win-oval right
+   above, just a different target width. Also gets the identical strong
+   glow pulse (bacWinBtnPulse, defined above) using .btn-bac-tie's own
+   --btn-hi/--btn-glow (green) so all three buttons — WIN/WIN/TIE — pulse
+   together as one visual family, paused the same way on hover/active/
+   disabled. */
+.bac-draw-tie-anchor .bac-win-oval {
+  width: 100% !important;
+  font-size: clamp(.6rem, 1.3vh, .72rem) !important;
+  padding: 0 clamp(.3rem, .8vw, .5rem) !important;
+  animation: bacWinBtnPulse 1.3s ease-in-out infinite;
+}
+.bac-draw-tie-anchor .bac-win-oval:hover,
+.bac-draw-tie-anchor .bac-win-oval:active,
+.bac-draw-tie-anchor .bac-win-oval:disabled {
+  animation: none;
 }
 /* Overrides .bac-win-oval's own `width:100% !important` (sized for
    Step 3's much wider --bac-win-w column) — without this the oval would
