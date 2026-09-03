@@ -2316,34 +2316,25 @@ body {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: .2rem; text-align: center;
   background: linear-gradient(165deg, #141b2e 0%, #0a0e1a 100%);
-  /* 2026-09-03: buttons now get an actual BORDER matching the table's
-     own recipe exactly (3px, this step's own --step-color) instead of
-     border:none — explicit follow-up ("레이아웃이랑 스텝버튼이 뭔가 이질감이
-     느껴져... 테두리 문제 때문일까?"), and the user's own diagnosis was
-     right: .baccarat-table/.blackjack-table's base rule is a real
-     `3px solid` border (color swapped per mode via --counting-border/
-     --drawing-border, the SAME accent each button's --step-color
-     already uses), while these buttons had none at all — a genuine
-     bordered-vs-borderless mismatch, not just a hue one (the fill-color
-     match landed earlier the same session). Only LEFT here (top/bottom
-     handled per-position below, since the 3 buttons stack — a full
-     border on each would reintroduce the thick internal dividers
-     between them that were deliberately removed; RIGHT stays borderless
-     since that edge touches/merges into the table itself, unchanged).
-     This REPLACES the old ::before left accent bar (removed below) —
-     doubling both a colored border-left AND a separate accent stripe
-     on the same edge would look redundant now.
-     2026-09-03 follow-up ("스텝 선택하는 화면에서는 스텝 버튼의 테두리
-     없애고 선택되면 테두리가 나오게끔"): border-COLOR is now transparent by
-     default (WIDTH stays 3px always, so nothing shifts size when it
-     appears — box-sizing:border-box means a width change would resize
-     the content box, a color change doesn't) and only reveals to
-     var(--step-color) once `.bac-step-panel.bac-step-picked` (see
-     hideNoStepState()/showNoStepState() in main.js — the same class
-     already gating the landing-only glow pulse). transition below
-     covers border-color too, so it fades in rather than popping. */
+  /* 2026-09-03: several attempts at giving the ACTIVE button a border
+     matching the table's own recipe (3px, this step's own --step-color)
+     — explicit follow-up ("레이아웃이랑 스텝버튼이 뭔가 이질감이 느껴져...
+     테두리 문제 때문일까?"), the user's own diagnosis was right:
+     .baccarat-table/.blackjack-table's base rule is a real `3px solid`
+     border, while these buttons had none at all. Earlier passes tried
+     reserving border-left/-top/-bottom space directly on this rule
+     (transparent by default, revealed via color change) — abandoned
+     because a *position-dependent* reveal (only :first-child had a top
+     edge to reveal, only :last-child a bottom one) could never give the
+     MIDDLE button (STEP 2) a complete frame when active, and the user
+     confirmed they want ALL of top/left/bottom regardless of position
+     ("더 진한 테두리로 나타나야하는데 위왼쪽아래다"). Current approach: the
+     border box here stays untouched (`border: none`, right stays
+     borderless since it touches the table); `.bac-step-btn.bac-step-
+     active::before` (below) draws an independent 3-sided border overlay
+     instead, decoupled from this box entirely — see that rule's own
+     comment. */
   border: none;
-  border-left: 3px solid transparent;
   /* Both LEFT corners rounded on every button now, not just the outer
      silhouette's (was :first-child-only top-left / :last-child-only
      bottom-left, leaving STEP2's corners — and STEP1's bottom/STEP3's
@@ -2383,35 +2374,34 @@ body {
   z-index: 1;
   transition: background .2s ease, color .2s ease, box-shadow .25s ease, transform .2s ease, border-color .25s ease;
 }
-/* First/last close off the panel's own top/bottom edges with the same
-   3px border as the left edge — together with border-left above, this
-   frames the WHOLE 3-button stack the same way .baccarat-table frames
-   itself (3px solid, matching accent color), without adding a thick
-   border between the 3 stacked buttons themselves (the existing 1px
-   hairline there is untouched). Transparent by default, same as
-   border-left above — see the `.bac-step-panel.bac-step-picked` reveal
-   rule right below for why. */
-.bac-step-btn:first-child { border-top: 3px solid transparent; }
-.bac-step-btn:last-child { border-bottom: 3px solid transparent; }
-/* Reveals the border on the ACTIVE button ONLY — corrected same day
-   ("아니 선택된 스텝버튼은 그 스텝만 테두리가 적용되있어야해") from a first
-   pass that revealed it on all 3 buttons together once ANY step was
-   picked (`.bac-step-panel.bac-step-picked`, that panel-wide class is
-   still used for the landing-only glow pulse below, just no longer for
-   this). During the landing state AND for the 2 inactive buttons once a
-   step is picked, the border stays fully transparent (invisible, but
-   still occupies its 3px of box space — box-sizing:border-box means
-   nothing shifts size when it fades in); only `.bac-step-active` itself
-   reveals to its own --step-color, giving that ONE button a visibly
-   distinct "this is the one you're in" frame the other two don't share. */
-.bac-step-btn.bac-step-active {
-  border-left-color: var(--step-color);
-}
-.bac-step-btn.bac-step-active:first-child {
-  border-top-color: var(--step-color);
-}
-.bac-step-btn.bac-step-active:last-child {
-  border-bottom-color: var(--step-color);
+/* Draws a border on the ACTIVE button ONLY, all 3 non-table-facing
+   sides — corrected same day ("아니 선택된 스텝버튼은 그 스텝만 테두리가
+   적용되있어야해", then "더 진한 테두리로 나타나야하는데 위왼쪽아래다": ALL
+   THREE of top/left/bottom, not just whichever a position-dependent
+   reveal happened to cover). An earlier pass reserved border-left/
+   -top/-bottom directly on the base `.bac-step-btn` rule/`:first-child`/
+   `:last-child` (transparent, revealed via color change) — abandoned
+   because that only gave `:first-child` a top edge and `:last-child` a
+   bottom edge to reveal; the MIDDLE button (STEP 2) had no border-top/
+   -bottom placeholder at all, so it could never show a complete frame
+   when active. This independent `::before` overlay sidesteps that
+   entirely — it draws its own top+left+bottom border sized to the
+   button's full box (`inset:0`, matching the button's own left corner
+   radii), completely decoupled from the base border-box/hairline-
+   divider setup (which stays plain `border:none` + the 1px hairline,
+   unchanged, on every button regardless of active state), so it works
+   identically no matter which of the 3 positions is active. Right stays
+   borderless (touches the table). `pointer-events:none` so it never
+   intercepts the button's own click. */
+.bac-step-btn.bac-step-active::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--step-color);
+  border-right: none;
+  border-top-left-radius: 18px;
+  border-bottom-left-radius: 18px;
+  pointer-events: none;
 }
 /* Landing-state-only glow pulse — deliberately scoped to
    `.bac-step-panel:not(.bac-step-picked)` (the "no step chosen yet"
