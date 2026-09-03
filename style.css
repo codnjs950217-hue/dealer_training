@@ -2833,6 +2833,29 @@ body {
 }
 .bac-draw-win-anchor-banker { right: 24px; }
 .bac-draw-win-anchor-player { left: 24px; }
+/* TIE, added between the two WIN ovals per explicit ask ("중간에
+   TIE버튼 있어야겠다. WIN 버튼 사이에") — a separate class rather than
+   reusing .bac-draw-win-anchor (that one's 2-card-wide width/left-right
+   offsets only make sense for the two side anchors; TIE needs to be a
+   small circle centered in .bac-field-divider instead, the narrow
+   column between .bac-banker-zone/.bac-player-zone that already sits
+   at the table's horizontal middle). Same vertical alignment (`top`
+   formula) and the same --bac-pair-circle-d as the WIN ovals so it
+   reads as one connected trio at a glance, and the same
+   .bac-field-shift-cancelling transform (see .bac-draw-win-anchor's own
+   comment above) since .bac-field-divider is a sibling subject to the
+   identical shift. */
+.bac-draw-tie-anchor { display: none; }
+.bac-drawing-mode .bac-draw-tie-anchor {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  left: 50%;
+  top: calc(50% - var(--card-h-lg)/2 - 1.4rem - 1.9rem);
+  transform: translate(-50%, calc(-1 * var(--bac-draw-row-shift)));
+  z-index: 6;
+  --bac-pair-circle-d: clamp(30px, 6.5vh, 38px);
+}
 /* Overrides .bac-win-oval's own `width:100% !important` (sized for
    Step 3's much wider --bac-win-w column) — without this the oval would
    stretch to this anchor's full 2-card-wide box, reading as oversized.
@@ -2893,7 +2916,8 @@ body {
    sitting on it, so that :hover rule (no :not(:disabled) guard) WOULD
    still win on source order alone without !important here. */
 .btn-bac-banker.bac-draw-correct,
-.btn-bac-player.bac-draw-correct {
+.btn-bac-player.bac-draw-correct,
+.btn-bac-tie.bac-draw-correct {
   background: rgba(47,174,99,.32) !important;
   border-color: #2fae63 !important;
   color: #9dffa0 !important;

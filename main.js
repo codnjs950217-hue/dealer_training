@@ -669,7 +669,14 @@ const Views = {
             <div class="bac-third-slot" id="bac-bh3"></div>
             <div class="bac-hand-wrap bac-bh-wrap" id="bac-bh"></div>
           </div>
-          <div class="bac-field-divider"></div>
+          <div class="bac-field-divider">
+            <!-- STEP 2 (DRAWING) only — TIE judgment button, centered
+                 between BANKER WIN/PLAYER WIN (bac-draw-*-win above).
+                 Same injected-by-JS pattern as those (showDrawJudgment()/
+                 showBankerDrawJudgment()/showFinalWinJudgment()); hidden
+                 by default (style.css) so Step 1/3 never see it. -->
+            <div class="bac-draw-tie-anchor" id="bac-draw-tie-win"></div>
+          </div>
           <div class="bac-player-zone">
             <div class="bac-zone-lbl bac-lbl-player">PLAYER</div>
             <div class="bac-draw-win-anchor bac-draw-win-anchor-player" id="bac-draw-player-win"></div>
@@ -3185,6 +3192,20 @@ const Sims = {
         : `Sims.baccarat.drawAction('stand', this, '${side}')`;
       return `<button class="${cls} bac-inline-btn bac-win-oval" onclick="${onclick}">${label}</button>`;
     }
+    // TIE, added alongside PLAYER WIN/BANKER WIN — explicit ask ("중간에
+    // TIE버튼 있어야겠다. WIN 버튼 사이에"). Reuses Step 3's exact TIE
+    // circle markup/classes (.btn-bac-tie.bac-felt-circle.bac-circle-btn)
+    // for visual consistency, same `final` routing as drawWinBtnHtml()
+    // above — 'tie' is just another valid `side` value to both
+    // drawAction()'s and drawFinalWin()'s real-winner comparison (see
+    // their own 2026-09-03 correction notes), no special-casing needed
+    // there since a tie is symmetric with player/banker in that check.
+    function drawTieBtnHtml(final) {
+      const onclick = final
+        ? `Sims.baccarat.drawFinalWin('tie', this)`
+        : `Sims.baccarat.drawAction('stand', this, 'tie')`;
+      return `<button class="btn-bac-tie bac-inline-btn bac-felt-circle bac-circle-btn" onclick="${onclick}"><span class="bac-circle-num">TIE</span></button>`;
+    }
     // Initial judgment: BOTH PLAYER WIN and BANKER WIN show from the
     // start, above their own zone, alongside PLAYER DRAW/BANKER DRAW in
     // the 3rd-card slots — explicit ask ("처음부터 PLAYER WIN, BANKER WIN
@@ -3228,6 +3249,7 @@ const Sims = {
       setBtn('bac-ph3', drawActionBtnHtml('draw-player', 'PLAYER<br>DRAW'));
       setBtn('bac-draw-player-win', drawWinBtnHtml('player'));
       setBtn('bac-draw-banker-win', drawWinBtnHtml('banker'));
+      setBtn('bac-draw-tie-win', drawTieBtnHtml());
     }
     // Stage 2 (only after Player actually drew): PLAYER's 3rd-card SLOT
     // (bac-ph3, a button) is correctly gone — it now holds the real
@@ -3248,6 +3270,7 @@ const Sims = {
       setBtn('bac-bh3', drawActionBtnHtml('draw-banker', 'BANKER<br>DRAW'));
       setBtn('bac-draw-banker-win', drawWinBtnHtml('banker'));
       setBtn('bac-draw-player-win', drawWinBtnHtml('player'));
+      setBtn('bac-draw-tie-win', drawTieBtnHtml());
     }
     // After BANKER's 3rd card is dealt (either straight from the initial
     // judgment, or after Player already drew — both paths reach this via
@@ -3265,6 +3288,7 @@ const Sims = {
       if (S.step !== 2) return;
       setBtn('bac-draw-banker-win', drawWinBtnHtml('banker', true));
       setBtn('bac-draw-player-win', drawWinBtnHtml('player', true));
+      setBtn('bac-draw-tie-win', drawTieBtnHtml(true));
     }
     function finishDrawingHand() {
       if (S.step !== 2) return;
@@ -3280,7 +3304,7 @@ const Sims = {
       $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
       const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
       const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
-      setBtn('bac-draw-banker-win', ''); setBtn('bac-draw-player-win', '');
+      setBtn('bac-draw-banker-win', ''); setBtn('bac-draw-player-win', ''); setBtn('bac-draw-tie-win', '');
       const cards = [S.deck.pop(), S.deck.pop(), S.deck.pop(), S.deck.pop()];
       // Same deal order/target mapping as Step 3's deal(): cards[0]=P2,
       // cards[1]=B1, cards[2]=P1, cards[3]=B2, visual order 4→2→3→1.
@@ -3320,7 +3344,7 @@ const Sims = {
       $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
       const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
       const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
-      setBtn('bac-draw-banker-win', ''); setBtn('bac-draw-player-win', '');
+      setBtn('bac-draw-banker-win', ''); setBtn('bac-draw-player-win', ''); setBtn('bac-draw-tie-win', '');
       const fbE = $('bac-count-feedback'); if (fbE) fbE.innerHTML = '';
       const tbl = document.querySelector('.baccarat-table');
       if (tbl) tbl.classList.remove('bac-counting-mode', 'bac-drawing-mode');
@@ -3429,18 +3453,21 @@ const Sims = {
         }
         if (correct === 'stand') {
           // 2026-09-03: `side` (the clicked oval, threaded through by
-          // drawWinBtnHtml() as a 3rd arg) is now validated against the
-          // REAL winner — pts(S.ph) vs pts(S.bh) is already final at this
-          // point (a natural or both-sides-settle at the initial stage;
-          // Player's final 3-card total vs Banker's final 2-card total
-          // at stage2), same comparison drawFinalWin() uses. Clicking the
-          // wrong side is now a genuine MISTAKE, not silently accepted —
-          // see the correction note above drawWinBtnHtml() for why this
-          // changed (a real natural 8-vs-4 hand was wrongly accepted as
-          // BANKER WIN before this fix).
+          // drawWinBtnHtml()/drawTieBtnHtml() as a 3rd arg) is now
+          // validated against the REAL winner — pts(S.ph) vs pts(S.bh) is
+          // already final at this point (a natural or both-sides-settle
+          // at the initial stage; Player's final 3-card total vs Banker's
+          // final 2-card total at stage2), same comparison drawFinalWin()
+          // uses. Clicking the wrong side is now a genuine MISTAKE, not
+          // silently accepted — see the correction note above
+          // drawWinBtnHtml() for why this changed (a real natural 8-vs-4
+          // hand was wrongly accepted as BANKER WIN before this fix).
+          // A separate TIE button now exists (2026-09-03 follow-up), so a
+          // real tie must be called as TIE specifically — no more
+          // "either side accepted" fallback for ties either.
           const pp = pts(S.ph), bp = pts(S.bh);
           const actualWinner = pp === bp ? 'tie' : (pp > bp ? 'player' : 'banker');
-          if (actualWinner !== 'tie' && actualWinner !== side) {
+          if (actualWinner !== side) {
             showMistake(() => (stage2 ? showBankerDrawJudgment() : showDrawJudgment()));
             return;
           }
@@ -3449,7 +3476,7 @@ const Sims = {
           // draw branches below which clear their buttons immediately)
           // and flash the ACTUAL clicked button (btnEl, passed from the
           // oval's own onclick) green.
-          [$('bac-bh3'), $('bac-ph3'), $('bac-draw-banker-win'), $('bac-draw-player-win')].forEach(el => {
+          [$('bac-bh3'), $('bac-ph3'), $('bac-draw-banker-win'), $('bac-draw-player-win'), $('bac-draw-tie-win')].forEach(el => {
             if (el) el.querySelectorAll('button').forEach(b => b.disabled = true);
           });
           if (btnEl) btnEl.classList.add('bac-draw-correct');
@@ -3470,7 +3497,7 @@ const Sims = {
         // DRAW button about to be replaced by doPlayerDraw()).
         $('bac-bh3').innerHTML = '';
         if (!stage2) $('bac-ph3').innerHTML = '';
-        setBtn('bac-draw-banker-win', ''); setBtn('bac-draw-player-win', '');
+        setBtn('bac-draw-banker-win', ''); setBtn('bac-draw-player-win', ''); setBtn('bac-draw-tie-win', '');
         if (correct === 'draw-player') {
           doPlayerDraw(() => showBankerDrawJudgment(), 2);
         } else {
@@ -3479,21 +3506,21 @@ const Sims = {
       },
 
       // The real winner-judgment click after Banker's 3rd card, from
-      // showFinalWinJudgment() above — unlike every earlier WIN-oval
-      // click in this drill (a plain 'stand' signal, either side
-      // accepted), `side` here is checked against the ACTUAL comparison
-      // of both final totals. A genuine tie accepts either side (same
-      // "ambiguous outcome, either pick is fine" philosophy as
-      // drawAction()'s own 'stand' branch) since STEP 2 has no separate
-      // TIE concept to test for.
+      // showFinalWinJudgment() above (or the 'stand' branch's own
+      // equivalent check right above this method) — `side` (player/
+      // banker/tie, from drawWinBtnHtml()/drawTieBtnHtml()) is checked
+      // against the ACTUAL comparison of both final totals. A TIE button
+      // now exists (2026-09-03 follow-up, "중간에 TIE버튼 있어야겠다"), so a
+      // real tie must be called as TIE specifically — exact match
+      // required, no "any side accepted" leniency for ties anymore.
       drawFinalWin(side, btnEl) {
         const pp = pts(S.ph), bp = pts(S.bh);
         const actualWinner = pp === bp ? 'tie' : (pp > bp ? 'player' : 'banker');
-        if (actualWinner !== 'tie' && actualWinner !== side) {
+        if (actualWinner !== side) {
           showMistake(() => showFinalWinJudgment());
           return;
         }
-        [$('bac-draw-banker-win'), $('bac-draw-player-win')].forEach(el => {
+        [$('bac-draw-banker-win'), $('bac-draw-player-win'), $('bac-draw-tie-win')].forEach(el => {
           if (el) el.querySelectorAll('button').forEach(b => b.disabled = true);
         });
         if (btnEl) btnEl.classList.add('bac-draw-correct');
