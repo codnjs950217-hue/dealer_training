@@ -2446,10 +2446,23 @@ const Sims = {
     function showNoStepState() {
       const tbl = document.querySelector('.baccarat-table');
       if (tbl) tbl.classList.add('bac-no-step');
+      const panel = document.querySelector('.bac-step-panel');
+      if (panel) panel.classList.remove('bac-step-picked');
     }
+    // `.bac-step-picked` (2026-09-03) — gates the STEP buttons' own
+    // breathing-glow animation off once any step has actually been
+    // picked. Explicit follow-up ask ("스텝을 클릭한 후에도 버튼들이 글로우
+    // 효과가 유지되는것같아. 전부 다 반짝이는 효과 없애야해. 선택한 스텝버튼만
+    // 선택된 느낌을 주는듯 밝게 표현돼고"): the earlier fix only stopped
+    // the ACTIVE button's own pulse — this widens it to every button,
+    // active or not, since the invite-to-pick breathing only makes sense
+    // before any pick has happened at all. See .bac-step-panel:not(
+    // .bac-step-picked) .bac-step-btn in style.css.
     function hideNoStepState() {
       const tbl = document.querySelector('.baccarat-table');
       if (tbl) tbl.classList.remove('bac-no-step');
+      const panel = document.querySelector('.bac-step-panel');
+      if (panel) panel.classList.add('bac-step-picked');
     }
 
     // Forced-PAIR-first guard: fired by every WIN/TIE/BIG/SMALL/SUPER7/

@@ -2354,7 +2354,6 @@ body {
   border-bottom: 1px solid rgba(255,255,255,.06);
   box-shadow: inset 0 0 16px var(--step-glow-lo), 0 3px 10px rgba(0,0,0,.4);
   z-index: 1;
-  animation: bacStepGlowBreathe 3.6s ease-in-out infinite;
   transition: background .2s ease, color .2s ease, box-shadow .25s ease, transform .2s ease;
 }
 .bac-step-btn:last-child { border-bottom: none; }
@@ -2362,10 +2361,22 @@ body {
    only the inset glow's spread + var(--step-glow-lo/-hi) alpha move
    across a long (3.6s) ease-in-out cycle, so it reads as a gentle pulse
    rather than a flicker. --step-glow-lo/-hi are per-button custom
-   properties (set above by id) already carrying that step's own hue —
-   the active-state rule below only brightens THOSE properties, so this
-   one keyframe animation automatically runs stronger for whichever
-   step is currently selected without needing separate active keyframes. */
+   properties (set above by id) already carrying that step's own hue.
+   2026-09-03: scoped to `.bac-step-panel:not(.bac-step-picked)` (the
+   "no step chosen yet" landing state, see hideNoStepState()/
+   showNoStepState() in main.js) instead of running on `.bac-step-btn`
+   unconditionally — explicit follow-up ("스텝을 클릭한 후에도 버튼들이
+   글로우 효과가 유지되는것같아. 전부 다 반짝이는 효과 없애야해"): a step's
+   OWN earlier "stop when active" fix left the other 2 (inactive) buttons
+   still breathing forever, which the user wants gone too, everywhere,
+   the instant ANY step is picked — the breathing invite only makes
+   sense before a first pick happens at all. Once picked, every button
+   sits static at its own resting box-shadow (`--step-glow-lo`, from the
+   base rule above) except the active one, which still overrides to the
+   bright static state below. */
+.bac-step-panel:not(.bac-step-picked) .bac-step-btn {
+  animation: bacStepGlowBreathe 3.6s ease-in-out infinite;
+}
 @keyframes bacStepGlowBreathe {
   0%, 100% { box-shadow: inset 0 0 14px var(--step-glow-lo), 0 3px 10px rgba(0,0,0,.4); }
   50%      { box-shadow: inset 0 0 28px var(--step-glow-hi), 0 3px 10px rgba(0,0,0,.4); }
