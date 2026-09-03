@@ -3081,10 +3081,21 @@ const Sims = {
         if (e) e.textContent = secs + 's';
       }, 1000);
     }
-    function renderCountQuiz() {
+    // `startTimer` (default true): the 700ms auto-advance to a NEW
+    // question (answerCount(), below) wants the clock running the
+    // instant this renders, same as every other call. The very FIRST
+    // question of a STEP 1 entry is the one exception — startCounting()
+    // (called from selectStep()'s onDone, immediately, hidden behind the
+    // opaque intro overlay) passes false here and starts the timer
+    // itself later, from selectStep()'s onReveal, once the overlay is
+    // actually gone. Without this split, the clock was ticking the whole
+    // ~2s the overlay was up, so the trainee's first real glimpse of it
+    // already read "2s" instead of "0s" — reported: "초카운트 왔다갔다
+    // 거려 왜이래. 그리고 스텝 설명화면 꺼짐과 동시에 카운트 시작되어야해".
+    function renderCountQuiz(startTimer = true) {
       const q = genCountQuiz();
       S.countQuiz = q;
-      startCountTimer();
+      if (startTimer) startCountTimer();
       const [c1, c2, c3] = q.cards;
       const mainHtml = cardHTML(c1) + cardHTML(c2);
       // Third card: same sideways-rotated presentation Step 3 deals into
@@ -3143,7 +3154,10 @@ const Sims = {
       // "read the cards, name the total", not a Player-vs-Banker layout.
       const tbl = document.querySelector('.baccarat-table');
       if (tbl) tbl.classList.add('bac-counting-mode');
-      renderCountQuiz();
+      // Timer deliberately NOT started here — see renderCountQuiz()'s own
+      // comment. selectStep()'s onReveal starts it once the intro
+      // overlay is actually gone.
+      renderCountQuiz(false);
     }
 
     // ---- STEP 2 (DRAWING) ----
@@ -3405,8 +3419,15 @@ const Sims = {
       // should visibly deal their first hand, not have it already fully
       // dealt (hidden behind the overlay, which runs ~2s — comparable to
       // dealSequence()'s own ~2.3s) by the time the trainee can see it.
-      // STEP 1 has no such deal animation (renderCountQuiz() just
-      // renders static cards), so it stays entirely in onDone.
+      // STEP 1 has no deal animation (renderCountQuiz() just renders
+      // static cards, so THAT part stays entirely in onDone via
+      // startCounting()) — but its pace-setter STOPWATCH is exactly the
+      // same category of "trainee should see it start fresh" concern, so
+      // it ALSO gets deferred to onReveal (2026-09-03 follow-up: "초카운트
+      // 왔다갔다 거려 왜이래. 그리고 스텝 설명화면 꺼짐과 동시에 카운트
+      // 시작되어야해" — the clock was ticking the whole ~2s the overlay
+      // was up, hidden, so it already read "2s" the instant the trainee
+      // could see it instead of starting clean at "0s").
       // `stepAtClick` guards onReveal against a stale deal firing after
       // the trainee has since switched to a DIFFERENT step during the
       // ~2s wait — same category of race the showMistake()/showDrawJudgment()
@@ -3443,6 +3464,7 @@ const Sims = {
           $('bac-mistakes').textContent = S.mistakes;
         }, () => {
           if (S.step !== stepAtClick) return;
+          if (n === 1) { startCountTimer(); return; }
           if (n === 2) { dealDrawingHand(); return; }
           if (n === 3) { this.deal(); return; }
         });
