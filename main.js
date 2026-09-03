@@ -3167,14 +3167,12 @@ const Sims = {
     // classes (see winBtns() above) — same oval shape/color/style, just
     // this drill's own handler and no dim()/pressed() state (there's
     // nothing to toggle here, CHECK doesn't exist in this mode).
-    // `final` (2026-09-03) — after Banker's 3rd card is dealt, the hand
-    // is fully revealed and BOTH totals are known, so unlike every
-    // earlier use of this button (where either oval is accepted as a
-    // plain "stand" signal — see showDrawJudgment()'s own comment),
-    // clicking here is now a REAL winner judgment: routes to
-    // drawFinalWin(side) instead of drawAction('stand'), which checks
-    // the actual pts(S.ph) vs pts(S.bh) comparison. See
-    // showFinalWinJudgment() below.
+    // `final` (2026-09-03) — after Banker's 3rd card is dealt, there's no
+    // more "was a draw actually owed" question left (the hand is fully
+    // over), so this routes straight to drawFinalWin(side) instead of
+    // drawAction('stand', this, side). Both handlers now validate the
+    // SAME real pts(S.ph) vs pts(S.bh) comparison either way — see the
+    // 2026-09-03 correction below for why drawAction() needed `side` too.
     function drawWinBtnHtml(side, final) {
       const cls = side === 'banker' ? 'btn-bac-banker' : 'btn-bac-player';
       const label = side === 'banker' ? 'BANKER WIN' : 'PLAYER WIN';
@@ -3184,7 +3182,7 @@ const Sims = {
       // so there's no longer a single fixed "the" win cell to look up.
       const onclick = final
         ? `Sims.baccarat.drawFinalWin('${side}', this)`
-        : `Sims.baccarat.drawAction('stand', this)`;
+        : `Sims.baccarat.drawAction('stand', this, '${side}')`;
       return `<button class="${cls} bac-inline-btn bac-win-oval" onclick="${onclick}">${label}</button>`;
     }
     // Initial judgment: BOTH PLAYER WIN and BANKER WIN show from the
@@ -3194,9 +3192,22 @@ const Sims = {
     // decided purely by drawCorrectChoiceInitial() — clicking the "wrong"
     // WIN when a draw was actually owed is just a plain MISTAKE (choice
     // 'stand' fails to match a 'draw-*' correct answer), no special
-    // casing needed; when the correct answer genuinely is 'stand' (a
-    // natural, or both hands settling), EITHER oval is a legitimate
-    // correct pick since both hands truly stand simultaneously.
+    // casing needed.
+    // 2026-09-03 CORRECTION: when the correct answer genuinely is 'stand'
+    // (a natural, or both hands settling), this used to accept EITHER
+    // oval as correct, on the reasoning "both hands truly stand
+    // simultaneously". That reasoning was wrong — "stand" only means no
+    // MORE cards get drawn, it says nothing about who actually wins;
+    // pts(S.ph) vs pts(S.bh) is already fully determined and final at
+    // that point (2-card totals for a natural/both-settle, or a 3-card
+    // Player total vs a final 2-card Banker total at stage2), exactly
+    // like drawFinalWin()'s own comparison. Reported: a real natural
+    // 8-vs-4 hand got accepted as BANKER WIN ("뱅커 4 플레이어 8이었는데
+    // 뱅커윈하고 넘어갔거든... 바카라 룰 정확히 적용되어야해"). Fixed by
+    // threading the clicked `side` through to drawAction() (3rd param)
+    // and validating it against the real winner in the 'stand' branch
+    // below, same comparison drawFinalWin() already does — a genuine tie
+    // still accepts either side.
     // Every function below that repaints DOM guards on `S.step !== 2`
     // first. Reason: dealSequence()/addCard() (Step 3's own shared
     // animation helpers, reused here) schedule several setTimeout calls
@@ -3405,7 +3416,7 @@ const Sims = {
         });
       },
 
-      drawAction(choice, btnEl) {
+      drawAction(choice, btnEl, side) {
         const stage2 = S.ph.length === 3;
         const correct = stage2 ? drawCorrectChoiceStage2() : drawCorrectChoiceInitial();
         if (choice !== correct) {
@@ -3417,15 +3428,27 @@ const Sims = {
           return;
         }
         if (correct === 'stand') {
+          // 2026-09-03: `side` (the clicked oval, threaded through by
+          // drawWinBtnHtml() as a 3rd arg) is now validated against the
+          // REAL winner — pts(S.ph) vs pts(S.bh) is already final at this
+          // point (a natural or both-sides-settle at the initial stage;
+          // Player's final 3-card total vs Banker's final 2-card total
+          // at stage2), same comparison drawFinalWin() uses. Clicking the
+          // wrong side is now a genuine MISTAKE, not silently accepted —
+          // see the correction note above drawWinBtnHtml() for why this
+          // changed (a real natural 8-vs-4 hand was wrongly accepted as
+          // BANKER WIN before this fix).
+          const pp = pts(S.ph), bp = pts(S.bh);
+          const actualWinner = pp === bp ? 'tie' : (pp > bp ? 'player' : 'banker');
+          if (actualWinner !== 'tie' && actualWinner !== side) {
+            showMistake(() => (stage2 ? showBankerDrawJudgment() : showDrawJudgment()));
+            return;
+          }
           // Nothing to animate — disable every option (a hand can sit
           // here for the whole 700ms auto-advance window, unlike the
           // draw branches below which clear their buttons immediately)
-          // and flash whichever WIN button was ACTUALLY clicked (both
-          // PLAYER WIN and BANKER WIN are live simultaneously at the
-          // initial stage — either is a legitimate correct pick when the
-          // hand genuinely stands pat, so there's no single fixed cell
-          // to look up; btnEl, passed from the oval's own onclick, is
-          // the real source of truth here).
+          // and flash the ACTUAL clicked button (btnEl, passed from the
+          // oval's own onclick) green.
           [$('bac-bh3'), $('bac-ph3'), $('bac-draw-banker-win'), $('bac-draw-player-win')].forEach(el => {
             if (el) el.querySelectorAll('button').forEach(b => b.disabled = true);
           });
