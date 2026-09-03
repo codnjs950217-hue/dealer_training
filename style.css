@@ -2706,6 +2706,21 @@ body {
   content: ''; position: absolute; top: 0; bottom: 0; left: 50%;
   width: 2px; background: rgba(255,255,255,.3); transform: translateX(-50%);
 }
+/* STEP 2 only — explicit ask ("스텝2의 중간 하얀선은 카드와 카드사이에만
+   짧게 한줄정도? 지금은 너무 길어"): the base rule above spans the
+   divider's own full height (edge-to-edge of the row, via top:0/bottom:0
+   on a `.bac-field-divider` that's align-self:stretch — much taller than
+   the actual card area), which read as too long. Shortened to just
+   var(--card-h-lg) (this page's real card height, not Step 1's enlarged
+   counting-mode one) and re-centered vertically instead of stretching
+   full-height. Scoped to .bac-drawing-mode only — STEP 3 shares this
+   same .bac-field-divider element/base rule and was not part of the ask,
+   so it keeps the original full-height line untouched. */
+.bac-drawing-mode .bac-field-divider::before {
+  top: 50%; bottom: auto;
+  height: var(--card-h-lg);
+  transform: translate(-50%, -50%);
+}
 /* 2026-09-02: PLAYER DRAW/BANKER DRAW (.bac-drawing-mode .btn-bac-draw)
    share ONE flat navy identity (--drawing-accent, :root) — design-system
    ask ("STEP 버튼 색상 = 레이아웃 포인트 색상 = 정답 버튼 색상"). Scoped to
