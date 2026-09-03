@@ -1030,6 +1030,13 @@ body {
   border-radius: 6px; pointer-events: none;
 }
 .table-stats-overlay strong { color: rgba(255,255,255,.8); }
+/* STEP 1 (COUNTING) pace-setter stopwatch — explicit ask ("위에 0s이런식
+   으로 초카운트가 되었으면 좋겠어"). Sits in the SAME Rounds/Score/Mistake
+   stats row (main.js), so it inherits that row's plain label styling for
+   free; hidden everywhere else since Step 2/3 have no such timer (see
+   Sims.baccarat's startCountTimer()/renderCountQuiz()). */
+.bac-count-timer-stat { display: none; }
+.bac-counting-mode .bac-count-timer-stat { display: inline; }
 
 /* ---- BLACKJACK / BACCARAT TABLE ---- */
 

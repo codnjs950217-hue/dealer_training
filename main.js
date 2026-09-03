@@ -555,6 +555,12 @@ const Views = {
           <span>Rounds: <strong id="bac-rounds">0</strong></span>
           <span>Score: <strong id="bac-score">0</strong></span>
           <span>Mistake: <strong id="bac-mistakes">0</strong></span>
+          <!-- STEP 1 (COUNTING) only — pace-setter stopwatch, resets to
+               0s every time a NEW card problem renders (not on a wrong-
+               answer retry, which re-arms the SAME problem). Hidden
+               outside Step 1 via .bac-counting-mode in style.css. See
+               startCountTimer()/renderCountQuiz() in Sims.baccarat. -->
+          <span class="bac-count-timer-stat"><strong id="bac-count-timer">0s</strong></span>
         </div>
         <!-- "No step selected" landing message — hidden by default
              (style.css), shown only while .baccarat-table carries
@@ -2991,9 +2997,31 @@ const Sims = {
       const options = shuffle([correct, ...shuffle([...cand]).slice(0, 2)]);
       return { cards, side, correct, options };
     }
+    // Pace-setter stopwatch ("0s이런식으로 초카운트가 되었으면") — counts UP
+    // from 0s, ticking every real second, purely informational (no time
+    // limit/penalty, same "pace, not a deadline" spirit as the THP
+    // Ranking poker page's own countdown()). Restarted every time a NEW
+    // card problem renders (renderCountQuiz(), below) — a wrong-answer
+    // retry re-arms the SAME problem via renderCountOptions() instead
+    // and deliberately does NOT reset this, since the card problem
+    // itself hasn't changed. resetStepDom() clears S.countTimer on any
+    // step switch, same pattern as S.drawHandTimer, so it never keeps
+    // ticking into a step that isn't Step 1 anymore.
+    function startCountTimer() {
+      if (S.countTimer) clearInterval(S.countTimer);
+      let secs = 0;
+      const el = $('bac-count-timer');
+      if (el) el.textContent = secs + 's';
+      S.countTimer = setInterval(() => {
+        secs++;
+        const e = $('bac-count-timer');
+        if (e) e.textContent = secs + 's';
+      }, 1000);
+    }
     function renderCountQuiz() {
       const q = genCountQuiz();
       S.countQuiz = q;
+      startCountTimer();
       const [c1, c2, c3] = q.cards;
       const mainHtml = cardHTML(c1) + cardHTML(c2);
       // Third card: same sideways-rotated presentation Step 3 deals into
@@ -3187,6 +3215,7 @@ const Sims = {
     // the same cleanup.
     function resetStepDom() {
       if (S.drawHandTimer) { clearTimeout(S.drawHandTimer); S.drawHandTimer = null; }
+      if (S.countTimer) { clearInterval(S.countTimer); S.countTimer = null; }
       $('bac-ph').innerHTML = ''; $('bac-bh').innerHTML = '';
       const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
       const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
