@@ -2822,11 +2822,21 @@ const Sims = {
       clearPairBtns();
       const tbl = document.querySelector('.baccarat-table');
       if (!tbl) return;
+      // Same stale-step guard as the shared showMistake() (above) — this
+      // is STEP 3-only (quizPair()'s callers), and without it a trainee
+      // switching away mid-1.6s-wait would let a stale retryFn()
+      // (renderPairBtns()) repaint PAIR buttons into #bac-pair-mid/-b/-p
+      // after leaving. Currently harmless in practice (both STEP 1 and
+      // STEP 2 hide that whole wrapper), but guard it anyway for the
+      // same reason the dealSequence()/addCard() fix did — don't rely on
+      // an unrelated CSS rule staying in place to mask a real stale-
+      // callback gap.
+      const stepAtCall = S.step;
       const ov = document.createElement('div');
       ov.className = 'mistake-overlay';
       ov.innerHTML = `<div class="mistake-text">MISTAKE!</div>`;
       tbl.appendChild(ov);
-      setTimeout(() => { ov.remove(); retryFn(); }, 1600);
+      setTimeout(() => { ov.remove(); if (S.step === stepAtCall) retryFn(); }, 1600);
     }
 
     function showInitialQuiz() {
@@ -3404,7 +3414,13 @@ const Sims = {
             if (+b.textContent === correct) b.classList.add('bac-count-opt-correct');
           });
           const fbE = $('bac-count-feedback'); if (fbE) fbE.innerHTML = '✓ CORRECT!';
-          setTimeout(() => renderCountQuiz(), 700);
+          // Same stale-step guard as dealSequence()/addCard() above —
+          // answerCount() is STEP 1-only, but without this, switching
+          // away within the 700ms auto-advance window would let this
+          // stale renderCountQuiz() repaint a brand-new STEP 1 question
+          // into the SAME shared #bac-ph/#bac-bh elements STEP 2/3 are
+          // now using for their own cards.
+          setTimeout(() => { if (S.step === 1) renderCountQuiz(); }, 700);
         } else {
           showMistake(() => renderCountOptions());
         }
