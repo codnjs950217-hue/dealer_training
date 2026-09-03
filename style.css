@@ -2332,9 +2332,18 @@ body {
      since that edge touches/merges into the table itself, unchanged).
      This REPLACES the old ::before left accent bar (removed below) —
      doubling both a colored border-left AND a separate accent stripe
-     on the same edge would look redundant now. */
+     on the same edge would look redundant now.
+     2026-09-03 follow-up ("스텝 선택하는 화면에서는 스텝 버튼의 테두리
+     없애고 선택되면 테두리가 나오게끔"): border-COLOR is now transparent by
+     default (WIDTH stays 3px always, so nothing shifts size when it
+     appears — box-sizing:border-box means a width change would resize
+     the content box, a color change doesn't) and only reveals to
+     var(--step-color) once `.bac-step-panel.bac-step-picked` (see
+     hideNoStepState()/showNoStepState() in main.js — the same class
+     already gating the landing-only glow pulse). transition below
+     covers border-color too, so it fades in rather than popping. */
   border: none;
-  border-left: 3px solid var(--step-color);
+  border-left: 3px solid transparent;
   /* Both LEFT corners rounded on every button now, not just the outer
      silhouette's (was :first-child-only top-left / :last-child-only
      bottom-left, leaving STEP2's corners — and STEP1's bottom/STEP3's
@@ -2372,16 +2381,39 @@ body {
   border-bottom: 1px solid rgba(255,255,255,.06);
   box-shadow: inset 0 0 16px var(--step-glow-lo), 0 3px 10px rgba(0,0,0,.4);
   z-index: 1;
-  transition: background .2s ease, color .2s ease, box-shadow .25s ease, transform .2s ease;
+  transition: background .2s ease, color .2s ease, box-shadow .25s ease, transform .2s ease, border-color .25s ease;
 }
 /* First/last close off the panel's own top/bottom edges with the same
-   3px colored border as the left edge — together with border-left
-   above, this frames the WHOLE 3-button stack the same way
-   .baccarat-table frames itself (3px solid, matching accent color),
-   without adding a thick border between the 3 stacked buttons
-   themselves (the existing 1px hairline there is untouched). */
-.bac-step-btn:first-child { border-top: 3px solid var(--step-color); }
-.bac-step-btn:last-child { border-bottom: 3px solid var(--step-color); }
+   3px border as the left edge — together with border-left above, this
+   frames the WHOLE 3-button stack the same way .baccarat-table frames
+   itself (3px solid, matching accent color), without adding a thick
+   border between the 3 stacked buttons themselves (the existing 1px
+   hairline there is untouched). Transparent by default, same as
+   border-left above — see the `.bac-step-panel.bac-step-picked` reveal
+   rule right below for why. */
+.bac-step-btn:first-child { border-top: 3px solid transparent; }
+.bac-step-btn:last-child { border-bottom: 3px solid transparent; }
+/* Reveals the border (all 3 buttons — left edge for all, plus the
+   panel's own top/bottom via :first-child/:last-child above) only once
+   a step has actually been picked, matching `.bac-step-picked`'s
+   existing gate for the landing-only glow pulse right below. Explicit
+   ask: "스텝 선택하는 화면에서는 스텝 버튼의 테두리 없애고 선택되면 테두리가
+   나오게끔" — during the "no step chosen yet" landing state the border
+   is fully transparent (invisible, but still occupies its 3px of box
+   space — box-sizing:border-box means nothing shifts size when it
+   fades in), then fades in to each button's own --step-color the
+   instant any step is picked, giving "selection just happened" one
+   more distinct visual beat beyond the flat-fill/glow changes already
+   in place. */
+.bac-step-panel.bac-step-picked .bac-step-btn {
+  border-left-color: var(--step-color);
+}
+.bac-step-panel.bac-step-picked .bac-step-btn:first-child {
+  border-top-color: var(--step-color);
+}
+.bac-step-panel.bac-step-picked .bac-step-btn:last-child {
+  border-bottom-color: var(--step-color);
+}
 /* Landing-state-only glow pulse — deliberately scoped to
    `.bac-step-panel:not(.bac-step-picked)` (the "no step chosen yet"
    landing state, see hideNoStepState()/showNoStepState() in main.js)
