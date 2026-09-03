@@ -4148,6 +4148,12 @@ body {
 }
 .bac-step-intro-text {
   display: flex; flex-direction: column; align-items: center;
+  /* Explicit width so .bac-step-intro-desc's own max-width (a %) below
+     resolves against a definite, predictable size — without this, this
+     flex column has no definite width of its own (shrink-to-fit inside
+     the overlay's centered flex layout), which was silently starving
+     the description of the room it actually had available. */
+  width: 100%;
   gap: .5rem;
   opacity: 0;
   transition: opacity .35s ease;
@@ -4165,7 +4171,13 @@ body {
   font-weight: 500;
   line-height: 1.55;
   color: rgba(255,255,255,.78);
-  max-width: 80%;
+  /* 95% (was 80%) — follow-up ask ("카운팅값을 계산하여까지 한줄로 나타내줄수
+     있어?"): STEP 1's first sentence ("현재 카드의 카운팅 값을 계산하여")
+     was still wrapping onto 2 lines even after the keep-all fix below,
+     just at a real space instead of mid-word — the 80% cap (against
+     .bac-step-intro-text's now-definite width, see its own comment) was
+     simply narrower than the phrase needed at this font-size. */
+  max-width: 95%;
   /* Korean line-breaking defaults to breaking between ANY two syllable
      characters (CJK text doesn't need word-break:break-all to do this —
      it's the normal UAX#14 behavior), so a word like "계산하여" could
