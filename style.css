@@ -2844,7 +2844,22 @@ body {
    reads as one connected trio at a glance, and the same
    .bac-field-shift-cancelling transform (see .bac-draw-win-anchor's own
    comment above) since .bac-field-divider is a sibling subject to the
-   identical shift. */
+   identical shift.
+   2026-09-03 fix ("TIE버튼이 왜 중간에 사라지지?" — it wasn't disappearing,
+   it was rendering as a near-invisible ~2px dot the whole time): the
+   TIE button reuses Step 3's exact .bac-circle-btn class, which sizes
+   itself via `width:100% !important` (of ITS OWN PARENT) plus
+   `height: var(--bac-capsule-h) !important` — NOT `--bac-pair-circle-d`
+   (that one only sizes .bac-pair-circle/.bac-win-oval, a different pair
+   of classes this button doesn't have). In Step 3 that works because
+   the parent .bac-exp-cell already has a real width and --bac-capsule-h
+   is set on their shared ancestor .bac-exp-grid. This anchor is outside
+   .bac-exp-grid entirely, so `width:100%` had no definite parent width
+   to resolve against (collapsed to ~0) and --bac-capsule-h was simply
+   unset. Fix: give the anchor itself an explicit `width` AND its own
+   `--bac-capsule-h`, both equal to --bac-pair-circle-d, so the button's
+   100%-width/height:var(--bac-capsule-h) sizing now resolves to the
+   exact same diameter the WIN ovals' height already uses. */
 .bac-draw-tie-anchor { display: none; }
 .bac-drawing-mode .bac-draw-tie-anchor {
   display: flex;
@@ -2855,6 +2870,8 @@ body {
   transform: translate(-50%, calc(-1 * var(--bac-draw-row-shift)));
   z-index: 6;
   --bac-pair-circle-d: clamp(30px, 6.5vh, 38px);
+  width: var(--bac-pair-circle-d);
+  --bac-capsule-h: var(--bac-pair-circle-d);
 }
 /* Overrides .bac-win-oval's own `width:100% !important` (sized for
    Step 3's much wider --bac-win-w column) — without this the oval would
