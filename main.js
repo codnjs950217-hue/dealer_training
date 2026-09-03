@@ -2541,23 +2541,30 @@ const Sims = {
       }, (cards.length - 1) * 420 + 430);
     }
 
-    // STEP 3 (FULL SIMULATION) exclusive — doPlayerDraw()/doBankerDraw()
-    // are the only callers, so the guard is hardcoded to step 3 rather
-    // than taking a parameter like dealSequence() above. The initial
+    // Shared by doPlayerDraw()/doBankerDraw() below, which in turn are
+    // called from BOTH STEP 2's drawAction() (3rd-card draw judgment)
+    // AND STEP 3's quizInitial()/quizBanker() — NOT step-3-exclusive
+    // (2026-09-03 correction: an earlier pass here hardcoded `S.step !==
+    // 3`, wrongly assuming STEP 3-only callers, which silently broke
+    // STEP 2's own 3rd-card reveal — the card got inserted but the
+    // deferred revealFlip()/onDone() below always bailed since S.step
+    // was 2, not 3, so it never flipped face-up or advanced. Reported:
+    // "스텝2에 써드카드 드로잉되고나서 왜 오픈을 안해줘?"). `expectedStep` is
+    // now threaded through from the actual caller instead. The initial
     // insertAdjacentHTML() itself is synchronous (runs inside the same
     // click-triggered call as addCard() itself, so S.step can't have
     // changed by then) — only the deferred reveal/onDone needs guarding,
-    // same reasoning and same reported symptom as dealSequence() above.
-    function addCard(hand, elId, onDone, extraClass = '', sideways = false) {
+    // same reasoning as dealSequence() above.
+    function addCard(hand, elId, onDone, expectedStep, extraClass = '', sideways = false) {
       const card = S.deck.pop();
       hand.push(card);
       const id = ++flipId;
       const el = $(elId);
       if (el) el.insertAdjacentHTML('beforeend', flipHTML(card, id, extraClass, sideways));
       setTimeout(() => {
-        if (S.step !== 3) return;
+        if (S.step !== expectedStep) return;
         revealFlip(id);
-        setTimeout(() => { if (S.step === 3) onDone(); }, 400);
+        setTimeout(() => { if (S.step === expectedStep) onDone(); }, 400);
       }, 350);
       return card;
     }
@@ -2894,15 +2901,18 @@ const Sims = {
       return { lines, color };
     }
 
-    function doPlayerDraw(onDone) {
+    // `expectedStep` — see addCard()'s own comment above; both callers
+    // (STEP 2's drawAction(), STEP 3's quizInitial()/quizBanker()) pass
+    // their own step number through.
+    function doPlayerDraw(onDone, expectedStep) {
       addCard(S.ph, 'bac-ph3', () => {
         S.pThird = S.ph[S.ph.length - 1];
         onDone();
-      }, 'bac-p3', true);
+      }, expectedStep, 'bac-p3', true);
     }
 
-    function doBankerDraw(onDone) {
-      addCard(S.bh, 'bac-bh3', onDone, 'bac-b3', true);
+    function doBankerDraw(onDone, expectedStep) {
+      addCard(S.bh, 'bac-bh3', onDone, expectedStep, 'bac-b3', true);
     }
 
     function announceWinner(side) {
@@ -3387,9 +3397,9 @@ const Sims = {
         $('bac-bh3').innerHTML = ''; $('bac-ph3').innerHTML = '';
         setBtn('bac-draw-banker-win', ''); setBtn('bac-draw-player-win', '');
         if (correct === 'draw-player') {
-          doPlayerDraw(() => showBankerDrawJudgment());
+          doPlayerDraw(() => showBankerDrawJudgment(), 2);
         } else {
-          doBankerDraw(() => finishDrawingHand());
+          doBankerDraw(() => finishDrawingHand(), 2);
         }
       },
 
@@ -3528,9 +3538,9 @@ const Sims = {
         const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
         const ph3 = $('bac-ph3'); if (ph3) ph3.innerHTML = '';
         if (choice === 'draw-player') {
-          doPlayerDraw(() => { setDrawPhaseFocus(false); showBankerDrawQuiz(); });
+          doPlayerDraw(() => { setDrawPhaseFocus(false); showBankerDrawQuiz(); }, 3);
         } else {
-          doBankerDraw(() => { setDrawPhaseFocus(false); showSpecialQuiz(); });
+          doBankerDraw(() => { setDrawPhaseFocus(false); showSpecialQuiz(); }, 3);
         }
       },
 
@@ -3544,7 +3554,7 @@ const Sims = {
         paintResultGrid('banker');
         setDrawPhaseFocus(true);
         const bh3 = $('bac-bh3'); if (bh3) bh3.innerHTML = '';
-        doBankerDraw(() => { setDrawPhaseFocus(false); showSpecialQuiz(); });
+        doBankerDraw(() => { setDrawPhaseFocus(false); showSpecialQuiz(); }, 3);
       },
 
       quizSpecial(choice) {
