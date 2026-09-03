@@ -3305,12 +3305,25 @@ body {
    sits right below the answer buttons, no toast/popup. Outside Step 1
    it's always empty, so :empty's display:none keeps it fully out of
    the layout there. INSIDE Step 1, though, it's no longer collapsed
-   when empty — it reserves its own height (visibility:hidden) at all
-   times, only toggling to visible when it has text ("CORRECT 뜰때마다
-   기존 UI 위치들 안움직였으면 좋겠어", follow-up: collapsing/uncollapsing
-   this element changed the whole [prompt/cards/buttons] cluster's total
-   height, and since that cluster is vertically centered, every other
-   element shifted position each time this one appeared/disappeared).
+   when empty — it reserves its own height at all times, only toggling
+   text visibility when it has content ("CORRECT 뜰때마다 기존 UI 위치들
+   안움직였으면 좋겠어", follow-up: collapsing/uncollapsing this element
+   changed the whole [prompt/cards/buttons] cluster's total height, and
+   since that cluster is vertically centered, every other element
+   shifted position each time this one appeared/disappeared).
+   2026-09-03: `visibility:hidden` alone (the original fix) turned out
+   NOT to be enough on its own — a genuinely empty block element (no
+   text node at all, which is what `fbE.innerHTML = ''` leaves) doesn't
+   generate a line box and collapses to 0 height regardless of
+   `visibility`/`font-size`/`line-height`, so the shift was still
+   happening every time (reported again: "correct표시 뜰때마다 위에 ui위치들이
+   잠깐 올라갔다가 내려오는데"). Moving the text further down would NOT
+   have fixed this — the cluster's TOTAL height was still changing by
+   the same amount either way, just relocating where the jump lands.
+   Real fix: an explicit `min-height`/`line-height` (in `em`, so it
+   tracks the clamp()'d font-size) gives the box a real floor height
+   even with zero content, so appearing/disappearing text never changes
+   the cluster's total height at all.
    order:3 (button row is order:2) guarantees it renders after them
    regardless of exact DOM position. Deliberately small/muted, no
    background/border/glow — a plain green line of text, matching the
@@ -3327,6 +3340,8 @@ body {
   font-weight: 700;
   letter-spacing: .3px;
   color: #7ce8a6;
+  line-height: 1.3;
+  min-height: 1.3em;
   visibility: hidden;
 }
 .bac-counting-mode .bac-count-feedback:not(:empty) {
