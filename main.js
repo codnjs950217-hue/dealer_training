@@ -3207,14 +3207,25 @@ const Sims = {
       setBtn('bac-draw-player-win', drawWinBtnHtml('player'));
       setBtn('bac-draw-banker-win', drawWinBtnHtml('banker'));
     }
-    // Stage 2 (only after Player actually drew): Player's 3rd-card slot
-    // now holds the real revealed card, not a button, so PLAYER WIN no
-    // longer applies — only BANKER WIN vs BANKER DRAW remain possible.
+    // Stage 2 (only after Player actually drew): PLAYER's 3rd-card SLOT
+    // (bac-ph3, a button) is correctly gone — it now holds the real
+    // revealed card, and "draw again" was never a real option anyway.
+    // PLAYER WIN, though, is a SEPARATE floating anchor above the zone
+    // label (.bac-draw-win-anchor-player), unrelated to that slot — it
+    // used to be cleared here too, on the mistaken reasoning that the
+    // slot's own removal implied it. That was wrong: exactly like the
+    // initial judgment above, submitting via EITHER win oval just sends
+    // the same 'stand' choice (drawWinBtnHtml()'s onclick), so when the
+    // real judgment is "Banker doesn't draw", both hands are legitimately
+    // standing simultaneously here too — there's no basis for only one
+    // of the two win ovals to remain clickable. Reported: "플레이어윈
+    // 버튼 왜 사라져?" — restored to match showDrawJudgment()'s own dual-
+    // WIN-button behavior, only PLAYER DRAW is actually gone now.
     function showBankerDrawJudgment() {
       if (S.step !== 2) return;
       setBtn('bac-bh3', drawActionBtnHtml('draw-banker', 'BANKER<br>DRAW'));
       setBtn('bac-draw-banker-win', drawWinBtnHtml('banker'));
-      setBtn('bac-draw-player-win', '');
+      setBtn('bac-draw-player-win', drawWinBtnHtml('player'));
     }
     function finishDrawingHand() {
       if (S.step !== 2) return;
