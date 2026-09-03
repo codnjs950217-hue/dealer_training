@@ -3424,21 +3424,25 @@ body {
    above the cards). A single element centered on .bac-field itself
    (not duplicated per zone like .bac-zone-lbl) since only one zone is
    ever active/visible at a time here — it naturally lands above
-   whichever one that is. Positioned above the (enlarged, this mode's
-   own --card-h-lg) card top edge by a small margin — deliberately less
-   than .bac-zone-lbl's own 1.4rem clearance above, since there's no
-   competing label to clear here and .bac-field sits close under the
-   answer-button row above it (verified via real layout measurements
-   that this offset doesn't collide with that row). */
+   whichever one that is.
+   2026-09-03 follow-up ("초 나오는거 카드랑 겹치잖아. 초 카운트 폰트는 좀더
+   위로 올리고 크기 키워줘"): the original .6rem clearance was too tight
+   once real text metrics are involved (not just the box's own top edge)
+   — pushed further up to 1.6rem and enlarged the font. There's plenty
+   of headroom to do this: .bac-field sits well clear of the answer-
+   button row (that row renders BELOW .bac-field in this layout, not
+   above it — see [[project_card_drawing_step_selector]] memory, a
+   correction to an earlier wrong assumption), so nothing else occupies
+   the space above the cards up to the table's own top edge. */
 .bac-count-timer-card { display: none; }
 .bac-counting-mode .bac-count-timer-card {
   display: block;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  top: calc(50% - var(--card-h-lg)/2 - .6rem);
+  top: calc(50% - var(--card-h-lg)/2 - 1.6rem);
   z-index: 5;
-  font-size: .82rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: #ffd700;
   font-variant-numeric: tabular-nums;
