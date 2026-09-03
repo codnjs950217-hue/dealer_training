@@ -3433,7 +3433,20 @@ const Sims = {
           finishDrawingHand();
           return;
         }
-        $('bac-bh3').innerHTML = ''; $('bac-ph3').innerHTML = '';
+        // #bac-bh3 always holds a stale BANKER DRAW button here (from
+        // showDrawJudgment()/showBankerDrawJudgment()), safe to clear
+        // before doBankerDraw() replaces it with the real card either
+        // way. #bac-ph3, though, is NOT always stale — at stage2 (this
+        // 'draw-banker' branch reached AFTER Player already drew) it
+        // already holds Player's real, just-revealed 3rd card, not a
+        // button, and clearing it unconditionally here wiped that
+        // legitimately-drawn card the instant Banker's judgment started.
+        // Reported: "플레이어 써드카드 뽑았는데 왜 뱅커 써드 나오고 나니까
+        // 사라져??". Only clear it when it could actually be stale (the
+        // initial-stage 'draw-player' branch, where it holds a PLAYER
+        // DRAW button about to be replaced by doPlayerDraw()).
+        $('bac-bh3').innerHTML = '';
+        if (!stage2) $('bac-ph3').innerHTML = '';
         setBtn('bac-draw-banker-win', ''); setBtn('bac-draw-player-win', '');
         if (correct === 'draw-player') {
           doPlayerDraw(() => showBankerDrawJudgment(), 2);
