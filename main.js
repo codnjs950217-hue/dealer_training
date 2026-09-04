@@ -800,7 +800,7 @@ const Views = {
   // the game-landing page, left untouched, same as this file's other
   // "already has its own multi-button landing" cases).
   pokerStartMenu: () => entryMenuHTML('🂡 Poker', [
-    { icon: '🏆', name: '홀덤 랭킹 연습하기', desc: "Hold'em 랭킹 판단을<br>단계별로 연습", onclick: "App.navigate('poker','thp')" },
+    { icon: '🏆', name: '홀덤 랭킹 연습하기', desc: '핸드 순위를 비교해<br>승부 판정 연습', onclick: "App.navigate('poker','thp')" },
   ]),
 
   roulettePaySim: () => `
