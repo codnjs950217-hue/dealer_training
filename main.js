@@ -803,8 +803,8 @@ const Views = {
   // "카드 카운팅", and 스피드모드 now routes to the real
   // blackjack/simulationspeed mode instead of a "coming soon" toast.
   blackjackStartMenu: () => entryMenuHTML('♠ Blackjack', [
-    { icon: '♠', name: '일반모드', desc: '딜러 드로우 규칙과<br>페이/푸시 판정 연습', onclick: "App.navigate('blackjack','simulation')" },
-    { icon: '⚡', name: '스피드모드', desc: '진행을 건너뛰고<br>더 빠르게 반복 연습', onclick: "App.navigate('blackjack','simulationspeed')" },
+    { icon: '♠', name: '일반모드', desc: '플레이어 진행부터<br>딜러 판정까지 전체 연습', onclick: "App.navigate('blackjack','simulation')" },
+    { icon: '⚡', name: '스피드모드', desc: '플레이어 진행은 건너뛰고<br>딜러 판정만 반복 연습', onclick: "App.navigate('blackjack','simulationspeed')" },
   ]),
 
   // Poker's Start menu (App.navigate('poker','startmenu')) — same
