@@ -636,26 +636,37 @@ body {
 }
 /* Once the cards finish popping in (last card's delay .3s + its own
    .55s duration = .85s settled), each Start button gets its own little
-   "boing" pulse in the same 1-2-3-4 order, then a second pulse back on
-   Baccarat's (card 1) — "1-2-3-4-1", per explicit request. A plain
-   scale pulse (not the card's opacity/translateY pop-in, and not the
-   button's own hover/press translateY) so this reads as a distinct
-   "look here, press me" beat rather than repeating either of those.
-   No fill-mode override needed — the 0%/100% keyframe already equals
-   the button's resting transform, so there's nothing to hold onto
-   before/after the animation's brief active window, and the existing
-   :hover/:active transitions are untouched outside that window. */
-@keyframes homeBtnBounce {
-  0%, 100% { transform: scale(1); }
-  40% { transform: scale(1.12); }
-  70% { transform: scale(.96); }
+   "boing" pulse in the same 1-2-3-4 order, then it loops forever —
+   "1-2-3-4-1-2-3-4-1..." per explicit follow-up (confirmed: a
+   continuous loop, not a one-shot; also confirmed too fast at first
+   pass and slowed down here). One shared keyframe/duration (2.4s) for
+   every button, with the "boing" occupying only the first ~17% of that
+   cycle and holding flat at rest for the remaining ~83% — each button's
+   `animation-delay` is offset by .6s (a quarter of the 2.4s cycle), so
+   with `infinite` iteration the four stay permanently phase-locked
+   .6s apart: Baccarat, then Blackjack .6s later, Roulette .6s after
+   that, Poker .6s after that, then Baccarat again exactly .6s later
+   (its 2nd cycle starts at 1s+2.4s = 3.4s, i.e. .6s after Poker's 1st
+   at 2.8s) — no negative-delay phase trick needed since every button
+   shares the exact same duration. A plain scale pulse (not the card's
+   opacity/translateY pop-in, and not the button's own hover/press
+   translateY) so this reads as a distinct "look here, press me" beat.
+   No fill-mode override needed — the resting (flat) portion of the
+   keyframe already equals the button's own resting transform, so the
+   existing :hover/:active transitions still work normally outside each
+   button's brief ~.4s "boing" window every 2.4s. */
+@keyframes homeBtnBounceLoop {
+  0%   { transform: scale(1); }
+  7%   { transform: scale(1.12); }
+  12%  { transform: scale(.97); }
+  17%  { transform: scale(1); }
+  100% { transform: scale(1); }
 }
-.home-game-cards > .home-game-card:nth-child(1) .home-game-btn {
-  animation: homeBtnBounce .4s ease-in-out 1s, homeBtnBounce .4s ease-in-out 1.6s;
-}
-.home-game-cards > .home-game-card:nth-child(2) .home-game-btn { animation: homeBtnBounce .4s ease-in-out 1.15s; }
-.home-game-cards > .home-game-card:nth-child(3) .home-game-btn { animation: homeBtnBounce .4s ease-in-out 1.3s; }
-.home-game-cards > .home-game-card:nth-child(4) .home-game-btn { animation: homeBtnBounce .4s ease-in-out 1.45s; }
+.home-game-btn { animation: homeBtnBounceLoop 2.4s ease-in-out infinite; }
+.home-game-cards > .home-game-card:nth-child(1) .home-game-btn { animation-delay: 1s; }
+.home-game-cards > .home-game-card:nth-child(2) .home-game-btn { animation-delay: 1.6s; }
+.home-game-cards > .home-game-card:nth-child(3) .home-game-btn { animation-delay: 2.2s; }
+.home-game-cards > .home-game-card:nth-child(4) .home-game-btn { animation-delay: 2.8s; }
 
 .hero {
   display: flex; align-items: center; justify-content: space-between;
