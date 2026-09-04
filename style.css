@@ -602,37 +602,48 @@ body {
       straight to rest. This is a deliberate reversal of rev 3's "no
       bounce" note — that guidance no longer applies, don't revert to it
       without checking here first. */
+/* Rev 6 (2026-09-04, same day) — full Apple-style redesign, explicit
+   brief: clean pill, large radius, premium warm yellow (#FFD54A range),
+   MINIMAL shadow, NO bevel/emboss/heavy gradient, bold readable type, a
+   trailing arrow, smooth (not bouncy) hover/press micro-interactions, a
+   "slight floating" feel. This REMOVES rev 3-5's solid riser/bevel
+   mechanic entirely (no more `0 Npx 0 <color>` hard edge, no more
+   translateY "sink into the riser" on :active) in favor of a single
+   soft ambient shadow that just grows/shrinks, plus a gentle
+   scale/lift. Height/width/text/onclick unchanged — `::after` adds the
+   → arrow purely visually, the underlying button text is still just
+   "Start"/"START" (via text-transform). The infinite 1-2-3-4
+   bounce-loop below (`homeBtnBounceLoop`) was deliberately left
+   running, not removed — flag if that idle pulse ends up clashing with
+   this calmer look, it's an easy follow-up to drop. */
 .home-game-btn {
   width: 100%; height: clamp(34px, 6vh, 42px);
-  padding: 0 .45rem;
-  display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(180deg, #FFE066 0%, #FFD23D 100%);
+  padding: 0 .6rem;
+  display: flex; align-items: center; justify-content: center; gap: .35em;
+  background: linear-gradient(180deg, #FFDB6B 0%, #FFD54A 100%);
   border: none;
-  border-radius: 9999px; color: #4a3200;
+  border-radius: 9999px; color: #3a2a00;
   font-size: clamp(.62rem, 1.4vw, .78rem); font-weight: 800; cursor: pointer;
-  letter-spacing: .4px; text-align: center; text-transform: uppercase;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.55),
-    0 2px 0 #dfa000,
-    0 4px 8px rgba(160,115,0,.28);
-  transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, filter .15s ease;
+  letter-spacing: .3px; text-align: center; text-transform: uppercase;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 6px 16px rgba(255,193,7,.28);
+  transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s cubic-bezier(.4,0,.2,1), filter .2s ease;
+}
+.home-game-btn::after {
+  content: '→';
+  font-weight: 700;
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
 }
 .home-game-btn:hover {
-  filter: brightness(1.03);
   transform: translateY(-2px);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.6),
-    0 3px 0 #dfa000,
-    0 6px 10px rgba(160,115,0,.32);
+  filter: brightness(1.02);
+  box-shadow: 0 2px 4px rgba(0,0,0,.08), 0 10px 24px rgba(255,193,7,.35);
 }
+.home-game-btn:hover::after { transform: translateX(3px); }
 .home-game-btn:active {
-  transform: translateY(2px);
-  filter: brightness(.98);
-  transition: transform .06s ease-out, box-shadow .06s ease-out, filter .1s ease;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.45),
-    0 0 0 #dfa000,
-    0 1px 3px rgba(160,115,0,.22);
+  transform: scale(.96);
+  filter: brightness(.99);
+  transition: transform .12s cubic-bezier(.4,0,.2,1), box-shadow .12s ease, filter .1s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 3px 8px rgba(255,193,7,.22);
 }
 /* Once the cards finish popping in (last card's delay .3s + its own
    .55s duration = .85s settled), each Start button gets its own little
