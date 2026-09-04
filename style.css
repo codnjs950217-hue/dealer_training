@@ -573,7 +573,7 @@ body {
   background: linear-gradient(90deg, transparent, rgba(220,185,80,.85), transparent);
   margin: .1rem 0;
 }
-.home-game-btns { display: flex; flex-direction: column; gap: .35rem; width: 100%; }
+.home-game-btns { display: flex; flex-direction: column; align-items: center; gap: .35rem; width: 100%; }
 /* Bright, warm "friendly CTA" restyle (2026-09-04) — every home-page
    card button is now this app's single Start CTA (Baccarat/Blackjack/
    Roulette/Poker all just say "Start"), so this one class carries all of
@@ -617,7 +617,7 @@ body {
    running, not removed — flag if that idle pulse ends up clashing with
    this calmer look, it's an easy follow-up to drop. */
 .home-game-btn {
-  width: 100%; height: clamp(34px, 6vh, 42px);
+  width: 78%; height: clamp(34px, 6vh, 42px);
   padding: 0 .6rem;
   display: flex; align-items: center; justify-content: center; gap: .35em;
   background: linear-gradient(180deg, #FFDB6B 0%, #FFD54A 100%);
