@@ -777,9 +777,16 @@ const Views = {
   // 도전하기's background is black per explicit request, that's the only
   // difference (a separate gold accent theme was tried, then explicitly
   // reverted the same day).
+  // 도전하기 is fully built (roulette/payrank -> Sims.roulettePay.startChallenge(),
+  // real Firestore leaderboard) but its entry point is disabled for now
+  // (showComingSoonToast() instead of navigating) — the backend isn't
+  // ready for real trainees yet (firestore.rules changes are pending
+  // deployment, see [[project_roulette_ranking_challenge]]). Route the
+  // card back to `onclick: "App.navigate('roulette','payrank')"` once
+  // that's actually live; don't rebuild the challenge itself.
   roulettePayMenu: () => entryMenuHTML('🎡 Roulette', [
     { icon: '🎯', name: '연습하기', desc: '초급 · 중급 · 고급<br>시간 제한 없이 자유롭게 연습', onclick: "App.navigate('roulette','paysim')" },
-    { icon: '🏆', name: '도전하기', desc: '고급 난이도 · 60초 제한<br>랭킹에 도전', onclick: "App.navigate('roulette','payrank')" },
+    { icon: '🏆', name: '도전하기', desc: '고급 난이도 · 60초 제한<br>랭킹에 도전', onclick: "showComingSoonToast('⏳ 준비중입니다.')" },
   ]),
 
   // Baccarat's Start menu (App.navigate('baccarat','startmenu')) — same
