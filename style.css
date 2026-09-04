@@ -4425,12 +4425,27 @@ body {
 .spot-hit-btn:hover  { background: #224a72; }
 .spot-stay-btn { background: #3a2800; color: #c9a84c; border: 1px solid #6a4800; }
 .spot-stay-btn:hover { background: #4a3200; }
+/* Blinking glow (2026-09-04) — 일반모드 now auto-starts the hand
+   (Standard/Speed mode-bar removed, see main.js's App.navigate()), so
+   Next Action is the very first thing a trainee needs to notice and
+   click; a plain static button was too easy to miss on entry. Same
+   "breathing glow" technique as .bac-draw-slot-btn's bacDrawBtnPulse
+   (box-shadow + border-color only, no scale/opacity flicker) so it
+   reads as a consistent "pending action" cue across the app, tinted
+   with this button's own teal (#4ecdc4) instead of that one's blue.
+   Paused on hover so the glow doesn't fight the hover background
+   change frame-by-frame. */
 .spot-next-btn {
   background: #0e3428; color: #4ecdc4;
   border: 1px solid #1a6048;
   padding: .32rem .82rem; font-size: .75rem;
+  animation: spotNextBtnPulse 1.2s ease-in-out infinite;
 }
-.spot-next-btn:hover { background: #124030; }
+@keyframes spotNextBtnPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(78,205,196,0); border-color: #1a6048; }
+  50%      { box-shadow: 0 0 14px rgba(78,205,196,.6); border-color: #4ecdc4; }
+}
+.spot-next-btn:hover { background: #124030; animation: none; }
 .spot-bj-btn   { background: #3a2a00; color: #ffd700; border: 1px solid #7a5a00; font-size: .62rem; }
 .spot-bj-btn:hover   { background: #4e3900; }
 .spot-pay-btn  { background: #0a3020; color: #4ecdc4; border: 1px solid #1a6040; padding: .4rem .7rem; font-size: .8rem; }
