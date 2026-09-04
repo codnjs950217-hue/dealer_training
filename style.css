@@ -1306,6 +1306,106 @@ body {
   border-color: rgba(255,210,60,.65);
   color: #ffd700;
 }
+/* 🏆 랭킹 도전 (2026-09-04): dims the difficulty row (doesn't hide it —
+   고급 stays visibly selected) while a challenge is running, since the
+   difficulty is locked to 고급 for the whole 60s run. */
+.rpay-diff-row.rpay-diff-locked { opacity: .45; pointer-events: none; }
+.rpay-rank-row {
+  display: flex; flex-direction: row; gap: .3rem;
+  padding-bottom: clamp(.3rem,.6vh,.5rem);
+  flex-shrink: 0;
+}
+.rpay-rank-btn {
+  flex: 1;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.7);
+  border-radius: 6px; cursor: pointer;
+  font-size: clamp(.62rem,1.1vw,.76rem); font-weight: 700; letter-spacing: .3px;
+  padding: clamp(.28rem,.6vh,.4rem) .3rem;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.rpay-rank-btn:hover { background: rgba(255,255,255,.14); }
+.rpay-rank-challenge-btn {
+  flex: 1.4;
+  background: rgba(255,210,60,.16);
+  border-color: rgba(255,210,60,.55);
+  color: #ffd700;
+}
+.rpay-rank-challenge-btn:hover { background: rgba(255,210,60,.26); }
+#rpay-challenge-stat { color: #ffd700; border-right: none !important; }
+
+/* Full-cover freeze at challenge end — same technique as .mistake-overlay
+   (position:absolute;inset:-3px on the same .rpay-table ancestor) so no
+   per-button "challenge over" guard is needed; the overlay itself blocks
+   every click underneath it. */
+.rpay-challenge-end-overlay {
+  position: absolute; inset: -3px;
+  background: rgba(0,0,0,.8);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .55rem;
+  z-index: 60; border-radius: 21px;
+  padding: 1rem;
+  text-align: center;
+}
+.rpay-challenge-end-title { color: var(--gold, #d4af37); font-weight: 900; font-size: clamp(1.1rem,3vh,1.5rem); }
+.rpay-challenge-end-stats { color: #fff; font-size: clamp(.85rem,2vh,1.05rem); }
+.rpay-challenge-end-status { color: rgba(255,255,255,.65); font-size: clamp(.7rem,1.6vh,.85rem); min-height: 1.2em; }
+.rpay-challenge-end-btns { display: flex; gap: .5rem; margin-top: .3rem; flex-wrap: wrap; justify-content: center; }
+
+.rpay-rank-modal-backdrop {
+  position: fixed; inset: 0; z-index: 600;
+  background: rgba(0,0,0,.65);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.2rem;
+}
+.rpay-rank-modal-box {
+  position: relative;
+  width: min(440px, 100%);
+  max-height: 82vh;
+  overflow-y: auto;
+  background: var(--felt, #0c3320);
+  border: 1px solid rgba(201,168,76,.4);
+  border-radius: 12px;
+  padding: 1.2rem 1.1rem 1rem;
+  box-shadow: 0 12px 40px rgba(0,0,0,.55);
+}
+.rpay-rank-modal-title {
+  color: var(--gold, #d4af37);
+  font-weight: 900;
+  font-size: 1rem;
+  letter-spacing: .4px;
+  margin: 0 0 .8rem;
+  text-align: center;
+}
+.rpay-rank-modal-close {
+  position: absolute; top: .5rem; right: .5rem;
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.8);
+  font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.rpay-rank-modal-close:hover { background: rgba(255,255,255,.14); }
+.rpay-rank-modal-loading, .rpay-rank-modal-empty {
+  color: rgba(255,255,255,.55);
+  font-size: .85rem;
+  text-align: center;
+  padding: 1rem 0;
+}
+.rpay-rank-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+.rpay-rank-item {
+  display: flex; align-items: baseline; gap: .5rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.rpay-rank-item:last-child { border-bottom: none; padding-bottom: 0; }
+.rpay-rank-num { color: rgba(255,255,255,.35); font-weight: 800; font-size: .74rem; min-width: 1.1rem; }
+.rpay-rank-name { color: var(--text, #e8e0d0); font-weight: 800; font-size: .8rem; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rpay-rank-score { color: #ffd700; font-weight: 900; font-size: .82rem; }
+.rpay-rank-mistakes { color: rgba(255,255,255,.4); font-size: .68rem; }
+
 .rpay-bet-side::after {
   content: '';
   position: absolute; right: 0; top: .7rem; bottom: .7rem;

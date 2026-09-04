@@ -701,12 +701,17 @@ const Views = {
           <span>Rounds: <strong id="rpay-rounds">0</strong></span>
           <span>Score: <strong id="rpay-score">0</strong></span>
           <span>Mistake: <strong id="rpay-mistakes">0</strong></span>
+          <span id="rpay-challenge-stat" style="display:none">⏱ <strong id="rpay-challenge-time">60</strong>s</span>
         </div>
         <div class="rpay-bet-side">
-          <div class="rpay-diff-row">
+          <div class="rpay-diff-row" id="rpay-diff-row">
             <button class="rpay-diff-btn rpay-diff-active" id="rpay-diff-easy"   onclick="Sims.roulettePay.setDiff('easy')">초급</button>
             <button class="rpay-diff-btn"                  id="rpay-diff-medium" onclick="Sims.roulettePay.setDiff('medium')">중급</button>
             <button class="rpay-diff-btn"                  id="rpay-diff-hard"   onclick="Sims.roulettePay.setDiff('hard')">고급</button>
+          </div>
+          <div class="rpay-rank-row">
+            <button class="rpay-rank-btn rpay-rank-challenge-btn" id="rpay-rank-challenge-btn" onclick="Sims.roulettePay.startChallenge()">🏆 랭킹 도전 (고급 · 60초)</button>
+            <button class="rpay-rank-btn rpay-rank-view-btn" onclick="Sims.roulettePay.openRankModal()">📊 랭킹 보기</button>
           </div>
           <div class="rpay-table-wrap">
             <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>
@@ -6029,6 +6034,147 @@ const Sims = {
       nextRound() {
         if (S.nextTimer) { clearTimeout(S.nextTimer); S.nextTimer = null; }
         this.deal();
+      },
+
+      // ---- 🏆 랭킹 도전 (2026-09-04) ----
+      // A 60s, 고급(hard)-only timed challenge, separate from free
+      // practice: only trainees who explicitly click this button get their
+      // score written to the shared leaderboard (rouletteRankings/{empId}
+      // in Firestore, personal-best only — see firebase-init.js). Free
+      // practice at any difficulty never touches the leaderboard.
+      CHALLENGE_SECONDS: 60,
+
+      startChallenge() {
+        if (S && S.challengeInterval) return; // already running
+        this._stopTimer();
+        if (S && S.nextTimer) clearTimeout(S.nextTimer);
+        const ov0 = document.querySelector('.rpay-challenge-end-overlay');
+        if (ov0) ov0.remove();
+        S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, mistakes: 0, lastNum: null, roundColor: null,
+              payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
+              history: [], difficulty: 'hard', awaitingPay: false, nextTimer: null,
+              timerStart: null, timerInterval: null, answerRevealed: false,
+              challengeMode: true, challengeInterval: null, challengeSecondsLeft: this.CHALLENGE_SECONDS };
+        ['easy','medium','hard'].forEach(d => {
+          const btn = document.getElementById(`rpay-diff-${d}`);
+          if (btn) btn.classList.toggle('rpay-diff-active', d === 'hard');
+        });
+        const diffRow = $('rpay-diff-row'); if (diffRow) diffRow.classList.add('rpay-diff-locked');
+        if ($('rpay-rounds')) $('rpay-rounds').textContent = '0';
+        if ($('rpay-score'))  $('rpay-score').textContent  = '0';
+        if ($('rpay-mistakes')) $('rpay-mistakes').textContent = '0';
+        if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
+        if ($('rpay-pay-zone'))   $('rpay-pay-zone').innerHTML   = '';
+        const wb = $('rpay-chip-warn-banner'); if (wb) wb.style.visibility = 'hidden';
+        const timerEl = $('rpay-timer'); if (timerEl) { timerEl.className = 'rpay-timer'; timerEl.textContent = '—'; }
+
+        const tbl = document.getElementById('rpay-full-table');
+        if (tbl) {
+          tbl.querySelectorAll('.rpay-win-cell').forEach(el => el.classList.remove('rpay-win-cell'));
+          tbl.querySelectorAll('.rpay-spot').forEach(el => el.remove());
+          tbl.querySelectorAll('.rpay-dolly').forEach(el => el.remove());
+        }
+        const ov = $('rpay-start-overlay'); if (ov) ov.style.display = 'none';
+
+        const stat = $('rpay-challenge-stat'); if (stat) stat.style.display = '';
+        const timeEl = $('rpay-challenge-time'); if (timeEl) timeEl.textContent = String(S.challengeSecondsLeft);
+
+        hasStarted = true;
+        this.deal();
+        this._startChallengeTimer();
+      },
+
+      _startChallengeTimer() {
+        S.challengeInterval = setInterval(() => {
+          S.challengeSecondsLeft--;
+          const timeEl = $('rpay-challenge-time'); if (timeEl) timeEl.textContent = String(Math.max(0, S.challengeSecondsLeft));
+          if (S.challengeSecondsLeft <= 0) this._endChallenge();
+        }, 1000);
+      },
+
+      // Freezes the board behind a full-cover overlay (same technique as
+      // .mistake-overlay — see that rule's own comment — rather than
+      // guarding every chip/PAY/UNDO method individually with a
+      // "challenge over" flag) and auto-submits the run's score, since
+      // clicking 랭킹 도전 IS the trainee's consent to be ranked — no
+      // extra confirmation step once the clock runs out.
+      _endChallenge() {
+        clearInterval(S.challengeInterval);
+        S.challengeInterval = null;
+        S.challengeMode = false;
+        this._stopTimer();
+        if (S.nextTimer) { clearTimeout(S.nextTimer); S.nextTimer = null; }
+        const diffRow = $('rpay-diff-row'); if (diffRow) diffRow.classList.remove('rpay-diff-locked');
+        const stat = $('rpay-challenge-stat'); if (stat) stat.style.display = 'none';
+        const hintBtn = $('rpay-hint-btn'); if (hintBtn) hintBtn.style.display = 'none';
+
+        const finalScore = S.score, finalMistakes = S.mistakes;
+        const tbl = document.querySelector('.rpay-table');
+        if (!tbl) return;
+        const ov = document.createElement('div');
+        ov.className = 'rpay-challenge-end-overlay';
+        ov.innerHTML = `
+          <div class="rpay-challenge-end-title">🏆 챌린지 종료!</div>
+          <div class="rpay-challenge-end-stats">정답 <strong>${finalScore}</strong>개 · 실수 <strong>${finalMistakes}</strong>회</div>
+          <div class="rpay-challenge-end-status" id="rpay-challenge-status">랭킹 제출 중...</div>
+          <div class="rpay-challenge-end-btns">
+            <button class="bac-cta-btn" onclick="Sims.roulettePay.openRankModal()">랭킹 보기</button>
+            <button class="bac-cta-btn" onclick="Sims.roulettePay.startChallenge()">다시 도전</button>
+            <button class="rpay-rank-btn" onclick="this.closest('.rpay-challenge-end-overlay').remove(); Sims.roulettePay.init(true);">닫기</button>
+          </div>`;
+        tbl.appendChild(ov);
+        this._submitChallengeScore(finalScore, finalMistakes);
+      },
+
+      async _submitChallengeScore(score, mistakes) {
+        const statusEl = () => document.getElementById('rpay-challenge-status');
+        if (!window.DealerAuth || !Auth.session) {
+          const el = statusEl(); if (el) el.textContent = '랭킹 제출 실패 (로그인 정보 없음)';
+          return;
+        }
+        try {
+          await window.DealerAuth.submitRouletteRankScore(Auth.session.employeeId, Auth.session.name, score, mistakes);
+          const el = statusEl(); if (el) el.textContent = '✓ 랭킹에 제출되었습니다';
+        } catch (e) {
+          console.error('[roulettePay] 랭킹 제출 실패:', e);
+          const el = statusEl(); if (el) el.textContent = '랭킹 제출 실패 (네트워크 오류)';
+        }
+      },
+
+      async openRankModal() {
+        this.closeRankModal();
+        const backdrop = document.createElement('div');
+        backdrop.className = 'rpay-rank-modal-backdrop';
+        backdrop.id = 'rpay-rank-modal-backdrop';
+        backdrop.innerHTML = `
+          <div class="rpay-rank-modal-box">
+            <button class="rpay-rank-modal-close" onclick="Sims.roulettePay.closeRankModal()">✕</button>
+            <div class="rpay-rank-modal-title">🏆 룰렛 랭킹 (고급 · 60초 챌린지)</div>
+            <div id="rpay-rank-modal-body" class="rpay-rank-modal-loading">불러오는 중...</div>
+          </div>`;
+        document.body.appendChild(backdrop);
+        try {
+          const rows = await window.DealerAuth.getRouletteTopScores(20);
+          const body = document.getElementById('rpay-rank-modal-body');
+          if (!body) return;
+          if (!rows.length) { body.innerHTML = '<div class="rpay-rank-modal-empty">아직 도전 기록이 없습니다.</div>'; return; }
+          body.innerHTML = `<ul class="rpay-rank-list">${rows.map((r, i) => `
+            <li class="rpay-rank-item">
+              <span class="rpay-rank-num">${i + 1}</span>
+              <span class="rpay-rank-name">${r.name}</span>
+              <span class="rpay-rank-score">${r.score}개</span>
+              <span class="rpay-rank-mistakes">실수 ${r.mistakes ?? 0}</span>
+            </li>`).join('')}</ul>`;
+        } catch (e) {
+          console.error('[roulettePay] 랭킹 조회 실패:', e);
+          const body = document.getElementById('rpay-rank-modal-body');
+          if (body) body.innerHTML = '<div class="rpay-rank-modal-empty">랭킹을 불러오지 못했습니다.</div>';
+        }
+      },
+
+      closeRankModal() {
+        const b = document.getElementById('rpay-rank-modal-backdrop');
+        if (b) b.remove();
       },
     };
   })(),

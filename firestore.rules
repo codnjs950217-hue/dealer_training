@@ -10,6 +10,20 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // 룰렛 페이 프랙티스 "🏆 랭킹 도전"의 개인 최고점 리더보드.
+    // 이 앱엔 실제 Firebase Auth가 없어(사번 로그인은 클라이언트가 users/
+    // {employeeId}를 직접 조회하는 방식) request.auth로 글쓴이가 본인
+    // employeeId인지 검증할 수 없다 — users 컬렉션과 동일한 한계. 대신
+    // 문서 스키마만 검증해 완전히 임의의 필드/컬렉션 쓰기는 막는다.
+    match /rouletteRankings/{employeeId} {
+      allow read: if true;
+      allow write: if request.resource.data.keys().hasOnly(['name','score','mistakes','updatedAt'])
+                   && request.resource.data.name is string
+                   && request.resource.data.score is int
+                   && request.resource.data.mistakes is int
+                   && request.resource.data.updatedAt is int;
+    }
+
     // 그 외 컬렉션은 기본적으로 전부 차단.
     match /{document=**} {
       allow read, write: if false;
