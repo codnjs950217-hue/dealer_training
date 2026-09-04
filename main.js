@@ -3456,7 +3456,7 @@ const Sims = {
         });
         const intro = {
           1: ['STEP 1 • COUNTING', '현재 카드의 카운팅 값을 계산하여<br>정답을 선택하세요.'],
-          2: ['STEP 2 • DRAWING', '플레이어 또는 뱅커의<br>드로우 여부를 판단하세요.'],
+          2: ['STEP 2 • DRAWING', '플레이어 또는 뱅커의<br>드로우 여부와 승패를 판단하세요.'],
           3: ['STEP 3 • FULL SIMULATION', '실제 바카라 진행 절차를 따라<br>게임을 시뮬레이션하세요.'],
         }[n];
         showStepIntro(intro[0], intro[1], () => {
