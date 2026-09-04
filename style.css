@@ -1418,7 +1418,7 @@ body {
   flex-wrap: wrap; justify-content: center;
 }
 .entry-menu-card {
-  width: clamp(160px, 26vw, 240px);
+  width: clamp(175px, 26vw, 240px);
   padding: clamp(1.2rem, 3vh, 1.8rem) 1rem;
   border-radius: 18px;
   display: flex; flex-direction: column; align-items: center; gap: .5rem;
@@ -1436,8 +1436,9 @@ body {
 .entry-menu-card:active { transform: translateY(0); }
 .entry-menu-card-icon { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1; }
 .entry-menu-card-name {
-  font-size: clamp(1rem, 2.6vw, 1.25rem); font-weight: 900;
+  font-size: clamp(.85rem, 2.4vw, 1.25rem); font-weight: 900;
   letter-spacing: .5px; color: #fff;
+  white-space: nowrap;
 }
 .entry-menu-card-desc {
   font-size: clamp(.68rem, 1.6vw, .8rem);
