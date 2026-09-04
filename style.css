@@ -519,6 +519,24 @@ body {
   display: flex; gap: .7rem;
   flex: 1; min-height: 0; max-height: 60vh;
 }
+/* Staggered bounce-in on home load (2026-09-04): "바카라부터 포커까지
+   차례대로 통통튀는 느낌" — each card pops in with a spring overshoot
+   (same cubic-bezier family as the Start button's own bounce), one
+   after another in DOM order (Baccarat → Blackjack → Roulette → Poker).
+   `backwards` (not `both`/`forwards`) is deliberate: it keeps the card
+   hidden/scaled-down during its own animation-delay, but once the
+   animation finishes it stops overriding `transform` at all — letting
+   .home-game-card:hover's own transition keep working normally
+   afterward (a `forwards` fill would permanently pin `transform` at the
+   animation's last keyframe, above transitions in the cascade, and
+   silently break the hover lift). The 100% keyframe already matches the
+   element's natural resting transform, so there's no visible "snap"
+   when the fill stops applying. */
+@keyframes homeCardPopIn {
+  0%   { opacity: 0; transform: scale(.7) translateY(14px); }
+  60%  { opacity: 1; transform: scale(1.06) translateY(-3px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
 .home-game-card {
   flex: 1; min-height: 0;
   background: linear-gradient(160deg, rgba(255,255,255,.07) 0%, rgba(255,255,255,.02) 100%);
@@ -529,7 +547,12 @@ body {
   box-shadow: 0 2px 16px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
   transition: transform .2s, box-shadow .2s, border-color .2s;
   overflow: hidden;
+  animation: homeCardPopIn .55s cubic-bezier(.34,1.56,.64,1) backwards;
 }
+.home-game-cards > .home-game-card:nth-child(1) { animation-delay: 0s; }
+.home-game-cards > .home-game-card:nth-child(2) { animation-delay: .1s; }
+.home-game-cards > .home-game-card:nth-child(3) { animation-delay: .2s; }
+.home-game-cards > .home-game-card:nth-child(4) { animation-delay: .3s; }
 .home-game-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 28px rgba(0,0,0,.4), 0 0 0 1px rgba(201,168,76,.35), inset 0 1px 0 rgba(255,255,255,.08);
