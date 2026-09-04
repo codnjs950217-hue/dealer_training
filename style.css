@@ -1505,10 +1505,11 @@ body {
    small set of named entry cards, same visual family as .home-game-card
    but bigger/centered. First built for Roulette Payout's 연습하기/
    도전하기 split, reused as-is for Baccarat's Start menu. Every card
-   shares one theme (border/text colors); .entry-menu-card-dark only
-   swaps the background to black (used by 도전하기, per explicit
-   request "검정 배경") — a separate gold accent theme was tried for it
-   and explicitly reverted the same day, don't reintroduce one. */
+   renders identically — 도전하기 originally got a black background via
+   a `dark` flag (per an earlier explicit "검정 배경" request), which was
+   later explicitly reverted to match 연습하기 exactly ("연습하기 버튼
+   디자인이랑 동일하게 해줄래") — don't reintroduce a per-card visual
+   variant here without a fresh, explicit ask. */
 .entry-menu-page {
   position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -1552,10 +1553,6 @@ body {
   line-height: 1.5; text-align: center;
   color: rgba(255,255,255,.6);
 }
-.entry-menu-card-dark {
-  background: linear-gradient(160deg, #1a1a1a 0%, #050505 100%);
-}
-
 .rpay-bet-side::after {
   content: '';
   position: absolute; right: 0; top: .7rem; bottom: .7rem;

@@ -131,14 +131,18 @@ function cardHTML(c, faceDown = false) {
 // Baccarat's Start menu (드로잉 연습하기/페이아웃 연습하기) — cards
 // share one visual family (see .entry-menu-* in style.css) so any future
 // game can reuse this rather than hand-rolling another menu screen.
-// `cards`: [{ icon, name, desc (may include <br>), onclick, dark }].
+// `cards`: [{ icon, name, desc (may include <br>), onclick }]. Every
+// card renders identically (2026-09-04: the one card that used to get
+// a black background via a `dark` flag was explicitly unified back to
+// match the others — "연습하기 버튼 디자인이랑 동일하게" — don't
+// reintroduce a per-card visual variant here without a fresh ask).
 function entryMenuHTML(title, cards) {
   return `
     <div class="sim-page entry-menu-page notranslate" translate="no">
       <div class="entry-menu-title">${title}</div>
       <div class="entry-menu-cards">
         ${cards.map(c => `
-          <div class="entry-menu-card${c.dark ? ' entry-menu-card-dark' : ''}" onclick="${c.onclick}">
+          <div class="entry-menu-card" onclick="${c.onclick}">
             <div class="entry-menu-card-icon">${c.icon}</div>
             <div class="entry-menu-card-name">${c.name}</div>
             <div class="entry-menu-card-desc">${c.desc}</div>
@@ -766,7 +770,7 @@ const Views = {
   // reverted the same day).
   roulettePayMenu: () => entryMenuHTML('🎡 Roulette Payout', [
     { icon: '🎯', name: '연습하기', desc: '초급 · 중급 · 고급<br>시간 제한 없이 자유롭게 연습', onclick: "App.navigate('roulette','paysim')" },
-    { icon: '🏆', name: '도전하기', desc: '고급 난이도 · 60초 제한<br>랭킹에 도전', onclick: "App.navigate('roulette','payrank')", dark: true },
+    { icon: '🏆', name: '도전하기', desc: '고급 난이도 · 60초 제한<br>랭킹에 도전', onclick: "App.navigate('roulette','payrank')" },
   ]),
 
   // Baccarat's Start menu (App.navigate('baccarat','startmenu')) — same
