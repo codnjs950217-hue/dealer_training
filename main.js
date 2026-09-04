@@ -4686,6 +4686,35 @@ const Sims = {
       }, 0);
     }
 
+    // Ported verbatim from Sims.baccaratPay's own copies (see that
+    // module's neededKeysForTarget()/showOrderWarning()) so Option Bet's
+    // chip tray enforces the same "smallest denomination first" real-
+    // dealer convention Commission/Half Pay already did — this was
+    // simply missing here before, not a deliberate simplification.
+    function neededKeysForTarget(target) {
+      const needed = new Set();
+      let rem = target;
+      for (const c of COMM_CHIPS) {
+        if (rem >= c.val) { needed.add(c.key); rem -= Math.floor(rem / c.val) * c.val; }
+      }
+      return needed;
+    }
+
+    let warnTimer = null;
+    function showOrderWarning() {
+      const w = $('bside-order-warn');
+      if (!w) return;
+      const span = w.querySelector('span');
+      if (span) { span.style.animation = 'none'; void span.offsetWidth; span.style.animation = ''; }
+      w.style.display = 'flex';
+      clearTimeout(warnTimer);
+      warnTimer = setTimeout(() => {
+        w.style.display = 'none';
+        COMM_CHIPS.forEach(c => { const inp = $(`bside-ci-${c.key}`); if (inp) inp.value = '0'; });
+        updateSpread();
+      }, 2800);
+    }
+
     function renderChipDiscs(chips) {
       const sorted = Object.entries(chips).sort((a, b) => {
         const va = COMM_CHIPS.find(c => c.key === a[0])?.val ?? 0;
@@ -4824,17 +4853,18 @@ const Sims = {
         <button class="comm-undo-btn" onclick="Sims.baccaratSide.undo()">↩ UNDO</button>
         <button class="comm-all-reset-btn" onclick="Sims.baccaratSide.resetAll()">↺ RESET</button>`;
       panel.innerHTML = `<div class="comm-tray">
+        <div id="bside-order-warn" class="bpay-order-warn"><span>저액 칩스부터 세팅하세요</span></div>
         <div class="comm-tray-slots">
           ${COMM_CHIPS.map(c => `
             <div class="comm-slot${c.key === '5K' ? ' comm-slot-5k' : ''}">
               <input type="hidden" id="bside-ci-${c.key}" value="0">
               <div class="bpay-chip-btns">
                 ${c.key === '5K' ? '' : `
-                <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',5)" aria-label="+${fmtAmt(c.val)}×5">
+                <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',5)" aria-label="+${fmtAmt(c.val * 5)}">
                   <div class="bpay-chip-btn-stackwrap">
                     <div class="comm-slot-chip bpay-chip-stack-ghost" style="background:${c.bg};color:${c.fg}"></div>
                     <div class="comm-slot-chip bpay-chip-stack-ghost" style="background:${c.bg};color:${c.fg}"></div>
-                    <div class="comm-slot-chip bpay-chip-btn-disc bpay-chip-btn-disc-x5" style="background:${c.bg};color:${c.fg}"><span class="bpay-x5-amt">${fmtAmt(c.val)}</span><span class="bpay-x5-mult">×5</span></div>
+                    <div class="comm-slot-chip bpay-chip-btn-disc" style="background:${c.bg};color:${c.fg}">${fmtAmt(c.val * 5)}</div>
                   </div>
                 </button>`}
                 <button class="bpay-chip-btn" onclick="Sims.baccaratSide.addChip('${c.key}',1)" aria-label="+${fmtAmt(c.val)}">
@@ -5194,6 +5224,13 @@ const Sims = {
       addChip(key, n) {
         const chip = COMM_CHIPS.find(c => c.key === key);
         if (!chip) return;
+        const needed = neededKeysForTarget(S.payTarget);
+        const lowerUnset = COMM_CHIPS.some(c =>
+          c.val < chip.val &&
+          needed.has(c.key) &&
+          (parseInt($(`bside-ci-${c.key}`)?.value) || 0) === 0
+        );
+        if (lowerUnset) { showOrderWarning(); return; }
         const inp = $(`bside-ci-${key}`);
         if (!inp) return;
         pushHistory();

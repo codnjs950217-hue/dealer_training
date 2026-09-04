@@ -6050,32 +6050,14 @@ body {
 .bpay-chip-stack-ghost:nth-of-type(1) { transform: translate(3px, 2px); z-index: 1; }
 .bpay-chip-stack-ghost:nth-of-type(2) { transform: translate(6px, 4px); z-index: 0; }
 .bpay-chip-btn-stackwrap .bpay-chip-btn-disc { position: relative; z-index: 2; }
-/* Option Bet only (2026-08-27): the ×5 stack disc used to show the
-   pre-multiplied TOTAL (e.g. "500M" for 5×100M) — explicit ask was to
-   show it as base-denom × count instead ("100M×5") so a trainee reads
-   the stack disc as "5 of the base chip," matching the base ×1 disc's
-   own denomination label instead of a separate bigger number. Scoped
-   to `#bside-content` only — Commission/Half Pay's identical
-   .bpay-chip-btn-disc/-stackwrap markup (showCommTray(), main.js) keeps
-   its original single total-amount text, not asked to change here.
-   Chip look (ghost stack, colors, border, shadow) is untouched — only
-   the face text itself changed. REV 2 (2026-08-27): switched from a
-   2-line stack (amount over ×5) to ONE line, per explicit "위아래 두줄로
-   말고 한줄로만".
-   REV 3 (2026-08-27, same day, explicit ask: "한줄말고 두줄로") — flipped
-   back to a 2-line stack (amount over ×5), reversing REV 2. Each line no
-   longer has to share horizontal room with the other, so fonts are sized
-   up a bit from REV 2's cramped single-line values instead of reusing
-   them as-is — still small (this is a ~34-42px disc), but no longer
-   fighting for space against a sibling on the same line. If a future ask
-   flips this again, don't assume REV 2's exact numbers were "the"
-   one-line answer either — they were tuned for THAT layout, not a
-   universal constant. */
-#bside-content .bpay-chip-btn-disc-x5 {
-  flex-direction: column; gap: 0; line-height: 1;
-}
-#bside-content .bpay-x5-amt { font-size: clamp(7px, 1.1vw, 8.5px); font-weight: 900; letter-spacing: -.1px; }
-#bside-content .bpay-x5-mult { font-size: clamp(6px, .95vw, 7.5px); font-weight: 800; opacity: .88; }
+/* Option Bet's ×5 stack disc previously showed base-denom × count
+   ("100M×5") instead of the pre-multiplied total, unlike Commission/
+   Half Pay's identical markup — explicitly unified back to match
+   Commission/Half Pay exactly (2026-09-04: "커미션 하프페이지에 있는
+   칩스트레이랑 동일한거로 교체해줘"), so the old .bpay-chip-btn-disc-x5/
+   .bpay-x5-amt/.bpay-x5-mult rules (and the 2-line/1-line back-and-forth
+   history that went with them) are gone — showPayTray() (main.js) now
+   renders the same single total-amount text as showCommTray(). */
 /* No longer referenced by any markup as of rev 4 (2026-08-24) — the
    amount text moved onto the chip disc itself (.bpay-chip-btn-disc,
    above) instead of a separate label row. Left in place, same
@@ -7240,8 +7222,13 @@ button.bac-choice-pressed:hover, button.bac-choice-pressed:active {
   .bside-line6 .bside-oval-bet .bpay-circ-pay,
   .bside-line7 .bside-oval-bet .bpay-circ-pay { font-size: .44rem; }
   .bside-result               { font-size: .78rem; padding: .15rem .3rem 0; }
-  .bside-sim .comm-tray       { padding: .3rem; }
-  .bside-sim .comm-slot       { padding: .3rem .08rem .28rem; gap: .18rem; }
+  /* .comm-tray/.comm-slot mobile padding used to be tightened here,
+     making Option Bet's chip tray more cramped than Commission/Half
+     Pay's identical markup at <=768px — removed 2026-09-04 so both
+     trays share the exact same padding at every breakpoint, per
+     explicit request. If Option Bet's tray ever crowds its side-bet
+     spread/minimap on narrow screens again, fix that some other way
+     (not by re-diverging the shared .comm-tray/.comm-slot padding). */
   /* comm-slot-chip: handled by clamp() in --ch-md */
   .bside-sim .comm-5k-btn     { font-size: var(--bf-xs); padding: .22rem .04rem; }
   .bside-sim .comm-5k-reset   { font-size: var(--bf-xs); padding: .14rem 0; }
