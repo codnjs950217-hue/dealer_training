@@ -742,7 +742,6 @@ const Views = {
             <button class="rpay-diff-btn rpay-diff-active" id="rpay-diff-easy"   onclick="Sims.roulettePay.setDiff('easy')">초급</button>
             <button class="rpay-diff-btn"                  id="rpay-diff-medium" onclick="Sims.roulettePay.setDiff('medium')">중급</button>
             <button class="rpay-diff-btn"                  id="rpay-diff-hard"   onclick="Sims.roulettePay.setDiff('hard')">고급</button>
-            <button class="rpay-diff-btn rpay-rank-challenge-btn" id="rpay-rank-challenge-btn" onclick="Sims.roulettePay.startChallenge()">🏆 랭킹도전</button>
           </div>
           <div class="rpay-table-wrap">
             <div class="rpay-full-table betting-table" id="rpay-full-table">${buildBettingTable()}</div>

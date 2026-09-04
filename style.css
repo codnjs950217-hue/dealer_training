@@ -1310,8 +1310,7 @@ body {
    고급 stays visibly selected) while a challenge is running, since the
    difficulty is locked to 고급 for the whole 60s run. */
 .rpay-diff-row.rpay-diff-locked { opacity: .45; pointer-events: none; }
-/* .rpay-rank-btn: shared by the challenge-end overlay's 닫기 button and
-   (combined with .rpay-diff-btn) the inline 🏆 랭킹도전 button below. */
+/* .rpay-rank-btn: the challenge-end overlay's 닫기 button. */
 .rpay-rank-btn {
   flex: 1;
   background: rgba(255,255,255,.08);
@@ -1323,13 +1322,6 @@ body {
   transition: background .12s, color .12s, border-color .12s;
 }
 .rpay-rank-btn:hover { background: rgba(255,255,255,.14); }
-.rpay-rank-challenge-btn {
-  flex: 1.4;
-  background: rgba(255,210,60,.16);
-  border-color: rgba(255,210,60,.55);
-  color: #ffd700;
-}
-.rpay-rank-challenge-btn:hover { background: rgba(255,210,60,.26); }
 #rpay-challenge-stat { color: #ffd700; border-right: none !important; }
 
 /* Full-cover freeze at challenge end — same technique as .mistake-overlay
