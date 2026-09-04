@@ -1310,11 +1310,8 @@ body {
    고급 stays visibly selected) while a challenge is running, since the
    difficulty is locked to 고급 for the whole 60s run. */
 .rpay-diff-row.rpay-diff-locked { opacity: .45; pointer-events: none; }
-.rpay-rank-row {
-  display: flex; flex-direction: row; gap: .3rem;
-  padding-bottom: clamp(.3rem,.6vh,.5rem);
-  flex-shrink: 0;
-}
+/* .rpay-rank-btn: shared by the challenge-end overlay's 닫기 button and
+   (combined with .rpay-diff-btn) the inline 🏆 랭킹도전 button below. */
 .rpay-rank-btn {
   flex: 1;
   background: rgba(255,255,255,.08);
