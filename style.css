@@ -1395,69 +1395,58 @@ body {
 .rpay-rank-score { color: #ffd700; font-weight: 900; font-size: .82rem; }
 .rpay-rank-mistakes { color: rgba(255,255,255,.4); font-size: .68rem; }
 
-/* Roulette Payout's front door (Views.roulettePayMenu(), 2026-09-04) —
-   연습하기/도전하기 split, same visual family as .home-game-card but only
-   two cards, centered, larger. 도전하기 gets a black card per explicit
-   request ("검정 배경") instead of the felt-green practice card, so it
-   reads as the higher-stakes option before you even click it. */
-.rpay-menu-page {
+/* Generic per-game "front door" menu (entryMenuHTML() in main.js) — a
+   small set of named entry cards, same visual family as .home-game-card
+   but bigger/centered. First built for Roulette Payout's 연습하기/
+   도전하기 split, reused as-is for Baccarat's Start menu. Every card
+   shares one theme (border/text colors); .entry-menu-card-dark only
+   swaps the background to black (used by 도전하기, per explicit
+   request "검정 배경") — a separate gold accent theme was tried for it
+   and explicitly reverted the same day, don't reintroduce one. */
+.entry-menu-page {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: clamp(1.2rem, 4vh, 2.2rem);
   min-height: 70vh;
   padding: 1rem;
 }
-.rpay-menu-title {
+.entry-menu-title {
   font-size: clamp(1.2rem, 3.4vw, 1.8rem);
   font-weight: 900; color: #fff; letter-spacing: .4px;
 }
-.rpay-menu-cards {
+.entry-menu-cards {
   display: flex; gap: clamp(.8rem, 2.4vw, 1.6rem);
   flex-wrap: wrap; justify-content: center;
 }
-.rpay-menu-card {
+.entry-menu-card {
   width: clamp(160px, 26vw, 240px);
   padding: clamp(1.2rem, 3vh, 1.8rem) 1rem;
   border-radius: 18px;
   display: flex; flex-direction: column; align-items: center; gap: .5rem;
   cursor: pointer;
   transition: transform .2s, box-shadow .2s, border-color .2s;
-}
-.rpay-menu-card:hover { transform: translateY(-3px); }
-.rpay-menu-card:active { transform: translateY(0); }
-.rpay-menu-card-icon { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1; }
-.rpay-menu-card-name {
-  font-size: clamp(1rem, 2.6vw, 1.25rem); font-weight: 900;
-  letter-spacing: .5px;
-}
-.rpay-menu-card-desc {
-  font-size: clamp(.68rem, 1.6vw, .8rem);
-  line-height: 1.5; text-align: center;
-}
-.rpay-menu-card-practice {
   background: linear-gradient(160deg, rgba(255,255,255,.07) 0%, rgba(255,255,255,.02) 100%);
   border: 1px solid rgba(201,168,76,.25);
   box-shadow: 0 2px 16px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
 }
-.rpay-menu-card-practice:hover {
+.entry-menu-card:hover {
+  transform: translateY(-3px);
   border-color: rgba(201,168,76,.5);
   box-shadow: 0 8px 28px rgba(0,0,0,.4), 0 0 0 1px rgba(201,168,76,.35);
 }
-.rpay-menu-card-practice .rpay-menu-card-name { color: #fff; }
-.rpay-menu-card-practice .rpay-menu-card-desc { color: rgba(255,255,255,.6); }
-/* Same border/text theme as .rpay-menu-card-practice — only the
-   background is black (explicitly requested), not a separate gold
-   accent theme. */
-.rpay-menu-card-challenge {
+.entry-menu-card:active { transform: translateY(0); }
+.entry-menu-card-icon { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1; }
+.entry-menu-card-name {
+  font-size: clamp(1rem, 2.6vw, 1.25rem); font-weight: 900;
+  letter-spacing: .5px; color: #fff;
+}
+.entry-menu-card-desc {
+  font-size: clamp(.68rem, 1.6vw, .8rem);
+  line-height: 1.5; text-align: center;
+  color: rgba(255,255,255,.6);
+}
+.entry-menu-card-dark {
   background: linear-gradient(160deg, #1a1a1a 0%, #050505 100%);
-  border: 1px solid rgba(201,168,76,.25);
-  box-shadow: 0 2px 16px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
 }
-.rpay-menu-card-challenge:hover {
-  border-color: rgba(201,168,76,.5);
-  box-shadow: 0 8px 28px rgba(0,0,0,.4), 0 0 0 1px rgba(201,168,76,.35);
-}
-.rpay-menu-card-challenge .rpay-menu-card-name { color: #fff; }
-.rpay-menu-card-challenge .rpay-menu-card-desc { color: rgba(255,255,255,.6); }
 
 .rpay-bet-side::after {
   content: '';

@@ -124,6 +124,29 @@ function cardHTML(c, faceDown = false) {
     </div>`;
 }
 
+// A per-game "front door" screen splitting entry into a small set of
+// named modes as clickable cards, instead of cramming several buttons
+// into one home-screen card or skipping straight into one default mode.
+// First used for Roulette Payout (연습하기/도전하기), reused as-is for
+// Baccarat's Start menu (드로잉 연습하기/페이아웃 연습하기) — cards
+// share one visual family (see .entry-menu-* in style.css) so any future
+// game can reuse this rather than hand-rolling another menu screen.
+// `cards`: [{ icon, name, desc (may include <br>), onclick, dark }].
+function entryMenuHTML(title, cards) {
+  return `
+    <div class="sim-page entry-menu-page notranslate" translate="no">
+      <div class="entry-menu-title">${title}</div>
+      <div class="entry-menu-cards">
+        ${cards.map(c => `
+          <div class="entry-menu-card${c.dark ? ' entry-menu-card-dark' : ''}" onclick="${c.onclick}">
+            <div class="entry-menu-card-icon">${c.icon}</div>
+            <div class="entry-menu-card-name">${c.name}</div>
+            <div class="entry-menu-card-desc">${c.desc}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
 // ---- ROUTER ----
 
 const App = {
@@ -176,6 +199,9 @@ const App = {
     }
     if (mode === 'paymenu' && game === 'roulette') {
       el.innerHTML = Views.roulettePayMenu();
+    }
+    if (mode === 'startmenu' && game === 'baccarat') {
+      el.innerHTML = Views.baccaratStartMenu();
     }
     if (mode === 'paysim' && game === 'roulette') {
       el.innerHTML = Views.roulettePaySim();
@@ -394,8 +420,7 @@ const Views = {
           <div class="home-game-name">Baccarat</div>
           <div class="home-game-divider"></div>
           <div class="home-game-btns">
-            <button class="home-game-btn" onclick="App.navigate('baccarat','simulation')">Card Drawing</button>
-            <button class="home-game-btn" onclick="App.navigate('baccarat','paysim')">Payout</button>
+            <button class="home-game-btn" onclick="App.navigate('baccarat','startmenu')">Start</button>
           </div>
         </div>
         <div class="home-game-card home-game-card--blackjack">
@@ -709,24 +734,23 @@ const Views = {
   // splits practice (초급/중급/고급, no time limit) from the ranking
   // challenge (고급-only, 60s, see Sims.roulettePay.startChallenge()) at
   // the entry point instead of burying the challenge inside the practice
-  // page. 도전하기 is styled with a black card per explicit request
-  // ("검정 배경에 뜨게끔") to read as the higher-stakes option.
-  roulettePayMenu: () => `
-    <div class="sim-page rpay-menu-page notranslate" translate="no">
-      <div class="rpay-menu-title">🎡 Roulette Payout</div>
-      <div class="rpay-menu-cards">
-        <div class="rpay-menu-card rpay-menu-card-practice" onclick="App.navigate('roulette','paysim')">
-          <div class="rpay-menu-card-icon">🎯</div>
-          <div class="rpay-menu-card-name">연습하기</div>
-          <div class="rpay-menu-card-desc">초급 · 중급 · 고급<br>시간 제한 없이 자유롭게 연습</div>
-        </div>
-        <div class="rpay-menu-card rpay-menu-card-challenge" onclick="App.navigate('roulette','payrank')">
-          <div class="rpay-menu-card-icon">🏆</div>
-          <div class="rpay-menu-card-name">도전하기</div>
-          <div class="rpay-menu-card-desc">고급 난이도 · 60초 제한<br>랭킹에 도전</div>
-        </div>
-      </div>
-    </div>`,
+  // page. Both cards share the exact same theme (border/text colors) —
+  // 도전하기's background is black per explicit request, that's the only
+  // difference (a separate gold accent theme was tried, then explicitly
+  // reverted the same day).
+  roulettePayMenu: () => entryMenuHTML('🎡 Roulette Payout', [
+    { icon: '🎯', name: '연습하기', desc: '초급 · 중급 · 고급<br>시간 제한 없이 자유롭게 연습', onclick: "App.navigate('roulette','paysim')" },
+    { icon: '🏆', name: '도전하기', desc: '고급 난이도 · 60초 제한<br>랭킹에 도전', onclick: "App.navigate('roulette','payrank')", dark: true },
+  ]),
+
+  // Baccarat's Start menu (App.navigate('baccarat','startmenu')) — same
+  // entryMenuHTML pattern as Roulette's above, but both cards are plain
+  // practice modes (no challenge/dark card here), just splitting the
+  // home screen's two separate buttons into one "Start" + a menu.
+  baccaratStartMenu: () => entryMenuHTML('🃏 Baccarat', [
+    { icon: '🎴', name: '드로잉 연습하기', desc: '카드 드로잉 절차를<br>단계별로 연습', onclick: "App.navigate('baccarat','simulation')" },
+    { icon: '💰', name: '페이아웃 연습하기', desc: '베팅 결과에 따른<br>페이아웃 계산 연습', onclick: "App.navigate('baccarat','paysim')" },
+  ]),
 
   roulettePaySim: () => `
     <div class="sim-page rpay-sim notranslate" translate="no">
