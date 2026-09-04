@@ -1444,17 +1444,20 @@ body {
 }
 .rpay-menu-card-practice .rpay-menu-card-name { color: #fff; }
 .rpay-menu-card-practice .rpay-menu-card-desc { color: rgba(255,255,255,.6); }
+/* Same border/text theme as .rpay-menu-card-practice — only the
+   background is black (explicitly requested), not a separate gold
+   accent theme. */
 .rpay-menu-card-challenge {
   background: linear-gradient(160deg, #1a1a1a 0%, #050505 100%);
-  border: 1px solid rgba(255,210,60,.4);
-  box-shadow: 0 2px 16px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05);
+  border: 1px solid rgba(201,168,76,.25);
+  box-shadow: 0 2px 16px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
 }
 .rpay-menu-card-challenge:hover {
-  border-color: rgba(255,210,60,.75);
-  box-shadow: 0 8px 30px rgba(0,0,0,.65), 0 0 0 1px rgba(255,210,60,.5), 0 0 24px rgba(255,210,60,.15);
+  border-color: rgba(201,168,76,.5);
+  box-shadow: 0 8px 28px rgba(0,0,0,.4), 0 0 0 1px rgba(201,168,76,.35);
 }
-.rpay-menu-card-challenge .rpay-menu-card-name { color: #ffd700; }
-.rpay-menu-card-challenge .rpay-menu-card-desc { color: rgba(255,255,255,.55); }
+.rpay-menu-card-challenge .rpay-menu-card-name { color: #fff; }
+.rpay-menu-card-challenge .rpay-menu-card-desc { color: rgba(255,255,255,.6); }
 
 .rpay-bet-side::after {
   content: '';
