@@ -564,36 +564,25 @@ body {
    reads as a premium casino-app CTA, not a kids'-app button. Dark warm
    brown text (not white) for contrast against the now-bright fill. */
 .home-game-btn {
-  width: 100%; padding: .55rem .4rem;
+  width: 100%; height: clamp(56px, 10vh, 64px);
+  padding: 0 .6rem;
+  display: flex; align-items: center; justify-content: center;
   background: linear-gradient(180deg, #FFE066 0%, #FFD93D 100%);
   border: none;
-  border-radius: 999px; color: #4a3200;
-  font-size: clamp(.6rem, 1.7vw, .78rem); font-weight: 800; cursor: pointer;
-  letter-spacing: .3px; text-align: center;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.7),
-    inset 0 -2px 3px rgba(170,120,0,.25),
-    0 3px 0 #e0a800,
-    0 5px 10px rgba(180,130,0,.35);
+  border-radius: 9999px; color: #4a3200;
+  font-size: clamp(.75rem, 1.8vw, 1rem); font-weight: 800; cursor: pointer;
+  letter-spacing: .4px; text-align: center; text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(180,130,0,.18);
   transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
 }
 .home-game-btn:hover {
-  filter: brightness(1.04);
-  transform: translateY(-1px);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.75),
-    inset 0 -2px 3px rgba(170,120,0,.25),
-    0 4px 0 #e0a800,
-    0 8px 16px rgba(180,130,0,.4);
+  filter: brightness(1.03);
+  box-shadow: 0 3px 10px rgba(180,130,0,.22);
 }
 .home-game-btn:active {
-  transform: translateY(2px);
+  transform: scale(.97);
   filter: brightness(.98);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.6),
-    inset 0 -1px 2px rgba(170,120,0,.2),
-    0 1px 0 #e0a800,
-    0 2px 5px rgba(180,130,0,.3);
+  box-shadow: 0 1px 4px rgba(180,130,0,.15);
 }
 
 .hero {
