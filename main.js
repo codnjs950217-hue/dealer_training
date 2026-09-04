@@ -147,6 +147,24 @@ function entryMenuHTML(title, cards) {
     </div>`;
 }
 
+// Light one-off "not built yet" nudge for an entry-menu card whose mode
+// doesn't exist yet (e.g. Blackjack's 스피드모드) — reuses the existing
+// .pair-required-toast look (see baccarat's showPairRequiredToast() etc.)
+// but as a standalone helper, since those are scoped inside Sims.baccarat
+// and this needs to work from a plain entry-menu page with no Sims
+// context or mistake counter of its own.
+function showComingSoonToast(msg) {
+  const page = document.querySelector('.entry-menu-page');
+  if (!page) return;
+  const existing = page.querySelector('.pair-required-toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.className = 'pair-required-toast';
+  t.textContent = msg;
+  page.appendChild(t);
+  setTimeout(() => t.remove(), 1800);
+}
+
 // ---- ROUTER ----
 
 const App = {
@@ -202,6 +220,9 @@ const App = {
     }
     if (mode === 'startmenu' && game === 'baccarat') {
       el.innerHTML = Views.baccaratStartMenu();
+    }
+    if (mode === 'startmenu' && game === 'blackjack') {
+      el.innerHTML = Views.blackjackStartMenu();
     }
     if (mode === 'paysim' && game === 'roulette') {
       el.innerHTML = Views.roulettePaySim();
@@ -428,7 +449,7 @@ const Views = {
           <div class="home-game-name">Blackjack</div>
           <div class="home-game-divider"></div>
           <div class="home-game-btns">
-            <button class="home-game-btn" onclick="App.navigate('blackjack','simulation')">Card Counting</button>
+            <button class="home-game-btn" onclick="App.navigate('blackjack','startmenu')">Start</button>
           </div>
         </div>
         <div class="home-game-card home-game-card--roulette">
@@ -461,6 +482,8 @@ const Views = {
          <button class="btn btn-secondary" onclick="App.navigate('poker','thp')">⚡ THP Practice</button>`
       : game === 'roulette'
       ? `<button class="btn btn-secondary" onclick="App.navigate('roulette','paymenu')">⚡ Payout Practice</button>`
+      : game === 'blackjack'
+      ? `<button class="btn btn-secondary" onclick="App.navigate('blackjack','startmenu')">⚡ Go to Simulation</button>`
       : `<button class="btn btn-secondary" onclick="App.navigate('${game}','simulation')">⚡ Go to Simulation</button>`;
     return `
       <div class="sim-page notranslate" translate="no">
@@ -750,6 +773,17 @@ const Views = {
   baccaratStartMenu: () => entryMenuHTML('🃏 Baccarat', [
     { icon: '🂠', name: '드로잉 연습하기', desc: '카드 드로잉 절차를<br>단계별로 연습', onclick: "App.navigate('baccarat','simulation')" },
     { icon: '💰', name: '페이아웃 연습하기', desc: '베팅 결과에 따른<br>페이아웃 계산 연습', onclick: "App.navigate('baccarat','paysim')" },
+  ]),
+
+  // Blackjack's Start menu (App.navigate('blackjack','startmenu')) —
+  // same pattern again. 스피드모드 doesn't exist yet (not scoped/built),
+  // so it's a placeholder card for now: shows showComingSoonToast()
+  // instead of navigating anywhere, same staged-rollout approach already
+  // used for Card Drawing's STEP 1/2 placeholders before those were
+  // built out.
+  blackjackStartMenu: () => entryMenuHTML('♠ Blackjack', [
+    { icon: '♠', name: '일반모드', desc: '기본 속도로<br>카드 카운팅 절차를 연습', onclick: "App.navigate('blackjack','simulation')" },
+    { icon: '⚡', name: '스피드모드', desc: '더 빠른 진행으로<br>카운팅 실력에 도전', onclick: "showComingSoonToast('⏳ 스피드모드는 준비 중입니다.')" },
   ]),
 
   roulettePaySim: () => `

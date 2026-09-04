@@ -1404,6 +1404,7 @@ body {
    request "검정 배경") — a separate gold accent theme was tried for it
    and explicitly reverted the same day, don't reintroduce one. */
 .entry-menu-page {
+  position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: clamp(1.2rem, 4vh, 2.2rem);
   min-height: 70vh;
