@@ -214,6 +214,11 @@ const App = {
       if (game === 'blackjack') el.innerHTML = Views.blackjackSim();
       if (game === 'baccarat')  el.innerHTML = Views.baccaratSim();
       Sims[game] && Sims[game].init(isRestart);
+      // Standard Mode is chosen at the Start menu now (일반모드 vs
+      // 스피드모드 — see roulettePayMenu()'s payrank precedent), so
+      // auto-start it here instead of waiting for a click on the
+      // now-removed #bj-mode-bar buttons.
+      if (game === 'blackjack') Sims.blackjack.newGame();
     }
     if (mode === 'paysim' && game === 'baccarat') {
       el.innerHTML = Views.baccaratPaySim();
@@ -568,10 +573,6 @@ const Views = {
           <span>Rounds: <strong id="bj-rounds">0</strong></span>
           <span>Score: <strong id="bj-score">0</strong></span>
           <span>Mistake: <strong id="bj-mistakes">0</strong></span>
-        </div>
-        <div class="bj-start-bar" id="bj-mode-bar">
-          <button class="bj-start-btn" id="bj-start-btn" onclick="Sims.blackjack.newGame()">Standard Mode</button>
-          <button class="bj-start-btn" id="bj-speed-btn" onclick="Sims.blackjack.newGameSpeed()">Speed Mode</button>
         </div>
         <div class="bj-play-area">
           <div class="players-row">
@@ -1765,9 +1766,11 @@ const Sims = {
     const clearDealerCtrl = () => { const e = $('bj-dealer-controls'); if (e) e.innerHTML = ''; };
     const setSpotAct  = (i, h) => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = h; };
     const clearSpotAct = i     => { const e = $(`bj-spot-act-${i}`); if (e) e.innerHTML = ''; };
-    const enableStart  = ()    => { const e = $('bj-mode-bar'); if (e) { e.style.opacity = ''; e.style.visibility = ''; } };
+    // Standard/Speed Mode buttons (#bj-mode-bar) moved to the Start
+    // menu (Views.blackjackStartMenu()) — App.navigate() now
+    // auto-starts the right one on entry, so there's nothing left to
+    // disable/re-enable here. Kept the dealer-label reveal alone.
     const disableStart = ()    => {
-      const e = $('bj-mode-bar'); if (e) { e.style.opacity = '0.4'; e.style.visibility = 'hidden'; }
       const lbl = $('bj-dealer-label'); if (lbl) lbl.style.visibility = '';
     };
 
