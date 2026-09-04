@@ -6518,6 +6518,33 @@ body {
     0 0 6px rgba(255,255,255,.5),
     0 0 12px rgba(255,255,255,.3);
 }
+/* 2026-09-04 bug fix: on a touch device, tapping a button leaves it in a
+   "stuck" :hover state (no real mouse to fire :hover-leave) until a
+   DIFFERENT element is tapped next — reported as "PLAYER WIN 클릭해도
+   흰 테두리가 안뜨고, SUPER7/SMALL7 고르면 그제서야 뜬다": the ring was
+   applied correctly all along, but `.btn-bac-player:hover` etc. (two
+   tiers up, 0,2,0) silently outranked the plain `.bac-choice-pressed`
+   above (0,1,0) and painted its own no-ring box-shadow over it for as
+   long as the pick stayed "hovered" — which on mobile was until the next
+   tap landed on SUPER7/SMALL7 elsewhere. Verified directly: forcing
+   real `:hover` on a freshly-picked button in headless Chromium made the
+   ring vanish, matching the report exactly.
+   `button` bumps the type-selector tier so this wins over :hover/:active
+   unconditionally (0,2,1 > 0,2,0) — not by source order, so it can't
+   regress if this file gets reordered later (same fix shape as
+   `.bac-pair-phase .bac-inline-btn:active` above, which bumped the
+   class tier instead for the same reason). */
+button.bac-choice-pressed:hover, button.bac-choice-pressed:active {
+  filter: brightness(.95);
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,.35),
+    inset 0 -1px 0 rgba(var(--btn-hi), .1),
+    0 1px 2px rgba(0,0,0,.3),
+    0 0 0 1.5px rgba(255,255,255,.9),
+    0 0 6px rgba(255,255,255,.5),
+    0 0 12px rgba(255,255,255,.3);
+}
 
 /* ---- BACCARAT: REAL-TABLE FELT SHAPES ----
    Overrides the rectangular/pill sizing above with the actual shapes a
