@@ -634,6 +634,28 @@ body {
     0 0 0 #dfa000,
     0 1px 4px rgba(160,115,0,.22);
 }
+/* Once the cards finish popping in (last card's delay .3s + its own
+   .55s duration = .85s settled), each Start button gets its own little
+   "boing" pulse in the same 1-2-3-4 order, then a second pulse back on
+   Baccarat's (card 1) — "1-2-3-4-1", per explicit request. A plain
+   scale pulse (not the card's opacity/translateY pop-in, and not the
+   button's own hover/press translateY) so this reads as a distinct
+   "look here, press me" beat rather than repeating either of those.
+   No fill-mode override needed — the 0%/100% keyframe already equals
+   the button's resting transform, so there's nothing to hold onto
+   before/after the animation's brief active window, and the existing
+   :hover/:active transitions are untouched outside that window. */
+@keyframes homeBtnBounce {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.12); }
+  70% { transform: scale(.96); }
+}
+.home-game-cards > .home-game-card:nth-child(1) .home-game-btn {
+  animation: homeBtnBounce .4s ease-in-out 1s, homeBtnBounce .4s ease-in-out 1.6s;
+}
+.home-game-cards > .home-game-card:nth-child(2) .home-game-btn { animation: homeBtnBounce .4s ease-in-out 1.15s; }
+.home-game-cards > .home-game-card:nth-child(3) .home-game-btn { animation: homeBtnBounce .4s ease-in-out 1.3s; }
+.home-game-cards > .home-game-card:nth-child(4) .home-game-btn { animation: homeBtnBounce .4s ease-in-out 1.45s; }
 
 .hero {
   display: flex; align-items: center; justify-content: space-between;
