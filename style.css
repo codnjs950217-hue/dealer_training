@@ -563,50 +563,53 @@ body {
    2px to meet it) rather than bouncy scale/rotate animations, so it
    reads as a premium casino-app CTA, not a kids'-app button. Dark warm
    brown text (not white) for contrast against the now-bright fill. */
-/* Rev 3 (2026-09-04, same day) — Duolingo-inspired chunky "riser" press,
-   tuned adult/premium: a solid darker-gold edge under the button (the
-   riser) plus a soft ambient shadow for grounding, instead of rev 2's
-   single flat shadow. Riser height (4px, ~6-7% of the button's own 56-
-   64px height) is deliberately modest — Duolingo's own buttons run
-   closer to 25-30% of their height, which reads playful/toylike at this
-   size; kept shallow + muted-gold (not a bright saturated orange) so it
-   reads as "premium casino CTA," not a kids'-app button. No bounce/
-   scale/rotate — :active just sinks the button down by exactly the
-   riser's height while the riser itself collapses to 0, the same
-   mechanic Duolingo uses, timed fast (.08s) for a snappy, physical
-   press rather than a slow float. Height/width/border-radius/text-
-   transform/text/onclick all untouched from rev 2 — box-shadow doesn't
-   affect layout size, so this can't shift the button's box. */
+/* Rev 4 (2026-09-04, same day) — smaller + a spring/bounce back on
+   release, per explicit follow-up ("통통튀는 애니메이션 넣으면 어때? +
+   버튼 너무 커보여"). Two changes from rev 3:
+   1) Height clamp(56-64px) -> clamp(40-48px); riser/shadow/font scaled
+      down to match so proportions stay right at the smaller size.
+   2) The press-down itself stays fast/linear (a real push is quick, not
+      springy — kept from rev 3), but the RETURN (release, or the
+      hover-lift-in) now uses a bounce/overshoot easing
+      (cubic-bezier(.34,1.56,.64,1), a standard "spring" curve) defined
+      on the base rule's `transition`. `:active` overrides `transition`
+      to a fast linear one just for the press itself; releasing back to
+      :hover/rest re-matches the base rule's bouncy transition, so the
+      button pops back up with a little spring instead of snapping
+      straight to rest. This is a deliberate reversal of rev 3's "no
+      bounce" note — that guidance no longer applies, don't revert to it
+      without checking here first. */
 .home-game-btn {
-  width: 100%; height: clamp(56px, 10vh, 64px);
-  padding: 0 .6rem;
+  width: 100%; height: clamp(40px, 7vh, 48px);
+  padding: 0 .5rem;
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(180deg, #FFE066 0%, #FFD23D 100%);
   border: none;
   border-radius: 9999px; color: #4a3200;
-  font-size: clamp(.75rem, 1.8vw, 1rem); font-weight: 800; cursor: pointer;
+  font-size: clamp(.68rem, 1.6vw, .85rem); font-weight: 800; cursor: pointer;
   letter-spacing: .4px; text-align: center; text-transform: uppercase;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.55),
-    0 4px 0 #dfa000,
-    0 7px 14px rgba(160,115,0,.28);
-  transition: transform .08s ease-out, box-shadow .08s ease-out, filter .15s ease;
+    0 3px 0 #dfa000,
+    0 5px 10px rgba(160,115,0,.28);
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, filter .15s ease;
 }
 .home-game-btn:hover {
   filter: brightness(1.03);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.6),
-    0 5px 0 #dfa000,
-    0 9px 16px rgba(160,115,0,.32);
+    0 4px 0 #dfa000,
+    0 7px 12px rgba(160,115,0,.32);
 }
 .home-game-btn:active {
-  transform: translateY(4px);
+  transform: translateY(3px);
   filter: brightness(.98);
+  transition: transform .06s ease-out, box-shadow .06s ease-out, filter .1s ease;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.45),
     0 0 0 #dfa000,
-    0 2px 5px rgba(160,115,0,.22);
+    0 1px 4px rgba(160,115,0,.22);
 }
 
 .hero {
