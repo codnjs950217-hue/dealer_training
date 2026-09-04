@@ -411,7 +411,7 @@ const Views = {
           <div class="home-game-name">Roulette</div>
           <div class="home-game-divider"></div>
           <div class="home-game-btns">
-            <button class="home-game-btn" onclick="App.navigate('roulette','paymenu')">Payout</button>
+            <button class="home-game-btn" onclick="App.navigate('roulette','paymenu')">Start</button>
           </div>
         </div>
         <div class="home-game-card home-game-card--poker">
