@@ -1229,10 +1229,24 @@ body {
 }
 .dealer-open-btn { background: #1a3a5c; color: #7eb8e8; border: 1px solid #2a5a8c; }
 .dealer-open-btn:hover { background: #224a72; }
-.dealer-draw-btn { background: #0a3020; color: #4ecdc4; border: 1px solid #1a6040; }
-.dealer-draw-btn:hover { background: #0e3c28; }
-.dealer-stop-btn { background: #3a2800; color: #c9a84c; border: 1px solid #6a4800; }
-.dealer-stop-btn:hover { background: #4a3200; }
+/* Blinking glow (2026-09-04) — same reasoning/technique as
+   .spot-next-btn's spotNextBtnPulse (style.css, blackjack spot area):
+   Speed Mode drops the trainee straight into this dealer-draw phase on
+   entry with nothing else to click first, so these two need to draw
+   the eye immediately too. Each keeps its own existing color (teal for
+   Draw, gold for Stop) instead of sharing one tint. Paused on hover. */
+.dealer-draw-btn { background: #0a3020; color: #4ecdc4; border: 1px solid #1a6040; animation: dealerDrawBtnPulse 1.2s ease-in-out infinite; }
+.dealer-draw-btn:hover { background: #0e3c28; animation: none; }
+.dealer-stop-btn { background: #3a2800; color: #c9a84c; border: 1px solid #6a4800; animation: dealerStopBtnPulse 1.2s ease-in-out infinite; }
+.dealer-stop-btn:hover { background: #4a3200; animation: none; }
+@keyframes dealerDrawBtnPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(78,205,196,0); border-color: #1a6040; }
+  50%      { box-shadow: 0 0 14px rgba(78,205,196,.6); border-color: #4ecdc4; }
+}
+@keyframes dealerStopBtnPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(201,168,76,0); border-color: #6a4800; }
+  50%      { box-shadow: 0 0 14px rgba(201,168,76,.6); border-color: #c9a84c; }
+}
 
 .dealer-alert-overlay {
   position: absolute; inset: 0;
