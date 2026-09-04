@@ -254,18 +254,6 @@ body {
   --corner-offset-y: 3px; --corner-offset-x: 4px;
 }
 .top-bar-hero-cards .card-suit-center { font-size: 1.2rem; }
-.hamburger-btn {
-  background: none; border: none; padding: .3rem .25rem;
-  display: flex; flex-direction: column; gap: 4px;
-  cursor: pointer; flex-shrink: 0;
-}
-.hamburger-btn span {
-  display: block; width: 20px; height: 2px;
-  background: rgba(255,255,255,.85); border-radius: 2px;
-  transition: background .15s;
-}
-.hamburger-btn:hover span { background: #c9a84c; }
-
 .home-btn {
   background: none; border: none;
   color: rgba(255,255,255,.75);
@@ -280,119 +268,9 @@ body {
 }
 .home-btn:hover { color: var(--gold); }
 
-/* ---- Sidebar overlay ---- */
-#sidebar-overlay {
-  display: none; position: fixed; inset: 0; z-index: 150;
-  background: rgba(0,0,0,.55); backdrop-filter: blur(1px);
-}
-#sidebar-overlay.active { display: block; }
-
 .app-shell {
   display: flex; min-height: 100vh;
 }
-
-.sidebar {
-  width: 200px; flex-shrink: 0;
-  background: #060d1a;
-  border-right: 1px solid rgba(201,168,76,.15);
-  display: flex; flex-direction: column;
-  position: fixed; top: 0; left: 0; bottom: 0;
-  overflow-y: auto; z-index: 200;
-  transform: translateX(-100%);
-  transition: transform .28s ease;
-}
-.sidebar.sidebar-open { transform: translateX(0); }
-
-.sidebar-brand {
-  display: flex; align-items: center; gap: .5rem;
-  padding: 1.1rem 1rem;
-  font-size: .88rem; font-weight: 800; letter-spacing: .5px;
-  color: var(--gold); cursor: pointer;
-  border-bottom: 1px solid rgba(201,168,76,.15);
-  user-select: none;
-}
-.sidebar-brand-icon { font-size: 1.3rem; line-height: 1; }
-
-.sidebar-nav { padding: .4rem 0 1rem; flex: 1; padding-top: calc(var(--topbar-h) + .4rem); }
-
-.sidebar-section { padding: .15rem 0; }
-.sidebar-section + .sidebar-section {
-  border-top: 1px solid rgba(255,255,255,.05);
-  margin-top: .3rem;
-  padding-top: .3rem;
-}
-
-.sidebar-section-title {
-  padding: .75rem 1rem .3rem;
-  font-size: .62rem; letter-spacing: 2px;
-  text-transform: uppercase;
-  color: rgba(201,168,76,.85); font-weight: 800;
-  user-select: none;
-}
-
-.sidebar-link {
-  display: block;
-  padding: .44rem 1rem .44rem 1.1rem;
-  font-size: .83rem; color: rgba(255,255,255,.65);
-  cursor: pointer; transition: color .13s, background .13s;
-  border-left: 3px solid transparent;
-  user-select: none;
-}
-.sidebar-link:hover {
-  color: var(--text);
-  background: rgba(255,255,255,.04);
-}
-.sidebar-link.active {
-  color: var(--gold);
-  border-left-color: var(--gold);
-  background: rgba(201,168,76,.09);
-  font-weight: 600;
-}
-
-.sidebar-sub-title {
-  padding: .48rem 1rem .12rem 1.2rem;
-  border-left: 3px solid transparent;
-  font-size: .72rem; font-weight: 700; letter-spacing: .4px;
-  color: rgba(255,255,255,.72); user-select: none;
-}
-.sidebar-sub-link {
-  display: block;
-  padding: .38rem 1rem .38rem 1.6rem;
-  font-size: .8rem; color: rgba(255,255,255,.78);
-  cursor: pointer; transition: color .13s, background .13s;
-  border-left: 3px solid transparent;
-  user-select: none;
-}
-.sidebar-sub-link:hover {
-  color: var(--text);
-  background: rgba(255,255,255,.04);
-}
-.sidebar-sub-link.active {
-  color: var(--gold);
-  border-left-color: var(--gold);
-  background: rgba(201,168,76,.09);
-  font-weight: 600;
-}
-/* Tutorial: same weight as Practice label, clickable */
-.sidebar-cat-link {
-  padding: .48rem 1rem .48rem 1.2rem;
-  font-size: .72rem; font-weight: 700; letter-spacing: .4px;
-  color: rgba(255,255,255,.72);
-}
-.sidebar-cat-link:hover { color: var(--text); }
-.sidebar-cat-link.active {
-  color: var(--gold);
-  border-left-color: var(--gold);
-  background: rgba(201,168,76,.09);
-}
-/* Practice sub-items: indented, dimmer */
-.sidebar-sub-item {
-  padding-left: 2.2rem;
-  font-size: .76rem;
-  color: rgba(255,255,255,.52);
-}
-.sidebar-sub-item:hover { color: rgba(255,255,255,.85); }
-.sidebar-sub-item.active { color: var(--gold); }
 
 .main-content {
   margin-left: 0; flex: 1; min-width: 0; min-height: 100vh;
@@ -4893,7 +4771,6 @@ body {
   .tutorial-layout    { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
-  .sidebar            { width: 200px; } /* still full-width overlay, not persistent */
   .main-content       { margin-left: 0; }
   .hero               { flex-direction: column; padding: 2rem 1.2rem; text-align: center; }
   .hero-cards         { display: none; }

@@ -173,14 +173,6 @@ function showComingSoonToast(msg) {
 
 const App = {
   _game: null, _mode: null,
-  closeSidebar() {
-    document.querySelector('.sidebar')?.classList.remove('sidebar-open');
-    document.getElementById('sidebar-overlay')?.classList.remove('active');
-  },
-  toggleSidebar() {
-    const open = document.querySelector('.sidebar')?.classList.toggle('sidebar-open');
-    document.getElementById('sidebar-overlay')?.classList.toggle('active', open);
-  },
   // In-app restart (↺ button): re-deal/re-init the current sim but keep its
   // accumulated Rounds/Score — only a real page load or coming back from the
   // home screen should zero those out.
@@ -199,13 +191,8 @@ const App = {
       Sims.blackjack.stopTimers();
     }
     this._game = game; this._mode = mode || null;
-    this.closeSidebar();
     const titleEl = document.getElementById('top-bar-title');
     if (titleEl) titleEl.style.display = game === 'home' ? 'none' : 'flex';
-    document.querySelectorAll('.sidebar-link, .sidebar-sub-link').forEach(el => {
-      el.classList.toggle('active',
-        el.dataset.game === game && el.dataset.mode === (mode || ''));
-    });
     const el = document.getElementById('app');
     if (game === 'home')            { el.innerHTML = Views.home(); return; }
     if (!mode)                      { el.innerHTML = Views.gameLanding(game); return; }
@@ -817,9 +804,9 @@ const Views = {
 
   // Poker's Start menu (App.navigate('poker','startmenu')) — same
   // pattern again. Only one card for now (Hold'em Ranking Practice is
-  // the only mode exposed on the home screen/sidebar today — ISP/TCP
-  // Practice already exist as real routes but are only reachable via
-  // the game-landing page, left untouched, same as this file's other
+  // the only mode exposed on the home screen today — ISP/TCP Practice
+  // already exist as real routes but are only reachable via the
+  // game-landing page, left untouched, same as this file's other
   // "already has its own multi-button landing" cases).
   pokerStartMenu: () => entryMenuHTML('🂡 Poker', [
     { icon: '🏆', name: '홀덤 랭킹 연습하기', desc: '핸드 순위를 비교해<br>승부 판정 연습', onclick: "App.navigate('poker','thp')" },
