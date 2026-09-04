@@ -228,6 +228,15 @@ const App = {
     if (mode === 'startmenu' && game === 'blackjack') {
       el.innerHTML = Views.blackjackStartMenu();
     }
+    // 스피드모드 — same table as blackjack/simulation, but drops
+    // straight into the existing newGameSpeed() flow (skips the
+    // animated per-player auto-play) instead of showing the Standard/
+    // Speed mode-bar and waiting for a click.
+    if (mode === 'simulationspeed' && game === 'blackjack') {
+      el.innerHTML = Views.blackjackSim();
+      Sims.blackjack && Sims.blackjack.init(isRestart);
+      Sims.blackjack && Sims.blackjack.newGameSpeed();
+    }
     if (mode === 'startmenu' && game === 'poker') {
       el.innerHTML = Views.pokerStartMenu();
     }
@@ -783,14 +792,19 @@ const Views = {
   ]),
 
   // Blackjack's Start menu (App.navigate('blackjack','startmenu')) —
-  // same pattern again. 스피드모드 doesn't exist yet (not scoped/built),
-  // so it's a placeholder card for now: shows showComingSoonToast()
-  // instead of navigating anywhere, same staged-rollout approach already
-  // used for Card Drawing's STEP 1/2 placeholders before those were
-  // built out.
+  // same pattern again. 2026-09-04 correction: Sims.blackjack ISN'T a
+  // card-counting-value trainer at all (no Hi-Lo/running-count logic
+  // anywhere) — it's a dealing-procedure trainer (dealer hit/stand rule
+  // + PAY/PUSH/TAKE settlement judgment). It also already HAD a real,
+  // fully-built Speed Mode (newGameSpeed() — skips the animated per-
+  // player auto-play and jumps straight to the dealer-draw/pay-test
+  // phases) BEFORE this menu existed; 스피드모드 was wrongly treated as
+  // an unbuilt placeholder here. Fixed both: descriptions no longer say
+  // "카드 카운팅", and 스피드모드 now routes to the real
+  // blackjack/simulationspeed mode instead of a "coming soon" toast.
   blackjackStartMenu: () => entryMenuHTML('♠ Blackjack', [
-    { icon: '♠', name: '일반모드', desc: '기본 속도로<br>카드 카운팅 절차를 연습', onclick: "App.navigate('blackjack','simulation')" },
-    { icon: '⚡', name: '스피드모드', desc: '더 빠른 진행으로<br>카운팅 실력에 도전', onclick: "showComingSoonToast('⏳ 스피드모드는 준비 중입니다.')" },
+    { icon: '♠', name: '일반모드', desc: '딜러 드로우 규칙과<br>페이/푸시 판정 연습', onclick: "App.navigate('blackjack','simulation')" },
+    { icon: '⚡', name: '스피드모드', desc: '진행을 건너뛰고<br>더 빠르게 반복 연습', onclick: "App.navigate('blackjack','simulationspeed')" },
   ]),
 
   // Poker's Start menu (App.navigate('poker','startmenu')) — same
