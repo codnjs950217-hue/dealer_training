@@ -174,9 +174,20 @@ const App = {
       el.innerHTML = Views.baccaratPaySim();
       Sims.baccaratPay && Sims.baccaratPay.init(isRestart);
     }
+    if (mode === 'paymenu' && game === 'roulette') {
+      el.innerHTML = Views.roulettePayMenu();
+    }
     if (mode === 'paysim' && game === 'roulette') {
       el.innerHTML = Views.roulettePaySim();
       Sims.roulettePay && Sims.roulettePay.init(isRestart);
+    }
+    // 도전하기 — same table as paysim, but drops straight into the 60s
+    // 고급 랭킹 도전 challenge instead of free practice (see
+    // Sims.roulettePay.startChallenge()).
+    if (mode === 'payrank' && game === 'roulette') {
+      el.innerHTML = Views.roulettePaySim();
+      Sims.roulettePay && Sims.roulettePay.init(isRestart);
+      Sims.roulettePay && Sims.roulettePay.startChallenge();
     }
     if (game === 'poker') {
       if (mode === 'isp') { el.innerHTML = Views.ispSim(); Sims.poker.isp.init(isRestart); }
@@ -400,7 +411,7 @@ const Views = {
           <div class="home-game-name">Roulette</div>
           <div class="home-game-divider"></div>
           <div class="home-game-btns">
-            <button class="home-game-btn" onclick="App.navigate('roulette','paysim')">Payout</button>
+            <button class="home-game-btn" onclick="App.navigate('roulette','paymenu')">Payout</button>
           </div>
         </div>
         <div class="home-game-card home-game-card--poker">
@@ -424,7 +435,7 @@ const Views = {
          <button class="btn btn-secondary" onclick="App.navigate('poker','tcp')">⚡ TCP Practice</button>
          <button class="btn btn-secondary" onclick="App.navigate('poker','thp')">⚡ THP Practice</button>`
       : game === 'roulette'
-      ? `<button class="btn btn-secondary" onclick="App.navigate('roulette','paysim')">⚡ Payout Practice</button>`
+      ? `<button class="btn btn-secondary" onclick="App.navigate('roulette','paymenu')">⚡ Payout Practice</button>`
       : `<button class="btn btn-secondary" onclick="App.navigate('${game}','simulation')">⚡ Go to Simulation</button>`;
     return `
       <div class="sim-page notranslate" translate="no">
@@ -692,6 +703,29 @@ const Views = {
       </div>
       </div>
       <div class="bac-pay-panel" id="bac-pay-panel" style="display:none"></div>
+    </div>`,
+
+  // Roulette Payout's front door (App.navigate('roulette','paymenu')) —
+  // splits practice (초급/중급/고급, no time limit) from the ranking
+  // challenge (고급-only, 60s, see Sims.roulettePay.startChallenge()) at
+  // the entry point instead of burying the challenge inside the practice
+  // page. 도전하기 is styled with a black card per explicit request
+  // ("검정 배경에 뜨게끔") to read as the higher-stakes option.
+  roulettePayMenu: () => `
+    <div class="sim-page rpay-menu-page notranslate" translate="no">
+      <div class="rpay-menu-title">🎡 Roulette Payout</div>
+      <div class="rpay-menu-cards">
+        <div class="rpay-menu-card rpay-menu-card-practice" onclick="App.navigate('roulette','paysim')">
+          <div class="rpay-menu-card-icon">🎯</div>
+          <div class="rpay-menu-card-name">연습하기</div>
+          <div class="rpay-menu-card-desc">초급 · 중급 · 고급<br>시간 제한 없이 자유롭게 연습</div>
+        </div>
+        <div class="rpay-menu-card rpay-menu-card-challenge" onclick="App.navigate('roulette','payrank')">
+          <div class="rpay-menu-card-icon">🏆</div>
+          <div class="rpay-menu-card-name">도전하기</div>
+          <div class="rpay-menu-card-desc">고급 난이도 · 60초 제한<br>랭킹에 도전</div>
+        </div>
+      </div>
     </div>`,
 
   roulettePaySim: () => `
