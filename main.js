@@ -2829,7 +2829,7 @@ const Sims = {
       const p = S.pairPicked;
       const bankerBright = p.banker, playerBright = p.player, noPairBright = p.none;
       const btn = (label, bright, extraCls) =>
-        `<button class="btn-bac-pair${bright ? ' bac-pair-selected' : ''}${extraCls ? ' ' + extraCls : ''}" disabled>${label}</button>`;
+        `<button class="btn-bac-pair${bright ? ' bac-pair-selected bac-choice-pressed' : ''}${extraCls ? ' ' + extraCls : ''}" disabled>${label}</button>`;
       setBtn('bac-pair-b', btn(pairInner('B'), bankerBright, 'bac-felt-circle bac-pair-circle'));
       setBtn('bac-pair-mid', btn('NO PAIR', noPairBright, 'bac-felt-circle bac-pair-circle'));
       setBtn('bac-pair-p', btn(pairInner('P'), playerBright, 'bac-felt-circle bac-pair-circle'));
