@@ -748,7 +748,7 @@ const Views = {
   // practice modes (no challenge/dark card here), just splitting the
   // home screen's two separate buttons into one "Start" + a menu.
   baccaratStartMenu: () => entryMenuHTML('🃏 Baccarat', [
-    { icon: '🎴', name: '드로잉 연습하기', desc: '카드 드로잉 절차를<br>단계별로 연습', onclick: "App.navigate('baccarat','simulation')" },
+    { icon: '🂠', name: '드로잉 연습하기', desc: '카드 드로잉 절차를<br>단계별로 연습', onclick: "App.navigate('baccarat','simulation')" },
     { icon: '💰', name: '페이아웃 연습하기', desc: '베팅 결과에 따른<br>페이아웃 계산 연습', onclick: "App.navigate('baccarat','paysim')" },
   ]),
 
