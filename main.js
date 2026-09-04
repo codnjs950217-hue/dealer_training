@@ -224,6 +224,9 @@ const App = {
     if (mode === 'startmenu' && game === 'blackjack') {
       el.innerHTML = Views.blackjackStartMenu();
     }
+    if (mode === 'startmenu' && game === 'poker') {
+      el.innerHTML = Views.pokerStartMenu();
+    }
     if (mode === 'paysim' && game === 'roulette') {
       el.innerHTML = Views.roulettePaySim();
       Sims.roulettePay && Sims.roulettePay.init(isRestart);
@@ -465,7 +468,7 @@ const Views = {
           <div class="home-game-name">Poker</div>
           <div class="home-game-divider"></div>
           <div class="home-game-btns">
-            <button class="home-game-btn" onclick="App.navigate('poker','thp')">Hold'em Ranking</button>
+            <button class="home-game-btn" onclick="App.navigate('poker','startmenu')">Start</button>
           </div>
         </div>
       </div>
@@ -784,6 +787,16 @@ const Views = {
   blackjackStartMenu: () => entryMenuHTML('♠ Blackjack', [
     { icon: '♠', name: '일반모드', desc: '기본 속도로<br>카드 카운팅 절차를 연습', onclick: "App.navigate('blackjack','simulation')" },
     { icon: '⚡', name: '스피드모드', desc: '더 빠른 진행으로<br>카운팅 실력에 도전', onclick: "showComingSoonToast('⏳ 스피드모드는 준비 중입니다.')" },
+  ]),
+
+  // Poker's Start menu (App.navigate('poker','startmenu')) — same
+  // pattern again. Only one card for now (Hold'em Ranking Practice is
+  // the only mode exposed on the home screen/sidebar today — ISP/TCP
+  // Practice already exist as real routes but are only reachable via
+  // the game-landing page, left untouched, same as this file's other
+  // "already has its own multi-button landing" cases).
+  pokerStartMenu: () => entryMenuHTML('🂡 Poker', [
+    { icon: '🏆', name: '랭킹연습하기', desc: "Hold'em 랭킹 판단을<br>단계별로 연습", onclick: "App.navigate('poker','thp')" },
   ]),
 
   roulettePaySim: () => `
