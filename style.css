@@ -194,7 +194,10 @@ body {
   backdrop-filter: blur(6px);
 }
 .top-bar-title {
-  margin-left: auto;
+  /* Centered on the bar itself, independent of the home icon (left) and
+     the 사번/logout block (right) — NOT flex-centered between them. */
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
   display: flex; align-items: center; gap: .35rem;
   font-size: clamp(.62rem,1.4vw,.8rem); font-weight: 900; color: #fff;
   letter-spacing: .3px; user-select: none;
