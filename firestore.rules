@@ -25,14 +25,15 @@ service cloud.firestore {
     }
 
     // 룰렛 "⚔️ 배틀하기" (실시간 2-5인 대결) 대기실/경기 상태 문서.
-    // rouletteRankings와 동일한 한계로 request.auth 기반 "본인 항목만
-    // 쓰기" 검증은 불가능하다 — 스키마/크기/상태 전이 방향만 검증해
-    // 임의 필드 쓰기, 5인 초과, 생성 후 hostId/createdAt 위조, 정해진
-    // 경로를 벗어난 상태 전이(아래 update 블록의 화이트리스트 참고 —
-    // finished->waiting은 같은 방에서 재대결하는 resetBattleRoom()이라
-    // 의도적으로 허용됨)를 막는다. players 맵은 키가 동적(employeeId)
-    // 이라 각 항목 내부 필드(name/score/...)까지 룰에서 깊이 검증할 수는
-    // 없다 — 바깥쪽 스키마만 검증하는 것도 동일한 한계.
+    // 기록이 남지 않는 일회성 방이 목표 — 재대결(rematch) 기능은 없고,
+    // 호스트 이탈/전원 퇴장 시 클라이언트가 즉시 문서를 삭제한다
+    // (leaveBattleRoom, firebase-init.js). rouletteRankings와 동일한
+    // 한계로 request.auth 기반 "본인 항목만 쓰기/삭제" 검증은 불가능하다
+    // — 스키마/크기/상태 전이 방향만 검증해 임의 필드 쓰기, 5인 초과,
+    // 생성 후 hostId/createdAt 위조, 정해진 경로를 벗어난 상태 전이를
+    // 막는다. players 맵은 키가 동적(employeeId)이라 각 항목 내부 필드
+    // (name/score/...)까지 룰에서 깊이 검증할 수는 없다 — 바깥쪽 스키마만
+    // 검증하는 것도 동일한 한계.
     match /battleRooms/{roomCode} {
       allow read: if true;
 
@@ -50,24 +51,25 @@ service cloud.firestore {
                     && request.resource.data.hostId == resource.data.hostId
                     && request.resource.data.createdAt == resource.data.createdAt
                     && request.resource.data.status in ['waiting', 'playing', 'finished']
-                    // 상태 전이는 이 5가지만 허용: 같은 상태 유지(참가자
+                    // 상태 전이는 이 3가지만 허용: 같은 상태 유지(참가자
                     // 목록/점수 갱신), waiting->playing(시작), playing->
-                    // finished(종료), finished->waiting(같은 방에서 코드
-                    // 재공유 없이 재대결 — resetBattleRoom()). 그 외
-                    // (playing->waiting, waiting->finished, finished->
-                    // playing 등)는 전부 차단.
+                    // finished(종료). 그 외(playing->waiting, waiting->
+                    // finished, finished->playing/waiting 등)는 전부 차단
+                    // — 재대결 없이 종료된 방은 삭제만 되고 재사용되지 않는다.
                     && (
                       resource.data.status == request.resource.data.status ||
                       (resource.data.status == 'waiting'  && request.resource.data.status == 'playing') ||
-                      (resource.data.status == 'playing'  && request.resource.data.status == 'finished') ||
-                      (resource.data.status == 'finished' && request.resource.data.status == 'waiting')
+                      (resource.data.status == 'playing'  && request.resource.data.status == 'finished')
                     )
                     && request.resource.data.players is map
                     && request.resource.data.players.size() <= 5;
 
-      // 시작 전(waiting) 방만 삭제 허용 — 진행 중/종료된 방을 다른
-      // 탭에서 실수로 지워 다른 플레이어의 경기를 끊는 것을 막는다.
-      allow delete: if resource.data.status == 'waiting';
+      // 진행 상태와 무관하게 삭제 허용 — 호스트 이탈(어느 단계에서든 방
+      // 즉시 해체), 결과 확인 후 전원 퇴장, 빈 방 정리가 모두 삭제로
+      // 구현되어 있어 waiting 단계로 제한할 수 없다. 진짜 인증이 없어
+      // "삭제 요청자가 실제 호스트/참가자인지"는 검증 불가 — 다른
+      // 컬렉션과 동일한 한계.
+      allow delete: if true;
     }
 
     // 그 외 컬렉션은 기본적으로 전부 차단.

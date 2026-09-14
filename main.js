@@ -844,6 +844,7 @@ const Views = {
           <span>Score: <strong id="rpay-score">0</strong></span>
           <span>Mistake: <strong id="rpay-mistakes">0</strong></span>
           <span id="rpay-challenge-stat" style="display:none">⏱ <strong id="rpay-challenge-time">60</strong>s</span>
+          <button id="rpay-battle-leave-btn" class="rpay-battle-leave-btn" style="display:none" onclick="Sims.roulettePay.battle.leaveRoom()">방 나가기</button>
         </div>
         <div class="rpay-bet-side">
           <div class="rpay-diff-row" id="rpay-diff-row">
@@ -6371,6 +6372,7 @@ const Sims = {
         const stat = $('rpay-challenge-stat'); if (stat) stat.style.display = '';
         const remain = Math.max(0, Math.ceil((S.battleEndAt - Date.now()) / 1000));
         const timeEl = $('rpay-challenge-time'); if (timeEl) timeEl.textContent = String(remain);
+        const leaveBtn = $('rpay-battle-leave-btn'); if (leaveBtn) leaveBtn.style.display = '';
 
         hasStarted = true;
         this.deal();
@@ -6419,7 +6421,8 @@ const Sims = {
         ov.innerHTML = `
           <div class="rpay-challenge-end-title">✔ 제출 완료</div>
           <div class="rpay-challenge-end-stats">정답 <strong>${finalScore}</strong>개 · 실수 <strong>${finalMistakes}</strong>회</div>
-          <div class="rpay-challenge-end-status" id="rpay-battle-wait-status">다른 참가자를 기다리는 중...</div>`;
+          <div class="rpay-challenge-end-status" id="rpay-battle-wait-status">다른 참가자를 기다리는 중...</div>
+          <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.leaveRoom()">방 나가기</button>`;
         tbl.appendChild(ov);
         this._submitBattleResult(finalScore, finalMistakes);
       },
@@ -6460,8 +6463,7 @@ const Sims = {
               <input id="rpay-battle-code-input" class="rpay-battle-code-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="코드 4자리">
               <button class="bac-cta-btn" onclick="Sims.roulettePay.battle.join()">코드로 입장</button>
             </div>
-            <div id="rpay-battle-error" class="rpay-battle-error"></div>
-            <button class="rpay-rank-btn" onclick="App.navigate('roulette','paymenu')">뒤로가기</button>`;
+            <div id="rpay-battle-error" class="rpay-battle-error"></div>`;
         },
 
         _setError(msg) {
@@ -6519,8 +6521,9 @@ const Sims = {
         // 완료 인원 카운트)을 B.phase로 구분한다.
         _onSnapshot(data) {
           if (!data) {
-            // 방이 삭제됨 — 대기실에서 호스트가 나간 경우뿐이므로(진행
-            // 중/종료된 방은 delete 룰 자체가 막음) 항상 메뉴로 돌려보낸다.
+            // 방이 삭제됨 — 호스트가 나갔거나(어느 단계에서든 즉시 방을
+            // 해체), 배틀 종료 후 참가자 전원이 나가 방이 비어 자동
+            // 삭제된 경우. 어느 쪽이든 항상 메뉴로 돌려보낸다.
             this.teardown();
             App.navigate('roulette', 'paymenu');
             return;
@@ -6528,13 +6531,6 @@ const Sims = {
           B.hostId = data.hostId;
 
           if (data.status === 'waiting') {
-            // 대기실 화면(#rpay-battle-box)이 없다는 건 지금 경기 화면/
-            // 결과 화면(Views.roulettePaySim())에 있다는 뜻 — 리셋(다시
-            // 배틀)으로 status가 finished에서 waiting으로 돌아온 경우다.
-            // 이땐 #app을 로비 뷰로 되돌린 다음에 렌더해야 한다.
-            if (!document.getElementById('rpay-battle-box')) {
-              document.getElementById('app').innerHTML = Views.roulettePayBattleLobby();
-            }
             B.phase = 'lobby';
             this._renderLobby(data);
             return;
@@ -6576,7 +6572,7 @@ const Sims = {
             ${isHost
               ? `<button class="bac-cta-btn" ${players.length < 2 ? 'disabled' : ''} onclick="Sims.roulettePay.battle.start()">배틀 시작</button>`
               : `<div class="rpay-challenge-end-status">호스트가 시작하기를 기다리는 중...</div>`}
-            <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.leaveRoom()">나가기</button>`;
+            <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.leaveRoom()">방 나가기</button>`;
         },
 
         async start() {
@@ -6627,7 +6623,6 @@ const Sims = {
           if (!tbl) return;
           const existing = tbl.querySelector('.rpay-challenge-end-overlay');
           if (existing) existing.remove();
-          const isHost = data.hostId === B.myId;
           const rows = Object.entries(data.players || {}).map(([id, p]) => ({ id, ...p }))
             .sort((a, b) => (b.score - a.score) || (a.mistakes - b.mistakes) || ((a.finishedAt ?? Infinity) - (b.finishedAt ?? Infinity)));
           const ov = document.createElement('div');
@@ -6644,20 +6639,9 @@ const Sims = {
                 </li>`).join('')}
             </ul>
             <div class="rpay-challenge-end-btns">
-              ${isHost ? '<button class="bac-cta-btn" onclick="Sims.roulettePay.battle.rematch()">다시 배틀</button>' : ''}
-              <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.leaveRoom()">나가기</button>
+              <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.leaveRoom()">방 나가기</button>
             </div>`;
           tbl.appendChild(ov);
-        },
-
-        // 방을 새로 만들지 않고 같은 코드/참가자를 유지한 채 대기실로
-        // 되돌린다(resetBattleRoom, status finished->waiting). 모든
-        // 클라이언트의 _onSnapshot이 이 상태 변화를 받아 각자 알아서 로비
-        // 화면으로 돌아가므로, 비-호스트는 따로 할 일이 없다.
-        async rematch() {
-          if (!B || !B.code || !window.DealerAuth) return;
-          try { await window.DealerAuth.resetBattleRoom(B.code); }
-          catch (e) { console.error('[roulettePay.battle] 재대결 시작 실패:', e); }
         },
 
         teardown() {

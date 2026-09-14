@@ -1301,6 +1301,21 @@ body {
 .rpay-rank-btn:hover { background: rgba(255,255,255,.14); }
 #rpay-challenge-stat { color: #ffd700; border-right: none !important; }
 
+/* ⚔️ 배틀하기 중 노출되는 방 나가기 버튼 — .table-stats-overlay 자체는
+   pointer-events:none(정보성 텍스트 바)이라 버튼만 auto로 되살린다. */
+.rpay-battle-leave-btn {
+  pointer-events: auto; cursor: pointer;
+  background: rgba(255,90,90,.15);
+  border: 1px solid rgba(255,120,120,.4);
+  color: #ffb3b3;
+  border-radius: 5px;
+  padding: clamp(.14rem,.3vh,.2rem) clamp(.35rem,.6vw,.5rem);
+  margin-left: clamp(.2rem,.4vw,.35rem);
+  font-size: inherit; font-weight: 700; letter-spacing: .3px;
+  transition: background .12s, border-color .12s;
+}
+.rpay-battle-leave-btn:hover { background: rgba(255,90,90,.28); }
+
 /* Full-cover freeze at challenge end — same technique as .mistake-overlay
    (position:absolute;inset:-3px on the same .rpay-table ancestor) so no
    per-button "challenge over" guard is needed; the overlay itself blocks

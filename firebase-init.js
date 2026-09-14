@@ -155,10 +155,12 @@ async function joinBattleRoom(code, employeeId, name) {
   });
 }
 
-// status==='waiting'일 때만 호스트 이탈 = 방 삭제(대기실에서 방장이
-// 나가면 방 자체가 사라지는 게 자연스러움). 그 외(진행 중/종료됨)에는
-// 호스트든 아니든 그냥 자기 항목만 제거 — 경기 중에 방을 통째로 지우면
-// 남은 플레이어들의 리스너/화면이 끊기므로 절대 금지.
+// 기록이 남지 않는 일회성 방이므로, 호스트가 나가면 상태(대기/진행/종료)에
+// 관계없이 방 문서 자체를 즉시 삭제한다 — 남은 참가자는 onSnapshot(null)을
+// 받아 자동으로 메인 화면으로 돌아간다. 호스트가 아닌 참가자가 나가면
+// 자기 항목만 players 맵에서 제거하고, 그 결과 참가자가 0명이 되면(이론상
+// 호스트 이탈 경로에서 이미 삭제되므로 실제로는 발생하지 않지만, 안전망으로)
+// 방도 함께 삭제한다.
 async function leaveBattleRoom(code, employeeId) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
   const ref = doc(db, "battleRooms", code);
@@ -166,7 +168,13 @@ async function leaveBattleRoom(code, employeeId) {
     const snap = await tx.get(ref);
     if (!snap.exists()) return;
     const data = snap.data();
-    if (data.status === 'waiting' && data.hostId === employeeId) {
+    if (data.hostId === employeeId) {
+      tx.delete(ref);
+      return;
+    }
+    const players = { ...(data.players || {}) };
+    delete players[employeeId];
+    if (Object.keys(players).length === 0) {
       tx.delete(ref);
       return;
     }
@@ -210,29 +218,6 @@ async function finishBattleRoom(code) {
   });
 }
 
-// 방을 없애고 새로 만드는 대신 같은 코드/참가자를 유지한 채 'waiting'으로
-// 되돌린다 — 매 라운드 코드를 다시 공유할 필요 없이 같은 방에서 계속
-// 재대결할 수 있게 하기 위함. status==='finished'일 때만 허용(진행 중인
-// 방을 실수로 리셋하는 것 방지, firestore.rules에도 동일하게 강제).
-// 참가자 목록은 그대로 두고 각자의 score/mistakes/finished만 초기화 —
-// 리셋 시점에 라운드를 놓친 사람이 있어도 다음 라운드에 자동으로 다시
-// 참여하게 된다(재입장 불필요).
-async function resetBattleRoom(code) {
-  if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  const ref = doc(db, "battleRooms", code);
-  await runTransaction(db, async (tx) => {
-    const snap = await tx.get(ref);
-    if (!snap.exists()) return;
-    const data = snap.data();
-    if (data.status !== 'finished') return;
-    const players = {};
-    Object.keys(data.players || {}).forEach(id => {
-      players[id] = { name: data.players[id].name, score: 0, mistakes: 0, finished: false, finishedAt: null };
-    });
-    tx.update(ref, { status: 'waiting', startedAt: null, players });
-  });
-}
-
 // onSnapshot 구독 래퍼 — unsubscribe 함수를 그대로 반환하므로 호출부가
 // 저장해뒀다가 teardown 시 그냥 호출하면 된다.
 function subscribeBattleRoom(code, onChange, onError) {
@@ -244,7 +229,7 @@ function subscribeBattleRoom(code, onChange, onError) {
 window.DealerAuth = {
   lookupEmployee, submitRouletteRankScore, getRouletteTopScores,
   createBattleRoom, joinBattleRoom, leaveBattleRoom, startBattleRoom,
-  submitBattleResult, finishBattleRoom, resetBattleRoom, subscribeBattleRoom,
+  submitBattleResult, finishBattleRoom, subscribeBattleRoom,
 };
 // Always fire this, even after an init failure — main.js is waiting on it
 // to stop blocking on waitForDealerAuth()'s timeout; lookupEmployee()
