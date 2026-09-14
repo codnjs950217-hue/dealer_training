@@ -1316,6 +1316,29 @@ body {
 }
 .rpay-battle-leave-btn:hover { background: rgba(255,90,90,.28); }
 
+/* [결과 종료]/[종료하기] — standalone buttons (result overlay footer,
+   confirm modal), not the inline top-bar chip .rpay-battle-leave-btn is
+   normally sized for, so drop its margin/font-size:inherit. */
+.rpay-battle-leave-btn.rpay-battle-end-static-btn,
+.rpay-battle-leave-btn.rpay-battle-end-confirm-btn {
+  margin-left: 0;
+  font-size: clamp(.62rem,1.1vw,.76rem);
+  padding: clamp(.28rem,.6vh,.4rem) .6rem;
+  font-weight: 800;
+}
+
+/* 배틀 종료 확인 팝업 — .rpay-rank-modal-backdrop/-box(랭킹 모달)와 같은
+   중앙 팝업 틀을 재사용, 내용만 확인 문구+버튼 2개로 교체. */
+.rpay-battle-end-confirm-box { text-align: center; }
+.rpay-battle-end-confirm-title {
+  color: var(--gold, #d4af37); font-weight: 900; font-size: 1rem; margin-bottom: .6rem;
+}
+.rpay-battle-end-confirm-msg {
+  color: rgba(255,255,255,.75); font-size: .82rem; line-height: 1.5; margin-bottom: 1rem;
+}
+.rpay-battle-end-confirm-btns { display: flex; gap: .5rem; justify-content: center; }
+.rpay-battle-end-confirm-btns button { flex: 1; }
+
 /* Full-cover freeze at challenge end — same technique as .mistake-overlay
    (position:absolute;inset:-3px on the same .rpay-table ancestor) so no
    per-button "challenge over" guard is needed; the overlay itself blocks

@@ -6639,15 +6639,54 @@ const Sims = {
                 </li>`).join('')}
             </ul>
             <div class="rpay-challenge-end-btns">
-              <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.leaveRoom()">방 나가기</button>
+              <button class="rpay-battle-leave-btn rpay-battle-end-static-btn" onclick="Sims.roulettePay.battle.confirmEndBattle()">결과 종료</button>
             </div>`;
           tbl.appendChild(ov);
+        },
+
+        // 결과 화면은 이제 자동으로 닫히지 않는다 — [결과 종료]를 누르고
+        // 확인 팝업에서 [종료하기]를 선택해야만 방이 삭제된다. 일회성
+        // 배틀이라 이 팝업이 유일한 "정말 지울 거냐" 확인 지점이다.
+        confirmEndBattle() {
+          this._closeEndConfirm();
+          const backdrop = document.createElement('div');
+          backdrop.className = 'rpay-rank-modal-backdrop';
+          backdrop.id = 'rpay-battle-end-confirm-backdrop';
+          backdrop.innerHTML = `
+            <div class="rpay-rank-modal-box rpay-battle-end-confirm-box">
+              <div class="rpay-battle-end-confirm-title">배틀을 종료하시겠습니까?</div>
+              <div class="rpay-battle-end-confirm-msg">종료 시 현재 배틀 정보와 결과는 모두 삭제되며 다시 확인할 수 없습니다.</div>
+              <div class="rpay-battle-end-confirm-btns">
+                <button class="rpay-battle-leave-btn rpay-battle-end-confirm-btn" onclick="Sims.roulettePay.battle.endBattle()">종료하기</button>
+                <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle._closeEndConfirm()">계속 보기</button>
+              </div>
+            </div>`;
+          document.body.appendChild(backdrop);
+        },
+
+        _closeEndConfirm() {
+          const b = document.getElementById('rpay-battle-end-confirm-backdrop');
+          if (b) b.remove();
+        },
+
+        // [종료하기] 확정 — 호스트 여부와 무관하게 방 문서를 통째로
+        // 지운다(endBattleRoom). 구독 중인 다른 클라이언트는 각자
+        // onSnapshot(null)로 메인 화면에 돌아가고, 지금 이 클라이언트는
+        // 응답을 기다렸다가 바로 teardown+navigate한다.
+        async endBattle() {
+          this._closeEndConfirm();
+          if (!B || !B.code || !window.DealerAuth) return;
+          try { await window.DealerAuth.endBattleRoom(B.code); }
+          catch (e) { console.error('[roulettePay.battle] 배틀 종료 실패:', e); }
+          this.teardown();
+          App.navigate('roulette', 'paymenu');
         },
 
         teardown() {
           if (S && S.challengeInterval) { clearInterval(S.challengeInterval); S.challengeInterval = null; }
           if (S && S.nextTimer) { clearTimeout(S.nextTimer); S.nextTimer = null; }
           this._clearGraceTimer();
+          this._closeEndConfirm();
           if (B && B.unsub) B.unsub();
           B = null;
         },

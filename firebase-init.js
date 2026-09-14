@@ -7,7 +7,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/fireba
 import {
   initializeFirestore, doc, getDoc, runTransaction,
   collection, query, orderBy, limit, getDocs,
-  onSnapshot, updateDoc, deleteField,
+  onSnapshot, updateDoc, deleteDoc, deleteField,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -218,6 +218,16 @@ async function finishBattleRoom(code) {
   });
 }
 
+// 결과 화면의 [종료하기] 확인 후 호출 — 부르는 사람이 호스트인지와
+// 무관하게 방 문서를 무조건 삭제한다(leaveBattleRoom의 "본인 항목만
+// 제거" 로직과 다름). 방이 삭제되면 구독 중인 모든 클라이언트가
+// onSnapshot(null)을 받아 각자 메인 화면으로 돌아간다 — 기록이 남지
+// 않는 일회성 배틀이라는 설계상 결과 화면을 벗어나는 유일한 경로.
+async function endBattleRoom(code) {
+  if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
+  await deleteDoc(doc(db, "battleRooms", code));
+}
+
 // onSnapshot 구독 래퍼 — unsubscribe 함수를 그대로 반환하므로 호출부가
 // 저장해뒀다가 teardown 시 그냥 호출하면 된다.
 function subscribeBattleRoom(code, onChange, onError) {
@@ -229,7 +239,7 @@ function subscribeBattleRoom(code, onChange, onError) {
 window.DealerAuth = {
   lookupEmployee, submitRouletteRankScore, getRouletteTopScores,
   createBattleRoom, joinBattleRoom, leaveBattleRoom, startBattleRoom,
-  submitBattleResult, finishBattleRoom, subscribeBattleRoom,
+  submitBattleResult, finishBattleRoom, endBattleRoom, subscribeBattleRoom,
 };
 // Always fire this, even after an init failure — main.js is waiting on it
 // to stop blocking on waitForDealerAuth()'s timeout; lookupEmployee()
