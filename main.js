@@ -190,6 +190,14 @@ const App = {
     if (this._game === 'blackjack' && typeof Sims !== 'undefined' && Sims.blackjack && Sims.blackjack.stopTimers) {
       Sims.blackjack.stopTimers();
     }
+    // 배틀하기(roulette/battle) — 로비 대기 중이든, onSnapshot이 #app을
+    // 경기 화면으로 이미 바꿔치운 상태든 App._mode는 계속 'battle'로
+    // 유지되므로(라우터를 다시 타지 않고 내부에서 직접 스왑하기 때문),
+    // 이 한 곳에서만 나가는 걸 감지하면 로비/경기/결과 어느 단계에서
+    // 떠나도 Firestore 리스너와 배틀 타이머가 확실히 정리된다.
+    if (this._game === 'roulette' && this._mode === 'battle' && typeof Sims !== 'undefined' && Sims.roulettePay && Sims.roulettePay.battle) {
+      Sims.roulettePay.battle.teardown();
+    }
     this._game = game; this._mode = mode || null;
     const titleEl = document.getElementById('top-bar-title');
     if (titleEl) titleEl.style.display = game === 'home' ? 'none' : 'flex';
@@ -243,6 +251,13 @@ const App = {
       el.innerHTML = Views.roulettePaySim();
       Sims.roulettePay && Sims.roulettePay.init(isRestart);
       Sims.roulettePay && Sims.roulettePay.startChallenge();
+    }
+    // 배틀하기 — 로비만 그리고 초기화는 Sims.roulettePay.battle.init()에
+    // 맡긴다. 로비 -> 경기 화면 -> 결과 화면 전환은 이 라우터를 다시
+    // 타지 않고 battle._onSnapshot() 내부에서 #app을 직접 갈아끼운다.
+    if (mode === 'battle' && game === 'roulette') {
+      el.innerHTML = Views.roulettePayBattleLobby();
+      Sims.roulettePay && Sims.roulettePay.battle && Sims.roulettePay.battle.init();
     }
     if (game === 'poker') {
       if (mode === 'isp') { el.innerHTML = Views.ispSim(); Sims.poker.isp.init(isRestart); }
@@ -765,17 +780,26 @@ const Views = {
   // 도전하기's background is black per explicit request, that's the only
   // difference (a separate gold accent theme was tried, then explicitly
   // reverted the same day).
-  // 도전하기 is fully built (roulette/payrank -> Sims.roulettePay.startChallenge(),
-  // real Firestore leaderboard) but its entry point is disabled for now
-  // (showComingSoonToast() instead of navigating) — the backend isn't
-  // ready for real trainees yet (firestore.rules changes are pending
-  // deployment, see [[project_roulette_ranking_challenge]]). Route the
-  // card back to `onclick: "App.navigate('roulette','payrank')"` once
-  // that's actually live; don't rebuild the challenge itself.
+  // 도전하기(혼자 하는 60초 랭킹 챌린지)는 배틀하기(2-5인 실시간 대결,
+  // Sims.roulettePay.battle, 2026-09-14)로 자리를 교체했다. 기존
+  // 챌린지/개인 리더보드 코드(startChallenge/payrank 라우트/
+  // rouletteRankings) 자체는 그대로 남겨두고 이 메뉴에서만 연결을 끊음
+  // — 삭제 아님, 나중에 필요하면 재연결 가능.
   roulettePayMenu: () => entryMenuHTML('🎡 Roulette', [
     { icon: '🎯', name: '연습하기', desc: '초급 · 중급 · 고급<br>시간 제한 없이 자유롭게 연습', onclick: "App.navigate('roulette','paysim')" },
-    { icon: '🏆', name: '도전하기', desc: '고급 난이도 · 60초 제한<br>랭킹에 도전', onclick: "showComingSoonToast('⏳ 준비중입니다.')" },
+    { icon: '⚔️', name: '배틀하기', desc: '2-5인 · 고급 난이도<br>실시간 대결', onclick: "App.navigate('roulette','battle')" },
   ]),
+
+  // 배틀하기 로비 — 방 만들기/코드 입장 선택 화면과, 방 참가 후의 대기실이
+  // 모두 이 하나의 #rpay-battle-box 컨테이너 안에서 Sims.roulettePay.battle이
+  // innerHTML을 갈아끼우며 렌더링된다(Firestore onSnapshot으로 실시간
+  // 갱신). 실제 경기 화면은 여기서 그리지 않고 Views.roulettePaySim()을
+  // 그대로 재사용 — status가 'playing'으로 바뀌면 #app 전체를 그걸로
+  // 교체한다(Sims.roulettePay.battle._onSnapshot() 참고).
+  roulettePayBattleLobby: () => `
+    <div class="rpay-battle-page notranslate" translate="no">
+      <div class="rpay-battle-box" id="rpay-battle-box"></div>
+    </div>`,
 
   // Baccarat's Start menu (App.navigate('baccarat','startmenu')) — same
   // entryMenuHTML pattern as Roulette's above, but both cards are plain
@@ -5868,6 +5892,11 @@ const Sims = {
     let hasStarted = false;
     let pzResizeObserver = null;
     const $ = id => document.getElementById(id);
+    // 배틀하기(⚔️, 2026-09-14) 방 상태 — 절대 S 안에 넣지 않는다: S는
+    // init()/setDiff()/startChallenge() 등이 통째로 재할당(S = {...})하므로
+    // 방 코드/구독 해제 함수 같은 방 생명주기 상태를 S에 넣으면 라운드가
+    // 넘어갈 때마다 조용히 사라진다.
+    let B = null;
 
     return {
       _setControlsVisible(visible) {
@@ -6291,6 +6320,334 @@ const Sims = {
       closeRankModal() {
         const b = document.getElementById('rpay-rank-modal-backdrop');
         if (b) b.remove();
+      },
+
+      // ---- ⚔️ 배틀하기 (2026-09-14) ----
+      // 2-5인 실시간 대결. 문제는 동기화하지 않는다 — 각자 독립적으로
+      // 기존 60초/고급 챌린지 루프(deal()/submitPay(), 위 startChallenge와
+      // 완전히 같은 코드 경로)를 돌리고, 전원이 startedAt(호스트가 시작
+      // 누른 절대 시각) + 60초가 지나야 각자 로컬에서 종료 → 결과 제출 →
+      // 전원 제출 완료 시(Firestore battleRooms/{code} 문서, 방 생명주기
+      // CRUD는 firebase-init.js) 최종 순위 공개. 방 생명주기(B)는 위
+      // startChallenge류의 S와 절대 섞이지 않도록 분리되어 있다.
+      //
+      // startBattle/_startBattleTimer/_endBattleLocal은 startChallenge류와
+      // 같은 최상위(flat) 메서드로 둔다 — battle.* 안에 중첩시키면 그
+      // 메서드들의 this가 battle로 바인딩되어 S를 건드리는 형제 메서드
+      // 호출이 깨진다.
+      startBattle(startedAt) {
+        if (S && S.challengeInterval) return; // 이미 실행 중
+        this._stopTimer();
+        if (S && S.nextTimer) clearTimeout(S.nextTimer);
+        const ov0 = document.querySelector('.rpay-challenge-end-overlay');
+        if (ov0) ov0.remove();
+        S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, mistakes: 0, lastNum: null, roundColor: null,
+              payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
+              history: [], difficulty: 'hard', awaitingPay: false, nextTimer: null,
+              timerStart: null, timerInterval: null, answerRevealed: false,
+              challengeMode: true, challengeInterval: null,
+              battleEndAt: startedAt + this.CHALLENGE_SECONDS * 1000 };
+        ['easy','medium','hard'].forEach(d => {
+          const btn = document.getElementById(`rpay-diff-${d}`);
+          if (btn) btn.classList.toggle('rpay-diff-active', d === 'hard');
+        });
+        const diffRow = $('rpay-diff-row'); if (diffRow) diffRow.classList.add('rpay-diff-locked');
+        if ($('rpay-rounds')) $('rpay-rounds').textContent = '0';
+        if ($('rpay-score'))  $('rpay-score').textContent  = '0';
+        if ($('rpay-mistakes')) $('rpay-mistakes').textContent = '0';
+        if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
+        if ($('rpay-pay-zone'))   $('rpay-pay-zone').innerHTML   = '';
+        const wb = $('rpay-chip-warn-banner'); if (wb) wb.style.visibility = 'hidden';
+        const timerEl = $('rpay-timer'); if (timerEl) { timerEl.className = 'rpay-timer'; timerEl.textContent = '—'; }
+
+        const tbl = document.getElementById('rpay-full-table');
+        if (tbl) {
+          tbl.querySelectorAll('.rpay-win-cell').forEach(el => el.classList.remove('rpay-win-cell'));
+          tbl.querySelectorAll('.rpay-spot').forEach(el => el.remove());
+          tbl.querySelectorAll('.rpay-dolly').forEach(el => el.remove());
+        }
+        const ov = $('rpay-start-overlay'); if (ov) ov.style.display = 'none';
+
+        const stat = $('rpay-challenge-stat'); if (stat) stat.style.display = '';
+        const remain = Math.max(0, Math.ceil((S.battleEndAt - Date.now()) / 1000));
+        const timeEl = $('rpay-challenge-time'); if (timeEl) timeEl.textContent = String(remain);
+
+        hasStarted = true;
+        this.deal();
+        this._startBattleTimer();
+        // 참가자 전원이 동시에 startedAt을 받는 건 아니므로(네트워크
+        // 지연), 끝나는 시점도 이 클라이언트가 판단 — 이후 15초 유예가
+        // 지나도 방이 'playing'에 멈춰 있으면 누구든 강제로 끝낸다
+        // (탭을 닫아버린 참가자에 대한 유일한 안전망, Cloud Functions가
+        // 없어 서버 쪽 타임아웃은 못 둠).
+        this.battle._armGraceTimer(startedAt);
+      },
+
+      _startBattleTimer() {
+        // 매 초가 아니라 250ms마다 절대 마감 시각(S.battleEndAt) 대비
+        // 남은 시간을 다시 계산 — startChallenge의 매초 --1 카운터와
+        // 달리, 배틀은 여러 기기의 로컬 시계가 각자 다른 시점에 시작되므로
+        // "고정된 시작점에서 60번 감소"가 아니라 매번 절대 시각과 비교해야
+        // 초 단위 표시가 실제 마감 시각과 어긋나지 않는다.
+        S.challengeInterval = setInterval(() => {
+          const remain = Math.max(0, Math.ceil((S.battleEndAt - Date.now()) / 1000));
+          const timeEl = $('rpay-challenge-time'); if (timeEl) timeEl.textContent = String(remain);
+          if (remain <= 0) this._endBattleLocal();
+        }, 250);
+      },
+
+      // startChallenge류의 _endChallenge()와 같은 보드 freeze 기법이지만,
+      // "다시 도전/랭킹 보기" 대신 "다른 참가자를 기다리는 중" 상태만
+      // 보여준다 — 배틀 중 재도전/개인 랭킹 조회는 의미가 없다.
+      _endBattleLocal() {
+        clearInterval(S.challengeInterval);
+        S.challengeInterval = null;
+        S.challengeMode = false;
+        this._stopTimer();
+        if (S.nextTimer) { clearTimeout(S.nextTimer); S.nextTimer = null; }
+        const diffRow = $('rpay-diff-row'); if (diffRow) diffRow.classList.remove('rpay-diff-locked');
+        const stat = $('rpay-challenge-stat'); if (stat) stat.style.display = 'none';
+        const hintBtn = $('rpay-hint-btn'); if (hintBtn) hintBtn.style.display = 'none';
+
+        const finalScore = S.score, finalMistakes = S.mistakes;
+        const tbl = document.querySelector('.rpay-table');
+        if (!tbl) return;
+        const existing = tbl.querySelector('.rpay-challenge-end-overlay');
+        if (existing) existing.remove();
+        const ov = document.createElement('div');
+        ov.className = 'rpay-challenge-end-overlay';
+        ov.innerHTML = `
+          <div class="rpay-challenge-end-title">✔ 제출 완료</div>
+          <div class="rpay-challenge-end-stats">정답 <strong>${finalScore}</strong>개 · 실수 <strong>${finalMistakes}</strong>회</div>
+          <div class="rpay-challenge-end-status" id="rpay-battle-wait-status">다른 참가자를 기다리는 중...</div>`;
+        tbl.appendChild(ov);
+        this._submitBattleResult(finalScore, finalMistakes);
+      },
+
+      async _submitBattleResult(score, mistakes) {
+        if (!B || !B.code || !B.myId || !window.DealerAuth) return;
+        const statusEl = () => document.getElementById('rpay-battle-wait-status');
+        try {
+          await window.DealerAuth.submitBattleResult(B.code, B.myId, score, mistakes);
+          // 내가 제출한 직후 "전원 완료됐는지"를 서버 쪽에서 다시 읽어
+          // 재확인하고, 맞으면 status를 'finished'로 전환한다(멱등 —
+          // 이미 finished면 그냥 no-op). 마지막으로 끝난 사람이 자연스럽게
+          // 이 역할을 하게 되고, 15초 유예 타이머가 그 보완책이다.
+          await window.DealerAuth.finishBattleRoom(B.code);
+        } catch (e) {
+          console.error('[roulettePay] 배틀 결과 제출 실패:', e);
+          const el = statusEl(); if (el) el.textContent = '제출 실패 (네트워크 오류)';
+        }
+      },
+
+      battle: {
+        init() {
+          if (B && B.unsub) B.unsub();
+          B = { code: null, myId: null, hostId: null, phase: 'choice', unsub: null, graceTimer: null };
+          this._renderChoice();
+        },
+
+        _renderChoice() {
+          const box = document.getElementById('rpay-battle-box');
+          if (!box) return;
+          box.innerHTML = `
+            <div class="rpay-battle-title">⚔️ 배틀하기</div>
+            <div class="rpay-battle-desc">2-5인 실시간 대결 · 고급 난이도 · 60초</div>
+            <div class="rpay-battle-choice-btns">
+              <button class="bac-cta-btn" onclick="Sims.roulettePay.battle.create()">방 만들기</button>
+            </div>
+            <div class="rpay-battle-join-row">
+              <input id="rpay-battle-code-input" class="rpay-battle-code-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="코드 4자리">
+              <button class="bac-cta-btn" onclick="Sims.roulettePay.battle.join()">코드로 입장</button>
+            </div>
+            <div id="rpay-battle-error" class="rpay-battle-error"></div>
+            <button class="rpay-rank-btn" onclick="App.navigate('roulette','paymenu')">뒤로가기</button>`;
+        },
+
+        _setError(msg) {
+          const el = document.getElementById('rpay-battle-error');
+          if (el) el.textContent = msg || '';
+        },
+
+        async create() {
+          if (!Auth.session || !window.DealerAuth) return;
+          this._setError('');
+          try {
+            const code = await window.DealerAuth.createBattleRoom(Auth.session.employeeId, Auth.session.name);
+            B.code = code; B.myId = Auth.session.employeeId;
+            this._subscribe();
+          } catch (e) {
+            console.error('[roulettePay.battle] 방 생성 실패:', e);
+            this._setError('방 생성에 실패했습니다. 다시 시도해주세요.');
+          }
+        },
+
+        async join() {
+          if (!Auth.session || !window.DealerAuth) return;
+          const input = document.getElementById('rpay-battle-code-input');
+          const code = input ? input.value.trim() : '';
+          if (!/^\d{4}$/.test(code)) { this._setError('4자리 코드를 입력해주세요.'); return; }
+          this._setError('');
+          try {
+            await window.DealerAuth.joinBattleRoom(code, Auth.session.employeeId, Auth.session.name);
+            B.code = code; B.myId = Auth.session.employeeId;
+            this._subscribe();
+          } catch (e) {
+            const reason = e && e.message;
+            const msg = reason === 'not_found' ? '존재하지 않는 방입니다.'
+                      : reason === 'already_started' ? '이미 시작된 방입니다.'
+                      : reason === 'room_full' ? '방 정원(5명)이 가득 찼습니다.'
+                      : '입장에 실패했습니다.';
+            this._setError(msg);
+          }
+        },
+
+        _subscribe() {
+          if (B.unsub) B.unsub();
+          B.unsub = window.DealerAuth.subscribeBattleRoom(
+            B.code,
+            (data) => this._onSnapshot(data),
+            (e) => console.error('[roulettePay.battle] 구독 오류:', e),
+          );
+        },
+
+        // 방 문서 하나 = onSnapshot 하나가 모든 상태 전환의 유일한
+        // 디스패처. status는 waiting -> playing -> finished 순으로만
+        // 전진하므로(firestore.rules에서도 강제) 각 분기가 "처음
+        // 진입했을 때 1회만" 해야 할 일(경기 화면 스왑, 결과 오버레이
+        // 렌더)과 "그 상태일 때마다 갱신" 해야 할 일(대기실 인원 목록,
+        // 완료 인원 카운트)을 B.phase로 구분한다.
+        _onSnapshot(data) {
+          if (!data) {
+            // 방이 삭제됨 — 대기실에서 호스트가 나간 경우뿐이므로(진행
+            // 중/종료된 방은 delete 룰 자체가 막음) 항상 메뉴로 돌려보낸다.
+            this.teardown();
+            App.navigate('roulette', 'paymenu');
+            return;
+          }
+          B.hostId = data.hostId;
+
+          if (data.status === 'waiting') {
+            B.phase = 'lobby';
+            this._renderLobby(data);
+            return;
+          }
+          if (data.status === 'playing') {
+            if (B.phase !== 'playing') {
+              B.phase = 'playing';
+              const el = document.getElementById('app');
+              el.innerHTML = Views.roulettePaySim();
+              Sims.roulettePay.init(false);
+              Sims.roulettePay.startBattle(data.startedAt);
+            }
+            this._updateWaitStatus(data);
+            return;
+          }
+          if (data.status === 'finished' && B.phase !== 'finished') {
+            B.phase = 'finished';
+            this._clearGraceTimer();
+            this._showFinalResult(data);
+          }
+        },
+
+        _renderLobby(data) {
+          const box = document.getElementById('rpay-battle-box');
+          if (!box) return; // 이미 경기 화면으로 넘어간 상태
+          const players = Object.entries(data.players || {}).map(([id, p]) => ({ id, ...p }));
+          const isHost = data.hostId === B.myId;
+          box.innerHTML = `
+            <div class="rpay-battle-title">⚔️ 대기실</div>
+            <div class="rpay-battle-code-display">방 코드 <strong>${B.code}</strong></div>
+            <ul class="rpay-battle-player-list">
+              ${players.map(p => `
+                <li class="rpay-battle-player-item">
+                  <span>${p.name}${p.id === data.hostId ? ' 👑' : ''}</span>
+                  ${p.id === B.myId ? '<span class="rpay-battle-me">나</span>' : ''}
+                </li>`).join('')}
+            </ul>
+            <div class="rpay-battle-count">${players.length} / 5명</div>
+            ${isHost
+              ? `<button class="bac-cta-btn" ${players.length < 2 ? 'disabled' : ''} onclick="Sims.roulettePay.battle.start()">배틀 시작</button>`
+              : `<div class="rpay-challenge-end-status">호스트가 시작하기를 기다리는 중...</div>`}
+            <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.leaveRoom()">나가기</button>`;
+        },
+
+        async start() {
+          if (!B || !B.code || !window.DealerAuth) return;
+          try { await window.DealerAuth.startBattleRoom(B.code); }
+          catch (e) { console.error('[roulettePay.battle] 시작 실패:', e); }
+        },
+
+        async leaveRoom() {
+          if (B && B.code && B.myId && window.DealerAuth) {
+            try { await window.DealerAuth.leaveBattleRoom(B.code, B.myId); }
+            catch (e) { console.error('[roulettePay.battle] 나가기 실패:', e); }
+          }
+          this.teardown();
+          App.navigate('roulette', 'paymenu');
+        },
+
+        // 라운드 시작 시점(startBattle)에 arm — 내 제출 시점에 걸면 정작
+        // 아무것도 제출하지 않고 탭을 닫아버린 참가자가 있을 때 아무도
+        // 유예 타이머를 걸지 않게 되는 경우가 생긴다. 시작하자마자 걸어
+        // 두면 적어도 한 명이 마감 시각+15초까지 탭을 열어두는 한 방이
+        // 영구히 멈추지 않는다.
+        _armGraceTimer(startedAt) {
+          this._clearGraceTimer();
+          if (!B) return;
+          const delay = Math.max(0, startedAt + Sims.roulettePay.CHALLENGE_SECONDS * 1000 + 15000 - Date.now());
+          B.graceTimer = setTimeout(() => {
+            if (B && B.code && window.DealerAuth) {
+              window.DealerAuth.finishBattleRoom(B.code).catch(e => console.error('[roulettePay.battle] 강제 종료 실패:', e));
+            }
+          }, delay);
+        },
+
+        _clearGraceTimer() {
+          if (B && B.graceTimer) { clearTimeout(B.graceTimer); B.graceTimer = null; }
+        },
+
+        _updateWaitStatus(data) {
+          const el = document.getElementById('rpay-battle-wait-status');
+          if (!el) return;
+          const players = Object.values(data.players || {});
+          const done = players.filter(p => p.finished).length;
+          el.textContent = `다른 참가자를 기다리는 중... (${done}/${players.length} 완료)`;
+        },
+
+        _showFinalResult(data) {
+          const tbl = document.querySelector('.rpay-table');
+          if (!tbl) return;
+          const existing = tbl.querySelector('.rpay-challenge-end-overlay');
+          if (existing) existing.remove();
+          const rows = Object.entries(data.players || {}).map(([id, p]) => ({ id, ...p }))
+            .sort((a, b) => (b.score - a.score) || (a.mistakes - b.mistakes) || ((a.finishedAt ?? Infinity) - (b.finishedAt ?? Infinity)));
+          const ov = document.createElement('div');
+          ov.className = 'rpay-challenge-end-overlay';
+          ov.innerHTML = `
+            <div class="rpay-challenge-end-title">🏆 배틀 결과</div>
+            <ul class="rpay-rank-list rpay-battle-result-list">
+              ${rows.map((r, i) => `
+                <li class="rpay-rank-item${r.id === B.myId ? ' rpay-battle-result-me' : ''}">
+                  <span class="rpay-rank-num">${i + 1}${i === 0 ? ' 🥇' : ''}</span>
+                  <span class="rpay-rank-name">${r.name}${r.id === B.myId ? ' (나)' : ''}${r.finished ? '' : ' (미완료)'}</span>
+                  <span class="rpay-rank-score">${r.score}개</span>
+                  <span class="rpay-rank-mistakes">실수 ${r.mistakes ?? 0}</span>
+                </li>`).join('')}
+            </ul>
+            <div class="rpay-challenge-end-btns">
+              <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.leaveRoom()">나가기</button>
+            </div>`;
+          tbl.appendChild(ov);
+        },
+
+        teardown() {
+          if (S && S.challengeInterval) { clearInterval(S.challengeInterval); S.challengeInterval = null; }
+          if (S && S.nextTimer) { clearTimeout(S.nextTimer); S.nextTimer = null; }
+          this._clearGraceTimer();
+          if (B && B.unsub) B.unsub();
+          B = null;
+        },
       },
     };
   })(),

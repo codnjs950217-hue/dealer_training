@@ -1424,6 +1424,86 @@ body {
   line-height: 1.5; text-align: center;
   color: rgba(255,255,255,.6);
 }
+/* ⚔️ 배틀하기 (2026-09-14) — 로비(방 만들기/코드 입장/대기실). .rpay-rank-
+   modal-box와 같은 felt+gold 테두리 chrome을 페이지 안에 인라인으로 쓴다
+   (고정 backdrop 모달이 아니라 App.navigate('roulette','battle')이 바로
+   그리는 페이지 본문). 결과/대기 오버레이는 새 클래스 없이 기존
+   .rpay-challenge-end-overlay/.rpay-rank-list를 그대로 재사용한다. */
+.rpay-battle-page {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 70vh;
+  padding: 1rem;
+}
+.rpay-battle-box {
+  width: min(380px, 100%);
+  display: flex; flex-direction: column; align-items: stretch; gap: .7rem;
+  background: var(--felt, #0c3320);
+  border: 1px solid rgba(201,168,76,.4);
+  border-radius: 12px;
+  padding: 1.4rem 1.2rem 1.2rem;
+  box-shadow: 0 12px 40px rgba(0,0,0,.55);
+}
+.rpay-battle-title {
+  color: var(--gold, #d4af37);
+  font-weight: 900;
+  font-size: 1.15rem;
+  letter-spacing: .4px;
+  text-align: center;
+}
+.rpay-battle-desc {
+  color: rgba(255,255,255,.55);
+  font-size: .78rem;
+  text-align: center;
+  margin-top: -.4rem;
+}
+.rpay-battle-choice-btns { display: flex; flex-direction: column; gap: .5rem; margin-top: .2rem; }
+.rpay-battle-join-row { display: flex; gap: .5rem; }
+.rpay-battle-code-input {
+  flex: 1; min-width: 0;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 1rem; font-weight: 800; letter-spacing: 2px;
+  text-align: center;
+  padding: .4rem .3rem;
+}
+.rpay-battle-code-input:focus { outline: none; border-color: rgba(201,168,76,.6); }
+.rpay-battle-join-row .bac-cta-btn { width: auto; flex: 0 0 auto; padding-inline: .9rem; }
+.rpay-battle-error {
+  color: #ff6b6b;
+  font-size: .74rem;
+  text-align: center;
+  min-height: 1.1em;
+}
+.rpay-battle-code-display {
+  color: rgba(255,255,255,.85);
+  font-size: .85rem;
+  text-align: center;
+}
+.rpay-battle-code-display strong { color: #ffd700; font-size: 1.3rem; letter-spacing: 3px; }
+.rpay-battle-player-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
+.rpay-battle-player-item {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 6px;
+  padding: .4rem .6rem;
+  color: var(--text, #e8e0d0);
+  font-size: .82rem; font-weight: 700;
+}
+.rpay-battle-me {
+  color: #241a05;
+  background: var(--gold, #d4af37);
+  border-radius: 4px;
+  font-size: .66rem; font-weight: 900;
+  padding: .1rem .35rem;
+}
+.rpay-battle-count { color: rgba(255,255,255,.5); font-size: .74rem; text-align: center; }
+.bac-cta-btn:disabled { opacity: .4; cursor: not-allowed; filter: none; transform: none; }
+.rpay-battle-result-me { background: rgba(255,210,60,.12); border-radius: 6px; padding-inline: .4rem; margin-inline: -.4rem; }
+
 .rpay-bet-side::after {
   content: '';
   position: absolute; right: 0; top: .7rem; bottom: .7rem;
