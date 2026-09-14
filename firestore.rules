@@ -27,8 +27,10 @@ service cloud.firestore {
     // 룰렛 "⚔️ 배틀하기" (실시간 2-5인 대결) 대기실/경기 상태 문서.
     // rouletteRankings와 동일한 한계로 request.auth 기반 "본인 항목만
     // 쓰기" 검증은 불가능하다 — 스키마/크기/상태 전이 방향만 검증해
-    // 임의 필드 쓰기, 5인 초과, 생성 후 hostId/createdAt 위조, 종료된
-    // 방을 되살리는 update를 막는다. players 맵은 키가 동적(employeeId)
+    // 임의 필드 쓰기, 5인 초과, 생성 후 hostId/createdAt 위조, 정해진
+    // 경로를 벗어난 상태 전이(아래 update 블록의 화이트리스트 참고 —
+    // finished->waiting은 같은 방에서 재대결하는 resetBattleRoom()이라
+    // 의도적으로 허용됨)를 막는다. players 맵은 키가 동적(employeeId)
     // 이라 각 항목 내부 필드(name/score/...)까지 룰에서 깊이 검증할 수는
     // 없다 — 바깥쪽 스키마만 검증하는 것도 동일한 한계.
     match /battleRooms/{roomCode} {
@@ -48,9 +50,18 @@ service cloud.firestore {
                     && request.resource.data.hostId == resource.data.hostId
                     && request.resource.data.createdAt == resource.data.createdAt
                     && request.resource.data.status in ['waiting', 'playing', 'finished']
-                    // 상태는 waiting -> playing -> finished 순으로만 전진 가능
-                    && !(resource.data.status == 'finished' && request.resource.data.status != 'finished')
-                    && !(resource.data.status == 'playing' && request.resource.data.status == 'waiting')
+                    // 상태 전이는 이 5가지만 허용: 같은 상태 유지(참가자
+                    // 목록/점수 갱신), waiting->playing(시작), playing->
+                    // finished(종료), finished->waiting(같은 방에서 코드
+                    // 재공유 없이 재대결 — resetBattleRoom()). 그 외
+                    // (playing->waiting, waiting->finished, finished->
+                    // playing 등)는 전부 차단.
+                    && (
+                      resource.data.status == request.resource.data.status ||
+                      (resource.data.status == 'waiting'  && request.resource.data.status == 'playing') ||
+                      (resource.data.status == 'playing'  && request.resource.data.status == 'finished') ||
+                      (resource.data.status == 'finished' && request.resource.data.status == 'waiting')
+                    )
                     && request.resource.data.players is map
                     && request.resource.data.players.size() <= 5;
 

@@ -210,6 +210,29 @@ async function finishBattleRoom(code) {
   });
 }
 
+// 방을 없애고 새로 만드는 대신 같은 코드/참가자를 유지한 채 'waiting'으로
+// 되돌린다 — 매 라운드 코드를 다시 공유할 필요 없이 같은 방에서 계속
+// 재대결할 수 있게 하기 위함. status==='finished'일 때만 허용(진행 중인
+// 방을 실수로 리셋하는 것 방지, firestore.rules에도 동일하게 강제).
+// 참가자 목록은 그대로 두고 각자의 score/mistakes/finished만 초기화 —
+// 리셋 시점에 라운드를 놓친 사람이 있어도 다음 라운드에 자동으로 다시
+// 참여하게 된다(재입장 불필요).
+async function resetBattleRoom(code) {
+  if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
+  const ref = doc(db, "battleRooms", code);
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists()) return;
+    const data = snap.data();
+    if (data.status !== 'finished') return;
+    const players = {};
+    Object.keys(data.players || {}).forEach(id => {
+      players[id] = { name: data.players[id].name, score: 0, mistakes: 0, finished: false, finishedAt: null };
+    });
+    tx.update(ref, { status: 'waiting', startedAt: null, players });
+  });
+}
+
 // onSnapshot 구독 래퍼 — unsubscribe 함수를 그대로 반환하므로 호출부가
 // 저장해뒀다가 teardown 시 그냥 호출하면 된다.
 function subscribeBattleRoom(code, onChange, onError) {
@@ -221,7 +244,7 @@ function subscribeBattleRoom(code, onChange, onError) {
 window.DealerAuth = {
   lookupEmployee, submitRouletteRankScore, getRouletteTopScores,
   createBattleRoom, joinBattleRoom, leaveBattleRoom, startBattleRoom,
-  submitBattleResult, finishBattleRoom, subscribeBattleRoom,
+  submitBattleResult, finishBattleRoom, resetBattleRoom, subscribeBattleRoom,
 };
 // Always fire this, even after an init failure — main.js is waiting on it
 // to stop blocking on waitForDealerAuth()'s timeout; lookupEmployee()
