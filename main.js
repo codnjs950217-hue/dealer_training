@@ -6600,6 +6600,10 @@ const Sims = {
           this._renderHostSetup();
         },
 
+        // 2026-10-02: 게임 모드 명칭을 Time Attack/Round Challenge로,
+        // 모드 선택 UI를 탭 버튼 2개에서 아이콘+설명이 있는 선택 카드로
+        // 바꿨다 — 로직(이후 프리셋/직접입력/생성 흐름)은 그대로, 이름과
+        // 이 블록의 마크업만 바뀐다.
         _renderHostSetup() {
           const box = document.getElementById('rpay-battle-box');
           if (!box) return;
@@ -6610,10 +6614,18 @@ const Sims = {
           const isCustom = B.setupValue === 'custom';
           box.innerHTML = `
             <div class="rpay-battle-title">⚔️ 방 설정</div>
-            <div class="rpay-battle-setup-label">게임 모드</div>
-            <div class="rpay-battle-setup-row">
-              <button class="rpay-battle-setup-btn${isTime ? ' rpay-battle-setup-active' : ''}" onclick="Sims.roulettePay.battle.selectSetupMode('time')">제한시간</button>
-              <button class="rpay-battle-setup-btn${!isTime ? ' rpay-battle-setup-active' : ''}" onclick="Sims.roulettePay.battle.selectSetupMode('round')">라운드</button>
+            <div class="rpay-battle-setup-label">게임 모드를 선택하세요</div>
+            <div class="rpay-battle-mode-cards">
+              <button class="rpay-battle-mode-card${isTime ? ' rpay-battle-mode-card-active' : ''}" onclick="Sims.roulettePay.battle.selectSetupMode('time')">
+                <span class="rpay-battle-mode-card-icon">⚡</span>
+                <span class="rpay-battle-mode-card-name">Time Attack</span>
+                <span class="rpay-battle-mode-card-desc">제한시간 동안 최대한 많은 문제를 해결하는 모드</span>
+              </button>
+              <button class="rpay-battle-mode-card${!isTime ? ' rpay-battle-mode-card-active' : ''}" onclick="Sims.roulettePay.battle.selectSetupMode('round')">
+                <span class="rpay-battle-mode-card-icon">🏁</span>
+                <span class="rpay-battle-mode-card-name">Round Challenge</span>
+                <span class="rpay-battle-mode-card-desc">정해진 라운드를 완료하는 모드</span>
+              </button>
             </div>
             <div class="rpay-battle-setup-label">${isTime ? '제한시간' : '라운드 수'}</div>
             <div class="rpay-battle-setup-row">
@@ -6741,8 +6753,8 @@ const Sims = {
                     </li>`;
           }).join('');
           const modeInfo = data.mode === 'round'
-            ? `<div>모드: 라운드</div><div>라운드: ${data.limitValue}</div>`
-            : `<div>모드: 제한시간</div><div>시간: ${data.limitValue}초</div>`;
+            ? `<div>모드: 🏁 Round Challenge</div><div>라운드: ${data.limitValue}</div>`
+            : `<div>모드: ⚡ Time Attack</div><div>시간: ${data.limitValue}초</div>`;
           box.innerHTML = `
             <div class="rpay-battle-title">⚔️ 대기실</div>
             <div class="rpay-battle-code-display">방 코드 <strong>${B.code}</strong></div>
