@@ -6777,7 +6777,7 @@ const Sims = {
         },
 
         // 2026-10-02: "방 나가기"는 이제 즉시 퇴장이 아니라 확인 팝업을
-        // 먼저 띄운다 — [결과 종료]의 confirmEndBattle()/_closeEndConfirm()
+        // 먼저 띄운다 — [배틀 종료]의 confirmEndBattle()/_closeEndConfirm()
         // 과 같은 틀(.rpay-rank-modal-backdrop/-box)을 재사용, 내용과
         // id만 다르게 둬서 두 팝업이 동시에 떠도 서로 안 겹친다.
         confirmLeaveRoom() {
@@ -6903,12 +6903,12 @@ const Sims = {
                 </li>`).join('')}
             </ul>
             <div class="rpay-challenge-end-btns">
-              <button class="rpay-battle-leave-btn rpay-battle-end-static-btn" onclick="Sims.roulettePay.battle.confirmEndBattle()">결과 종료</button>
+              <button class="rpay-battle-leave-btn rpay-battle-end-static-btn" onclick="Sims.roulettePay.battle.confirmEndBattle()">배틀 종료</button>
             </div>`;
           tbl.appendChild(ov);
         },
 
-        // 결과 화면은 이제 자동으로 닫히지 않는다 — [결과 종료]를 누르고
+        // 결과 화면은 이제 자동으로 닫히지 않는다 — [배틀 종료]를 누르고
         // 확인 팝업에서 [종료하기]를 선택해야만 방이 삭제된다. 일회성
         // 배틀이라 이 팝업이 유일한 "정말 지울 거냐" 확인 지점이다.
         confirmEndBattle() {
