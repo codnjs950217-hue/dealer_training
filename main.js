@@ -6903,7 +6903,7 @@ const Sims = {
                 </li>`).join('')}
             </ul>
             <div class="rpay-challenge-end-btns">
-              <button class="rpay-battle-leave-btn rpay-battle-end-static-btn" onclick="Sims.roulettePay.battle.confirmEndBattle()">배틀 종료</button>
+              <button class="rpay-battle-leave-btn rpay-battle-end-static-btn" onclick="Sims.roulettePay.battle.confirmEndBattle()">나가기</button>
             </div>`;
           tbl.appendChild(ov);
         },
