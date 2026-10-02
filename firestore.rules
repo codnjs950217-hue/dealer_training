@@ -2,11 +2,22 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 사번 로그인: 클라이언트가 Auth 없이 users/{employeeId}를 직접 조회하므로
-    // 읽기는 전체 허용, 쓰기는 전체 차단한다. name/active 외 민감정보를
-    // users 문서에 넣지 말 것 — 이 컬렉션은 사실상 공개 읽기 대상이다.
+    // 사번 로그인: 클라이언트(firebase-init.js의 lookupEmployee)는 Firebase
+    // Auth 없이 users/{employeeId} 단일 문서를 getDoc으로 직접 조회한다.
+    // 따라서 그 한 건의 get만 허용하고, 그 외는 전부 막는다:
+    //   - get   : 허용. 사번을 아는 사람만 그 사번 문서 1건을 읽는다.
+    //   - list  : 차단. 컬렉션 쿼리를 막아 users 전체 목록(전 직원 사번·
+    //             이름)을 통째로 덤프하는 것을 불가능하게 한다. 앱 어디에도
+    //             users 컬렉션 쿼리는 없으므로(단일 doc get만 사용) 기능에
+    //             영향 없음.
+    //   - write : 차단. 사용자 등록/수정은 firebase-admin을 쓰는
+    //             scripts/upload-users.js(관리자 CLI) 전용이며, Admin SDK는
+    //             보안 규칙을 우회하므로 이 차단과 무관하게 동작한다.
+    // 진짜 Auth가 없어 "본인 문서만 읽기"로 더 좁힐 수는 없다 — 그래서
+    // users 문서에는 name/active 외 민감정보를 절대 넣지 말 것.
     match /users/{employeeId} {
-      allow read: if true;
+      allow get: if true;
+      allow list: if false;
       allow write: if false;
     }
 
