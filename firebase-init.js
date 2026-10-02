@@ -114,7 +114,11 @@ function _genRoomCode() {
 // 나중에 쓴 쪽이 먼저 만든 방(이미 참가자가 있을 수도 있는)을 조용히
 // 덮어써버린다. 코드가 이미 있으면 그 트랜잭션은 아무것도 안 쓰고 그냥
 // 새 코드로 재시도한다(최대 5회).
-async function createBattleRoom(employeeId, name) {
+// mode: 'time' | 'round', limitValue: mode==='time'면 제한시간(초, 60
+// 이상), mode==='round'면 라운드 수(1 이상) — 둘 다 호스트가 방 설정
+// 화면에서 고른 값 그대로, 방 생성 시점에 한 번 박히고 이후 바뀌지
+// 않는다(firestore.rules의 update 규칙이 불변으로 강제).
+async function createBattleRoom(employeeId, name, mode, limitValue) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = _genRoomCode();
@@ -128,6 +132,7 @@ async function createBattleRoom(employeeId, name) {
         status: 'waiting',
         createdAt: Date.now(),
         startedAt: null,
+        mode, limitValue,
         players: { [employeeId]: { name, score: 0, mistakes: 0, finished: false, finishedAt: null } },
       });
       created = true;
@@ -182,22 +187,36 @@ async function leaveBattleRoom(code, employeeId) {
   });
 }
 
+// startedAt을 지금 이 순간이 아니라 5초 뒤로 박아 쓴다 — 모든 참가자의
+// 화면이 'playing' 전환을 받자마자 바로 룰렛이 도는 게 아니라, 그
+// startedAt까지 "곧 시작합니다" 카운트다운을 먼저 보게 한다
+// (Sims.roulettePay._armBattleReady, main.js). battleEndAt(60초 마감)은
+// 이 startedAt을 그대로 기준으로 삼으므로 준비 시간만큼 실제 플레이
+// 시간이 줄지는 않는다.
 async function startBattleRoom(code) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  await updateDoc(doc(db, "battleRooms", code), { status: 'playing', startedAt: Date.now() });
+  await updateDoc(doc(db, "battleRooms", code), { status: 'playing', startedAt: Date.now() + 5000 });
 }
 
 // 자기 자신의 항목만 점(.) 경로로 patch한다 — { players: { [id]: {...} } }
 // 형태(중첩 객체)로 쓰면 Firestore가 players 맵 전체를 이 한 명 데이터로
 // 갈아치워버려 다른 플레이어 기록이 사라진다. 점 경로 문자열 키라면
 // 서로 다른 경로를 건드리는 동시 updateDoc끼리 충돌 없이 병합된다.
-async function submitBattleResult(code, employeeId, score, mistakes) {
+//
+// lastCorrectAt(2026-10-02, 순위 판정용): 제한시간 모드는 전원이 거의
+// 같은 순간(제한시간 종료)에 finishedAt을 찍으므로 그걸로는 순위를 가를
+// 수 없다 — 대신 "마지막 정답을 실제로 맞힌 시각"을 따로 받아서 저장한다
+// (main.js의 submitPay()/_endBattleLocal()이 채워서 넘김). players 맵
+// 내부 필드는 firestore.rules가 스키마를 깊이 검증하지 않으므로(바깥쪽
+// 7개 키만 검증) 이 필드 추가에 규칙 재배포는 필요 없다.
+async function submitBattleResult(code, employeeId, score, mistakes, lastCorrectAt) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
   await updateDoc(doc(db, "battleRooms", code), {
     [`players.${employeeId}.score`]: score,
     [`players.${employeeId}.mistakes`]: mistakes,
     [`players.${employeeId}.finished`]: true,
     [`players.${employeeId}.finishedAt`]: Date.now(),
+    [`players.${employeeId}.lastCorrectAt`]: lastCorrectAt ?? null,
   });
 }
 

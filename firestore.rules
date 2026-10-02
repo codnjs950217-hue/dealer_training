@@ -48,19 +48,32 @@ service cloud.firestore {
     match /battleRooms/{roomCode} {
       allow read: if true;
 
+      // mode/limitValue(2026-10-02, 호스트 방 설정 화면): 'time'이면
+      // limitValue는 제한시간(초, 60 이상), 'round'면 라운드 수(1 이상).
+      // 방 생성 시 한 번 정해지면 update 규칙이 불변으로 강제한다 —
+      // 참가자는 절대 이 값을 바꿀 수 없다(클라이언트에도 그 UI 자체가
+      // 없지만, 규칙으로도 막아둔다).
       allow create: if request.resource.data.keys().hasOnly(
-                         ['hostId', 'players', 'status', 'createdAt', 'startedAt'])
+                         ['hostId', 'players', 'status', 'createdAt', 'startedAt', 'mode', 'limitValue'])
                     && request.resource.data.hostId is string
                     && request.resource.data.status == 'waiting'
                     && request.resource.data.createdAt is int
                     && request.resource.data.players is map
                     && request.resource.data.players.size() == 1
-                    && request.resource.data.players.keys().hasOnly([request.resource.data.hostId]);
+                    && request.resource.data.players.keys().hasOnly([request.resource.data.hostId])
+                    && request.resource.data.mode in ['time', 'round']
+                    && request.resource.data.limitValue is int
+                    && (
+                      (request.resource.data.mode == 'time'  && request.resource.data.limitValue >= 60) ||
+                      (request.resource.data.mode == 'round' && request.resource.data.limitValue >= 1)
+                    );
 
       allow update: if request.resource.data.keys().hasOnly(
-                         ['hostId', 'players', 'status', 'createdAt', 'startedAt'])
+                         ['hostId', 'players', 'status', 'createdAt', 'startedAt', 'mode', 'limitValue'])
                     && request.resource.data.hostId == resource.data.hostId
                     && request.resource.data.createdAt == resource.data.createdAt
+                    && request.resource.data.mode == resource.data.mode
+                    && request.resource.data.limitValue == resource.data.limitValue
                     && request.resource.data.status in ['waiting', 'playing', 'finished']
                     // 상태 전이는 이 3가지만 허용: 같은 상태 유지(참가자
                     // 목록/점수 갱신), waiting->playing(시작), playing->

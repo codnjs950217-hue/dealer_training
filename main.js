@@ -5371,8 +5371,30 @@ const Sims = {
     // (see the shared .rpay-tray-disc-mc/-cc, .rpay-tray-stk-face/
     // .rpay-chip-stack-face rules in style.css).
 
+    // 배틀하기(2-5인 실시간 대결)는 같은 방 참가자 전원이 똑같은 문제를
+    // 풀어야 하므로, 그 모드에서는 이 함수들의 난수를 Math.random() 대신
+    // S.rng(아래 _makeSeededRng, startBattle()이 room의 startedAt을
+    // seed로 심어 둠)에서 뽑는다 — 모든 클라이언트가 같은 seed에서 같은
+    // 순서로 뽑으므로 매 라운드(deal()) 결과가 100% 동일해진다. 연습/
+    // 랭킹 도전(솔로) 모드는 S.rng를 아예 설정하지 않으므로 그냥
+    // Math.random()을 쓰는 기존 동작 그대로다.
+    function _rng() { return (S && S.rng) ? S.rng() : Math.random(); }
+
+    // mulberry32 — 32비트 정수 seed 하나로 재현 가능한 [0,1) 난수 스트림을
+    // 만드는 작고 빠른 PRNG. 암호학적 용도가 아니라 "같은 seed → 같은
+    // 문제" 재현성만 필요하므로 이 정도로 충분하다.
+    function _makeSeededRng(seed) {
+      let s = (seed >>> 0) || 1;
+      return function () {
+        s |= 0; s = (s + 0x6D2B79F5) | 0;
+        let t = Math.imul(s ^ (s >>> 15), 1 | s);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
     function genChips(color, maxCount = 5) {
-      const count = 1 + Math.floor(Math.random() * maxCount);
+      const count = 1 + Math.floor(_rng() * maxCount);
       return { chips: { [color.key]: count }, total: color.val * count };
     }
 
@@ -5417,7 +5439,7 @@ const Sims = {
 
     const BET_LABEL = { Straight:'Straight', Split:'Split', Corner:'Corner', Street:'Street', SixNum:'Square' };
 
-    function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+    function pick(arr) { return arr[Math.floor(_rng()*arr.length)]; }
 
     function getValidSpots(N) {
       const byType = [];
@@ -6028,7 +6050,7 @@ const Sims = {
         if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
 
         let N;
-        do { N = Math.floor(Math.random()*37); } while (N === S.lastNum);
+        do { N = Math.floor(_rng()*37); } while (N === S.lastNum);
         S.lastNum = N;
         S.winNum = N;
         S.spotIdx = 0;
@@ -6049,7 +6071,7 @@ const Sims = {
           maxChips = 5;
           filteredSpots = allSpots;
         }
-        const roundColor = COLOR_CHIPS[Math.floor(Math.random() * COLOR_CHIPS.length)];
+        const roundColor = COLOR_CHIPS[Math.floor(_rng() * COLOR_CHIPS.length)];
         S.roundColor = roundColor;
         S.spots = filteredSpots.map(sp => {
           const { chips, total } = genChips(roundColor, maxChips);
@@ -6114,9 +6136,20 @@ const Sims = {
         S.awaitingPay = false;
         S.score++;
         S.rounds++;
+        // 배틀 제한시간 모드의 순위 판정용 — "마지막 정답을 처리한 시각"을
+        // 매 정답마다 갱신해둔다. finishedAt(결과 제출 시각)은 제한시간이
+        // 다 돼서야 찍히므로 전원이 거의 같은 값으로 몰려 순위를 가르는
+        // 기준이 못 된다 — 실제로 마지막 정답을 언제 맞혔는지가 기준.
+        if (S.challengeMode) S.lastCorrectAt = Date.now();
         $('rpay-score').textContent = S.score;
-        $('rpay-rounds').textContent = S.rounds;
+        $('rpay-rounds').textContent = S.roundsTotal ? `${S.rounds} / ${S.roundsTotal}` : S.rounds;
         highlightSpot(-1);
+        // 배틀 모드: 정해진 라운드 수를 다 풀었다 — 다음 판을 자동으로
+        // 돌리지 않고 곧장 내 결과를 제출하고 다른 참가자를 기다린다.
+        if (S.challengeMode && S.roundsTotal && S.rounds >= S.roundsTotal) {
+          this._endBattleLocal();
+          return;
+        }
         const tbl = document.querySelector('.rpay-table');
         if (tbl) {
           const ov2 = document.createElement('div');
@@ -6336,24 +6369,36 @@ const Sims = {
       // 같은 최상위(flat) 메서드로 둔다 — battle.* 안에 중첩시키면 그
       // 메서드들의 this가 battle로 바인딩되어 S를 건드리는 형제 메서드
       // 호출이 깨진다.
-      startBattle(startedAt) {
+      // 2026-10-02: 호스트가 방 설정 화면에서 모드를 고른다 —
+      // mode:'time'이면 limitValue가 제한시간(초), mode:'round'면
+      // limitValue가 라운드 수. 둘 중 하나만 활성화되고 나머지는 S에
+      // null로 남는다(아래 두 조건문이 서로 배타적).
+      startBattle(startedAt, mode, limitValue) {
         if (S && S.challengeInterval) return; // 이미 실행 중
         this._stopTimer();
         if (S && S.nextTimer) clearTimeout(S.nextTimer);
         const ov0 = document.querySelector('.rpay-challenge-end-overlay');
         if (ov0) ov0.remove();
+        const isRoundMode = mode === 'round';
         S = { winNum: null, spots: [], spotIdx: 0, rounds: 0, score: 0, mistakes: 0, lastNum: null, roundColor: null,
               payChips: { color: 0, '1M': 0, '100K': 0, '10K': 0, '5K': 0 },
               history: [], difficulty: 'hard', awaitingPay: false, nextTimer: null,
               timerStart: null, timerInterval: null, answerRevealed: false,
               challengeMode: true, challengeInterval: null,
-              battleEndAt: startedAt + this.CHALLENGE_SECONDS * 1000 };
+              roundsTotal: isRoundMode ? limitValue : null,
+              battleEndAt: isRoundMode ? null : startedAt + limitValue * 1000,
+              // 같은 방 참가자 전원이 완전히 같은 문제(같은 당첨 번호·같은
+              // 베팅 금액)를 풀도록 startedAt을 seed로 심는다 — 모든
+              // 클라이언트가 이 room의 startedAt을 그대로 전달받으므로
+              // (firebase-init.js의 startBattleRoom) 전원이 같은 seed에서
+              // 출발한다. genChips()/pick()/deal()의 _rng()가 이걸 쓴다.
+              rng: _makeSeededRng(startedAt) };
         ['easy','medium','hard'].forEach(d => {
           const btn = document.getElementById(`rpay-diff-${d}`);
           if (btn) btn.classList.toggle('rpay-diff-active', d === 'hard');
         });
         const diffRow = $('rpay-diff-row'); if (diffRow) diffRow.classList.add('rpay-diff-locked');
-        if ($('rpay-rounds')) $('rpay-rounds').textContent = '0';
+        if ($('rpay-rounds')) $('rpay-rounds').textContent = isRoundMode ? `0 / ${S.roundsTotal}` : '0';
         if ($('rpay-score'))  $('rpay-score').textContent  = '0';
         if ($('rpay-mistakes')) $('rpay-mistakes').textContent = '0';
         if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
@@ -6369,28 +6414,60 @@ const Sims = {
         }
         const ov = $('rpay-start-overlay'); if (ov) ov.style.display = 'none';
 
-        const stat = $('rpay-challenge-stat'); if (stat) stat.style.display = '';
-        const remain = Math.max(0, Math.ceil((S.battleEndAt - Date.now()) / 1000));
-        const timeEl = $('rpay-challenge-time'); if (timeEl) timeEl.textContent = String(remain);
+        // 라운드 모드는 남은 라운드 수를 위에서 바꿔둔 #rpay-rounds("N / 총
+        // 라운드")로 보여주고, 제한시간 모드만 ⏱ 챌린지-시간 표시(솔로
+        // 랭킹 도전과 같은 슬롯)를 켠다.
+        if (!isRoundMode) {
+          const stat = $('rpay-challenge-stat'); if (stat) stat.style.display = '';
+          const remain = Math.max(0, Math.ceil((S.battleEndAt - Date.now()) / 1000));
+          const timeEl = $('rpay-challenge-time'); if (timeEl) timeEl.textContent = String(remain);
+        }
         const leaveBtn = $('rpay-battle-leave-btn'); if (leaveBtn) leaveBtn.style.display = '';
 
         hasStarted = true;
-        this.deal();
-        this._startBattleTimer();
         // 참가자 전원이 동시에 startedAt을 받는 건 아니므로(네트워크
-        // 지연), 끝나는 시점도 이 클라이언트가 판단 — 이후 15초 유예가
-        // 지나도 방이 'playing'에 멈춰 있으면 누구든 강제로 끝낸다
-        // (탭을 닫아버린 참가자에 대한 유일한 안전망, Cloud Functions가
-        // 없어 서버 쪽 타임아웃은 못 둠).
-        this.battle._armGraceTimer(startedAt);
+        // 지연) 끝나는 시점도 각자 로컬에서 판단 — 혹시 탭을 닫아버리고
+        // 사라진 참가자가 있어도 방이 'playing'에 영구히 멈추지 않도록
+        // 넉넉한 상한을 안전망으로 건다(아래 _armGraceTimer 주석 참고).
+        this.battle._armGraceTimer(startedAt, mode, limitValue);
+        // 실제 딜은 startedAt이 될 때까지 미룬다 — 그 사이는
+        // _armBattleReady()의 "준비하세요" 카운트다운이 화면을 덮는다.
+        this._armBattleReady(startedAt);
       },
 
+      // startBattleRoom()이 startedAt을 호스트가 누른 시각 + 5초로 써서
+      // 보내므로(firebase-init.js), 그 5초 동안은 보드를 건드리지 않고
+      // 큰 숫자 카운트다운만 보여준다. 매초 새 setTimeout을 거는 게 아니라
+      // 매번 절대 시각(startedAt) 대비 남은 시간을 다시 계산해 기기별
+      // 로컬 시계 오차나 탭 전환으로 한 틱이 밀려도 표시 숫자가 실제
+      // 시작 시각과 어긋나지 않는다. 네트워크 지연으로 startedAt이 이미
+      // 지난 뒤 이 코드가 실행되면(remain<=0) 카운트다운 없이 곧바로
+      // 게임을 시작한다.
+      _armBattleReady(startedAt) {
+        const tbl = document.querySelector('.rpay-table');
+        const tick = () => {
+          if (!S || !S.challengeMode) return; // 그 사이 방이 종료/이탈됨
+          const remain = Math.ceil((startedAt - Date.now()) / 1000);
+          const ov = tbl ? tbl.querySelector('.rpay-battle-ready-overlay') : null;
+          if (remain <= 0) {
+            if (ov) ov.remove();
+            this.deal();
+            if (S.battleEndAt) this._startBattleTimer(); // 제한시간 모드만 — 라운드 모드는 submitPay()가 끝을 판단
+            return;
+          }
+          if (tbl) {
+            const box = ov || tbl.appendChild(Object.assign(document.createElement('div'), { className: 'rpay-battle-ready-overlay' }));
+            box.innerHTML = `<div class="rpay-battle-ready-label">곧 시작합니다</div><div class="rpay-battle-ready-num">${remain}</div>`;
+          }
+          setTimeout(tick, 200);
+        };
+        tick();
+      },
+
+      // 제한시간 모드 전용 — 매 250ms마다 절대 마감 시각(S.battleEndAt)
+      // 대비 남은 시간을 다시 계산한다(기기별 로컬 시계 오차에도 표시가
+      // 어긋나지 않도록, _armBattleReady와 같은 이유).
       _startBattleTimer() {
-        // 매 초가 아니라 250ms마다 절대 마감 시각(S.battleEndAt) 대비
-        // 남은 시간을 다시 계산 — startChallenge의 매초 --1 카운터와
-        // 달리, 배틀은 여러 기기의 로컬 시계가 각자 다른 시점에 시작되므로
-        // "고정된 시작점에서 60번 감소"가 아니라 매번 절대 시각과 비교해야
-        // 초 단위 표시가 실제 마감 시각과 어긋나지 않는다.
         S.challengeInterval = setInterval(() => {
           const remain = Math.max(0, Math.ceil((S.battleEndAt - Date.now()) / 1000));
           const timeEl = $('rpay-challenge-time'); if (timeEl) timeEl.textContent = String(remain);
@@ -6411,7 +6488,7 @@ const Sims = {
         const stat = $('rpay-challenge-stat'); if (stat) stat.style.display = 'none';
         const hintBtn = $('rpay-hint-btn'); if (hintBtn) hintBtn.style.display = 'none';
 
-        const finalScore = S.score, finalMistakes = S.mistakes;
+        const finalScore = S.score, finalMistakes = S.mistakes, finalLastCorrectAt = S.lastCorrectAt || null;
         const tbl = document.querySelector('.rpay-table');
         if (!tbl) return;
         const existing = tbl.querySelector('.rpay-challenge-end-overlay');
@@ -6424,14 +6501,14 @@ const Sims = {
           <div class="rpay-challenge-end-status" id="rpay-battle-wait-status">다른 참가자를 기다리는 중...</div>
           <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.leaveRoom()">방 나가기</button>`;
         tbl.appendChild(ov);
-        this._submitBattleResult(finalScore, finalMistakes);
+        this._submitBattleResult(finalScore, finalMistakes, finalLastCorrectAt);
       },
 
-      async _submitBattleResult(score, mistakes) {
+      async _submitBattleResult(score, mistakes, lastCorrectAt) {
         if (!B || !B.code || !B.myId || !window.DealerAuth) return;
         const statusEl = () => document.getElementById('rpay-battle-wait-status');
         try {
-          await window.DealerAuth.submitBattleResult(B.code, B.myId, score, mistakes);
+          await window.DealerAuth.submitBattleResult(B.code, B.myId, score, mistakes, lastCorrectAt);
           // 내가 제출한 직후 "전원 완료됐는지"를 서버 쪽에서 다시 읽어
           // 재확인하고, 맞으면 status를 'finished'로 전환한다(멱등 —
           // 이미 finished면 그냥 no-op). 마지막으로 끝난 사람이 자연스럽게
@@ -6446,7 +6523,12 @@ const Sims = {
       battle: {
         init() {
           if (B && B.unsub) B.unsub();
-          B = { code: null, myId: null, hostId: null, phase: 'choice', unsub: null, graceTimer: null };
+          // setupMode/setupValue: 방 만들기를 누른 호스트가 _renderHostSetup()
+          // 화면에서 고르는 값의 임시 보관소 — 방이 실제로 생성되기 전까지는
+          // Firestore에 쓰지 않고 여기서만 들고 있다가 confirmCreateRoom()에서
+          // 한 번에 넘긴다.
+          B = { code: null, myId: null, hostId: null, phase: 'choice', unsub: null, graceTimer: null,
+                setupMode: 'time', setupValue: 60 };
           this._renderChoice();
         },
 
@@ -6455,9 +6537,9 @@ const Sims = {
           if (!box) return;
           box.innerHTML = `
             <div class="rpay-battle-title">⚔️ 배틀하기</div>
-            <div class="rpay-battle-desc">2-5인 실시간 대결 · 고급 난이도 · 60초</div>
+            <div class="rpay-battle-desc">2-5인 실시간 대결 · 고급 난이도</div>
             <div class="rpay-battle-choice-btns">
-              <button class="bac-cta-btn" onclick="Sims.roulettePay.battle.create()">방 만들기</button>
+              <button class="bac-cta-btn" onclick="Sims.roulettePay.battle.showHostSetup()">방 만들기</button>
             </div>
             <div class="rpay-battle-join-row">
               <input id="rpay-battle-code-input" class="rpay-battle-code-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="코드 4자리">
@@ -6471,16 +6553,86 @@ const Sims = {
           if (el) el.textContent = msg || '';
         },
 
-        async create() {
+        // ---- 방 설정 화면 (2026-10-02) ----
+        // 호스트가 "방 만들기"를 눌렀을 때 실제 Firestore 방 생성보다
+        // 먼저 보여주는 중간 화면 — 게임 모드(제한시간/라운드)와 그 값을
+        // 고르게 한다. 참가자(코드로 입장하는 쪽)는 이 화면 자체를 볼 일이
+        // 없으므로 "참가자는 설정을 바꿀 수 없다" 요구사항은 화면 흐름
+        // 자체로 보장된다.
+        showHostSetup() {
+          B.phase = 'setup';
+          this._renderHostSetup();
+        },
+
+        selectSetupMode(mode) {
+          B.setupMode = mode;
+          B.setupValue = mode === 'time' ? 60 : 1; // 모드 바꾸면 그 모드의 첫 프리셋으로 리셋
+          this._renderHostSetup();
+        },
+
+        selectSetupPreset(value) {
+          B.setupValue = value;
+          this._renderHostSetup();
+        },
+
+        selectSetupCustom() {
+          B.setupValue = 'custom';
+          this._renderHostSetup();
+        },
+
+        _renderHostSetup() {
+          const box = document.getElementById('rpay-battle-box');
+          if (!box) return;
+          const mode = B.setupMode;
+          const isTime = mode === 'time';
+          const presets = isTime ? [60, 90, 120] : [1, 3, 5];
+          const presetLabel = v => isTime ? `${v}초` : `${v}라운드`;
+          const isCustom = B.setupValue === 'custom';
+          box.innerHTML = `
+            <div class="rpay-battle-title">⚔️ 방 설정</div>
+            <div class="rpay-battle-setup-label">게임 모드</div>
+            <div class="rpay-battle-setup-row">
+              <button class="rpay-battle-setup-btn${isTime ? ' rpay-battle-setup-active' : ''}" onclick="Sims.roulettePay.battle.selectSetupMode('time')">제한시간</button>
+              <button class="rpay-battle-setup-btn${!isTime ? ' rpay-battle-setup-active' : ''}" onclick="Sims.roulettePay.battle.selectSetupMode('round')">라운드</button>
+            </div>
+            <div class="rpay-battle-setup-label">${isTime ? '제한시간' : '라운드 수'}</div>
+            <div class="rpay-battle-setup-row">
+              ${presets.map(v => `<button class="rpay-battle-setup-btn${(!isCustom && B.setupValue === v) ? ' rpay-battle-setup-active' : ''}" onclick="Sims.roulettePay.battle.selectSetupPreset(${v})">${presetLabel(v)}</button>`).join('')}
+              <button class="rpay-battle-setup-btn${isCustom ? ' rpay-battle-setup-active' : ''}" onclick="Sims.roulettePay.battle.selectSetupCustom()">직접 입력</button>
+            </div>
+            ${isCustom ? `<input id="rpay-battle-setup-custom-input" class="rpay-battle-code-input rpay-battle-setup-custom-input" type="number" inputmode="numeric" min="${isTime ? 60 : 1}" placeholder="${isTime ? '초 단위 (60 이상)' : '라운드 수 (1 이상)'}">` : ''}
+            <div id="rpay-battle-setup-error" class="rpay-battle-error"></div>
+            <div class="rpay-battle-setup-actions">
+              <button class="bac-cta-btn" onclick="Sims.roulettePay.battle.confirmCreateRoom()">방 만들기</button>
+              <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.init()">뒤로</button>
+            </div>`;
+        },
+
+        async confirmCreateRoom() {
           if (!Auth.session || !window.DealerAuth) return;
-          this._setError('');
+          const mode = B.setupMode;
+          const isTime = mode === 'time';
+          const min = isTime ? 60 : 1;
+          let value = B.setupValue;
+          const errEl = () => document.getElementById('rpay-battle-setup-error');
+          if (value === 'custom') {
+            const input = document.getElementById('rpay-battle-setup-custom-input');
+            const raw = input ? input.value.trim() : '';
+            const n = parseInt(raw, 10);
+            if (!raw || !Number.isFinite(n) || n < min) {
+              const el = errEl(); if (el) el.textContent = isTime ? '60초 이상의 숫자를 입력해주세요.' : '1 이상의 숫자를 입력해주세요.';
+              return;
+            }
+            value = n;
+          }
+          const el0 = errEl(); if (el0) el0.textContent = '';
           try {
-            const code = await window.DealerAuth.createBattleRoom(Auth.session.employeeId, Auth.session.name);
+            const code = await window.DealerAuth.createBattleRoom(Auth.session.employeeId, Auth.session.name, mode, value);
             B.code = code; B.myId = Auth.session.employeeId;
             this._subscribe();
           } catch (e) {
             console.error('[roulettePay.battle] 방 생성 실패:', e);
-            this._setError('방 생성에 실패했습니다. 다시 시도해주세요.');
+            const el = errEl(); if (el) el.textContent = '방 생성에 실패했습니다. 다시 시도해주세요.';
           }
         },
 
@@ -6541,7 +6693,7 @@ const Sims = {
               const el = document.getElementById('app');
               el.innerHTML = Views.roulettePaySim();
               Sims.roulettePay.init(false);
-              Sims.roulettePay.startBattle(data.startedAt);
+              Sims.roulettePay.startBattle(data.startedAt, data.mode, data.limitValue);
             }
             this._updateWaitStatus(data);
             return;
@@ -6558,17 +6710,27 @@ const Sims = {
           if (!box) return; // 이미 경기 화면으로 넘어간 상태
           const players = Object.entries(data.players || {}).map(([id, p]) => ({ id, ...p }));
           const isHost = data.hostId === B.myId;
+          // 최대 5슬롯을 항상 다 그린다 — 빈 슬롯은 "대기 중..."으로 표시
+          // (참가 인원이 몇 명이든 "n/5" 구조가 한눈에 보이게).
+          const slots = Array.from({ length: 5 }, (_, i) => {
+            const p = players[i];
+            if (!p) return `<li class="rpay-battle-player-item rpay-battle-slot-empty"><span>대기 중...</span></li>`;
+            return `<li class="rpay-battle-player-item">
+                      <span>${p.name}${p.id === data.hostId ? ' 👑' : ''}</span>
+                      ${p.id === B.myId ? '<span class="rpay-battle-me">나</span>' : ''}
+                    </li>`;
+          }).join('');
+          const modeInfo = data.mode === 'round'
+            ? `<div>모드: 라운드</div><div>라운드: ${data.limitValue}</div>`
+            : `<div>모드: 제한시간</div><div>시간: ${data.limitValue}초</div>`;
           box.innerHTML = `
             <div class="rpay-battle-title">⚔️ 대기실</div>
             <div class="rpay-battle-code-display">방 코드 <strong>${B.code}</strong></div>
-            <ul class="rpay-battle-player-list">
-              ${players.map(p => `
-                <li class="rpay-battle-player-item">
-                  <span>${p.name}${p.id === data.hostId ? ' 👑' : ''}</span>
-                  ${p.id === B.myId ? '<span class="rpay-battle-me">나</span>' : ''}
-                </li>`).join('')}
-            </ul>
-            <div class="rpay-battle-count">${players.length} / 5명</div>
+            <div class="rpay-battle-mode-info">
+              ${modeInfo}
+              <div>참가자: ${players.length} / 5명</div>
+            </div>
+            <ul class="rpay-battle-player-list">${slots}</ul>
             ${isHost
               ? `<button class="bac-cta-btn" ${players.length < 2 ? 'disabled' : ''} onclick="Sims.roulettePay.battle.start()">배틀 시작</button>`
               : `<div class="rpay-challenge-end-status">호스트가 시작하기를 기다리는 중...</div>`}
@@ -6593,12 +6755,24 @@ const Sims = {
         // 라운드 시작 시점(startBattle)에 arm — 내 제출 시점에 걸면 정작
         // 아무것도 제출하지 않고 탭을 닫아버린 참가자가 있을 때 아무도
         // 유예 타이머를 걸지 않게 되는 경우가 생긴다. 시작하자마자 걸어
-        // 두면 적어도 한 명이 마감 시각+15초까지 탭을 열어두는 한 방이
-        // 영구히 멈추지 않는다.
-        _armGraceTimer(startedAt) {
+        // 두면 그 참가자가 영원히 안 끝나도 방이 영구히 멈추지 않는다.
+        //
+        // 2026-10-02: 호스트가 제한시간/라운드 수를 직접 입력할 수 있게
+        // 되면서(최솟값만 있고 최댓값은 없음) 고정된 안전망 하나로는
+        // 부족하다 — 제한시간 모드는 "실제 마감(limitValue초) + 15초
+        // 유예"를 그대로 쓰고, 라운드 모드는 "라운드당 넉넉히 1분"과
+        // 최소 10분 중 더 큰 값을 쓴다. 정상적으로 전원이 다 풀고
+        // 제출하면 submitBattleResult()가 먼저 finishBattleRoom()을
+        // 불러 이 타이머보다 훨씬 먼저 끝나고, 이 타이머는 탭을 닫아버린
+        // 참가자가 있을 때만 실제로 발동한다.
+        GRACE_TIMEOUT_MS: 10 * 60 * 1000, // 10분 (라운드 모드의 최소 상한)
+        _armGraceTimer(startedAt, mode, limitValue) {
           this._clearGraceTimer();
           if (!B) return;
-          const delay = Math.max(0, startedAt + Sims.roulettePay.CHALLENGE_SECONDS * 1000 + 15000 - Date.now());
+          const graceMs = mode === 'round'
+            ? Math.max(this.GRACE_TIMEOUT_MS, (limitValue || 1) * 60000)
+            : limitValue * 1000 + 15000;
+          const delay = Math.max(0, startedAt + graceMs - Date.now());
           B.graceTimer = setTimeout(() => {
             if (B && B.code && window.DealerAuth) {
               window.DealerAuth.finishBattleRoom(B.code).catch(e => console.error('[roulettePay.battle] 강제 종료 실패:', e));
@@ -6623,8 +6797,24 @@ const Sims = {
           if (!tbl) return;
           const existing = tbl.querySelector('.rpay-challenge-end-overlay');
           if (existing) existing.remove();
+          // 순위 판정(2026-10-02): mistakes 오름차순이 1차 기준이라는 점은
+          // 두 모드 공통 — 0회가 1회 이상보다 무조건 위, 1회 이상인
+          // 사람들끼리도 적은 쪽이 위(둘 다 mistakes만 보면 자동으로
+          // "무실수 절대 우선"이 된다). 모드별로 다른 건 그 다음 동점자
+          // 기준뿐: 라운드 모드는 완료 시간, 제한시간 모드는 정답 수→
+          // 마지막 정답 시각. 끝까지 못 푼(finished=false) 참가자는
+          // 기준과 무관하게 항상 맨 아래로 내린다.
+          const isRoundMode = data.mode === 'round';
           const rows = Object.entries(data.players || {}).map(([id, p]) => ({ id, ...p }))
-            .sort((a, b) => (b.score - a.score) || (a.mistakes - b.mistakes) || ((a.finishedAt ?? Infinity) - (b.finishedAt ?? Infinity)));
+            .sort((a, b) => {
+              if (!!a.finished !== !!b.finished) return a.finished ? -1 : 1;
+              if (!a.finished) return 0;
+              const am = a.mistakes ?? 0, bm = b.mistakes ?? 0;
+              if (am !== bm) return am - bm;
+              if (isRoundMode) return (a.finishedAt ?? Infinity) - (b.finishedAt ?? Infinity);
+              if (a.score !== b.score) return b.score - a.score;
+              return (a.lastCorrectAt ?? Infinity) - (b.lastCorrectAt ?? Infinity);
+            });
           const ov = document.createElement('div');
           ov.className = 'rpay-challenge-end-overlay';
           ov.innerHTML = `

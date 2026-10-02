@@ -1357,6 +1357,23 @@ body {
 .rpay-challenge-end-status { color: rgba(255,255,255,.65); font-size: clamp(.7rem,1.6vh,.85rem); min-height: 1.2em; }
 .rpay-challenge-end-btns { display: flex; gap: .5rem; margin-top: .3rem; flex-wrap: wrap; justify-content: center; }
 
+/* ⚔️ 배틀하기 "곧 시작합니다" 준비 카운트다운 (2026-10-02) —
+   .rpay-challenge-end-overlay와 같은 full-cover 기법(같은 .rpay-table
+   조상에 position:absolute;inset:-3px)이지만 별도 클래스로 둔다 — 종료
+   화면(다시 도전/랭킹 보기 버튼 있는)과 섞이면 안 되는 별개 상태. */
+.rpay-battle-ready-overlay {
+  position: absolute; inset: -3px;
+  background: rgba(0,0,0,.82);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .4rem;
+  z-index: 60; border-radius: 21px;
+}
+.rpay-battle-ready-label { color: rgba(255,255,255,.75); font-weight: 700; font-size: clamp(.85rem,2vh,1.05rem); }
+.rpay-battle-ready-num {
+  color: var(--gold, #d4af37); font-weight: 900;
+  font-size: clamp(2.6rem,9vh,4.2rem); line-height: 1;
+}
+
 .rpay-rank-modal-backdrop {
   position: fixed; inset: 0; z-index: 600;
   background: rgba(0,0,0,.65);
@@ -1539,6 +1556,59 @@ body {
   padding: .1rem .35rem;
 }
 .rpay-battle-count { color: rgba(255,255,255,.5); font-size: .74rem; text-align: center; }
+
+/* 빈 참가자 슬롯(2026-10-02) — 참가 중인 .rpay-battle-player-item과 같은
+   틀이지만 내용이 비어 있다는 걸 바로 알 수 있게 글자색만 더 흐리고
+   점선 테두리로 구분한다. */
+.rpay-battle-slot-empty {
+  border-style: dashed;
+  color: rgba(255,255,255,.35);
+  font-weight: 600;
+  justify-content: center;
+}
+
+/* ⚔️ 배틀하기 방 설정 화면(2026-10-02) — 호스트가 "방 만들기"를 누르면
+   실제 생성 전에 거치는 중간 화면. .rpay-battle-box 안에 그대로
+   들어가므로 바깥 chrome은 새로 만들지 않고 내용만 이 블록들로 채운다. */
+.rpay-battle-setup-label {
+  color: rgba(255,255,255,.55);
+  font-size: .74rem; font-weight: 700;
+  margin-top: .2rem;
+}
+.rpay-battle-setup-row { display: flex; gap: .4rem; flex-wrap: wrap; }
+.rpay-battle-setup-btn {
+  flex: 1; min-width: 64px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 6px;
+  color: rgba(255,255,255,.75);
+  font-size: .78rem; font-weight: 800;
+  padding: .45rem .4rem;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.rpay-battle-setup-btn:hover { background: rgba(255,255,255,.1); }
+.rpay-battle-setup-active {
+  background: rgba(201,168,76,.22);
+  border-color: var(--gold, #d4af37);
+  color: var(--gold, #d4af37);
+}
+.rpay-battle-setup-custom-input { margin-top: .1rem; }
+.rpay-battle-setup-actions { display: flex; flex-direction: column; gap: .5rem; margin-top: .3rem; }
+
+/* 대기실 모드/제한값/참가자 수 요약(2026-10-02) — "Mode: .../Time 또는
+   Rounds: .../Players: n/5" 요구사항을 한 블록으로. */
+.rpay-battle-mode-info {
+  display: flex; flex-direction: column; gap: .15rem;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 6px;
+  padding: .5rem .7rem;
+  color: rgba(255,255,255,.75);
+  font-size: .76rem; font-weight: 700;
+  text-align: center;
+}
+
 .bac-cta-btn:disabled { opacity: .4; cursor: not-allowed; filter: none; transform: none; }
 .rpay-battle-result-me { background: rgba(255,210,60,.12); border-radius: 6px; padding-inline: .4rem; margin-inline: -.4rem; }
 
