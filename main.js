@@ -6807,7 +6807,11 @@ const Sims = {
           const delay = Math.max(0, startedAt + graceMs - Date.now());
           B.graceTimer = setTimeout(() => {
             if (B && B.code && window.DealerAuth) {
-              window.DealerAuth.finishBattleRoom(B.code).catch(e => console.error('[roulettePay.battle] 강제 종료 실패:', e));
+              // force:true — 이 시점까지도 안 끝난 참가자가 있다는 뜻은
+              // 탭을 닫아버렸다는 뜻일 가능성이 높으므로, "전원 완료"
+              // 확인 없이 강제로 끝낸다(정상 경로의 finishBattleRoom()은
+              // force 없이 호출되어 전원 완료 전엔 상태를 바꾸지 않음).
+              window.DealerAuth.finishBattleRoom(B.code, true).catch(e => console.error('[roulettePay.battle] 강제 종료 실패:', e));
             }
           }, delay);
         },

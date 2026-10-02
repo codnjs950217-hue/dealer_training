@@ -225,7 +225,17 @@ async function submitBattleResult(code, employeeId, score, mistakes, lastCorrect
 // 명이 거의 동시에 마지막으로 끝나도 트랜잭션 재시도로 안전하고, 이미
 // 'finished'면 그냥 no-op(멱등)이라 15초 유예 fallback이 중복 호출해도
 // 안전하다.
-async function finishBattleRoom(code) {
+//
+// 2026-10-02 버그 수정: 이 함수가 실제로는 "전원 완료"를 전혀 확인하지
+// 않고 호출될 때마다 무조건 status를 'finished'로 바꿔버렸다 — 위
+// 주석이 말하는 재확인 로직이 코드에 없었다. 그래서 한 명만 먼저
+// 끝나도(submitBattleResult 직후 이 함수를 부름) 방 전체가 즉시
+// 'finished'로 넘어가 나머지 참가자의 플레이 화면 위로 결과 오버레이가
+// 덮이는 버그가 있었다. force:true(main.js의 _armGraceTimer, 탭을
+// 닫아버린 참가자에 대한 최후 안전망)일 때만 이 확인을 건너뛰고
+// 무조건 종료한다 — 정상 경로(force 없음)는 players 전원이
+// finished===true일 때만 상태를 바꾼다.
+async function finishBattleRoom(code, force = false) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
   const ref = doc(db, "battleRooms", code);
   await runTransaction(db, async (tx) => {
@@ -233,6 +243,11 @@ async function finishBattleRoom(code) {
     if (!snap.exists()) return;
     const data = snap.data();
     if (data.status === 'finished') return;
+    if (!force) {
+      const players = data.players || {};
+      const allFinished = Object.values(players).every(p => p && p.finished === true);
+      if (!allFinished) return; // 아직 다른 참가자가 플레이 중 — 상태 그대로 유지
+    }
     tx.update(ref, { status: 'finished' });
   });
 }
