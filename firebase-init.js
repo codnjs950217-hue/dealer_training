@@ -160,12 +160,14 @@ async function joinBattleRoom(code, employeeId, name) {
   });
 }
 
-// 기록이 남지 않는 일회성 방이므로, 호스트가 나가면 상태(대기/진행/종료)에
-// 관계없이 방 문서 자체를 즉시 삭제한다 — 남은 참가자는 onSnapshot(null)을
-// 받아 자동으로 메인 화면으로 돌아간다. 호스트가 아닌 참가자가 나가면
-// 자기 항목만 players 맵에서 제거하고, 그 결과 참가자가 0명이 되면(이론상
-// 호스트 이탈 경로에서 이미 삭제되므로 실제로는 발생하지 않지만, 안전망으로)
-// 방도 함께 삭제한다.
+// 2026-10-02 변경: 호스트가 나가도 배틀이 이미 시작(playing)된 뒤라면
+// 더 이상 방을 통째로 지우지 않는다 — 나머지 참가자가 배틀을 계속
+// 진행할 수 있어야 하므로, 호스트도 "참가자 한 명이 빠지는" 것과 똑같이
+// 처리한다(방 자체는 유지, 호스트의 players 항목만 제거). 호스트가
+// 아직 시작도 안 한 대기실(waiting)에서 나가는 경우만 예전처럼 방을
+// 즉시 삭제한다 — 호스트 없이는 시작할 방법이 없는 단계라 지우는 게
+// 맞다. 호스트가 아닌 참가자는 상태와 무관하게 항상 자기 항목만 제거
+// (기존 동작 그대로), 그 결과 참가자가 0명이 되면 방도 함께 삭제한다.
 async function leaveBattleRoom(code, employeeId) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
   const ref = doc(db, "battleRooms", code);
@@ -173,7 +175,7 @@ async function leaveBattleRoom(code, employeeId) {
     const snap = await tx.get(ref);
     if (!snap.exists()) return;
     const data = snap.data();
-    if (data.hostId === employeeId) {
+    if (data.hostId === employeeId && data.status === 'waiting') {
       tx.delete(ref);
       return;
     }

@@ -844,7 +844,7 @@ const Views = {
           <span>Score: <strong id="rpay-score">0</strong></span>
           <span>Mistake: <strong id="rpay-mistakes">0</strong></span>
           <span id="rpay-challenge-stat" style="display:none">⏱ <strong id="rpay-challenge-time">60</strong>s</span>
-          <button id="rpay-battle-leave-btn" class="rpay-battle-leave-btn" style="display:none" onclick="Sims.roulettePay.battle.leaveRoom()">방 나가기</button>
+          <button id="rpay-battle-leave-btn" class="rpay-battle-leave-btn" style="display:none" onclick="Sims.roulettePay.battle.confirmLeaveRoom()">방 나가기</button>
         </div>
         <div class="rpay-bet-side">
           <div class="rpay-diff-row" id="rpay-diff-row">
@@ -6457,7 +6457,7 @@ const Sims = {
           }
           if (tbl) {
             const box = ov || tbl.appendChild(Object.assign(document.createElement('div'), { className: 'rpay-battle-ready-overlay' }));
-            box.innerHTML = `<div class="rpay-battle-ready-label">곧 시작합니다</div><div class="rpay-battle-ready-num">${remain}</div>`;
+            box.innerHTML = `<div class="rpay-battle-ready-label">곧 배틀이 시작됩니다</div><div class="rpay-battle-ready-num">${remain}</div>`;
           }
           setTimeout(tick, 200);
         };
@@ -6499,7 +6499,7 @@ const Sims = {
           <div class="rpay-challenge-end-title">✔ 제출 완료</div>
           <div class="rpay-challenge-end-stats">정답 <strong>${finalScore}</strong>개 · 실수 <strong>${finalMistakes}</strong>회</div>
           <div class="rpay-challenge-end-status" id="rpay-battle-wait-status">다른 참가자를 기다리는 중...</div>
-          <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.leaveRoom()">방 나가기</button>`;
+          <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.confirmLeaveRoom()">방 나가기</button>`;
         tbl.appendChild(ov);
         this._submitBattleResult(finalScore, finalMistakes, finalLastCorrectAt);
       },
@@ -6766,7 +6766,7 @@ const Sims = {
             ${isHost
               ? `<button class="bac-cta-btn" ${players.length < 2 ? 'disabled' : ''} onclick="Sims.roulettePay.battle.start()">배틀 시작</button>`
               : `<div class="rpay-challenge-end-status">호스트가 시작하기를 기다리는 중...</div>`}
-            <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.leaveRoom()">방 나가기</button>`;
+            <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.confirmLeaveRoom()">방 나가기</button>`;
         },
 
         async start() {
@@ -6775,10 +6775,47 @@ const Sims = {
           catch (e) { console.error('[roulettePay.battle] 시작 실패:', e); }
         },
 
+        // 2026-10-02: "방 나가기"는 이제 즉시 퇴장이 아니라 확인 팝업을
+        // 먼저 띄운다 — [결과 종료]의 confirmEndBattle()/_closeEndConfirm()
+        // 과 같은 틀(.rpay-rank-modal-backdrop/-box)을 재사용, 내용과
+        // id만 다르게 둬서 두 팝업이 동시에 떠도 서로 안 겹친다.
+        confirmLeaveRoom() {
+          this._closeLeaveConfirm();
+          const backdrop = document.createElement('div');
+          backdrop.className = 'rpay-rank-modal-backdrop';
+          backdrop.id = 'rpay-battle-leave-confirm-backdrop';
+          backdrop.innerHTML = `
+            <div class="rpay-rank-modal-box rpay-battle-end-confirm-box">
+              <div class="rpay-battle-end-confirm-title">정말 방을 나가시겠습니까?</div>
+              <div class="rpay-battle-end-confirm-msg">방을 나가면 현재 배틀에서 퇴장되며,<br>다시 참여할 수 없습니다.</div>
+              <div class="rpay-battle-end-confirm-btns">
+                <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle._closeLeaveConfirm()">취소</button>
+                <button class="rpay-battle-leave-btn rpay-battle-end-confirm-btn" onclick="Sims.roulettePay.battle.leaveRoom()">나가기</button>
+              </div>
+            </div>`;
+          document.body.appendChild(backdrop);
+        },
+
+        _closeLeaveConfirm() {
+          const b = document.getElementById('rpay-battle-leave-confirm-backdrop');
+          if (b) b.remove();
+        },
+
+        // 확인 팝업의 [나가기]가 호출하는 실제 퇴장 처리 — 나(한 명)만
+        // players 맵에서 빠지고(firebase-init.js의 leaveBattleRoom, 2026
+        // -10-02부터 호스트도 배틀 진행 중이면 방을 지우지 않고 똑같이
+        // 한 명만 빠짐), 나머지 참가자는 그대로 배틀을 계속한다. 내가
+        // 나간 뒤 "전원 완료"를 다시 확인해줄 사람이 없을 수도 있으므로
+        // (예: 다른 전원이 이미 끝내고 나만 기다리게 하던 상황) finish
+        // Check를 한 번 더 걸어 결과 화면이 그레이스 타임아웃까지
+        // 불필요하게 늦게 뜨는 걸 막는다.
         async leaveRoom() {
+          this._closeLeaveConfirm();
           if (B && B.code && B.myId && window.DealerAuth) {
-            try { await window.DealerAuth.leaveBattleRoom(B.code, B.myId); }
-            catch (e) { console.error('[roulettePay.battle] 나가기 실패:', e); }
+            try {
+              await window.DealerAuth.leaveBattleRoom(B.code, B.myId);
+              await window.DealerAuth.finishBattleRoom(B.code);
+            } catch (e) { console.error('[roulettePay.battle] 나가기 실패:', e); }
           }
           this.teardown();
           App.navigate('roulette', 'paymenu');
