@@ -1357,6 +1357,11 @@ body {
 .rpay-challenge-end-status { color: rgba(255,255,255,.65); font-size: clamp(.7rem,1.6vh,.85rem); min-height: 1.2em; }
 .rpay-challenge-end-btns { display: flex; gap: .5rem; margin-top: .3rem; flex-wrap: wrap; justify-content: center; }
 
+/* 배틀 완료 대기 화면의 안내문(2026-10-02) — 동적으로 바뀌는
+   #rpay-battle-wait-status("n/총 완료")보다 한 단계 옅게, 작게 둬서
+   "왜 기다리는지"를 보조 설명으로 전달한다. */
+.rpay-battle-wait-hint { color: rgba(255,255,255,.45); font-size: .7rem; margin-top: -.2rem; }
+
 /* ⚔️ 배틀하기 "곧 시작합니다" 준비 카운트다운 (2026-10-02) —
    .rpay-challenge-end-overlay와 같은 full-cover 기법(같은 .rpay-table
    조상에 position:absolute;inset:-3px)이지만 별도 클래스로 둔다 — 종료

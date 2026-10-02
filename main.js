@@ -6499,6 +6499,7 @@ const Sims = {
           <div class="rpay-challenge-end-title">✔ 제출 완료</div>
           <div class="rpay-challenge-end-stats">정답 <strong>${finalScore}</strong>개 · 실수 <strong>${finalMistakes}</strong>회</div>
           <div class="rpay-challenge-end-status" id="rpay-battle-wait-status">다른 참가자를 기다리는 중...</div>
+          <div class="rpay-battle-wait-hint">모든 참가자가 완료되면 결과가 표시됩니다.</div>
           <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.confirmLeaveRoom()">방 나가기</button>`;
         tbl.appendChild(ov);
         this._submitBattleResult(finalScore, finalMistakes, finalLastCorrectAt);
