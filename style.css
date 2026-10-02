@@ -1525,7 +1525,6 @@ body {
   padding: .4rem .3rem;
 }
 .rpay-battle-code-input:focus { outline: none; border-color: rgba(201,168,76,.6); }
-.rpay-battle-join-row .bac-cta-btn { width: auto; flex: 0 0 auto; padding-inline: .9rem; }
 .rpay-battle-error {
   color: #ff6b6b;
   font-size: .74rem;

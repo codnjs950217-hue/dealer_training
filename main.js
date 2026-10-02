@@ -6532,6 +6532,10 @@ const Sims = {
           this._renderChoice();
         },
 
+        // 2026-10-02: 진입 화면 단순화 — "방을 만들 것인지 / 참가할
+        // 것인지"를 먼저 고르게 하고, 코드 입력은 "방 참가하기"를 고른
+        // 뒤에만 보여준다(아래 _renderJoinScreen). 메인 화면엔 버튼
+        // 2개만 남긴다.
         _renderChoice() {
           const box = document.getElementById('rpay-battle-box');
           if (!box) return;
@@ -6540,12 +6544,28 @@ const Sims = {
             <div class="rpay-battle-desc">2-5인 실시간 대결 · 고급 난이도</div>
             <div class="rpay-battle-choice-btns">
               <button class="bac-cta-btn" onclick="Sims.roulettePay.battle.showHostSetup()">방 만들기</button>
-            </div>
+              <button class="bac-cta-btn" onclick="Sims.roulettePay.battle.showJoinScreen()">방 참가하기</button>
+            </div>`;
+        },
+
+        showJoinScreen() {
+          this._renderJoinScreen();
+        },
+
+        _renderJoinScreen() {
+          const box = document.getElementById('rpay-battle-box');
+          if (!box) return;
+          box.innerHTML = `
+            <div class="rpay-battle-title">⚔️ 방 참가하기</div>
+            <div class="rpay-battle-desc">호스트에게 받은 4자리 코드를 입력하세요</div>
             <div class="rpay-battle-join-row">
               <input id="rpay-battle-code-input" class="rpay-battle-code-input" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="코드 4자리">
-              <button class="bac-cta-btn" onclick="Sims.roulettePay.battle.join()">코드로 입장</button>
             </div>
-            <div id="rpay-battle-error" class="rpay-battle-error"></div>`;
+            <div id="rpay-battle-error" class="rpay-battle-error"></div>
+            <div class="rpay-battle-setup-actions">
+              <button class="bac-cta-btn" onclick="Sims.roulettePay.battle.join()">코드로 입장</button>
+              <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.init()">뒤로</button>
+            </div>`;
         },
 
         _setError(msg) {
