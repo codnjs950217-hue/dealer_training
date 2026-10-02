@@ -5,9 +5,9 @@
 // this file only through window.DealerAuth, set at the bottom.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
-  initializeFirestore, doc, getDoc, runTransaction,
+  initializeFirestore, doc, getDoc, setDoc, runTransaction,
   collection, query, orderBy, limit, getDocs,
-  onSnapshot, updateDoc, deleteDoc, deleteField,
+  onSnapshot, updateDoc, deleteDoc, deleteField, increment,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -272,10 +272,39 @@ function subscribeBattleRoom(code, onChange, onError) {
   return onSnapshot(ref, (snap) => onChange(snap.exists() ? snap.data() : null), onError);
 }
 
+// ---- 트레이닝 로그 (2026-10-02) ----
+// 점수/랭킹이 아니라 "얼마나 트레이닝했는지"만 관리자(개발자)가 나중에
+// Excel로 추출해 분석하기 위한 비공개 집계 — 사용자에게는 절대 보여주지
+// 않는다(firestore.rules가 read 자체를 전부 막아둠). main.js의
+// TrainingLog가 게임 화면을 벗어날 때(App.navigate)/로그아웃할 때 호출.
+//
+// 세션 로그(호출 1번 = 문서 1건) 방식이 아니라 일별 누적 방식이다 —
+// 문서 ID를 {YYYY-MM-DD}_{employeeId}_{game}으로 고정해서, 같은 날 같은
+// 사람이 같은 게임을 몇 번을 들어왔다 나가든 전부 한 문서로 합쳐진다.
+// increment() 필드 트랜스폼 + setDoc(..., {merge:true})를 쓰면 "문서가
+// 있으면 더하고 없으면 0부터 시작해서 만든다"를 분기 없이 한 번의
+// 원자적 쓰기로 처리할 수 있다 — rouletteRankings처럼 읽고-더하고-쓰는
+// 트랜잭션이 필요 없다.
+//
+// 날짜는 서버 시각이 아니라 트레이니 브라우저의 로컬 날짜로 끊는다 —
+// 실습실 PC가 KST라고 가정하면 그게 실제 "하루"와 맞는 기준이다.
+function logTrainingSession(employeeId, name, game, playMinutes, playCount) {
+  if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
+  const now = new Date();
+  const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const docId = `${date}_${employeeId}_${game}`;
+  return setDoc(doc(db, "trainingLogs", docId), {
+    date, employeeId, name, game,
+    playMinutes: increment(playMinutes),
+    playCount: increment(playCount),
+  }, { merge: true });
+}
+
 window.DealerAuth = {
   lookupEmployee, submitRouletteRankScore, getRouletteTopScores,
   createBattleRoom, joinBattleRoom, leaveBattleRoom, startBattleRoom,
   submitBattleResult, finishBattleRoom, endBattleRoom, subscribeBattleRoom,
+  logTrainingSession,
 };
 // Always fire this, even after an init failure — main.js is waiting on it
 // to stop blocking on waitForDealerAuth()'s timeout; lookupEmployee()

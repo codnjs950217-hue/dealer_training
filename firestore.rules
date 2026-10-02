@@ -96,6 +96,27 @@ service cloud.firestore {
       allow delete: if true;
     }
 
+    // 트레이닝 로그(2026-10-02) — 점수/랭킹이 아니라 "얼마나 트레이닝
+    // 했는지"만 관리자(개발자)가 Admin SDK 스크립트로 추출해 보는 비공개
+    // 집계다. 사용자에게는 절대 보여주지 않으므로 read는 누구에게도
+    // 허용하지 않는다 — Admin SDK는 보안 규칙을 우회하므로 추출
+    // 스크립트엔 영향이 없다. 문서 ID를 {날짜}_{employeeId}_{game}으로
+    // 고정해, 본문 필드로 그 ID를 재구성한 값과 실제 문서 ID가 일치하는지
+    // 검증한다 — 다른 사람의 사번으로 로그를 쓰거나 ID와 내용이 어긋나는
+    // 문서를 만들 수 없다(진짜 Auth가 없어 "그 사번 본인인지"까지는
+    // 검증 불가 — users/rouletteRankings와 동일한 한계).
+    match /trainingLogs/{logId} {
+      allow read: if false;
+      allow write: if request.resource.data.keys().hasOnly(['date','employeeId','name','game','playMinutes','playCount'])
+                   && request.resource.data.date is string
+                   && request.resource.data.employeeId is string
+                   && request.resource.data.name is string
+                   && request.resource.data.game in ['Blackjack', 'Baccarat', 'Roulette', 'Poker']
+                   && request.resource.data.playMinutes is int
+                   && request.resource.data.playCount is int
+                   && logId == request.resource.data.date + '_' + request.resource.data.employeeId + '_' + request.resource.data.game;
+    }
+
     // 그 외 컬렉션은 기본적으로 전부 차단.
     match /{document=**} {
       allow read, write: if false;

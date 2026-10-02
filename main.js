@@ -169,6 +169,119 @@ function showComingSoonToast(msg) {
   setTimeout(() => t.remove(), 1800);
 }
 
+// ---- TRAINING LOG (2026-10-02) ----
+// 점수/랭킹이 아니라 "얼마나 트레이닝했는지"만 관리자가 나중에 Excel로
+// 뽑아보기 위한 비공개 집계(trainingLogs, firebase-init.js의
+// logTrainingSession) — 사용자에게는 절대 노출하지 않는다. App.navigate()
+// 가 실제로 게임/모드를 바꿀 때마다 "방금까지 있던 화면"을 여기로 흘려
+// 보내 세션을 종료(flush)하고, 새 화면이 추적 대상이면 새 세션을
+// 시작한다. Auth.logout()은 페이지를 그냥 새로고침해버리므로(reload
+// 전에) flushNow()를 직접 불러 마지막 세션을 억지로 끝맺는다.
+//
+// playCount: 각 Sims 모듈이 이미 "문제 1개 완료마다 ++"하는 S.rounds를
+// getRounds()로 읽어온다([[project_rounds_increment_unification]]).
+// 새 세션은 항상 해당 모듈의 init()이 rounds를 0부터 다시 시작하므로
+// (↺ 재시작 제외 — 아래 _onNavigate에서 같은 화면이면 세션을 안 끊음)
+// 베이스라인을 따로 빼지 않고 flush 시점 값을 그대로 쓴다.
+//
+// playMinutes: 단순 경과 시간이 아니라 "실제 활동 시간"만 누적한다.
+// 10초마다 틱을 돌려, 그 순간 1) 추적 중인 화면이 열려 있고 2) 탭이
+// 활성 상태(document.visibilityState==='visible')이고 3) 최근 3분 이내
+// 클릭/키입력/터치가 있었던 경우에만 10초를 더한다 — 셋 중 하나라도
+// 깨지면 그 틱부터 조용히 멈추고, 다시 활동이 생기면 다음 틱부터 자동
+// 재개된다. 매끄러운 누적이 아니라 10초 단위 거친 샘플링이지만, 분
+// 단위로 반올림해서 쓰는 집계 목적엔 이 정도 정밀도로 충분하다.
+const TrainingLog = {
+  _ACTIVE_TICK_MS: 10_000,
+  _IDLE_LIMIT_MS: 3 * 60 * 1000,
+
+  _current: null,       // { label, getRounds, activeMs }
+  _lastActivityAt: 0,
+  _tickTimer: null,
+  _listenersArmed: false,
+
+  // (game,mode) -> 트레이닝 로그에 남길 사람이 읽을 이름 + 그 모듈의
+  // S.rounds 접근자. 여기 없는 (game,mode)는 홈/각종 메뉴/튜토리얼처럼
+  // 실제 트레이닝이 일어나지 않는 화면이라 조용히 추적하지 않는다.
+  // Poker의 ISP/TCP/THP와 Baccarat의 Drawing/Payout(+Option Bet)은
+  // 전부 "Poker"/"Baccarat" 하나로 묶는다(요청사항).
+  _ROUTES: {
+    'blackjack:simulation':      { label: 'Blackjack', getRounds: () => Sims.blackjack.getRounds() },
+    'blackjack:simulationspeed': { label: 'Blackjack', getRounds: () => Sims.blackjack.getRounds() },
+    'baccarat:simulation':       { label: 'Baccarat',  getRounds: () => Sims.baccarat.getRounds() },
+    'baccarat:paysim':           { label: 'Baccarat',  getRounds: () => Sims.baccaratPay.getRounds() },
+    'roulette:paysim':           { label: 'Roulette',  getRounds: () => Sims.roulettePay.getRounds() },
+    'roulette:payrank':          { label: 'Roulette',  getRounds: () => Sims.roulettePay.getRounds() },
+    'roulette:battle':           { label: 'Roulette',  getRounds: () => Sims.roulettePay.getRounds() },
+    'poker:isp':                 { label: 'Poker',     getRounds: () => Sims.poker.isp.getRounds() },
+    'poker:tcp':                 { label: 'Poker',     getRounds: () => Sims.poker.tcp.getRounds() },
+    'poker:thp':                 { label: 'Poker',     getRounds: () => Sims.poker.thpRank.getRounds() },
+  },
+
+  // App.navigate()가 this._game/this._mode를 덮어쓰기 직전에 호출 —
+  // 실제로 화면이 바뀔 때만(같은 화면으로의 ↺ 재시작은 세션 유지) 이전
+  // 세션을 끝맺고 새 세션을 시작한다.
+  _onNavigate(prevGame, prevMode, nextGame, nextMode) {
+    if (prevGame === nextGame && prevMode === nextMode) return;
+    this._flush();
+    this._start(nextGame, nextMode);
+  },
+
+  _start(game, mode) {
+    const route = this._ROUTES[`${game}:${mode}`];
+    this._current = route ? { label: route.label, getRounds: route.getRounds, activeMs: 0 } : null;
+    this._lastActivityAt = Date.now();
+    this._armListeners();
+    this._armTicker();
+  },
+
+  // 호출부(로그아웃)가 reload 전에 잠깐 기다려줄 수 있도록 Promise를
+  // 반환한다 — 일반 navigate() 경로는 fire-and-forget으로 그냥 두고
+  // 신경 쓰지 않는다(그쪽은 페이지가 안 사라지니 끝까지 완료됨).
+  _flush() {
+    if (!this._current) return Promise.resolve();
+    const { label, getRounds, activeMs } = this._current;
+    this._current = null;
+    const playMinutes = Math.round(activeMs / 60000);
+    let playCount = 0;
+    try { playCount = getRounds() || 0; } catch (e) { console.error('[TrainingLog] getRounds 실패:', e); }
+    // 활동도 없고 완료한 문제도 없으면(화면만 잠깐 열었다 바로 나간
+    // 경우) 빈 로그를 남기지 않는다 — 분석에 노이즈만 될 뿐이다.
+    if (playMinutes <= 0 && playCount <= 0) return Promise.resolve();
+    if (!Auth.session || !window.DealerAuth) return Promise.resolve();
+    return window.DealerAuth.logTrainingSession(Auth.session.employeeId, Auth.session.name, label, playMinutes, playCount)
+      .catch(e => console.error('[TrainingLog] 기록 실패:', e));
+  },
+
+  // Auth.logout()이 reload() 하기 직전에 호출 — App.navigate()를 타지
+  // 않는 유일한 이탈 경로라 별도로 열어둔다.
+  flushNow() { return this._flush(); },
+
+  _armTicker() {
+    if (this._tickTimer) return; // 앱 전체에서 한 번만 돈다
+    this._tickTimer = setInterval(() => {
+      if (!this._current) return;
+      const idle = Date.now() - this._lastActivityAt > this._IDLE_LIMIT_MS;
+      const hidden = document.visibilityState !== 'visible';
+      if (!idle && !hidden) this._current.activeMs += this._ACTIVE_TICK_MS;
+    }, this._ACTIVE_TICK_MS);
+  },
+
+  _armListeners() {
+    if (this._listenersArmed) return; // 앱 전체에서 한 번만 등록
+    this._listenersArmed = true;
+    const mark = () => { this._lastActivityAt = Date.now(); };
+    ['click', 'keydown', 'pointerdown', 'touchstart'].forEach(evt => {
+      document.addEventListener(evt, mark, { passive: true });
+    });
+    // 탭으로 돌아온 순간도 "활동"으로 쳐서, 복귀 직후 클릭/키입력이
+    // 없어도 다음 틱부터 바로 재개되게 한다.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') mark();
+    });
+  },
+};
+
 // ---- ROUTER ----
 
 const App = {
@@ -198,6 +311,10 @@ const App = {
     if (this._game === 'roulette' && this._mode === 'battle' && typeof Sims !== 'undefined' && Sims.roulettePay && Sims.roulettePay.battle) {
       Sims.roulettePay.battle.teardown();
     }
+    // 트레이닝 로그 — this._game/this._mode를 덮어쓰기 전에 "방금까지
+    // 있던 화면"을 넘겨서 세션을 끝맺고(해당되면), 새 화면이 추적
+    // 대상이면 새 세션을 시작한다.
+    TrainingLog._onNavigate(this._game, this._mode, game, mode || null);
     this._game = game; this._mode = mode || null;
     const titleEl = document.getElementById('top-bar-title');
     if (titleEl) titleEl.style.display = game === 'home' ? 'none' : 'flex';
@@ -402,7 +519,14 @@ const Auth = {
   // resetting each game module individually — after reload, App.init()
   // always starts at Home (see the bottom of App.navigate()) and
   // Auth.init() sees no saved session, so the login screen shows fresh.
-  logout() {
+  async logout() {
+    // App.navigate()를 안 타는 유일한 이탈 경로라 트레이닝 로그가 자동
+    // 으로 끝맺어지지 않는다 — reload 전에 직접 마지막 세션을 flush.
+    // Firestore 쓰기가 끝나길 최대 1.5초만 기다리고(네트워크가 느리거나
+    // 죽어있어도 로그아웃 자체가 멈추면 안 됨) 그 이후엔 그냥 진행한다.
+    try {
+      await Promise.race([TrainingLog.flushNow(), new Promise(r => setTimeout(r, 1500))]);
+    } catch (e) { /* flushNow 내부에서 이미 로깅함 — 로그아웃은 계속 진행 */ }
     localStorage.removeItem(AUTH_STORAGE_KEY);
     sessionStorage.clear();
     window.location.reload();
@@ -2131,6 +2255,10 @@ const Sims = {
 
     return {
       stopTimers: stopAllTimers,
+      // 트레이닝 로그(TrainingLog, 2026-10-02)가 세션 종료 시 playCount로
+      // 읽어가는 공개 접근자 — S는 이 모듈 안에만 있는 비공개 변수라
+      // 외부에서 직접 읽을 방법이 없어서 하나 열어둔다.
+      getRounds() { return (S && S.rounds) || 0; },
       init(isRestart) {
         const wasMidHand = isRestart && S && S.phase && S.phase !== 'idle' && S.phase !== 'done';
         if (S) stopAllTimers();
@@ -3534,6 +3662,7 @@ const Sims = {
     }
 
     return {
+      getRounds() { return (S && S.rounds) || 0; },
       init(isRestart) {
         const wasMidHand = isRestart && S && S.ph && S.ph.length > 0 && S.winner === null;
         const keepRounds   = isRestart && S ? S.rounds + (wasMidHand ? 1 : 0) : 0;
@@ -4452,6 +4581,14 @@ const Sims = {
     }
 
     return {
+      // Commission/Half Pay 탭이면 이 모듈 자신의 S.rounds를, Option
+      // Bet(side) 탭이면 Sims.baccaratSide 쪽 카운터를 돌려준다 — setMode()
+      // 가 탭을 바꿀 때마다 "현재 탭이 아닌 쪽"의 rounds를 0으로 리셋해
+      // 두므로, 어느 시점이든 지금 보이는 탭 쪽 카운터만 의미가 있다.
+      getRounds() {
+        if (S && S.mode === 'side' && Sims.baccaratSide) return Sims.baccaratSide.getRounds();
+        return (S && S.rounds) || 0;
+      },
       init() {
         S = { bets: [], commIdx: 0, rounds: 0, score: 0, mistakes: 0, commTarget: 0, mode: 'commission', lastTotal: 0, awaitingPay: false, nextTimer: null, history: [], answerRevealed: false };
         this.deal();
@@ -5165,6 +5302,7 @@ const Sims = {
     }
 
     return {
+      getRounds() { return (S && S.rounds) || 0; },
       init(isRestart) {
         if (S.nextTimer) { clearTimeout(S.nextTimer); }
         const wasMidHand = isRestart && S && S.awaitingPay === true;
@@ -5922,6 +6060,7 @@ const Sims = {
     let B = null;
 
     return {
+      getRounds() { return (S && S.rounds) || 0; },
       _setControlsVisible(visible) {
         const u = $('rpay-undo-btn'); const r = $('rpay-allreset-btn');
         if (u) u.style.visibility = visible ? '' : 'hidden';
@@ -7020,7 +7159,7 @@ const Sims = {
         if (b) { b.textContent = 'NEXT'; b.disabled = false; b.onclick = () => Sims.poker[key].deal(); }
       }
 
-      return { init, deal, answer };
+      return { init, deal, answer, getRounds: () => (S && S.rounds) || 0 };
     }
 
     function mkThpRank() {
@@ -7766,7 +7905,7 @@ const Sims = {
         var hm = $('thpr-hand-modal'); if (hm) hm.style.display = 'none';
       }
 
-      return { init, deal, answer, next, skipReveal, debugHand, showRankHelp, hideRankHelp, showHandExplain, hideHandExplain };
+      return { init, deal, answer, next, skipReveal, debugHand, showRankHelp, hideRankHelp, showHandExplain, hideHandExplain, getRounds: () => (S && S.rounds) || 0 };
     }
 
     return {
