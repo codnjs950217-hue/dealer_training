@@ -434,10 +434,36 @@ body {
 .home-game-cards > .home-game-card:nth-child(2) { animation-delay: .1s; }
 .home-game-cards > .home-game-card:nth-child(3) { animation-delay: .2s; }
 .home-game-cards > .home-game-card:nth-child(4) { animation-delay: .3s; }
-.home-game-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(0,0,0,.4), 0 0 0 1px rgba(201,168,76,.35), inset 0 1px 0 rgba(255,255,255,.08);
-  border-color: rgba(201,168,76,.45);
+/* 선택/카드 컴포넌트 공통 상태 규칙(2026-10-05, 명시 요청 — Desktop=Mobile,
+   강조는 실제 상태로만):
+   - 기본: 모든 카드 동일.
+   - Hover: `@media (hover: hover)` 안에서만. 기기 분기가 아니라 "포인터가
+     실제로 hover할 수 있을 때만 hover 상태가 존재한다"는 하나의 규칙이다.
+     터치 입력은 hover가 없는데도 브라우저가 마지막 터치 지점의 요소에
+     :hover를 계속 붙여 두어(sticky hover), 마지막에 만진 카드만 테두리가
+     더 진하게 남는 현상이 있었다 — 이 규칙으로 사라진다(마우스 hover는
+     데스크톱이든 터치스크린 노트북이든 그대로).
+   - Hover는 선택(Selected)처럼 보이지 않게: 살짝 떠오름 + 테두리 약간만.
+     금색 테두리/링/배경은 Selected 전용. 선택된 요소는 hover로 덮이지
+     않게 :not(선택클래스)로 제외.
+   - Active(누르는 순간): transform만. Focus: 키보드(:focus-visible)일 때만
+     얇은 외곽선 — 터치/클릭 뒤 남는 focus는 아무 표시 없음.
+   - 모바일 기본 탭 하이라이트(회색/파란 번쩍임) 제거. */
+.home-game-card, .home-game-btn, .entry-menu-card, .video-card,
+.rpay-battle-mode-card, .rpay-battle-setup-btn {
+  -webkit-tap-highlight-color: transparent;
+}
+.home-game-btn:focus-visible, .entry-menu-card:focus-visible,
+.rpay-battle-mode-card:focus-visible, .rpay-battle-setup-btn:focus-visible,
+.video-card:focus-visible {
+  outline: 2px solid rgba(201,168,76,.6); outline-offset: 2px;
+}
+@media (hover: hover) {
+  .home-game-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.08);
+    border-color: rgba(201,168,76,.4);
+  }
 }
 .home-game-card:active { transform: translateY(0); }
 .home-game-icon { font-size: clamp(1rem, 2.8vw, 1.5rem); line-height: 1; }
@@ -499,6 +525,7 @@ body {
   font-weight: 700;
   transition: transform .25s cubic-bezier(.4,0,.2,1);
 }
+@media (hover: hover) {
 .home-game-btn:hover {
   transform: scale(1.02);
   background: linear-gradient(135deg, rgba(212,175,55,.32) 0%, rgba(120,80,20,.16) 100%);
@@ -510,6 +537,7 @@ body {
     0 0 30px rgba(212,175,55,.25);
 }
 .home-game-btn:hover::after { transform: translateX(3px); }
+}
 .home-game-btn:active {
   transform: scale(.97);
   background: linear-gradient(135deg, rgba(212,175,55,.14) 0%, rgba(120,80,20,.06) 100%);
@@ -906,8 +934,11 @@ body {
   background: #0e1f36; border: 1px solid rgba(255,255,255,.07);
   border-radius: 10px; overflow: hidden; cursor: pointer; transition: all .2s;
 }
-.video-card:hover, .video-card.active-video {
+.video-card.active-video {
   border-color: var(--gold); box-shadow: 0 0 22px rgba(201,168,76,.2);
+}
+@media (hover: hover) {
+  .video-card:not(.active-video):hover { border-color: rgba(201,168,76,.4); }
 }
 .video-thumb {
   height: 130px;
@@ -1481,10 +1512,12 @@ body {
   border: 1px solid rgba(201,168,76,.25);
   box-shadow: 0 2px 16px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
 }
-.entry-menu-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(201,168,76,.5);
-  box-shadow: 0 8px 28px rgba(0,0,0,.4), 0 0 0 1px rgba(201,168,76,.35);
+@media (hover: hover) {
+  .entry-menu-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(201,168,76,.45);
+    box-shadow: 0 8px 28px rgba(0,0,0,.4);
+  }
 }
 .entry-menu-card:active { transform: translateY(0); }
 .entry-menu-card-icon { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1; }
@@ -1608,7 +1641,9 @@ body {
   cursor: pointer;
   transition: transform .15s, border-color .15s, box-shadow .15s, background .15s;
 }
-.rpay-battle-mode-card:hover { transform: translateY(-2px); border-color: rgba(201,168,76,.5); }
+@media (hover: hover) {
+  .rpay-battle-mode-card:not(.rpay-battle-mode-card-active):hover { transform: translateY(-2px); border-color: rgba(201,168,76,.45); }
+}
 .rpay-battle-mode-card-active {
   background: rgba(201,168,76,.16);
   border-color: var(--gold, #d4af37);
@@ -1635,7 +1670,9 @@ body {
   cursor: pointer;
   transition: background .15s, border-color .15s, color .15s;
 }
-.rpay-battle-setup-btn:hover { background: rgba(255,255,255,.1); }
+@media (hover: hover) {
+  .rpay-battle-setup-btn:not(.rpay-battle-setup-active):hover { background: rgba(255,255,255,.1); }
+}
 .rpay-battle-setup-active {
   background: rgba(201,168,76,.22);
   border-color: var(--gold, #d4af37);
