@@ -5897,7 +5897,9 @@ const Sims = {
       // for free — remove it explicitly.
       S.answerRevealed = false;
       const hintBtn = $('rpay-hint-btn');
-      if (hintBtn) hintBtn.style.display = '';
+      // 배틀 모드에는 정답보기가 없다(2026-10-05) — 매 라운드 다시
+      // 보이게 하는 이 리셋에서 배틀만 숨긴 채로 둔다.
+      if (hintBtn) hintBtn.style.display = S.battle ? 'none' : '';
       // Undo showAnswer()'s own .rpay-pay-zone-answer toggle (see that
       // method + the class's own CSS comment) — a fresh round needs the
       // bottom padding reserved again since the hint button/warn banner
@@ -6417,6 +6419,7 @@ const Sims = {
       // pile rendering by temporarily pointing S.payChips at the computed
       // answer, instead of building a second rendering path.
       showAnswer() {
+        if (S.battle) return; // 배틀 모드에서는 정답보기 불가(버튼도 숨김, showTray 참고)
         if (!S.awaitingPay || S.answerRevealed) return;
         S.answerRevealed = true;
         const hintBtn = $('rpay-hint-btn'); if (hintBtn) hintBtn.style.display = 'none';
@@ -6634,6 +6637,9 @@ const Sims = {
               history: [], difficulty: 'hard', awaitingPay: false, nextTimer: null,
               timerStart: null, timerInterval: null, answerRevealed: false,
               challengeMode: true, challengeInterval: null,
+              // 배틀 전용 표시 — 정답보기(showAnswer/#rpay-hint-btn)를 배틀
+              // 중에는 아예 쓸 수 없게 막는 데 쓴다(2026-10-05).
+              battle: true,
               roundsTotal: isRoundMode ? limitValue : null,
               battleEndAt: isRoundMode ? null : startedAt + limitValue * 1000,
               // 같은 방 참가자 전원이 완전히 같은 문제(같은 당첨 번호·같은
