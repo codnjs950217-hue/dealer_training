@@ -6081,8 +6081,16 @@ const Sims = {
         }
       }
 
+      // 한 줄 고정(2026-10-05, 명시 요청) — 예전엔 flex-wrap:wrap이라
+      // 칩 종류/스택이 많아지면 아래 줄로 넘어가 더미가 위로 커지며
+      // 베팅 영역 쪽을 침범했다. 이제 절대 줄바꿈하지 않고, 넘치는 폭은
+      // fitPayZone()의 scale 축소로만 맞춘다(칩 종류가 늘어도 동일).
+      // width:max-content가 필수 — 이게 없으면 #rpay-pz-inner 자체는
+      // zone 폭으로 잘리고 가운데 정렬된 내용이 좌우로 넘치는데,
+      // scrollWidth는 왼쪽으로 넘친 부분을 세지 않아 축소 비율이 모자라
+      // 왼쪽 칩이 잘린다. 박스를 내용 폭 그대로 두면 정확히 측정된다.
       zone.innerHTML = parts.length
-        ? `<div id="rpay-pz-inner" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:18px;padding-top:.6rem">${parts.join('')}</div>`
+        ? `<div id="rpay-pz-inner" style="display:flex;flex-wrap:nowrap;width:max-content;align-items:center;justify-content:center;gap:18px;padding-top:.6rem">${parts.join('')}</div>`
         : '<div class="rpay-hint-text">왼쪽 베팅구역 확인하고 칩스를 세팅하세요</div>';
       if (parts.length) fitPayZone(zone);
     }
