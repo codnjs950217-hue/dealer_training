@@ -5579,14 +5579,21 @@ const Sims = {
 
     function pick(arr) { return arr[Math.floor(_rng()*arr.length)]; }
 
-    function getValidSpots(N) {
+    // N이 나왔을 때 가능한 베팅 후보 전부 — 종류별로 고를 수 있는 번호
+    // 조합(options)을 다 나열만 하고 고르지는 않는다. getValidSpots()가
+    // 여기서 하나씩 뽑아 실제 문제를 만들고, 출제 검증(_anchorIndex)은
+    // 0~36 전체의 후보를 모아 "좌표 하나 = 베팅 하나"인지 확인하는 데
+    // 같은 목록을 쓴다 — 두 곳이 서로 다른 베팅 목록을 보지 않게.
+    // pick: 원래 pick()으로 뽑던 종류 표시(옵션이 1개여도 _rng를 똑같이
+    // 소비해서 배틀 모드의 seed 재현 순서가 바뀌지 않게 한다).
+    function getCandidateSpots(N) {
       const byType = [];
 
       if (N === 0) {
-        byType.push({ type:'Straight', pays:35, nums:[0] });
-        byType.push({ type:'Split', pays:17, nums: pick([[0,1],[0,2],[0,3]]) });
-        byType.push({ type:'Trio', pays:11, nums: pick([[0,1,2],[0,2,3]]) });
-        byType.push({ type:'Basket', pays:8, nums:[0,1,2,3] });
+        byType.push({ type:'Straight', pays:35, options:[[0]] });
+        byType.push({ type:'Split', pays:17, options:[[0,1],[0,2],[0,3]], pick:true });
+        byType.push({ type:'Trio', pays:11, options:[[0,1,2],[0,2,3]], pick:true });
+        byType.push({ type:'Basket', pays:8, options:[[0,1,2,3]] });
         return byType;
       }
 
@@ -5594,30 +5601,129 @@ const Sims = {
       const col = (N-1) % 3;
       const s1  = row*3+1;
 
-      byType.push({ type:'Straight', pays:35, nums:[N] });
+      byType.push({ type:'Straight', pays:35, options:[[N]] });
 
       const splits = [];
       if (col > 0)  splits.push([N-1,N]);
       if (col < 2)  splits.push([N,N+1]);
       if (row > 0)  splits.push([N-3,N]);
       if (row < 11) splits.push([N,N+3]);
-      if (splits.length) byType.push({ type:'Split', pays:17, nums: pick(splits) });
+      if (splits.length) byType.push({ type:'Split', pays:17, options:splits, pick:true });
 
       const corners = [];
       if (row > 0  && col > 0) corners.push([N-4,N-3,N-1,N]);
       if (row > 0  && col < 2) corners.push([N-3,N-2,N,N+1]);
       if (row < 11 && col > 0) corners.push([N-1,N,N+2,N+3]);
       if (row < 11 && col < 2) corners.push([N,N+1,N+3,N+4]);
-      if (corners.length) byType.push({ type:'Corner', pays:8, nums: pick(corners) });
+      if (corners.length) byType.push({ type:'Corner', pays:8, options:corners, pick:true });
 
-      byType.push({ type:'Street', pays:11, nums:[s1,s1+1,s1+2] });
+      byType.push({ type:'Street', pays:11, options:[[s1,s1+1,s1+2]] });
 
       const sixNums = [];
       if (row > 0)  sixNums.push([s1-3,s1-2,s1-1,s1,s1+1,s1+2]);
       if (row < 11) sixNums.push([s1,s1+1,s1+2,s1+3,s1+4,s1+5]);
-      if (sixNums.length) byType.push({ type:'SixNum', pays:5, nums: pick(sixNums) });
+      if (sixNums.length) byType.push({ type:'SixNum', pays:5, options:sixNums, pick:true });
 
       return byType;
+    }
+
+    function getValidSpots(N) {
+      return getCandidateSpots(N).map(c => ({
+        type: c.type, pays: c.pays,
+        nums: c.pick ? pick(c.options) : c.options[0],
+      }));
+    }
+
+    // ---- 칩 표시 좌표 (2026-10-05) ----
+    // 베팅 하나가 테이블 위 어디에 칩으로 그려지는지를 계산하는 유일한
+    // 함수. rectOf(n)은 번호 n 칸의 {left,right,top,bottom}(+x,y 중심)을
+    // 돌려주는 함수로, renderFullGrid()는 실제 DOM 픽셀 좌표를, 출제
+    // 검증은 아래 gridRect()의 추상 격자 좌표를 넘긴다 — 같은 공식을
+    // 쓰므로 "검증은 통과했는데 화면에선 겹친다"가 생길 수 없다.
+    //
+    // 겹치는 칸 범위의 가운데: Split/Corner/Trio. Street/Six Line은 그
+    // 줄의 바깥 경계선(맨 위 = 아웃사이드 베팅 쪽 선) 위.
+    // Basket(First Four, 0-1-2-3): 예전엔 Corner/Trio와 같은 "겹치는
+    // 범위의 가운데" 공식을 썼는데, 0 칸이 1·2·3 세 줄을 다 덮는 탓에
+    // 그 결과가 2번 줄 한가운데 = Split 0-2와 정확히 같은 좌표가 되는
+    // 버그가 있었다(같은 화면에 정답이 둘). 실제 레이아웃의 First Four
+    // 자리 — 0과 1의 경계선이 Street 선(바깥 경계)과 만나는 모서리 — 로
+    // 옮겼다.
+    function spotAnchor(sp, rectOf) {
+      const cs = sp.nums.map(rectOf).filter(Boolean);
+      if (!cs.length) return null;
+      const borderX = () => (Math.max(...cs.map(c => c.left)) + Math.min(...cs.map(c => c.right))) / 2;
+      const borderY = () => (Math.max(...cs.map(c => c.top))  + Math.min(...cs.map(c => c.bottom))) / 2;
+      switch (sp.type) {
+        case 'Straight':
+          return { x: cs[0].x, y: cs[0].y };
+        case 'Split': case 'Corner': case 'Trio':
+          return { x: borderX(), y: borderY() };
+        case 'Basket':
+          return { x: borderX(), y: Math.min(...cs.map(c => c.top)) };
+        case 'Street': case 'SixNum':
+          return { x: cs.reduce((s,c) => s+c.x, 0)/cs.length, y: Math.min(...cs.map(c => c.top)) };
+      }
+      return null;
+    }
+
+    // 추상 격자 좌표 — 칸 하나 = 1x1. ROULETTE_GRID_ROWS(실제 마크업과
+    // 공유)에서 열/행을 읽고, 0은 번호 12열 오른쪽에서 3줄 전체를 덮는
+    // 칸(rowspan=3)으로 둔다. 2TO1 열은 베팅 대상이 아니라 뺐다.
+    function gridRect(n) {
+      let l, t, h = 1;
+      if (n === 0) { l = 12; t = 0; h = 3; }
+      else {
+        t = ROULETTE_GRID_ROWS.findIndex(r => r.includes(n));
+        if (t < 0) return null;
+        l = ROULETTE_GRID_ROWS[t].indexOf(n);
+      }
+      return { left: l, right: l + 1, top: t, bottom: t + h, x: l + .5, y: t + h / 2 };
+    }
+
+    function anchorKey(a) { return a ? `${Math.round(a.x * 1000)},${Math.round(a.y * 1000)}` : null; }
+    function betKey(sp) { return `${sp.type}:${sp.nums.slice().sort((a,b) => a-b).join('-')}`; }
+
+    // 0~36 전체에서 나올 수 있는 모든 베팅의 표시 좌표 → 베팅 목록. 처음
+    // 필요할 때 한 번만 만든다. 좌표 하나에 서로 다른 베팅이 둘 이상
+    // 걸려 있으면 그 좌표의 칩은 화면만 보고 종류를 특정할 수 없다는
+    // 뜻이므로 콘솔에 남기고, 그 베팅이 들어간 문제는 isUnambiguous()가
+    // 출제 단계에서 걸러낸다.
+    let _anchorIndex = null;
+    function anchorIndex() {
+      if (_anchorIndex) return _anchorIndex;
+      const idx = new Map();
+      for (let N = 0; N <= 36; N++) {
+        for (const c of getCandidateSpots(N)) {
+          for (const nums of c.options) {
+            const sp = { type: c.type, nums };
+            const k = anchorKey(spotAnchor(sp, gridRect));
+            if (!idx.has(k)) idx.set(k, new Set());
+            idx.get(k).add(betKey(sp));
+          }
+        }
+      }
+      for (const [k, bets] of idx) {
+        if (bets.size > 1) console.error('[roulettePay] 같은 칩 좌표에 베팅이 여러 개:', k, [...bets]);
+      }
+      return (_anchorIndex = idx);
+    }
+
+    // 출제 검증 — 문제의 모든 칩이 (1) 화면상 위치만으로 베팅 종류가
+    // 하나로 정해지고(그 좌표에 걸린 베팅이 정확히 자기 하나), (2) 같은
+    // 문제 안에서 서로 다른 칩끼리 좌표가 겹치지 않을 때만 통과. 통과하지
+    // 못하면 deal()이 문제를 버리고 다시 뽑는다.
+    function isUnambiguous(spots) {
+      const idx = anchorIndex();
+      const seen = new Set();
+      for (const sp of spots) {
+        const k = anchorKey(spotAnchor(sp, gridRect));
+        const bets = k && idx.get(k);
+        if (!bets || bets.size !== 1 || !bets.has(betKey(sp))) return false;
+        if (seen.has(k)) return false;
+        seen.add(k);
+      }
+      return true;
     }
 
     function renderFullGrid(N, activeSpots) {
@@ -5669,28 +5775,9 @@ const Sims = {
         }
 
         activeSpots.forEach((sp, i) => {
-          let x, y;
-          if (sp.type === 'Straight') {
-            const c = cc(N); if (!c) return;
-            x = c.x; y = c.y;
-          } else if (sp.type === 'Split') {
-            const cs = sp.nums.map(n => cc(n)).filter(Boolean);
-            if (!cs.length) return;
-            // Use actual cell boundaries for exact border placement
-            x = (Math.max(...cs.map(c => c.left)) + Math.min(...cs.map(c => c.right))) / 2;
-            y = (Math.max(...cs.map(c => c.top))  + Math.min(...cs.map(c => c.bottom))) / 2;
-          } else if (sp.type === 'Corner' || sp.type === 'Trio' || sp.type === 'Basket') {
-            const cs = sp.nums.map(n => cc(n)).filter(Boolean);
-            if (!cs.length) return;
-            x = (Math.max(...cs.map(c => c.left)) + Math.min(...cs.map(c => c.right))) / 2;
-            y = (Math.max(...cs.map(c => c.top))  + Math.min(...cs.map(c => c.bottom))) / 2;
-          } else if (sp.type === 'SixNum' || sp.type === 'Street') {
-            const cs = sp.nums.map(n => cc(n)).filter(Boolean);
-            if (!cs.length) return;
-            x = cs.reduce((s,c) => s+c.x, 0)/cs.length;
-            y = Math.min(...cs.map(c => c.top));
-          }
-          if (x === undefined) return;
+          const anchor = spotAnchor(sp, cc);
+          if (!anchor) return;
+          const { x, y } = anchor;
 
           const [[key, cnt]] = Object.entries(sp.chips);
           const c = COLOR_CHIPS.find(b => b.key === key);
@@ -6188,28 +6275,38 @@ const Sims = {
         S.awaitingPay = true;
         if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
 
-        let N;
-        do { N = Math.floor(_rng()*37); } while (N === S.lastNum);
+        // 출제 검증(isUnambiguous) 실패 시 문제 전체(당첨 번호 포함)를
+        // 다시 뽑는다. 좌표 계산이 정상이면 첫 시도에 항상 통과하고,
+        // 이 루프는 앞으로 레이아웃/베팅 종류가 바뀌어 다시 겹침이
+        // 생겼을 때 그 문제가 화면에 나가지 않게 막는 안전망이다. 배틀
+        // 모드도 재추첨이 seed 기반 _rng로만 이뤄지므로 모든 참가자가
+        // 같은 문제를 받는다.
+        let N, filteredSpots, maxChips;
+        for (let attempt = 0; ; attempt++) {
+          do { N = Math.floor(_rng()*37); } while (N === S.lastNum);
+
+          const allSpots = getValidSpots(N);
+          if (S.difficulty === 'easy' || S.difficulty === 'medium') {
+            maxChips = S.difficulty === 'easy' ? 1 : 3;
+            // Split into point bets (Straight/Split/Corner) and line bets (Street/SixNum)
+            const LINE = new Set(['Street','SixNum']);
+            const pts  = allSpots.filter(sp => !LINE.has(sp.type)).sort(() => Math.random()-.5);
+            const lns  = allSpots.filter(sp =>  LINE.has(sp.type)).sort(() => Math.random()-.5);
+            // 3 total: up to 1 line bet + fill rest with point bets
+            const chosen = lns.length ? [lns[0], ...pts.slice(0, 2)] : pts.slice(0, 3);
+            filteredSpots = chosen.sort(() => Math.random()-.5); // shuffle order
+          } else {
+            maxChips = 5;
+            filteredSpots = allSpots;
+          }
+          if (isUnambiguous(filteredSpots)) break;
+          console.error('[roulettePay] 칩 좌표가 겹치는 문제 — 다시 출제:', N, filteredSpots.map(betKey));
+          if (attempt >= 50) break; // 이론상 도달 불가 — 무한 루프 방지
+        }
         S.lastNum = N;
         S.winNum = N;
         S.spotIdx = 0;
 
-        const allSpots = getValidSpots(N);
-        let filteredSpots;
-        let maxChips;
-        if (S.difficulty === 'easy' || S.difficulty === 'medium') {
-          maxChips = S.difficulty === 'easy' ? 1 : 3;
-          // Split into point bets (Straight/Split/Corner) and line bets (Street/SixNum)
-          const LINE = new Set(['Street','SixNum']);
-          const pts  = allSpots.filter(sp => !LINE.has(sp.type)).sort(() => Math.random()-.5);
-          const lns  = allSpots.filter(sp =>  LINE.has(sp.type)).sort(() => Math.random()-.5);
-          // 3 total: up to 1 line bet + fill rest with point bets
-          const chosen = lns.length ? [lns[0], ...pts.slice(0, 2)] : pts.slice(0, 3);
-          filteredSpots = chosen.sort(() => Math.random()-.5); // shuffle order
-        } else {
-          maxChips = 5;
-          filteredSpots = allSpots;
-        }
         const roundColor = COLOR_CHIPS[Math.floor(_rng() * COLOR_CHIPS.length)];
         S.roundColor = roundColor;
         S.spots = filteredSpots.map(sp => {
@@ -7973,6 +8070,16 @@ function buildWheel() {
   }).join('');
 }
 
+// 번호 그리드의 행 배치 — buildBettingTable()의 실제 마크업과 Roulette
+// Payout의 출제 검증(Sims.roulettePay의 gridRect(), 칩 좌표가 겹치는
+// 문제를 거르는 데 쓰는 추상 좌표 모델)이 같은 배치를 공유하도록 한 곳에
+// 둔다. 배치를 바꾸면 검증 모델도 자동으로 따라간다.
+const ROULETTE_GRID_ROWS = [
+  Array.from({length:12}, (_,i) => 34 - i*3),  // 34,31,...,1
+  Array.from({length:12}, (_,i) => 35 - i*3),  // 35,32,...,2
+  Array.from({length:12}, (_,i) => 36 - i*3),  // 36,33,...,3
+];
+
 function buildBettingTable() {
   const RED_NUMS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
   // Dealer-side layout: outside bets on top, grid below
@@ -7980,11 +8087,7 @@ function buildBettingTable() {
   // Row 0 (top): 34,31,...,4,1
   // Row 1 (mid): 35,32,...,5,2
   // Row 2 (bot): 36,33,...,6,3
-  const rows = [
-    Array.from({length:12}, (_,i) => 34 - i*3),  // 34,31,...,1
-    Array.from({length:12}, (_,i) => 35 - i*3),  // 35,32,...,2
-    Array.from({length:12}, (_,i) => 36 - i*3),  // 36,33,...,3
-  ];
+  const rows = ROULETTE_GRID_ROWS;
   const colBets = ['col1','col2','col3'];
 
   let inner = `<div class="evens-row">
