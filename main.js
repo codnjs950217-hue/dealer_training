@@ -3387,7 +3387,7 @@ const Sims = {
         if (e) e.textContent = secs + 's';
       }, 1000);
     }
-    // `startTimer` (default true): the 700ms auto-advance to a NEW
+    // `startTimer` (default true): the 350ms auto-advance to a NEW
     // question (answerCount(), below) wants the clock running the
     // instant this renders, same as every other call. The very FIRST
     // question of a STEP 1 entry is the one exception — startCounting()
@@ -3887,11 +3887,16 @@ const Sims = {
           const fbE = $('bac-count-feedback'); if (fbE) fbE.innerHTML = '✓ CORRECT!';
           // Same stale-step guard as dealSequence()/addCard() above —
           // answerCount() is STEP 1-only, but without this, switching
-          // away within the 700ms auto-advance window would let this
+          // away within the 350ms auto-advance window would let this
           // stale renderCountQuiz() repaint a brand-new STEP 1 question
           // into the SAME shared #bac-ph/#bac-bh elements STEP 2/3 are
           // now using for their own cards.
-          setTimeout(() => { if (S.step === 1) renderCountQuiz(); }, 700);
+          // 700ms → 350ms(2026-10-05): 정답 직후 다음 문제를 빨리 누르려는
+          // 트레이니의 터치가 이 대기 동안(버튼 잠김) 무시되어 "가끔 터치가
+          // 안 먹힌다"로 느껴졌다. 정답 표시(버튼 초록 + ✓ CORRECT!)를 볼
+          // 정도만 남기고 줄였다. 오답(showMistake, 1.6s)은 STEP 2/3과
+          // 공유하는 흐름이라 그대로.
+          setTimeout(() => { if (S.step === 1) renderCountQuiz(); }, 350);
         } else {
           showMistake(() => renderCountOptions());
         }
