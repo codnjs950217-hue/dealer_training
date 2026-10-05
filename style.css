@@ -6589,15 +6589,21 @@ body {
     transform: scale(1.045);
   }
 }
-.baccarat-table:not(.bac-pair-phase) .bac-check-btn {
+/* 2026-10-05: 조건 변경(명시 요청) — "PAIR 끝난 뒤부터 계속"이 아니라
+   실제 제출 가능할 때만. .bac-confirm-ready는 main.js
+   syncConfirmReady()/setConfirmReady()가 PAIR 완료 + 모든 카드 공개 +
+   WIN/TIE 선택일 때만 붙이고, CONFIRM 클릭/새 라운드에서 뗀다.
+   :not(.bac-draw-phase)는 드로잉 애니메이션 중 절대 깜빡이지 않게 하는
+   이중 안전장치. */
+.baccarat-table.bac-confirm-ready:not(.bac-pair-phase):not(.bac-draw-phase) .bac-check-btn {
   animation: bacConfirmGlowBreathe 2.6s ease-in-out infinite;
 }
 /* Same ancestor prefix repeated (not just `.bac-check-btn:hover`) so
    these actually outrank the animation rule above — a bare
    `.bac-check-btn:hover` (0,2,0) loses to that rule's (0,3,0) otherwise,
    silently failing to halt the pulse on hover/active. */
-.baccarat-table:not(.bac-pair-phase) .bac-check-btn:hover,
-.baccarat-table:not(.bac-pair-phase) .bac-check-btn:active {
+.baccarat-table.bac-confirm-ready:not(.bac-pair-phase):not(.bac-draw-phase) .bac-check-btn:hover,
+.baccarat-table.bac-confirm-ready:not(.bac-pair-phase):not(.bac-draw-phase) .bac-check-btn:active {
   animation: none;
 }
 /* SELECTED-STATE DESIGN — ninth revision, a full pivot away from

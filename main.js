@@ -3006,6 +3006,21 @@ const Sims = {
     // Paints all 9 winner/special buttons into the experimental grid's
     // individual cells. Shared by the initial render (show*Quiz) and by
     // refreshResultBtns() (re-painted after every toggle).
+    // CONFIRM 깜빡임(bacConfirmGlowBreathe, style.css) 조건(2026-10-05,
+    // 명시 요청) — 실제로 제출 가능한 상태일 때만: PAIR 판정 완료 + 모든
+    // 카드 공개(handFullyDrawn) + PLAYER WIN/BANKER WIN/TIE 중 하나 선택.
+    // 예전엔 PAIR만 끝나면 드로잉 중이든 승패 미선택이든 계속 깜빡였다.
+    // 승패 선택/해제·드로우 완료·오답 리셋이 전부 paintResultGrid()를
+    // 거치므로 여기서 매번 다시 계산하고, CONFIRM을 누른 순간/새 라운드
+    // 시작은 setConfirmReady(false)로 직접 끈다.
+    function setConfirmReady(on) {
+      const tbl = document.querySelector('.baccarat-table');
+      if (tbl) tbl.classList.toggle('bac-confirm-ready', !!on);
+    }
+    function syncConfirmReady() {
+      setConfirmReady(S.pairDone && !!S.resultPicks.winner && handFullyDrawn());
+    }
+
     function paintResultGrid(source) {
       const b = winBtns(source);
       setBtn('bac-p-btn-top', b.playerWin);
@@ -3016,6 +3031,7 @@ const Sims = {
       setBtn('bac-exp-big7', b.playerBig7);
       setBtn('bac-exp-small7', b.playerSmall7);
       setBtn('bac-exp-super7', b.super7);
+      syncConfirmReady();
     }
 
     // Always enabled — its own state never hints at correctness (req. 2).
@@ -3888,6 +3904,7 @@ const Sims = {
         S.pairDone = false;
         S.initialDealRevealed = false;
         S.resultPicks = { winner: null, special: null, super7: false, superPayout: null };
+        setConfirmReady(false); // 새 라운드 — CONFIRM 깜빡임 제거
         this.closeSuperPayoutPopup();
         disableDraw();
 
@@ -4130,6 +4147,10 @@ const Sims = {
       // checks, the `correct` label logic) is untouched from the old
       // quizWinFull(); only how an answer gets submitted changed.
       checkResult(source) {
+        // CONFIRM을 누른 순간 깜빡임 제거 — 정답이면 그대로 끝, 오답이면
+        // 선택이 리셋된 뒤 다시 승패를 고를 때 syncConfirmReady()가 켠다.
+        // (아직 제출 불가 상태에서 누른 경우는 원래 꺼져 있었으므로 동일.)
+        setConfirmReady(false);
         if (!S.pairDone) { showPairRequiredToast(); return; }
         if (!handFullyDrawn()) { showCardsNotRevealedToast('⚠ 결과를 판정한 후 선택해주세요.'); return; }
         const pp = pts(S.ph), bp = pts(S.bh);
