@@ -6574,8 +6574,8 @@ const Sims = {
         this._armBattleReady(startedAt);
       },
 
-      // startBattleRoom()이 startedAt을 호스트가 누른 시각 + 5초로 써서
-      // 보내므로(firebase-init.js), 그 5초 동안은 보드를 건드리지 않고
+      // startBattleRoom()이 startedAt을 호스트가 누른 시각 + 6초
+      // (BATTLE_READY_LEAD_MS)로 써서 보내므로(firebase-init.js), 그동안은 보드를 건드리지 않고
       // 큰 숫자 카운트다운만 보여준다. 매초 새 setTimeout을 거는 게 아니라
       // 매번 절대 시각(startedAt) 대비 남은 시간을 다시 계산해 기기별
       // 로컬 시계 오차나 탭 전환으로 한 틱이 밀려도 표시 숫자가 실제
