@@ -3297,19 +3297,29 @@ body {
    `width: calc(var(--card-w-lg)*2 + .35rem)` as .bac-zone-lbl too, so
    it centers over the exact same span the label does, just positioned
    further up (extra ~1.9rem) to clear the label's own text. */
+/* STEP 2 판정 버튼(BANKER WIN/TIE/PLAYER WIN) 높이 — 2026-10-05 터치
+   편의를 위해 30-38px → 42-52px로 키움(명시 요청). 아래쪽 가장자리는
+   예전 위치 그대로 두고 위로만 커지게, 두 앵커의 top에서 늘어난 만큼
+   (--bac-draw-judge-h - --bac-draw-judge-h0)을 빼 준다 — 카드/라벨과의
+   간격은 1px도 안 바뀐다. 버튼 위쪽은 테이블 상단까지 여유가 충분함
+   (헤드리스로 667x375까지 확인). */
+.bac-drawing-mode {
+  --bac-draw-judge-h0: clamp(30px, 6.5vh, 38px);
+  --bac-draw-judge-h: clamp(42px, 9.5vh, 52px);
+}
 .bac-draw-win-anchor { display: none; }
 .bac-drawing-mode .bac-draw-win-anchor {
   display: flex;
   justify-content: center;
   position: absolute;
   width: calc(var(--card-w-lg) * 2 + .35rem);
-  top: calc(50% - var(--card-h-lg)/2 - 1.4rem - 1.9rem);
+  top: calc(50% - var(--card-h-lg)/2 - 1.4rem - 1.9rem - (var(--bac-draw-judge-h) - var(--bac-draw-judge-h0)));
   z-index: 6;
   /* Sized up a bit from the previous separate-row version — explicit
      follow-up ask ("버튼 지금보다 더 커져도돼") — while still well short
      of Step 3's real WIN oval size, since this remains a secondary
      judgment cue floating over the card zone, not a full-width bet row. */
-  --bac-pair-circle-d: clamp(30px, 6.5vh, 38px);
+  --bac-pair-circle-d: var(--bac-draw-judge-h);
   /* Cancels out .bac-field's own translateY(--bac-draw-row-shift) above
      — this anchor is nested inside .bac-field (via its zone), so
      without this it would drift down along with the cards/shoe it's
@@ -3346,10 +3356,10 @@ body {
   justify-content: center;
   position: absolute;
   left: 50%;
-  top: calc(50% - var(--card-h-lg)/2 - 1.4rem - 1.9rem);
+  top: calc(50% - var(--card-h-lg)/2 - 1.4rem - 1.9rem - (var(--bac-draw-judge-h) - var(--bac-draw-judge-h0)));
   transform: translate(-50%, calc(-1 * var(--bac-draw-row-shift)));
   z-index: 6;
-  --bac-pair-circle-d: clamp(30px, 6.5vh, 38px);
+  --bac-pair-circle-d: var(--bac-draw-judge-h);
   /* Narrower than .bac-draw-win-anchor .bac-win-oval's 110-170px (that
      width fits a 2-card-wide anchor; this one sits in the much narrower
      divider column, .bac-field-divider's own overflow:visible lets it
