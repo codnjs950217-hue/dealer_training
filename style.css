@@ -1361,6 +1361,20 @@ body {
    #rpay-battle-wait-status("n/총 완료")보다 한 단계 옅게, 작게 둬서
    "왜 기다리는지"를 보조 설명으로 전달한다. */
 .rpay-battle-wait-hint { color: rgba(255,255,255,.45); font-size: .7rem; margin-top: -.2rem; }
+/* 완료 대기 화면의 [방 나가기](2026-10-05) — 예전엔 오버레이(세로 flex)의
+   직속 자식이라 .rpay-rank-btn의 flex:1이 세로로 남은 공간을 전부 먹어
+   600px짜리 패널처럼 늘어났다. 이제 .rpay-challenge-end-btns 줄 안에
+   두고(결과 화면 [나가기]와 같은 구조), 크기를 고정한 보조 버튼으로.
+   색/테두리/hover는 .rpay-rank-btn(대기실 [방 나가기]와 같은 회색
+   보조 스타일) 그대로. */
+.rpay-rank-btn.rpay-battle-wait-leave-btn {
+  flex: 0 0 auto;
+  width: clamp(160px, 22vw, 200px);
+  height: clamp(45px, 7vh, 50px);
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0 1rem;
+  font-size: clamp(.75rem, 1.6vh, .85rem);
+}
 
 /* ⚔️ 배틀하기 "곧 시작합니다" 준비 카운트다운 (2026-10-02) —
    .rpay-challenge-end-overlay와 같은 full-cover 기법(같은 .rpay-table
