@@ -5,7 +5,7 @@
 // this file only through window.DealerAuth, set at the bottom.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
-  initializeFirestore, doc, getDoc, setDoc, runTransaction,
+  initializeFirestore, doc, getDoc, getDocFromServer, setDoc, runTransaction,
   collection, query, orderBy, limit, getDocs,
   onSnapshot, updateDoc, deleteDoc, deleteField, increment,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
@@ -272,6 +272,17 @@ function subscribeBattleRoom(code, onChange, onError) {
   return onSnapshot(ref, (snap) => onChange(snap.exists() ? snap.data() : null), onError);
 }
 
+// 대기실 보조 갱신용 1회성 서버 직접 읽기(2026-10-05) — onSnapshot은
+// 호스트가 코드를 공유하러 다른 앱에 다녀오면(모바일 백그라운드로
+// 연결이 끊김) 재연결 backoff 동안, 또는 롱폴링으로 떨어진 네트워크에서
+// 참가자 입장을 늦게 전달할 수 있다. 캐시가 아니라 항상 서버에서 읽어야
+// 의미가 있으므로 getDoc이 아니라 getDocFromServer를 쓴다.
+async function fetchBattleRoom(code) {
+  if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
+  const snap = await getDocFromServer(doc(db, "battleRooms", code));
+  return snap.exists() ? snap.data() : null;
+}
+
 // ---- 트레이닝 로그 (2026-10-02) ----
 // 점수/랭킹이 아니라 "얼마나 트레이닝했는지"만 관리자(개발자)가 나중에
 // Excel로 추출해 분석하기 위한 비공개 집계 — 사용자에게는 절대 보여주지
@@ -304,6 +315,7 @@ window.DealerAuth = {
   lookupEmployee, submitRouletteRankScore, getRouletteTopScores,
   createBattleRoom, joinBattleRoom, leaveBattleRoom, startBattleRoom,
   submitBattleResult, finishBattleRoom, endBattleRoom, subscribeBattleRoom,
+  fetchBattleRoom,
   logTrainingSession,
 };
 // Always fire this, even after an init failure — main.js is waiting on it

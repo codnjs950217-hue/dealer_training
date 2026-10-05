@@ -6835,6 +6835,42 @@ const Sims = {
             (data) => this._onSnapshot(data),
             (e) => console.error('[roulettePay.battle] 구독 오류:', e),
           );
+          this._startLobbyRefresh();
+        },
+
+        // ---- 대기실 보조 갱신 (2026-10-05) ----
+        // 호스트 화면에 참가자가 늦게 뜨는 문제 대응 — onSnapshot만으로는
+        // 호스트가 코드를 공유하러 다른 앱에 다녀온 뒤(모바일 백그라운드로
+        // 리스너 연결이 끊겨 재연결 backoff 중)나 롱폴링으로 떨어진
+        // 네트워크에서 입장 소식이 몇 초~수십 초 늦게 올 수 있다. 그래서
+        // 대기실(phase==='lobby')에 있는 동안만 (1) 주기적으로, (2) 탭으로
+        // 돌아온 즉시 서버에서 방 문서를 직접 읽어 같은 _onSnapshot
+        // 디스패처로 흘려보낸다. 경기/결과 화면에서는 돌지 않는다.
+        LOBBY_REFRESH_MS: 4000,
+        _startLobbyRefresh() {
+          this._stopLobbyRefresh();
+          B.lobbyTimer = setInterval(() => this._refreshLobby(), this.LOBBY_REFRESH_MS);
+          B.onVisible = () => { if (document.visibilityState === 'visible') this._refreshLobby(); };
+          document.addEventListener('visibilitychange', B.onVisible);
+        },
+
+        _stopLobbyRefresh() {
+          if (!B) return;
+          if (B.lobbyTimer) { clearInterval(B.lobbyTimer); B.lobbyTimer = null; }
+          if (B.onVisible) { document.removeEventListener('visibilitychange', B.onVisible); B.onVisible = null; }
+        },
+
+        async _refreshLobby() {
+          if (!B || B.phase !== 'lobby' || !B.code || !window.DealerAuth) return;
+          const code = B.code;
+          let data;
+          try { data = await window.DealerAuth.fetchBattleRoom(code); }
+          catch (e) { return; } // 일시적 네트워크 오류 — 다음 주기/onSnapshot이 메운다
+          // 읽는 사이 onSnapshot이 이미 'playing' 등으로 넘겼거나 방을
+          // 나갔다면 이 (이제 오래된) 결과로 되돌리지 않는다 — phase를
+          // 'lobby'로 되돌리면 다음 'playing' 스냅샷이 경기를 재초기화한다.
+          if (!B || B.code !== code || B.phase !== 'lobby') return;
+          this._onSnapshot(data);
         },
 
         // 방 문서 하나 = onSnapshot 하나가 모든 상태 전환의 유일한
@@ -6859,6 +6895,7 @@ const Sims = {
             this._renderLobby(data);
             return;
           }
+          this._stopLobbyRefresh(); // 대기실을 벗어남 — 보조 갱신 종료
           if (data.status === 'playing') {
             if (B.phase !== 'playing') {
               B.phase = 'playing';
@@ -7089,6 +7126,7 @@ const Sims = {
           if (S && S.challengeInterval) { clearInterval(S.challengeInterval); S.challengeInterval = null; }
           if (S && S.nextTimer) { clearTimeout(S.nextTimer); S.nextTimer = null; }
           this._clearGraceTimer();
+          this._stopLobbyRefresh();
           this._closeEndConfirm();
           if (B && B.unsub) B.unsub();
           B = null;
