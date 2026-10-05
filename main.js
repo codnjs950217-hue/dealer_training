@@ -2771,7 +2771,10 @@ const Sims = {
     // the toast style, not showMistake()'s full-screen overlay, for the
     // same reason: this is a repeatable "not yet" guard, not a scored
     // wrong answer — the board and any picks already made stay untouched.
-    function showCardsNotRevealedToast() {
+    // msg: 기본 문구 대신 쓸 문구(선택). CONFIRM은 "카드 공개" 대신
+    // "결과 판정"을 기준으로 안내한다(2026-10-05, checkResult() 참고) —
+    // WIN/TIE/사이드벳/PAIR 줄은 기본 문구 그대로.
+    function showCardsNotRevealedToast(msg) {
       S.mistakes++;
       const mEl = $('bac-mistakes'); if (mEl) mEl.textContent = S.mistakes;
       const tbl = document.querySelector('.baccarat-table');
@@ -2780,7 +2783,7 @@ const Sims = {
       if (existing) existing.remove();
       const t = document.createElement('div');
       t.className = 'pair-required-toast';
-      t.textContent = '⚠ 모든 카드가 공개된 후 선택해주세요.';
+      t.textContent = msg || '⚠ 모든 카드가 공개된 후 선택해주세요.';
       tbl.appendChild(t);
       setTimeout(() => t.remove(), 1800);
     }
@@ -4128,7 +4131,7 @@ const Sims = {
       // quizWinFull(); only how an answer gets submitted changed.
       checkResult(source) {
         if (!S.pairDone) { showPairRequiredToast(); return; }
-        if (!handFullyDrawn()) { showCardsNotRevealedToast(); return; }
+        if (!handFullyDrawn()) { showCardsNotRevealedToast('⚠ 결과를 판정한 후 선택해주세요.'); return; }
         const pp = pts(S.ph), bp = pts(S.bh);
         if (source === 'initial') {
           const needsDrawP = !(pp >= 8 || bp >= 8) && pp <= 5;
