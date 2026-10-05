@@ -6587,6 +6587,10 @@ const Sims = {
         const tick = () => {
           if (!S || !S.challengeMode) return; // 그 사이 방이 종료/이탈됨
           const remain = Math.ceil((startedAt - Date.now()) / 1000);
+          // 표시는 최대 5 — startedAt엔 전달 지연 대비 1초 여유가 더 들어
+          // 있다(firebase-init.js BATTLE_READY_LEAD_MS). 실제 시작 판정은
+          // 잘라내지 않은 remain 그대로.
+          const shown = Math.min(5, remain);
           const ov = tbl ? tbl.querySelector('.rpay-battle-ready-overlay') : null;
           if (remain <= 0) {
             if (ov) ov.remove();
@@ -6596,7 +6600,7 @@ const Sims = {
           }
           if (tbl) {
             const box = ov || tbl.appendChild(Object.assign(document.createElement('div'), { className: 'rpay-battle-ready-overlay' }));
-            box.innerHTML = `<div class="rpay-battle-ready-label">곧 배틀이 시작됩니다</div><div class="rpay-battle-ready-num">${remain}</div>`;
+            box.innerHTML = `<div class="rpay-battle-ready-label">곧 배틀이 시작됩니다</div><div class="rpay-battle-ready-num">${shown}</div>`;
           }
           setTimeout(tick, 200);
         };

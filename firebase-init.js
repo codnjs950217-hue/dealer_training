@@ -195,9 +195,16 @@ async function leaveBattleRoom(code, employeeId) {
 // (Sims.roulettePay._armBattleReady, main.js). battleEndAt(60초 마감)은
 // 이 startedAt을 그대로 기준으로 삼으므로 준비 시간만큼 실제 플레이
 // 시간이 줄지는 않는다.
+//
+// 2026-10-05: 5초 → 6초. 화면엔 5부터 보여야 하는데, 참가자는 이
+// 'playing' 전환을 네트워크 왕복만큼 늦게 받아 남은 시간이 이미 4.x초라
+// 4부터 뜨는 문제가 있었다. 1초 여유를 더 두고 표시는 최대 5로 자르면
+// (main.js _armBattleReady) 최대 ~2초 늦게 받은 기기까지 5부터 보이고,
+// 실제 시작 시각은 여전히 모든 기기가 같다.
+const BATTLE_READY_LEAD_MS = 6000;
 async function startBattleRoom(code) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  await updateDoc(doc(db, "battleRooms", code), { status: 'playing', startedAt: Date.now() + 5000 });
+  await updateDoc(doc(db, "battleRooms", code), { status: 'playing', startedAt: Date.now() + BATTLE_READY_LEAD_MS });
 }
 
 // 자기 자신의 항목만 점(.) 경로로 patch한다 — { players: { [id]: {...} } }
