@@ -5738,12 +5738,17 @@ const Sims = {
 
       // Reset win highlight and remove old chip spots/dolly
       tbl.querySelectorAll('.rpay-win-cell').forEach(el => el.classList.remove('rpay-win-cell'));
+      tbl.querySelectorAll('.rpay-win-td').forEach(el => el.classList.remove('rpay-win-td'));
       tbl.querySelectorAll('.rpay-spot').forEach(el => el.remove());
       tbl.querySelectorAll('.rpay-dolly').forEach(el => el.remove());
 
       // Highlight winning number
       const winEl = tbl.querySelector(`[data-bet="${N}"]`);
       if (winEl) winEl.classList.add('rpay-win-cell');
+      // 0 칸 전용 오각형 하이라이트의 훅(style.css .zero-cell.rpay-win-td) —
+      // 다른 번호 칸 td에 붙어도 해당 CSS 규칙이 없어 아무 효과 없다.
+      const winTd = winEl && winEl.closest('td');
+      if (winTd) winTd.classList.add('rpay-win-td');
 
       requestAnimationFrame(() => {
         // Measure stage (not tbl) so chip coords are stage-relative

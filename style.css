@@ -2503,11 +2503,16 @@ body {
   border: none !important;
   border-left: 1px solid var(--rg-line) !important;
 }
+/* 0 칸의 오각형 — 이 프로젝트에서 0 영역 모양을 정의하는 유일한
+   좌표. 당첨 하이라이트(.zero-cell.rpay-win-td 아래)는 좌표를 따로 갖지
+   않고 이 clip-path로 잘린 실제 렌더 결과의 외곽선을 drop-shadow로
+   따라 그리므로, 여기만 바꾸면 하이라이트도 자동으로 같은 모양이 된다. */
+.zero-cell { --zero-shape: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%); }
 .zero-cell div {
   position: absolute;
   inset: 0;
   display: flex; align-items: center; justify-content: center;
-  clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%);
+  clip-path: var(--zero-shape);
   border-radius: 0 !important;
   min-height: 0 !important;
   padding: 0 !important;
@@ -2531,6 +2536,23 @@ body {
 .rpay-win-cell {
   z-index: 2;
   box-shadow: inset 0 0 0 2px var(--gold-light), 0 0 12px 1px rgba(201,168,76,.55);
+}
+/* 0이 당첨일 때(2026-10-05): 위 box-shadow는 직사각형 기준이라 0 칸의
+   clip-path(오각형)에 같이 잘려, 오른쪽 기울어진 두 변에는 테두리가
+   없고 바깥 glow도 사라진 "잘린 사각형"으로 보였다. 그래서 0 칸에서는
+   box-shadow를 끄고, 대신 부모 td(main.js renderFullGrid()가
+   .rpay-win-td를 붙임)에 drop-shadow를 건다 — drop-shadow는 박스가 아니라
+   실제로 그려진 픽셀(=오각형)의 외곽선을 따르므로 하이라이트가 0 칸과
+   정확히 같은 오각형이 된다. 4방향 0-blur 그림자 = 2px 금색 테두리,
+   마지막 blur 그림자 = 다른 칸의 바깥 glow 대응. z-index는 아래 줄(2·3번
+   줄)의 번호 칸이 왼쪽 변 테두리를 덮지 않게. */
+.zero-cell .rpay-win-cell { box-shadow: none; }
+.zero-cell.rpay-win-td {
+  z-index: 3;
+  filter:
+    drop-shadow(2px 0 0 var(--gold-light)) drop-shadow(-2px 0 0 var(--gold-light))
+    drop-shadow(0 2px 0 var(--gold-light)) drop-shadow(0 -2px 0 var(--gold-light))
+    drop-shadow(0 0 6px rgba(201,168,76,.55));
 }
 
 .red-num   { background: #8b1414; color: #fff; }
