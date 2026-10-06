@@ -608,10 +608,13 @@ const Auth = {
   _showWelcomeThenEnter(employeeId, name) {
     document.getElementById('login-form').style.display = 'none';
     const welcome = document.getElementById('login-welcome');
+    const notice = document.getElementById('login-welcome-notice');
     document.getElementById('login-welcome-name').textContent = name;
     welcome.style.display = 'flex';
+    if (notice) notice.style.display = '';
     setTimeout(() => {
       welcome.style.display = 'none';
+      if (notice) notice.style.display = 'none';
       document.getElementById('login-form').style.display = '';
       this._showLoggedIn(employeeId, name);
     }, 1800);

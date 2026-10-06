@@ -92,12 +92,20 @@
   text-align: center; line-height: 1.5;
 }
 #login-welcome-name { color: var(--gold); }
-.login-welcome { flex-direction: column; gap: .9rem; }
-/* 학습 기록 저장 안내(2026-10-06) — 인사말 아래 작고 흐린 한 줄. 강조하지 않는 고지 문구. */
+/* 학습 기록 저장 안내(2026-10-06) — 환영 상자 바깥, 화면 하단 중앙에 작고
+   흐린 한 줄. absolute라 환영 상자의 가운데 정렬 위치는 그대로다. */
 .login-welcome-notice {
+  position: absolute;
+  left: 50%; bottom: max(1.2rem, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: max-content; max-width: calc(100% - 2rem);
   font-size: .72rem; color: rgba(255,255,255,.55);
   text-align: center; line-height: 1.4;
-  max-width: 22rem;
+  animation: loginWelcomeNoticeFade .25s ease-out;
+}
+@keyframes loginWelcomeNoticeFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 @keyframes loginWelcomePop {
   from { opacity: 0; transform: scale(.92); }
