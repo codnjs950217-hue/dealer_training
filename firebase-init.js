@@ -7,7 +7,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/fireba
 import {
   initializeFirestore, doc, getDoc, getDocFromServer, setDoc, runTransaction,
   collection, query, orderBy, limit, getDocs,
-  onSnapshot, updateDoc, deleteDoc, deleteField, increment, serverTimestamp,
+  onSnapshot, updateDoc, deleteDoc, deleteField, increment, serverTimestamp, Timestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -105,6 +105,27 @@ async function getRouletteTopScores(n = 20) {
 // 없이 문서 스키마 검증(firestore.rules)에만 의존한다 — 이 파일은 순수
 // Firestore CRUD 레이어로 유지하고, 게임 로직(언제 종료 판정을 내릴지,
 // 순위를 어떻게 계산할지)은 main.js의 Sims.roulettePay.battle에 둔다.
+// 방 문서의 시각 필드(startedAt, players.*.finishedAt/lastCorrectAt)는
+// 2026-10-06부터 Firestore Timestamp로 저장한다 — 관리자가 Console에서
+// 날짜/시간으로 읽을 수 있게(숫자 ms는 13자리 숫자로만 보였음). main.js의
+// 배틀 로직은 전부 ms 숫자 연산(카운트다운, RNG seed, 순위 정렬)이라,
+// 이 파일이 읽어서 넘겨줄 때(_roomData) 다시 ms로 바꿔 main.js는 그대로
+// 둔다. 예전 방(숫자로 저장된 값)도 그대로 통과한다.
+const _ts = ms => (ms == null ? null : Timestamp.fromMillis(ms));
+const _ms = v => (v && typeof v.toMillis === 'function' ? v.toMillis() : v);
+function _roomData(snap) {
+  if (!snap.exists()) return null;
+  const data = snap.data();
+  data.startedAt = _ms(data.startedAt);
+  data.createdAt = _ms(data.createdAt);
+  for (const p of Object.values(data.players || {})) {
+    if (!p) continue;
+    p.finishedAt = _ms(p.finishedAt);
+    p.lastCorrectAt = _ms(p.lastCorrectAt);
+  }
+  return data;
+}
+
 function _genRoomCode() {
   return String(Math.floor(1000 + Math.random() * 9000));
 }
@@ -221,7 +242,7 @@ async function leaveBattleRoom(code, employeeId) {
 const BATTLE_READY_LEAD_MS = 6000;
 async function startBattleRoom(code) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  await updateDoc(doc(db, "battleRooms", code), { status: 'playing', startedAt: Date.now() + BATTLE_READY_LEAD_MS });
+  await updateDoc(doc(db, "battleRooms", code), { status: 'playing', startedAt: _ts(Date.now() + BATTLE_READY_LEAD_MS) });
 }
 
 // 자기 자신의 항목만 점(.) 경로로 patch한다 — { players: { [id]: {...} } }
@@ -241,8 +262,8 @@ async function submitBattleResult(code, employeeId, score, mistakes, lastCorrect
     [`players.${employeeId}.score`]: score,
     [`players.${employeeId}.mistakes`]: mistakes,
     [`players.${employeeId}.finished`]: true,
-    [`players.${employeeId}.finishedAt`]: Date.now(),
-    [`players.${employeeId}.lastCorrectAt`]: lastCorrectAt ?? null,
+    [`players.${employeeId}.finishedAt`]: _ts(Date.now()),
+    [`players.${employeeId}.lastCorrectAt`]: _ts(lastCorrectAt),
   });
 }
 
@@ -293,7 +314,7 @@ async function endBattleRoom(code) {
 function subscribeBattleRoom(code, onChange, onError) {
   if (initError) { if (onError) onError(initError); return () => {}; }
   const ref = doc(db, "battleRooms", code);
-  return onSnapshot(ref, (snap) => onChange(snap.exists() ? snap.data() : null), onError);
+  return onSnapshot(ref, (snap) => onChange(_roomData(snap)), onError);
 }
 
 // 대기실 보조 갱신용 1회성 서버 직접 읽기(2026-10-05) — onSnapshot은
@@ -304,7 +325,7 @@ function subscribeBattleRoom(code, onChange, onError) {
 async function fetchBattleRoom(code) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
   const snap = await getDocFromServer(doc(db, "battleRooms", code));
-  return snap.exists() ? snap.data() : null;
+  return _roomData(snap);
 }
 
 // ---- 트레이닝 로그 (2026-10-02, 2026-10-06 일별 1행으로 개편) ----
