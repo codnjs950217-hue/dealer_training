@@ -41,3 +41,29 @@ node scripts/upload-users.js ~/Downloads/users.xlsx ~/keys/casino-dealer-trainin
 - 파일 안에서 같은 `employeeId`가 여러 행에 나오면 마지막 행 값으로 처리하고 콘솔에 경고를 남깁니다.
 - `employeeId` 또는 `name`이 빈 행이 하나라도 있으면 **아무것도 업로드하지 않고** 어느 행에 문제가 있는지 전부 출력합니다 — 부분 업로드로 데이터가 뒤섞이는 것을 막기 위해서입니다.
 - 500건 단위로 배치 처리합니다 (Firestore 배치 쓰기 한도).
+
+---
+
+# 학습리포트 추출 (trainingDaily → Excel/CSV)
+
+관리자 전용 학습 기록을 기간별로 뽑아 `.xlsx`와 `.csv`(엑셀 한글 깨짐 방지 BOM 포함)로 저장합니다. 준비(의존성 설치, 서비스 계정 키)는 위 사용자 업로드와 같습니다.
+
+```
+node scripts/export-training.js <시작일> <종료일> [서비스계정키.json 경로]
+```
+
+예:
+```
+node scripts/export-training.js 2026-10-01 2026-10-31 ~/keys/casino-dealer-training-key.json
+```
+
+현재 폴더에 `training-report_2026-10-01_2026-10-31.xlsx` / `.csv`가 생깁니다.
+
+## 칸 순서
+
+`date, department, employeeId, name, lastAt`, 이어서 게임별 `Count, Minutes, Mistakes`를 **Baccarat → Blackjack → Roulette → Poker** 순서로, 맨 끝에 하루 합계 `totalCount, totalMinutes, totalMistakes, sessionCount`.
+
+- 한 행 = 한 사람의 하루. 행은 `lastAt`(마지막 학습 시각, KST) 순.
+- Firebase Console은 필드를 항상 알파벳순으로 보여주므로, 이 순서는 추출 파일에서만 적용됩니다.
+- 2026-10-02~10-06 사이 예전 형식(`trainingLogs`, 게임마다 1행) 기록도 자동으로 합쳐 같은 형식으로 나옵니다. 그 기간 기록은 `lastAt`/`Mistakes`/`sessionCount`가 비어 있거나 0일 수 있습니다.
+- 부서가 비어 있는 기록은 `users` 컬렉션의 부서로 채웁니다.
