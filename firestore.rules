@@ -186,25 +186,9 @@ service cloud.firestore {
                    && dayId == request.resource.data.date + '_' + request.resource.data.employeeId;
     }
 
-    // 2026-10-02~10-06 예전 형식(게임마다 1행). 새로 쓰지는 않지만, 배포
-    // 직후 아직 예전 main.js를 들고 있는 클라이언트와 trainingDaily 규칙
-    // 배포 전 폴백(firebase-init.js) 때문에 쓰기 규칙을 남겨 둔다.
-    match /trainingLogs/{logId} {
-      allow read: if false;
-      allow write: if request.resource.data.keys().hasOnly(['date','employeeId','name','game','playMinutes','playCount',
-                                                            'mistakes','sessionCount','lastAt','department'])
-                   && request.resource.data.date is string
-                   && request.resource.data.employeeId is string
-                   && request.resource.data.name is string
-                   && request.resource.data.game in ['Blackjack', 'Baccarat', 'Roulette', 'Poker']
-                   && request.resource.data.playMinutes is int
-                   && request.resource.data.playCount is int
-                   && (!('mistakes' in request.resource.data) || request.resource.data.mistakes is int)
-                   && (!('sessionCount' in request.resource.data) || request.resource.data.sessionCount is int)
-                   && (!('lastAt' in request.resource.data) || request.resource.data.lastAt is int)
-                   && (!('department' in request.resource.data) || request.resource.data.department is string)
-                   && logId == request.resource.data.date + '_' + request.resource.data.employeeId + '_' + request.resource.data.game;
-    }
+    // trainingLogs(2026-10-02~10-06 예전 형식, 게임마다 1행)는 2026-10-06에
+    // 관리자가 삭제했고 앱도 더 쓰지 않는다 — 규칙도 제거해 아래 기본 차단에
+    // 걸리게 했다.
 
     // 그 외 컬렉션은 기본적으로 전부 차단.
     match /{document=**} {

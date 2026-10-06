@@ -92,6 +92,13 @@
   text-align: center; line-height: 1.5;
 }
 #login-welcome-name { color: var(--gold); }
+.login-welcome { flex-direction: column; gap: .9rem; }
+/* 학습 기록 저장 안내(2026-10-06) — 인사말 아래 작고 흐린 한 줄. 강조하지 않는 고지 문구. */
+.login-welcome-notice {
+  font-size: .72rem; color: rgba(255,255,255,.55);
+  text-align: center; line-height: 1.4;
+  max-width: 22rem;
+}
 @keyframes loginWelcomePop {
   from { opacity: 0; transform: scale(.92); }
   to   { opacity: 1; transform: scale(1); }

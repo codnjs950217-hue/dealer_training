@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// Exports the admin-only training report (trainingDaily, plus the legacy
-// per-game trainingLogs rows from 2026-10-02~10-06) for a date range to
-// .xlsx and .csv — one row per employee per day.
+// Exports the admin-only training report (trainingDaily) for a date range
+// to .xlsx and .csv — one row per employee per day. (The legacy per-game
+// trainingLogs collection from 2026-10-02~10-06 was deleted by the admin on
+// 2026-10-06, so it is no longer read.)
 //
 // Run locally by an admin — same as upload-users.js, it uses the Firebase
 // Admin SDK with a service account key, which bypasses firestore.rules
@@ -48,8 +49,8 @@ function fail(msg) {
   process.exit(1);
 }
 
-// lastAt is a Firestore Timestamp (current) or ms number (written while
-// the rules still required int, and legacy trainingLogs) — normalize to ms.
+// lastAt is a Firestore Timestamp (Admin SDK) or an ms number (REST path,
+// or docs written while the rules still required int) — normalize to ms.
 function toMillis(v) {
   if (v == null) return null;
   if (typeof v === 'number') return v;
@@ -63,14 +64,14 @@ function formatKST(ms) {
   return new Date(ms + 9 * 3600 * 1000).toISOString().slice(0, 16).replace('T', ' ');
 }
 
-// Merges trainingDaily docs and legacy trainingLogs docs (one per game) into
-// one row per date+employeeId. Totals are recomputed from the per-game
-// columns so legacy rows (which never had totals) come out consistent.
+// One trainingDaily doc is already one row (date+employeeId); the map
+// keeps that keyed in case a range ever returns the same key twice.
+// Totals are recomputed from the per-game columns so they always match.
 // `users` maps employeeId -> users/{id} data, used to fill department for
 // docs written before department was recorded.
-function buildRows(dailyDocs, legacyDocs, users) {
+function buildRows(dailyDocs, users) {
   const byKey = new Map();
-  const rowFor = d => {
+  for (const d of dailyDocs) {
     const key = `${d.date}_${d.employeeId}`;
     if (!byKey.has(key)) {
       const row = { date: d.date, employeeId: d.employeeId, name: d.name || '', department: d.department || '', _lastAtMs: null, sessionCount: 0 };
@@ -82,20 +83,7 @@ function buildRows(dailyDocs, legacyDocs, users) {
     const ms = toMillis(d.lastAt);
     if (ms != null && (row._lastAtMs == null || ms > row._lastAtMs)) row._lastAtMs = ms;
     row.sessionCount += d.sessionCount || 0;
-    return row;
-  };
-
-  for (const d of dailyDocs) {
-    const row = rowFor(d);
     GAMES.forEach(g => STATS.forEach(s => { row[g + s] += d[g + s] || 0; }));
-  }
-  for (const d of legacyDocs) {
-    const g = String(d.game || '').toLowerCase();
-    if (!GAMES.includes(g)) continue;
-    const row = rowFor(d);
-    row[g + 'Count'] += d.playCount || 0;
-    row[g + 'Minutes'] += d.playMinutes || 0;
-    row[g + 'Mistakes'] += d.mistakes || 0;
   }
 
   const rows = [...byKey.values()];
@@ -104,8 +92,8 @@ function buildRows(dailyDocs, legacyDocs, users) {
     for (const s of STATS) row['total' + s] = GAMES.reduce((sum, g) => sum + row[g + s], 0);
     row.lastAt = formatKST(row._lastAtMs);
   }
-  // lastAt 순(오래된 것 먼저). lastAt이 없는 예전 행은 그 날짜의 시작
-  // 시각으로 취급해 날짜 순서는 지킨다.
+  // lastAt 순(오래된 것 먼저). lastAt이 없는 행은 그 날짜의 시작 시각으로
+  // 취급해 날짜 순서는 지킨다.
   const sortKey = r => r._lastAtMs != null ? r._lastAtMs : Date.parse(`${r.date}T00:00:00+09:00`);
   rows.sort((a, b) => sortKey(a) - sortKey(b) || a.employeeId.localeCompare(b.employeeId));
   return rows.map(r => COLUMNS.map(c => r[c]));
@@ -130,12 +118,11 @@ async function loadWithAdmin(keyPath, from, to) {
   // date는 'YYYY-MM-DD' 문자열이라 사전순 범위 비교 = 날짜 범위 비교.
   // 단일 필드 범위 쿼리라 별도 인덱스가 필요 없다.
   const inRange = name => db.collection(name).where('date', '>=', from).where('date', '<=', to).get();
-  const [dailySnap, legacySnap, usersSnap] = await Promise.all([
-    inRange('trainingDaily'), inRange('trainingLogs'), db.collection('users').get(),
+  const [dailySnap, usersSnap] = await Promise.all([
+    inRange('trainingDaily'), db.collection('users').get(),
   ]);
   return {
     daily: dailySnap.docs.map(d => d.data()),
-    legacy: legacySnap.docs.map(d => d.data()),
     users: Object.fromEntries(usersSnap.docs.map(d => [d.id, d.data()])),
   };
 }
@@ -183,11 +170,11 @@ async function loadWithGcloud(from, to) {
       { fieldFilter: { field: { fieldPath: 'date' }, op: 'LESS_THAN_OR_EQUAL', value: { stringValue: to } } },
     ] } },
   }).then(docs => docs.map(d => restFields(d.fields)));
-  const [daily, legacy, userDocs] = await Promise.all([
-    inRange('trainingDaily'), inRange('trainingLogs'), runQuery({ from: [{ collectionId: 'users' }] }),
+  const [daily, userDocs] = await Promise.all([
+    inRange('trainingDaily'), runQuery({ from: [{ collectionId: 'users' }] }),
   ]);
   const users = Object.fromEntries(userDocs.map(d => [d.name.split('/').pop(), restFields(d.fields)]));
-  return { daily, legacy, users };
+  return { daily, users };
 }
 
 async function main() {
@@ -200,10 +187,10 @@ async function main() {
 
   const keyPath = keyPathArg ? path.resolve(keyPathArg) : process.env.GOOGLE_APPLICATION_CREDENTIALS;
   if (keyPathArg && !fs.existsSync(keyPath)) fail(`서비스 계정 키 파일을 찾을 수 없습니다: ${keyPath}`);
-  const { daily, legacy, users } = (keyPath && fs.existsSync(keyPath))
+  const { daily, users } = (keyPath && fs.existsSync(keyPath))
     ? await loadWithAdmin(keyPath, from, to)
     : await loadWithGcloud(from, to);
-  const table = buildRows(daily, legacy, users);
+  const table = buildRows(daily, users);
 
   const baseName = `training-report_${from}_${to}`;
   writeOutputs(table, baseName);

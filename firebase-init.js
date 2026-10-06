@@ -571,10 +571,8 @@ async function fetchBattleRoom(roomId) {
 // 날짜는 서버 시각이 아니라 트레이니 브라우저의 로컬 날짜로 끊는다 —
 // 실습실 PC가 KST라고 가정하면 그게 실제 "하루"와 맞는 기준이다.
 //
-// 예전 형식(trainingLogs/{date}_{employeeId}_{game}, 게임마다 1행)은
-// 2026-10-06부터 더 쓰지 않는다 — 단, trainingDaily 규칙이 아직 배포되기
-// 전이라 permission-denied가 나면 그쪽으로 한 번 더 써서 기록을 잃지
-// 않게 한다(거부된 쓰기는 아무것도 반영하지 않으므로 중복 없음).
+// 예전 형식(trainingLogs, 게임마다 1행, 10/2~10/6)은 2026-10-06에 관리자가
+// 컬렉션째 삭제했고, 그쪽으로 대신 쓰던 대비 경로도 제거했다.
 const TRAINING_GAMES = ['blackjack', 'baccarat', 'roulette', 'poker']; // firestore.rules trainingDaily hasOnly와 일치
 async function logTrainingSession({ employeeId, name, department, game, playMinutes, playCount, mistakes, sessionCount }) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
@@ -587,32 +585,15 @@ async function logTrainingSession({ employeeId, name, department, game, playMinu
     perGame[`${g}Count`]    = increment(mine ? playCount : 0);
     perGame[`${g}Mistakes`] = increment(mine ? mistakes : 0);
   }
-  const daily = lastAt => setDoc(doc(db, "trainingDaily", `${date}_${employeeId}`), {
-    date, employeeId, name, department, lastAt,
+  await setDoc(doc(db, "trainingDaily", `${date}_${employeeId}`), {
+    date, employeeId, name, department,
+    lastAt: serverTimestamp(), // Console에서 날짜/시간으로 보이게
     totalMinutes: increment(playMinutes),
     totalCount: increment(playCount),
     totalMistakes: increment(mistakes),
     sessionCount: increment(sessionCount),
     ...perGame,
   }, { merge: true });
-  try {
-    // lastAt: Timestamp(Console에서 날짜로 보임) → 예전 규칙(lastAt is int)
-    // 이면 숫자 ms → trainingDaily 규칙 자체가 없으면 예전 trainingLogs 순.
-    try {
-      await daily(serverTimestamp());
-    } catch (e) {
-      if (!e || e.code !== 'permission-denied') throw e;
-      await daily(now.getTime());
-    }
-  } catch (e) {
-    if (e && e.code !== 'permission-denied') throw e;
-    console.warn('[TrainingLog] trainingDaily 거부됨(firestore.rules 미배포?) — 예전 trainingLogs 형식으로 기록');
-    await setDoc(doc(db, "trainingLogs", `${date}_${employeeId}_${game}`), {
-      date, employeeId, name, game,
-      playMinutes: increment(playMinutes),
-      playCount: increment(playCount),
-    }, { merge: true });
-  }
 }
 
 window.DealerAuth = {

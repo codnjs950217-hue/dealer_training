@@ -79,5 +79,4 @@ node scripts/export-training.js 2026-10-01 2026-10-31 ~/keys/casino-dealer-train
 
 - 한 행 = 한 사람의 하루. 행은 `lastAt`(마지막 학습 시각, KST) 순.
 - Firebase Console은 필드를 항상 알파벳순으로 보여주므로, 이 순서는 추출 파일에서만 적용됩니다.
-- 2026-10-02~10-06 사이 예전 형식(`trainingLogs`, 게임마다 1행) 기록도 자동으로 합쳐 같은 형식으로 나옵니다. 그 기간 기록은 `lastAt`/`Mistakes`/`sessionCount`가 비어 있거나 0일 수 있습니다.
 - 부서가 비어 있는 기록은 `users` 컬렉션의 부서로 채웁니다.
