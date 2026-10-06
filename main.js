@@ -951,6 +951,11 @@ const Views = {
                  showBankerDrawJudgment()/showFinalWinJudgment()); hidden
                  by default (style.css) so Step 1/3 never see it. -->
             <div class="bac-draw-tie-anchor" id="bac-draw-tie-win"></div>
+            <!-- STEP 2 only — "✓ CORRECT!" floating just above TIE when a
+                 hand is answered correctly (finishDrawingHand()). Its own
+                 slot, not inside #bac-draw-tie-win — that one's innerHTML
+                 is rewritten by every setBtn() call. -->
+            <div class="bac-draw-correct-anchor" id="bac-draw-correct"></div>
           </div>
           <div class="bac-player-zone">
             <div class="bac-zone-lbl bac-lbl-player">PLAYER</div>
@@ -3689,6 +3694,7 @@ const Sims = {
     }
     function finishDrawingHand() {
       if (S.step !== 2) return;
+      const okE = $('bac-draw-correct'); if (okE) okE.innerHTML = '✓ CORRECT!';
       S.score++; S.rounds++;
       $('bac-score').textContent = S.score;
       $('bac-rounds').textContent = S.rounds;
@@ -3702,6 +3708,7 @@ const Sims = {
       const ph3e = $('bac-ph3'); if (ph3e) ph3e.innerHTML = '';
       const bh3e = $('bac-bh3'); if (bh3e) bh3e.innerHTML = '';
       setBtn('bac-draw-banker-win', ''); setBtn('bac-draw-player-win', ''); setBtn('bac-draw-tie-win', '');
+      const okE = $('bac-draw-correct'); if (okE) okE.innerHTML = '';
       const cards = [S.deck.pop(), S.deck.pop(), S.deck.pop(), S.deck.pop()];
       // Same deal order/target mapping as Step 3's deal(): cards[0]=P2,
       // cards[1]=B1, cards[2]=P1, cards[3]=B2, visual order 4→2→3→1.
