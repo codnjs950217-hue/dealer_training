@@ -7080,7 +7080,10 @@ const Sims = {
         // 대기실(phase==='lobby')에 있는 동안만 (1) 주기적으로, (2) 탭으로
         // 돌아온 즉시 서버에서 방 문서를 직접 읽어 같은 _onSnapshot
         // 디스패처로 흘려보낸다. 경기/결과 화면에서는 돌지 않는다.
-        LOBBY_REFRESH_MS: 4000,
+        // 2026-10-06: 4s → 2s, 그리고 fetchBattleRoom이 SDK 연결과 독립된
+        // REST 읽기로 바뀜(firebase-init.js 주석) — onSnapshot이 멈춘
+        // 네트워크에서도 시작 신호를 2초 안에 잡는다. 대기실에서만 돈다.
+        LOBBY_REFRESH_MS: 2000,
         _startLobbyRefresh() {
           this._stopLobbyRefresh();
           B.lobbyTimer = setInterval(() => this._refreshLobby(), this.LOBBY_REFRESH_MS);

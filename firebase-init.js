@@ -5,7 +5,7 @@
 // this file only through window.DealerAuth, set at the bottom.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
-  initializeFirestore, doc, getDoc, getDocFromServer, setDoc, runTransaction,
+  initializeFirestore, doc, getDoc, setDoc, runTransaction,
   collection, query, orderBy, limit, getDocs,
   onSnapshot, updateDoc, deleteDoc, deleteField, increment, serverTimestamp, Timestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
@@ -320,12 +320,54 @@ function subscribeBattleRoom(code, onChange, onError) {
 // 대기실 보조 갱신용 1회성 서버 직접 읽기(2026-10-05) — onSnapshot은
 // 호스트가 코드를 공유하러 다른 앱에 다녀오면(모바일 백그라운드로
 // 연결이 끊김) 재연결 backoff 동안, 또는 롱폴링으로 떨어진 네트워크에서
-// 참가자 입장을 늦게 전달할 수 있다. 캐시가 아니라 항상 서버에서 읽어야
-// 의미가 있으므로 getDoc이 아니라 getDocFromServer를 쓴다.
+// 참가자 입장을 늦게 전달할 수 있다.
+//
+// 2026-10-06: SDK의 getDocFromServer 대신 Firestore REST API로 직접
+// 읽는다. 보고된 증상("호스트가 시작했는데 팀원은 대기실 화면 그대로,
+// 한참 뒤에 들어가짐")은 onSnapshot이 멈춘 그 순간 이 보조 갱신도 같이
+// 멈췄다는 뜻이다 — getDocFromServer는 onSnapshot과 같은 SDK 연결
+// (WebChannel/롱폴링 스트림)을 타므로, 그 연결이 멈추면 함께 기다린다.
+// 평범한 fetch()는 그 연결과 완전히 독립이라 SDK 쪽 상태와 무관하게
+// 매번 바로 서버 값을 받는다. battleRooms는 firestore.rules에서 read가
+// 공개(allow read: if true)라 API 키만으로 읽힌다. 문서가 없으면(404)
+// 방이 삭제된 것 → null(onSnapshot의 "방 삭제"와 같은 의미).
+const _REST_DOC_BASE = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
+// REST의 타입 래핑 값({integerValue:"3"}, {mapValue:{fields}} 등)을
+// SDK가 주는 평범한 JS 값으로 푼다. timestampValue는 _roomData()가
+// 하는 것과 똑같이 ms 숫자로 바로 바꾼다.
+function _restValue(v) {
+  if (!v) return null;
+  if ('stringValue' in v) return v.stringValue;
+  if ('integerValue' in v) return Number(v.integerValue);
+  if ('doubleValue' in v) return v.doubleValue;
+  if ('booleanValue' in v) return v.booleanValue;
+  if ('nullValue' in v) return null;
+  // 소수점 이하(최대 나노초 9자리)를 ms 3자리로 잘라서 파싱 — Safari의
+  // Date.parse가 3자리를 넘는 소수 초를 못 읽는 경우 대비.
+  if ('timestampValue' in v) return Date.parse(v.timestampValue.replace(/(\.\d{3})\d+/, '$1'));
+  if ('mapValue' in v) return _restFields(v.mapValue.fields);
+  if ('arrayValue' in v) return (v.arrayValue.values || []).map(_restValue);
+  return null;
+}
+function _restFields(fields) {
+  const out = {};
+  for (const [k, v] of Object.entries(fields || {})) out[k] = _restValue(v);
+  return out;
+}
 async function fetchBattleRoom(code) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  const snap = await getDocFromServer(doc(db, "battleRooms", code));
-  return _roomData(snap);
+  // 응답이 안 오는 요청이 다음 주기와 겹쳐 쌓이지 않게 짧게 끊는다.
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 3000);
+  try {
+    const res = await fetch(`${_REST_DOC_BASE}/battleRooms/${encodeURIComponent(code)}?key=${firebaseConfig.apiKey}`,
+      { cache: 'no-store', signal: ctrl.signal });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`battleRooms REST ${res.status}`);
+    return _restFields((await res.json()).fields);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // ---- 트레이닝 로그 (2026-10-02, 2026-10-06 일별 1행으로 개편) ----
