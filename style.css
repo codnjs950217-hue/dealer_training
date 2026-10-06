@@ -3357,7 +3357,29 @@ body {
 .bac-drawing-mode {
   --bac-draw-judge-h0: clamp(30px, 6.5vh, 38px);
   --bac-draw-judge-h: clamp(42px, 9.5vh, 52px);
+  /* 2026-10-06 ("BANKER DRAW버튼이랑 SHOE랑 겹치는 현상... 카드들을 가운데
+     흰선에 가깝게"): on small landscape phones (667x375 → 1px gap, 640x360
+     and below → overlap) there wasn't room between SHOE and BANKER DRAW,
+     while each hand sat 24px padding + half the 56-80px divider column
+     away from the center line. STEP 2 now zeroes the divider column's
+     width and pulls both hands in to --bac-draw-center-pad from the
+     center line — but only as far as the BANKER/PLAYER WIN ovals (which
+     center over their hands and so move with them) still clear the TIE
+     oval by 6px: center→hand edge = TIE/2 + 6px − (hand span − WIN
+     width)/2. The three widths are vars so this formula and the
+     buttons' own sizing can never drift apart. Symmetric on both sides
+     (see project memory on flex:1 zones — never pad one side only). */
+  --bac-draw-win-w: clamp(110px, 17vw, 170px);
+  --bac-draw-tie-w: clamp(64px, 12vw, 88px);
+  --bac-draw-center-pad: max(8px, calc(var(--bac-draw-tie-w) / 2 + 6px - (var(--card-w-lg) * 2 + .35rem - var(--bac-draw-win-w)) / 2));
 }
+.bac-drawing-mode .bac-field-divider { width: 0; }
+.bac-drawing-mode .bac-banker-zone { padding-right: var(--bac-draw-center-pad); }
+.bac-drawing-mode .bac-player-zone { padding-left: var(--bac-draw-center-pad); }
+.bac-drawing-mode .bac-lbl-banker,
+.bac-drawing-mode .bac-draw-win-anchor-banker { right: var(--bac-draw-center-pad); }
+.bac-drawing-mode .bac-lbl-player,
+.bac-drawing-mode .bac-draw-win-anchor-player { left: var(--bac-draw-center-pad); }
 .bac-draw-win-anchor { display: none; }
 .bac-drawing-mode .bac-draw-win-anchor {
   display: flex;
@@ -3416,7 +3438,7 @@ body {
      divider column, .bac-field-divider's own overflow:visible lets it
      bleed slightly past that column's edges without clipping) — "TIE"
      is also a shorter label than "PLAYER WIN"/"BANKER WIN". */
-  width: clamp(64px, 12vw, 88px);
+  width: var(--bac-draw-tie-w);
 }
 /* Overrides .bac-win-oval's own `width:100% !important` to this
    anchor's own (narrower) width instead of Step 3's 2-card-wide sizing
@@ -3470,7 +3492,7 @@ body {
    stretch to this anchor's full 2-card-wide box, reading as oversized.
    Needs !important to outrank .bac-win-oval's own !important. */
 .bac-draw-win-anchor .bac-win-oval {
-  width: clamp(110px, 17vw, 170px) !important;
+  width: var(--bac-draw-win-w) !important;
   font-size: clamp(.62rem, 1.4vh, .76rem) !important;
   padding: 0 clamp(.45rem, 1.1vw, .65rem) !important;
   /* 2026-09-03: same strong "tappable" glow pulse as BANKER/PLAYER DRAW
