@@ -6390,6 +6390,9 @@ const Sims = {
       _startTimer() {
         this._stopTimer();
         S.timerStart = performance.now();
+        // 배틀 타임 어택: TIME 칸은 _startBattleTimer()가 남은 시간
+        // 카운트다운으로 쓰므로 라운드별 스톱워치로 덮어쓰지 않는다.
+        if (S.battleEndAt) return;
         const el = $('rpay-timer');
         if (el) { el.className = 'rpay-timer rpay-timer-running'; el.textContent = '00:00'; }
         S.timerInterval = setInterval(() => {
@@ -6426,7 +6429,7 @@ const Sims = {
         this._setControlsVisible(true);
         this._stopTimer();
         const timerEl = $('rpay-timer');
-        if (timerEl) { timerEl.className = 'rpay-timer'; timerEl.textContent = '—'; }
+        if (timerEl && !S.battleEndAt) { timerEl.className = 'rpay-timer'; timerEl.textContent = '—'; }
         S.awaitingPay = true;
         if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
 
@@ -6520,7 +6523,7 @@ const Sims = {
         this._stopTimer();
         const elapsed = S.timerStart ? (performance.now() - S.timerStart) / 1000 : null;
         const timerEl = $('rpay-timer');
-        if (timerEl && elapsed !== null) {
+        if (timerEl && elapsed !== null && !S.battleEndAt) {
           timerEl.textContent = fmtTime(elapsed);
           timerEl.className = 'rpay-timer rpay-timer-done';
         }
@@ -6808,7 +6811,8 @@ const Sims = {
         if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
         if ($('rpay-pay-zone'))   $('rpay-pay-zone').innerHTML   = '';
         const wb = $('rpay-chip-warn-banner'); if (wb) wb.style.visibility = 'hidden';
-        const timerEl = $('rpay-timer'); if (timerEl) { timerEl.className = 'rpay-timer'; timerEl.textContent = '—'; }
+        // 타임 어택은 시작 전부터 TIME 칸에 제한시간(예: 01:00)을 띄워 둔다.
+        const timerEl = $('rpay-timer'); if (timerEl) { timerEl.className = 'rpay-timer'; timerEl.textContent = isRoundMode ? '—' : fmtTime(limitValue); }
 
         const tbl = document.getElementById('rpay-full-table');
         if (tbl) {
@@ -6878,12 +6882,18 @@ const Sims = {
       // 제한시간 모드 전용 — 매 250ms마다 절대 마감 시각(S.battleEndAt)
       // 대비 남은 시간을 다시 계산한다(기기별 로컬 시계 오차에도 표시가
       // 어긋나지 않도록, _armBattleReady와 같은 이유).
+      // 남은 시간은 TIME 칸(#rpay-timer)에 60→0 카운트다운(00:59 형식)으로
+      // 보여 준다(2026-10-06) — 상단 바의 ⏱ 슬롯은 숨겨져 있다.
       _startBattleTimer() {
-        S.challengeInterval = setInterval(() => {
+        const tick = () => {
           const remain = Math.max(0, Math.ceil((S.battleEndAt - Date.now()) / 1000));
           const timeEl = $('rpay-challenge-time'); if (timeEl) timeEl.textContent = String(remain);
+          const timerEl = $('rpay-timer');
+          if (timerEl) { timerEl.className = 'rpay-timer rpay-timer-running'; timerEl.textContent = fmtTime(remain); }
           if (remain <= 0) this._endBattleLocal();
-        }, 250);
+        };
+        S.challengeInterval = setInterval(tick, 250);
+        tick();
       },
 
       // startChallenge류의 _endChallenge()와 같은 보드 freeze 기법이지만,
