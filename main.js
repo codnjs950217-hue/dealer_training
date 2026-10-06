@@ -5632,6 +5632,31 @@ const Sims = {
     // mulberry32 — 32비트 정수 seed 하나로 재현 가능한 [0,1) 난수 스트림을
     // 만드는 작고 빠른 PRNG. 암호학적 용도가 아니라 "같은 seed → 같은
     // 문제" 재현성만 필요하므로 이 정도로 충분하다.
+    // 배틀 순위(2026-10-02 기준, 2026-10-06 함수로 분리) — 결과 화면
+    // (_showFinalResult)과 영구 기록(battleHistory, firebase-init.js
+    // finishBattleRoom에 _battleRankIds로 넘김)이 같은 기준을 쓰도록 한 곳에
+    // 둔다. mistakes 오름차순이 1차 기준이라는 점은 두 모드 공통 — 0회가
+    // 1회 이상보다 무조건 위, 1회 이상인 사람들끼리도 적은 쪽이 위(둘 다
+    // mistakes만 보면 자동으로 "무실수 절대 우선"이 된다). 모드별로 다른 건
+    // 그 다음 동점자 기준뿐: 라운드 모드는 완료 시간, 제한시간 모드는 정답
+    // 수→마지막 정답 시각. 끝까지 못 푼(finished=false) 참가자는 기준과
+    // 무관하게 항상 맨 아래로 내린다. 시각 필드는 ms 숫자여야 한다
+    // (firebase-init.js _roomData가 변환해서 넘겨줌).
+    function _battleRankRows(data) {
+      const isRoundMode = data.mode === 'round';
+      return Object.entries(data.players || {}).map(([id, p]) => ({ id, ...p }))
+        .sort((a, b) => {
+          if (!!a.finished !== !!b.finished) return a.finished ? -1 : 1;
+          if (!a.finished) return 0;
+          const am = a.mistakes ?? 0, bm = b.mistakes ?? 0;
+          if (am !== bm) return am - bm;
+          if (isRoundMode) return (a.finishedAt ?? Infinity) - (b.finishedAt ?? Infinity);
+          if (a.score !== b.score) return b.score - a.score;
+          return (a.lastCorrectAt ?? Infinity) - (b.lastCorrectAt ?? Infinity);
+        });
+    }
+    const _battleRankIds = data => _battleRankRows(data).map(r => r.id);
+
     function _makeSeededRng(seed) {
       let s = (seed >>> 0) || 1;
       return function () {
@@ -6891,7 +6916,7 @@ const Sims = {
           // 재확인하고, 맞으면 status를 'finished'로 전환한다(멱등 —
           // 이미 finished면 그냥 no-op). 마지막으로 끝난 사람이 자연스럽게
           // 이 역할을 하게 되고, 15초 유예 타이머가 그 보완책이다.
-          await window.DealerAuth.finishBattleRoom(B.roomId);
+          await window.DealerAuth.finishBattleRoom(B.roomId, false, _battleRankIds);
         } catch (e) {
           console.error('[roulettePay] 배틀 결과 제출 실패:', e);
           const el = statusEl(); if (el) el.textContent = '제출 실패 (네트워크 오류)';
@@ -7284,7 +7309,7 @@ const Sims = {
           if (B && B.roomId && B.myId && window.DealerAuth) {
             try {
               await window.DealerAuth.leaveBattleRoom(B.roomId, B.myId);
-              await window.DealerAuth.finishBattleRoom(B.roomId);
+              await window.DealerAuth.finishBattleRoom(B.roomId, false, _battleRankIds);
             } catch (e) { console.error('[roulettePay.battle] 나가기 실패:', e); }
           }
           this.teardown();
@@ -7318,7 +7343,7 @@ const Sims = {
               // 탭을 닫아버렸다는 뜻일 가능성이 높으므로, "전원 완료"
               // 확인 없이 강제로 끝낸다(정상 경로의 finishBattleRoom()은
               // force 없이 호출되어 전원 완료 전엔 상태를 바꾸지 않음).
-              window.DealerAuth.finishBattleRoom(B.roomId, true).catch(e => console.error('[roulettePay.battle] 강제 종료 실패:', e));
+              window.DealerAuth.finishBattleRoom(B.roomId, true, _battleRankIds).catch(e => console.error('[roulettePay.battle] 강제 종료 실패:', e));
             }
           }, delay);
         },
@@ -7388,24 +7413,8 @@ const Sims = {
           if (!tbl) return;
           const existing = tbl.querySelector('.rpay-challenge-end-overlay');
           if (existing) existing.remove();
-          // 순위 판정(2026-10-02): mistakes 오름차순이 1차 기준이라는 점은
-          // 두 모드 공통 — 0회가 1회 이상보다 무조건 위, 1회 이상인
-          // 사람들끼리도 적은 쪽이 위(둘 다 mistakes만 보면 자동으로
-          // "무실수 절대 우선"이 된다). 모드별로 다른 건 그 다음 동점자
-          // 기준뿐: 라운드 모드는 완료 시간, 제한시간 모드는 정답 수→
-          // 마지막 정답 시각. 끝까지 못 푼(finished=false) 참가자는
-          // 기준과 무관하게 항상 맨 아래로 내린다.
-          const isRoundMode = data.mode === 'round';
-          const rows = Object.entries(data.players || {}).map(([id, p]) => ({ id, ...p }))
-            .sort((a, b) => {
-              if (!!a.finished !== !!b.finished) return a.finished ? -1 : 1;
-              if (!a.finished) return 0;
-              const am = a.mistakes ?? 0, bm = b.mistakes ?? 0;
-              if (am !== bm) return am - bm;
-              if (isRoundMode) return (a.finishedAt ?? Infinity) - (b.finishedAt ?? Infinity);
-              if (a.score !== b.score) return b.score - a.score;
-              return (a.lastCorrectAt ?? Infinity) - (b.lastCorrectAt ?? Infinity);
-            });
+          // 순위 기준은 _battleRankRows(위) 한 곳 — battleHistory 기록과 공유.
+          const rows = _battleRankRows(data);
           const ov = document.createElement('div');
           ov.className = 'rpay-challenge-end-overlay';
           ov.innerHTML = `

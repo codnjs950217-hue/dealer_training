@@ -115,6 +115,31 @@ service cloud.firestore {
       allow delete: if true;
     }
 
+    // 배틀 기록 영구 보관(2026-10-06, "배틀기록 영구보관해줘") — battleRooms는
+    // 끝나면 삭제되는 임시 방이라, 방이 'finished'로 바뀌는 그 트랜잭션
+    // (firebase-init.js finishBattleRoom)이 여기에 결과를 딱 한 번 남긴다.
+    // 문서 ID = 방 ID(생성시각_코드)라 Console에서 생성 순으로 보인다.
+    // 관리자만 Console/Admin SDK로 보므로 read는 막고, 한 번 쓰면 수정·삭제
+    // 불가. 같은 ID의 방이 실제로 있어야만 생성 가능(종료 트랜잭션 안에서는
+    // 방이 아직 존재) — 아무 문서나 만들어 넣는 걸 막는다.
+    match /battleHistory/{roomId} {
+      allow read: if false;
+      allow create: if request.resource.data.keys().hasOnly([
+                         'date', 'code', 'mode', 'limitValue', 'hostId', 'hostName',
+                         'createdAt', 'startedAt', 'finishedAt', 'forced', 'playerCount', 'players'])
+                    && exists(/databases/$(database)/documents/battleRooms/$(roomId))
+                    && request.resource.data.date is string
+                    && request.resource.data.mode in ['time', 'round']
+                    && request.resource.data.limitValue is int
+                    && request.resource.data.hostId is string
+                    && request.resource.data.finishedAt is timestamp
+                    && request.resource.data.forced is bool
+                    && request.resource.data.playerCount is int
+                    && request.resource.data.players is list
+                    && request.resource.data.players.size() <= 5;
+      allow update, delete: if false;
+    }
+
     // 트레이닝 로그 — 점수/랭킹이 아니라 "얼마나 트레이닝 했는지"만
     // 관리자(개발자)가 Admin SDK 스크립트로 추출해 보는 비공개 집계다.
     // 사용자에게는 절대 보여주지 않으므로 read는 누구에게도 허용하지

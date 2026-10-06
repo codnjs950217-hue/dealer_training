@@ -376,8 +376,25 @@ async function submitBattleResult(roomId, employeeId, score, mistakes, lastCorre
 // 닫아버린 참가자에 대한 최후 안전망)일 때만 이 확인을 건너뛰고
 // 무조건 종료한다 — 정상 경로(force 없음)는 players 전원이
 // finished===true일 때만 상태를 바꾼다.
-async function finishBattleRoom(roomId, force = false) {
+// 2026-10-06: 'finished'로 바꾸는 바로 그 트랜잭션에서 battleHistory/{roomId}
+// 에 결과를 영구 기록한다 — 상태 전환이 트랜잭션으로 한 번만 일어나므로
+// 기록도 정확히 한 번. rankIds(data)는 main.js가 넘기는 순위 함수(결과
+// 화면과 같은 기준, 사번 배열을 1위부터 반환)라 화면 순위와 기록 순위가
+// 갈리지 않는다. rankIds 없이 부르는 예전 클라이언트는 기록 없이 종료만.
+// 기록 쓰기가 규칙에 막히면(battleHistory 규칙 미배포 등) 종료까지 같이
+// 실패하지 않도록 기록 없이 한 번 더 시도한다.
+async function finishBattleRoom(roomId, force = false, rankIds = null) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
+  try {
+    await _finishBattleRoom(roomId, force, rankIds);
+  } catch (e) {
+    if (!rankIds || !e || e.code !== 'permission-denied') throw e;
+    console.warn('[battle] battleHistory 기록 거부됨 — 기록 없이 종료만 진행', e);
+    await _finishBattleRoom(roomId, force, null);
+  }
+}
+
+async function _finishBattleRoom(roomId, force, rankIds) {
   const ref = doc(db, "battleRooms", roomId);
   await runTransaction(db, async (tx) => {
     const snap = await tx.get(ref);
@@ -390,7 +407,46 @@ async function finishBattleRoom(roomId, force = false) {
       if (!allFinished) return; // 아직 다른 참가자가 플레이 중 — 상태 그대로 유지
     }
     tx.update(ref, { status: 'finished', lastActivityAt: serverTimestamp() });
+    if (rankIds) tx.set(doc(db, "battleHistory", roomId), _historyDoc(roomId, data, rankIds(_roomData(snap)), force));
   });
+}
+
+// battleHistory 문서. 시각 필드는 방 문서의 Timestamp를 그대로 옮기고(Console
+// 에서 날짜로 보임), 예전 방의 숫자 ms 값은 Timestamp로 바꾼다. players는
+// 1위부터의 배열 — Console에서 순서대로 펼쳐 보인다.
+function _historyDoc(roomId, data, orderedIds, forced) {
+  const asTs = v => (v == null ? null : (typeof v === 'number' ? Timestamp.fromMillis(v) : v));
+  const m = /^(\d{4}-\d{2}-\d{2})_/.exec(roomId);
+  const today = new Date();
+  const p2 = n => String(n).padStart(2, '0');
+  const players = data.players || {};
+  const host = players[data.hostId];
+  return {
+    date: m ? m[1] : `${today.getFullYear()}-${p2(today.getMonth() + 1)}-${p2(today.getDate())}`,
+    code: data.code || roomId,
+    mode: data.mode,
+    limitValue: data.limitValue,
+    hostId: data.hostId,
+    hostName: host ? host.name : '',
+    createdAt: asTs(data.createdAt),
+    startedAt: asTs(data.startedAt),
+    finishedAt: serverTimestamp(),
+    forced: !!forced,
+    playerCount: orderedIds.length,
+    players: orderedIds.map((id, i) => {
+      const p = players[id] || {};
+      return {
+        rank: i + 1,
+        employeeId: id,
+        name: p.name || '',
+        score: p.score ?? 0,
+        mistakes: p.mistakes ?? 0,
+        finished: !!p.finished,
+        finishedAt: asTs(p.finishedAt),
+        lastCorrectAt: asTs(p.lastCorrectAt),
+      };
+    }),
+  };
 }
 
 // 결과 화면의 [종료하기] 확인 후 호출 — 부르는 사람이 호스트인지와
