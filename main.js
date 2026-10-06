@@ -7042,7 +7042,12 @@ const Sims = {
             this._subscribe();
           } catch (e) {
             console.error('[roulettePay.battle] 방 생성 실패:', e);
-            const el = errEl(); if (el) el.textContent = '방 생성에 실패했습니다. 다시 시도해주세요.';
+            // 원인 코드도 같이 보여준다(2026-10-06) — "라운드 방이 안
+            // 만들어진다" 보고 때 현재 코드/규칙으론 재현이 안 돼서, 다음엔
+            // 화면만 보고도 원인(permission-denied=예전 코드, unavailable=
+            // 네트워크 등)을 알 수 있게.
+            const why = (e && (e.code || e.message)) || '';
+            const el = errEl(); if (el) el.textContent = `방 생성에 실패했습니다. 다시 시도해주세요.${why ? ` (${why})` : ''}`;
           }
         },
 
