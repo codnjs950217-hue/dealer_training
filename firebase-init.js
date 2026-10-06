@@ -118,8 +118,23 @@ function _genRoomCode() {
 // 이상), mode==='round'면 라운드 수(1 이상) — 둘 다 호스트가 방 설정
 // 화면에서 고른 값 그대로, 방 생성 시점에 한 번 박히고 이후 바뀌지
 // 않는다(firestore.rules의 update 규칙이 불변으로 강제).
+//
+// createdAt은 Firestore Timestamp(Console에서 날짜로 보임)로 먼저 써 보고,
+// 게시된 규칙이 아직 예전 것(createdAt is int)이라 permission-denied가 나면
+// 숫자 ms로 다시 만든다 — 규칙 게시 순서와 무관하게 방 생성이 깨지지
+// 않게. 거부된 트랜잭션은 아무것도 쓰지 않으므로 재시도해도 중복 없음.
 async function createBattleRoom(employeeId, name, mode, limitValue) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
+  try {
+    return await _createBattleRoom(employeeId, name, mode, limitValue, serverTimestamp());
+  } catch (e) {
+    if (!e || e.code !== 'permission-denied') throw e;
+    console.warn('[battle] createdAt timestamp 거부됨(firestore.rules 미게시?) — 숫자 ms로 재시도');
+    return _createBattleRoom(employeeId, name, mode, limitValue, Date.now());
+  }
+}
+
+async function _createBattleRoom(employeeId, name, mode, limitValue, createdAt) {
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = _genRoomCode();
     const ref = doc(db, "battleRooms", code);
@@ -130,11 +145,9 @@ async function createBattleRoom(employeeId, name, mode, limitValue) {
       tx.set(ref, {
         hostId: employeeId,
         status: 'waiting',
-        // Firestore Timestamp — Console에서 날짜/시간으로 보이게(숫자 ms였을
-        // 땐 13자리 숫자로만 보였음). 코드 어디서도 다시 읽지 않는 기록용
-        // 값이라 타입을 바꿔도 영향 없음. startedAt은 카운트다운/RNG seed로
-        // 숫자 연산에 쓰이므로 ms 그대로 둔다.
-        createdAt: serverTimestamp(),
+        // 기록용 값(코드 어디서도 다시 읽지 않음). startedAt은 카운트다운/
+        // RNG seed로 숫자 연산에 쓰이므로 ms 그대로 둔다.
+        createdAt,
         startedAt: null,
         mode, limitValue,
         players: { [employeeId]: { name, score: 0, mistakes: 0, finished: false, finishedAt: null } },
@@ -331,15 +344,23 @@ async function logTrainingSession({ employeeId, name, department, game, playMinu
     perGame[`${g}Count`]    = increment(mine ? playCount : 0);
     perGame[`${g}Mistakes`] = increment(mine ? mistakes : 0);
   }
+  const daily = lastAt => setDoc(doc(db, "trainingDaily", `${date}_${employeeId}`), {
+    date, employeeId, name, department, lastAt,
+    totalMinutes: increment(playMinutes),
+    totalCount: increment(playCount),
+    totalMistakes: increment(mistakes),
+    sessionCount: increment(sessionCount),
+    ...perGame,
+  }, { merge: true });
   try {
-    await setDoc(doc(db, "trainingDaily", `${date}_${employeeId}`), {
-      date, employeeId, name, department, lastAt: serverTimestamp(), // Console에서 날짜/시간으로 보이게
-      totalMinutes: increment(playMinutes),
-      totalCount: increment(playCount),
-      totalMistakes: increment(mistakes),
-      sessionCount: increment(sessionCount),
-      ...perGame,
-    }, { merge: true });
+    // lastAt: Timestamp(Console에서 날짜로 보임) → 예전 규칙(lastAt is int)
+    // 이면 숫자 ms → trainingDaily 규칙 자체가 없으면 예전 trainingLogs 순.
+    try {
+      await daily(serverTimestamp());
+    } catch (e) {
+      if (!e || e.code !== 'permission-denied') throw e;
+      await daily(now.getTime());
+    }
   } catch (e) {
     if (e && e.code !== 'permission-denied') throw e;
     console.warn('[TrainingLog] trainingDaily 거부됨(firestore.rules 미배포?) — 예전 trainingLogs 형식으로 기록');
