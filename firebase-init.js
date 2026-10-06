@@ -105,6 +105,11 @@ async function getRouletteTopScores(n = 20) {
 // 없이 문서 스키마 검증(firestore.rules)에만 의존한다 — 이 파일은 순수
 // Firestore CRUD 레이어로 유지하고, 게임 로직(언제 종료 판정을 내릴지,
 // 순위를 어떻게 계산할지)은 main.js의 Sims.roulettePay.battle에 둔다.
+// lastActivityAt(2026-10-06): 이 파일의 battleRooms 쓰기는 전부 이 필드를
+// serverTimestamp로 함께 갱신한다 — 관리자가 Console에서 "최근 활동한
+// 방" 순으로 정렬해 보기 위한 기록용(앱은 읽지 않음). 새 쓰기 경로를
+// 추가하면 여기도 같이 넣을 것.
+//
 // 방 문서의 시각 필드(startedAt, players.*.finishedAt/lastCorrectAt)는
 // 2026-10-06부터 Firestore Timestamp로 저장한다 — 관리자가 Console에서
 // 날짜/시간으로 읽을 수 있게(숫자 ms는 13자리 숫자로만 보였음). main.js의
@@ -118,6 +123,7 @@ function _roomData(snap) {
   const data = snap.data();
   data.startedAt = _ms(data.startedAt);
   data.createdAt = _ms(data.createdAt);
+  data.lastActivityAt = _ms(data.lastActivityAt);
   for (const p of Object.values(data.players || {})) {
     if (!p) continue;
     p.finishedAt = _ms(p.finishedAt);
@@ -170,6 +176,7 @@ async function _createBattleRoom(employeeId, name, mode, limitValue, createdAt) 
         // RNG seed로 숫자 연산에 쓰이므로 ms 그대로 둔다.
         createdAt,
         startedAt: null,
+        lastActivityAt: serverTimestamp(),
         mode, limitValue,
         players: { [employeeId]: { name, score: 0, mistakes: 0, finished: false, finishedAt: null } },
       });
@@ -194,7 +201,7 @@ async function joinBattleRoom(code, employeeId, name) {
     if (data.status !== 'waiting') throw new Error('already_started');
     const count = data.players ? Object.keys(data.players).length : 0;
     if (count >= 5) throw new Error('room_full');
-    tx.update(ref, { [`players.${employeeId}`]: { name, score: 0, mistakes: 0, finished: false, finishedAt: null } });
+    tx.update(ref, { [`players.${employeeId}`]: { name, score: 0, mistakes: 0, finished: false, finishedAt: null }, lastActivityAt: serverTimestamp() });
   });
 }
 
@@ -228,7 +235,7 @@ async function leaveBattleRoom(code, employeeId) {
     // 시작 시각을 정한다 — 안 그러면 아무도 시작시키지 않아 영원히 대기.
     const extra = (data.status === 'playing' && !data.startedAt && _allReady(players))
       ? { startedAt: _ts(Date.now() + BATTLE_READY_LEAD_MS) } : {};
-    tx.update(ref, { [`players.${employeeId}`]: deleteField(), ...extra });
+    tx.update(ref, { [`players.${employeeId}`]: deleteField(), ...extra, lastActivityAt: serverTimestamp() });
   });
 }
 
@@ -258,7 +265,7 @@ const BATTLE_READY_LEAD_MS = 6000;
 // 규칙 변경은 필요 없다.
 async function startBattleRoom(code) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  await updateDoc(doc(db, "battleRooms", code), { status: 'playing', startedAt: null });
+  await updateDoc(doc(db, "battleRooms", code), { status: 'playing', startedAt: null, lastActivityAt: serverTimestamp() });
 }
 
 const _allReady = players => Object.values(players || {}).every(p => p && p.ready === true);
@@ -273,7 +280,7 @@ async function markBattleReady(code, employeeId) {
     const players = data.players || {};
     if (data.status !== 'playing' || data.startedAt || !players[employeeId]) return;
     const others = Object.entries(players).filter(([id]) => id !== employeeId).map(([, p]) => p);
-    const update = { [`players.${employeeId}.ready`]: true };
+    const update = { [`players.${employeeId}.ready`]: true, lastActivityAt: serverTimestamp() };
     if (others.every(p => p && p.ready === true)) update.startedAt = _ts(Date.now() + BATTLE_READY_LEAD_MS);
     tx.update(ref, update);
   });
@@ -291,7 +298,7 @@ async function startBattleWithoutUnready(code) {
     if (data.status !== 'playing' || data.startedAt) return;
     const entries = Object.entries(data.players || {});
     if (!entries.some(([, p]) => p && p.ready === true)) return;
-    const update = { startedAt: _ts(Date.now() + BATTLE_READY_LEAD_MS) };
+    const update = { startedAt: _ts(Date.now() + BATTLE_READY_LEAD_MS), lastActivityAt: serverTimestamp() };
     for (const [id, p] of entries) if (!(p && p.ready === true)) update[`players.${id}`] = deleteField();
     tx.update(ref, update);
   });
@@ -316,6 +323,7 @@ async function submitBattleResult(code, employeeId, score, mistakes, lastCorrect
     [`players.${employeeId}.finished`]: true,
     [`players.${employeeId}.finishedAt`]: _ts(Date.now()),
     [`players.${employeeId}.lastCorrectAt`]: _ts(lastCorrectAt),
+    lastActivityAt: serverTimestamp(),
   });
 }
 
@@ -347,7 +355,7 @@ async function finishBattleRoom(code, force = false) {
       const allFinished = Object.values(players).every(p => p && p.finished === true);
       if (!allFinished) return; // 아직 다른 참가자가 플레이 중 — 상태 그대로 유지
     }
-    tx.update(ref, { status: 'finished' });
+    tx.update(ref, { status: 'finished', lastActivityAt: serverTimestamp() });
   });
 }
 

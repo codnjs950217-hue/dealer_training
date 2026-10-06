@@ -48,13 +48,18 @@ service cloud.firestore {
     match /battleRooms/{roomCode} {
       allow read: if true;
 
+      // lastActivityAt(2026-10-06): 방에 쓰기가 있을 때마다(생성/입장/시작/
+      // 입장완료/결과/퇴장/종료) serverTimestamp로 갱신 — 관리자가 Console
+      // 필터에서 이 필드 내림차순으로 정렬해 "최근 활동한 방"부터 본다.
+      // 예전 클라이언트는 안 보내므로 "있으면 timestamp"로만 검증.
+
       // mode/limitValue(2026-10-02, 호스트 방 설정 화면): 'time'이면
       // limitValue는 제한시간(초, 60 이상), 'round'면 라운드 수(1 이상).
       // 방 생성 시 한 번 정해지면 update 규칙이 불변으로 강제한다 —
       // 참가자는 절대 이 값을 바꿀 수 없다(클라이언트에도 그 UI 자체가
       // 없지만, 규칙으로도 막아둔다).
       allow create: if request.resource.data.keys().hasOnly(
-                         ['hostId', 'players', 'status', 'createdAt', 'startedAt', 'mode', 'limitValue'])
+                         ['hostId', 'players', 'status', 'createdAt', 'startedAt', 'mode', 'limitValue', 'lastActivityAt'])
                     && request.resource.data.hostId is string
                     && request.resource.data.status == 'waiting'
                     // 2026-10-06: int(ms) -> timestamp(serverTimestamp) — Console 표시용
@@ -64,13 +69,14 @@ service cloud.firestore {
                     && request.resource.data.players.keys().hasOnly([request.resource.data.hostId])
                     && request.resource.data.mode in ['time', 'round']
                     && request.resource.data.limitValue is int
+                    && (!('lastActivityAt' in request.resource.data) || request.resource.data.lastActivityAt is timestamp)
                     && (
                       (request.resource.data.mode == 'time'  && request.resource.data.limitValue >= 60) ||
                       (request.resource.data.mode == 'round' && request.resource.data.limitValue >= 1)
                     );
 
       allow update: if request.resource.data.keys().hasOnly(
-                         ['hostId', 'players', 'status', 'createdAt', 'startedAt', 'mode', 'limitValue'])
+                         ['hostId', 'players', 'status', 'createdAt', 'startedAt', 'mode', 'limitValue', 'lastActivityAt'])
                     && request.resource.data.hostId == resource.data.hostId
                     && request.resource.data.createdAt == resource.data.createdAt
                     && request.resource.data.mode == resource.data.mode
@@ -87,7 +93,8 @@ service cloud.firestore {
                       (resource.data.status == 'playing'  && request.resource.data.status == 'finished')
                     )
                     && request.resource.data.players is map
-                    && request.resource.data.players.size() <= 5;
+                    && request.resource.data.players.size() <= 5
+                    && (!('lastActivityAt' in request.resource.data) || request.resource.data.lastActivityAt is timestamp);
 
       // 진행 상태와 무관하게 삭제 허용 — 호스트 이탈(어느 단계에서든 방
       // 즉시 해체), 결과 확인 후 전원 퇴장, 빈 방 정리가 모두 삭제로
