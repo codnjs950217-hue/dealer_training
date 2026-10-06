@@ -3358,28 +3358,29 @@ body {
   --bac-draw-judge-h0: clamp(30px, 6.5vh, 38px);
   --bac-draw-judge-h: clamp(42px, 9.5vh, 52px);
   /* 2026-10-06 ("BANKER DRAW버튼이랑 SHOE랑 겹치는 현상... 카드들을 가운데
-     흰선에 가깝게"): on small landscape phones (667x375 → 1px gap, 640x360
-     and below → overlap) there wasn't room between SHOE and BANKER DRAW,
-     while each hand sat 24px padding + half the 56-80px divider column
-     away from the center line. STEP 2 now zeroes the divider column's
-     width and pulls both hands in to --bac-draw-center-pad from the
-     center line — but only as far as the BANKER/PLAYER WIN ovals (which
-     center over their hands and so move with them) still clear the TIE
-     oval by 6px: center→hand edge = TIE/2 + 6px − (hand span − WIN
-     width)/2. The three widths are vars so this formula and the
-     buttons' own sizing can never drift apart. Symmetric on both sides
-     (see project memory on flex:1 zones — never pad one side only). */
+     흰선에 가깝게", follow-up "버튼이랑 안움직여도돼. 더 흰선에 가깝게...
+     아이폰 미니 13"): on small landscape phones there wasn't room between
+     SHOE and BANKER DRAW, while each hand sat 24px padding + half the
+     56-80px divider column away from the center line. STEP 2 zeroes the
+     divider column and pulls both hands (and their BANKER/PLAYER labels,
+     which name the cards) in to --bac-draw-center-pad from the line.
+     The BANKER/PLAYER WIN ovals deliberately do NOT follow — they stay
+     pinned exactly where they were before (24px + half the old divider
+     width from the center), so they never crowd TIE. Symmetric on both
+     sides (see project memory on flex:1 zones — never pad one side
+     only). */
   --bac-draw-win-w: clamp(110px, 17vw, 170px);
   --bac-draw-tie-w: clamp(64px, 12vw, 88px);
-  --bac-draw-center-pad: max(8px, calc(var(--bac-draw-tie-w) / 2 + 6px - (var(--card-w-lg) * 2 + .35rem - var(--bac-draw-win-w)) / 2));
+  --bac-draw-center-pad: clamp(8px, 1.5vw, 14px);
+  --bac-draw-win-inset: calc(24px + clamp(56px, 9vw, 80px) / 2);
 }
 .bac-drawing-mode .bac-field-divider { width: 0; }
 .bac-drawing-mode .bac-banker-zone { padding-right: var(--bac-draw-center-pad); }
 .bac-drawing-mode .bac-player-zone { padding-left: var(--bac-draw-center-pad); }
-.bac-drawing-mode .bac-lbl-banker,
-.bac-drawing-mode .bac-draw-win-anchor-banker { right: var(--bac-draw-center-pad); }
-.bac-drawing-mode .bac-lbl-player,
-.bac-drawing-mode .bac-draw-win-anchor-player { left: var(--bac-draw-center-pad); }
+.bac-drawing-mode .bac-lbl-banker { right: var(--bac-draw-center-pad); }
+.bac-drawing-mode .bac-lbl-player { left: var(--bac-draw-center-pad); }
+.bac-drawing-mode .bac-draw-win-anchor-banker { right: var(--bac-draw-win-inset); }
+.bac-drawing-mode .bac-draw-win-anchor-player { left: var(--bac-draw-win-inset); }
 .bac-draw-win-anchor { display: none; }
 .bac-drawing-mode .bac-draw-win-anchor {
   display: flex;
