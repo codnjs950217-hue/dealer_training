@@ -6802,7 +6802,7 @@ const Sims = {
         this._armBattleReady(startedAt);
       },
 
-      // markBattleReady()가 startedAt을 마지막 입장 시각 + 4초
+      // markBattleReady()가 startedAt을 마지막 입장 시각 + 6초
       // (BATTLE_READY_LEAD_MS)로 써서 보내므로(firebase-init.js), 그동안은 보드를 건드리지 않고
       // 큰 숫자 카운트다운만 보여준다. 매초 새 setTimeout을 거는 게 아니라
       // 매번 절대 시각(startedAt) 대비 남은 시간을 다시 계산해 기기별
@@ -6815,10 +6815,14 @@ const Sims = {
         const tick = () => {
           if (!S || !S.challengeMode) return; // 그 사이 방이 종료/이탈됨
           const remain = Math.ceil((startedAt - Date.now()) / 1000);
-          // 표시는 최대 3(2026-10-06, 5 → 3) — startedAt엔 전달 지연 대비 1초 여유가 더 들어
-          // 있다(firebase-init.js BATTLE_READY_LEAD_MS). 실제 시작 판정은
-          // 잘라내지 않은 remain 그대로.
-          const shown = Math.min(3, remain);
+          // startedAt엔 전달 지연 대비 1초 여유가 더 들어 있다(firebase-
+          // init.js BATTLE_READY_LEAD_MS = 5초 + 1초). 예전엔 표시를
+          // Math.min(5, remain)로 잘라서 그 여유 1초 동안에도 "5"가 떠 있어
+          // "5"만 ~2초 보였다("5라고 뜨는 시간 자체가 길다", 2026-10-06).
+          // 이제 remain>5인 동안은 숫자를 숨기고(자리는 유지해 문구가
+          // 들썩이지 않게) 5,4,3,2,1이 각각 정확히 1초씩 보인다. 실제
+          // 시작 판정은 잘라내지 않은 remain 그대로.
+          const hideNum = remain > 5;
           const ov = tbl ? tbl.querySelector('.rpay-battle-ready-overlay') : null;
           if (remain <= 0) {
             if (ov) ov.remove();
@@ -6828,7 +6832,7 @@ const Sims = {
           }
           if (tbl) {
             const box = ov || tbl.appendChild(Object.assign(document.createElement('div'), { className: 'rpay-battle-ready-overlay' }));
-            box.innerHTML = `<div class="rpay-battle-ready-label">곧 배틀이 시작됩니다</div><div class="rpay-battle-ready-num">${shown}</div>`;
+            box.innerHTML = `<div class="rpay-battle-ready-label">곧 배틀이 시작됩니다</div><div class="rpay-battle-ready-num"${hideNum ? ' style="visibility:hidden"' : ''}>${hideNum ? 5 : remain}</div>`;
           }
           setTimeout(tick, 200);
         };
