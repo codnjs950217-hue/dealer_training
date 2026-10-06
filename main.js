@@ -7094,7 +7094,10 @@ const Sims = {
         // 2026-10-06: 4s → 2s, 그리고 fetchBattleRoom이 SDK 연결과 독립된
         // REST 읽기로 바뀜(firebase-init.js 주석) — onSnapshot이 멈춘
         // 네트워크에서도 시작 신호를 2초 안에 잡는다. 대기실에서만 돈다.
-        LOBBY_REFRESH_MS: 2000,
+        // 2026-10-06(2차): 2s → 1s — 시작/입장완료 쓰기도 REST로 바뀌어
+        // (firebase-init.js) 서버엔 바로 반영되므로, 그걸 읽어 오는 쪽도
+        // 더 촘촘히. 대기실/입장 대기 동안에만 돈다.
+        LOBBY_REFRESH_MS: 1000,
         _startLobbyRefresh() {
           this._stopLobbyRefresh();
           B.lobbyTimer = setInterval(() => this._refreshLobby(), this.LOBBY_REFRESH_MS);
@@ -7164,6 +7167,7 @@ const Sims = {
               Sims.roulettePay.init(false);
               const leaveBtn = document.getElementById('rpay-battle-leave-btn'); if (leaveBtn) leaveBtn.style.display = '';
               window.DealerAuth.markBattleReady(B.roomId, B.myId)
+                .then(() => this._refreshLobby()) // 내가 마지막이었으면 정해진 시작 시각을 바로 읽어 옴
                 .catch(e => console.error('[roulettePay.battle] 입장 기록 실패:', e));
             }
             if (!B.started) {
@@ -7222,7 +7226,10 @@ const Sims = {
 
         async start() {
           if (!B || !B.roomId || !window.DealerAuth) return;
-          try { await window.DealerAuth.startBattleRoom(B.roomId); }
+          try {
+            await window.DealerAuth.startBattleRoom(B.roomId);
+            this._refreshLobby(); // 서버 반영 확인 즉시 내 화면도 전환(onSnapshot을 기다리지 않음)
+          }
           catch (e) { console.error('[roulettePay.battle] 시작 실패:', e); }
         },
 

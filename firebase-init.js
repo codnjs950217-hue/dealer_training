@@ -277,27 +277,47 @@ const BATTLE_READY_LEAD_MS = 6000;
 // 미입장자를 빼고 시작할 수 있다(main.js가 15초 뒤 버튼 노출).
 // startedAt/players 내부 필드는 firestore.rules가 타입을 검증하지 않아
 // 규칙 변경은 필요 없다.
+// 2026-10-06(2차, "아직도 호스트 시작 후 참가자 입장 느려"): 시작/입장완료
+// 쓰기는 SDK가 아니라 REST commit으로 보낸다. SDK 쓰기는 onSnapshot과 같은
+// 연결 상태에 묶여 있어서, 그 연결이 막힌 기기에선 호스트 화면은 (로컬
+// 반영으로) 바로 게임에 들어가도 서버엔 'playing'이 늦게 도착하고, 참가자의
+// ready도 늦게 도착해 전원 대기가 길어졌다. REST는 매번 독립된 HTTPS
+// 요청이라 그 연결 상태와 무관하다. 규칙(firestore.rules)은 SDK 쓰기와
+// 똑같이 적용된다.
 async function startBattleRoom(roomId) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  await updateDoc(doc(db, "battleRooms", roomId), { status: 'playing', startedAt: null, lastActivityAt: serverTimestamp() });
+  await _restCommit(roomId, { status: { stringValue: 'playing' }, startedAt: { nullValue: null } },
+    ['status', 'startedAt'], { exists: true });
 }
 
 const _allReady = players => Object.values(players || {}).every(p => p && p.ready === true);
 
+// REST로 하는 낙관적 트랜잭션 — 읽은 문서의 updateTime을 전제조건으로
+// 걸고 커밋해서, 그 사이 누가 먼저 썼으면(다른 참가자의 동시 ready 등)
+// 거부되고 다시 읽어 재시도한다. SDK runTransaction과 같은 보장.
 async function markBattleReady(roomId, employeeId) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  const ref = doc(db, "battleRooms", roomId);
-  await runTransaction(db, async (tx) => {
-    const snap = await tx.get(ref);
-    if (!snap.exists()) return;
-    const data = snap.data();
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const got = await _restGet(roomId);
+    if (!got) return;
+    const data = _restFields(got.fields);
     const players = data.players || {};
     if (data.status !== 'playing' || data.startedAt || !players[employeeId]) return;
     const others = Object.entries(players).filter(([id]) => id !== employeeId).map(([, p]) => p);
-    const update = { [`players.${employeeId}.ready`]: true, lastActivityAt: serverTimestamp() };
-    if (others.every(p => p && p.ready === true)) update.startedAt = _ts(Date.now() + BATTLE_READY_LEAD_MS);
-    tx.update(ref, update);
-  });
+    const fields = { players: { mapValue: { fields: { [employeeId]: { mapValue: { fields: { ready: { booleanValue: true } } } } } } } };
+    const mask = [`players.\`${employeeId}\`.ready`];
+    if (others.every(p => p && p.ready === true)) {
+      fields.startedAt = { timestampValue: new Date(Date.now() + BATTLE_READY_LEAD_MS).toISOString() };
+      mask.push('startedAt');
+    }
+    try {
+      await _restCommit(roomId, fields, mask, { updateTime: got.updateTime });
+      return;
+    } catch (e) {
+      if (e.code !== 'conflict') throw e; // 다른 쓰기와 충돌 — 다시 읽고 재시도
+    }
+  }
+  throw new Error('mark_ready_conflict');
 }
 
 // 호스트 전용 — 아직 입장(ready) 안 한 참가자를 빼고 바로 시작 시각을
@@ -428,20 +448,50 @@ function _restFields(fields) {
   for (const [k, v] of Object.entries(fields || {})) out[k] = _restValue(v);
   return out;
 }
-async function fetchBattleRoom(roomId) {
-  if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  // 응답이 안 오는 요청이 다음 주기와 겹쳐 쌓이지 않게 짧게 끊는다.
+// 응답이 안 오는 요청이 다음 주기와 겹쳐 쌓이지 않게 짧게 끊는다.
+async function _restFetch(url, init = {}) {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 3000);
+  const timer = setTimeout(() => ctrl.abort(), 4000);
   try {
-    const res = await fetch(`${_REST_DOC_BASE}/battleRooms/${encodeURIComponent(roomId)}?key=${firebaseConfig.apiKey}`,
-      { cache: 'no-store', signal: ctrl.signal });
-    if (res.status === 404) return null;
-    if (!res.ok) throw new Error(`battleRooms REST ${res.status}`);
-    return _restFields((await res.json()).fields);
+    return await fetch(url, { cache: 'no-store', ...init, signal: ctrl.signal });
   } finally {
     clearTimeout(timer);
   }
+}
+// 문서 원본(fields + updateTime). 없으면 null.
+async function _restGet(roomId) {
+  const res = await _restFetch(`${_REST_DOC_BASE}/battleRooms/${encodeURIComponent(roomId)}?key=${firebaseConfig.apiKey}`);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`battleRooms REST ${res.status}`);
+  return res.json();
+}
+// fieldPaths만 바꾸는 단일 문서 커밋 + lastActivityAt 서버 시각 갱신.
+// precondition: {exists:true} 또는 {updateTime} — 후자가 어긋나면 code
+// 'conflict'로 던진다(markBattleReady의 재시도용).
+async function _restCommit(roomId, fields, fieldPaths, precondition) {
+  const name = `projects/${firebaseConfig.projectId}/databases/(default)/documents/battleRooms/${roomId}`;
+  const res = await _restFetch(`${_REST_DOC_BASE}:commit?key=${firebaseConfig.apiKey}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ writes: [{
+      update: { name, fields },
+      updateMask: { fieldPaths },
+      currentDocument: precondition,
+      updateTransforms: [{ fieldPath: 'lastActivityAt', setToServerValue: 'REQUEST_TIME' }],
+    }] }),
+  });
+  if (res.ok) return;
+  let status = '';
+  try { status = (await res.json()).error.status; } catch (_) { /* 본문 없음 */ }
+  const err = new Error(`battleRooms REST commit ${res.status} ${status}`);
+  err.code = (status === 'FAILED_PRECONDITION' || status === 'ABORTED') ? 'conflict'
+           : status === 'PERMISSION_DENIED' ? 'permission-denied' : status.toLowerCase();
+  throw err;
+}
+async function fetchBattleRoom(roomId) {
+  if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
+  const got = await _restGet(roomId);
+  return got ? _restFields(got.fields) : null;
 }
 
 // ---- 트레이닝 로그 (2026-10-02, 2026-10-06 일별 1행으로 개편) ----
