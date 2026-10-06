@@ -6802,7 +6802,7 @@ const Sims = {
         this._armBattleReady(startedAt);
       },
 
-      // startBattleRoom()이 startedAt을 호스트가 누른 시각 + 6초
+      // markBattleReady()가 startedAt을 마지막 입장 시각 + 4초
       // (BATTLE_READY_LEAD_MS)로 써서 보내므로(firebase-init.js), 그동안은 보드를 건드리지 않고
       // 큰 숫자 카운트다운만 보여준다. 매초 새 setTimeout을 거는 게 아니라
       // 매번 절대 시각(startedAt) 대비 남은 시간을 다시 계산해 기기별
@@ -6815,10 +6815,10 @@ const Sims = {
         const tick = () => {
           if (!S || !S.challengeMode) return; // 그 사이 방이 종료/이탈됨
           const remain = Math.ceil((startedAt - Date.now()) / 1000);
-          // 표시는 최대 5 — startedAt엔 전달 지연 대비 1초 여유가 더 들어
+          // 표시는 최대 3(2026-10-06, 5 → 3) — startedAt엔 전달 지연 대비 1초 여유가 더 들어
           // 있다(firebase-init.js BATTLE_READY_LEAD_MS). 실제 시작 판정은
           // 잘라내지 않은 remain 그대로.
-          const shown = Math.min(5, remain);
+          const shown = Math.min(3, remain);
           const ov = tbl ? tbl.querySelector('.rpay-battle-ready-overlay') : null;
           if (remain <= 0) {
             if (ov) ov.remove();

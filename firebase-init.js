@@ -251,7 +251,11 @@ async function leaveBattleRoom(code, employeeId) {
 // 4부터 뜨는 문제가 있었다. 1초 여유를 더 두고 표시는 최대 5로 자르면
 // (main.js _armBattleReady) 최대 ~2초 늦게 받은 기기까지 5부터 보이고,
 // 실제 시작 시각은 여전히 모든 기기가 같다.
-const BATTLE_READY_LEAD_MS = 6000;
+// 2026-10-06: 카운트다운 5초 → 3초("5초 좀 길어, 줄여줘"). 같은 원리로
+// 1초 여유를 더해 4초 — 화면 표시는 main.js _armBattleReady가 최대 3으로
+// 자른다(Math.min(3, remain)). 이제는 전원 입장 후에야 startedAt이 정해
+// 지므로 긴 여유가 필요 없다.
+const BATTLE_READY_LEAD_MS = 4000;
 //
 // 2026-10-06 ("팀원 전원이 게임 화면에 들어오지 않으면 시작되면 안돼.
 // 대기중?이렇게 떠야해"): 호스트의 [배틀 시작]은 이제 status만
