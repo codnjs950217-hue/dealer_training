@@ -6,7 +6,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
   initializeFirestore, doc, getDoc, setDoc, runTransaction,
-  collection, query, orderBy, limit, getDocs,
+  collection, query, where, orderBy, limit, getDocs,
   onSnapshot, updateDoc, deleteDoc, deleteField, increment, serverTimestamp, Timestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
@@ -98,7 +98,7 @@ async function getRouletteTopScores(n = 20) {
 
 // ---- 룰렛 "⚔️ 배틀하기" (2-5인 실시간 대결, room-code 기반) ----
 // Cloud Functions가 없는 순수 클라이언트+Firestore 구조라, 방 하나 =
-// battleRooms/{4자리코드} 문서 하나에 players 맵을 통째로 넣어 onSnapshot
+// battleRooms/{생성시각_4자리코드} 문서 하나에 players 맵을 통째로 넣어 onSnapshot
 // 리스너 하나로 방 전체 상태(대기실 인원, 진행 상태, 각자 점수)를 모든
 // 클라이언트가 실시간으로 받게 한다. 서버 권위 로직이 없으므로 "누가
 // 방장인지/자기 항목만 쓰는지"는 rouletteRankings와 동일하게 진짜 인증
@@ -136,45 +136,47 @@ function _genRoomCode() {
   return String(Math.floor(1000 + Math.random() * 9000));
 }
 
-// 4자리 코드 공간(1만 개)에서 두 호스트가 동시에 같은 코드를 뽑는 드문
-// 충돌을 대비해 setDoc이 아니라 트랜잭션으로 생성한다 — 단순 setDoc이면
-// 나중에 쓴 쪽이 먼저 만든 방(이미 참가자가 있을 수도 있는)을 조용히
-// 덮어써버린다. 코드가 이미 있으면 그 트랜잭션은 아무것도 안 쓰고 그냥
-// 새 코드로 재시도한다(최대 5회).
-// mode: 'time' | 'round', limitValue: mode==='time'면 제한시간(초, 60
-// 이상), mode==='round'면 라운드 수(1 이상) — 둘 다 호스트가 방 설정
-// 화면에서 고른 값 그대로, 방 생성 시점에 한 번 박히고 이후 바뀌지
-// 않는다(firestore.rules의 update 규칙이 불변으로 강제).
+// 2026-10-06: 문서 ID = "생성시각_코드"(예: 2026-10-06_15-30-12_4321).
+// 관리자 요청 — Firebase Console은 문서를 ID 순으로만 나열하고 기본 정렬을
+// 바꿀 수 없어서, ID를 생성 시각으로 시작하게 해 Console 목록이 곧 생성
+// 순(위=오래된 방, 맨 아래=최신)이 되게 했다. 시각은 트레이니 기기의 로컬
+// 시각(trainingDaily의 date와 같은 기준). 참가자가 입력하는 4자리 코드는
+// 문서 안 `code` 필드로 옮겼고, 입장은 code로 대기 중인 방을 찾는다
+// (joinBattleRoom). 이 파일의 나머지 함수가 받는 roomId = 이 문서 ID.
 //
-// createdAt은 Firestore Timestamp(Console에서 날짜로 보임)로 먼저 써 보고,
-// 게시된 규칙이 아직 예전 것(createdAt is int)이라 permission-denied가 나면
-// 숫자 ms로 다시 만든다 — 규칙 게시 순서와 무관하게 방 생성이 깨지지
-// 않게. 거부된 트랜잭션은 아무것도 쓰지 않으므로 재시도해도 중복 없음.
+// 코드 중복: 진행 중(waiting/playing)인 방과 같은 코드는 피한다 — 끝난
+// 방은 삭제되고, 비정상 종료로 남은 방도 대기/진행 상태면 피한다. 쿼리와
+// 생성이 원자적이지 않아 두 호스트가 같은 순간 같은 코드를 뽑는 극히 드문
+// 경우는 막지 못하지만, 그때도 입장은 더 최근 방으로 간다(joinBattleRoom).
+// mode: 'time' | 'round', limitValue: mode==='time'면 제한시간(초, 60
+// 이상), mode==='round'면 라운드 수(1 이상) — 방 생성 시점에 한 번 박히고
+// 이후 바뀌지 않는다(firestore.rules의 update 규칙이 불변으로 강제).
+function _roomIdFor(code) {
+  const d = new Date();
+  const p2 = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}_${p2(d.getHours())}-${p2(d.getMinutes())}-${p2(d.getSeconds())}_${code}`;
+}
+const _ACTIVE_STATUSES = ['waiting', 'playing'];
+
 async function createBattleRoom(employeeId, name, mode, limitValue) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  try {
-    return await _createBattleRoom(employeeId, name, mode, limitValue, serverTimestamp());
-  } catch (e) {
-    if (!e || e.code !== 'permission-denied') throw e;
-    console.warn('[battle] createdAt timestamp 거부됨(firestore.rules 미게시?) — 숫자 ms로 재시도');
-    return _createBattleRoom(employeeId, name, mode, limitValue, Date.now());
-  }
-}
-
-async function _createBattleRoom(employeeId, name, mode, limitValue, createdAt) {
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = _genRoomCode();
-    const ref = doc(db, "battleRooms", code);
+    const same = await getDocs(query(collection(db, "battleRooms"), where('code', '==', code)));
+    if (same.docs.some(d => _ACTIVE_STATUSES.includes(d.data().status))) continue; // 진행 중인 방과 코드 충돌 — 다른 코드로
+    const roomId = _roomIdFor(code);
+    const ref = doc(db, "battleRooms", roomId);
     let created = false;
     await runTransaction(db, async (tx) => {
       const snap = await tx.get(ref);
-      if (snap.exists()) return; // 코드 충돌 — 이 트랜잭션은 아무것도 안 씀, 재시도
+      if (snap.exists()) return; // 같은 초·같은 코드 — 재시도
       tx.set(ref, {
+        code,
         hostId: employeeId,
         status: 'waiting',
         // 기록용 값(코드 어디서도 다시 읽지 않음). startedAt은 카운트다운/
         // RNG seed로 숫자 연산에 쓰이므로 ms 그대로 둔다.
-        createdAt,
+        createdAt: serverTimestamp(),
         startedAt: null,
         lastActivityAt: serverTimestamp(),
         mode, limitValue,
@@ -182,7 +184,7 @@ async function _createBattleRoom(employeeId, name, mode, limitValue, createdAt) 
       });
       created = true;
     });
-    if (created) return code;
+    if (created) return { roomId, code };
   }
   throw new Error('room_create_failed');
 }
@@ -190,9 +192,18 @@ async function _createBattleRoom(employeeId, name, mode, limitValue, createdAt) 
 // 이미 참가 중이면 그대로 성공 처리(중복 클릭 방어). 정원(5명)/시작
 // 여부는 트랜잭션 안에서 다시 읽어 확인 — Firestore 낙관적 동시성으로
 // 동시에 여러 명이 입장해도 정원 초과가 정확히 막힌다.
+// 2026-10-06: 4자리 코드로 대기 중인 방의 문서 ID를 찾아 입장하고, 그
+// roomId를 돌려준다. 같은 코드의 대기 방이 여럿이면(드문 동시 생성) 가장
+// 최근 것 — 문서 ID가 생성 시각으로 시작하므로 ID 사전순 최대가 최신.
+// 단일 필드 equality 쿼리라 별도 인덱스가 필요 없다.
 async function joinBattleRoom(code, employeeId, name) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  const ref = doc(db, "battleRooms", code);
+  const found = await getDocs(query(collection(db, "battleRooms"), where('code', '==', code)));
+  const waiting = found.docs.filter(d => d.data().status === 'waiting').sort((x, y) => (x.id < y.id ? 1 : -1));
+  if (!waiting.length) {
+    throw new Error(found.docs.some(d => d.data().status === 'playing') ? 'already_started' : 'not_found');
+  }
+  const ref = waiting[0].ref;
   await runTransaction(db, async (tx) => {
     const snap = await tx.get(ref);
     if (!snap.exists()) throw new Error('not_found');
@@ -203,6 +214,7 @@ async function joinBattleRoom(code, employeeId, name) {
     if (count >= 5) throw new Error('room_full');
     tx.update(ref, { [`players.${employeeId}`]: { name, score: 0, mistakes: 0, finished: false, finishedAt: null }, lastActivityAt: serverTimestamp() });
   });
+  return ref.id;
 }
 
 // 2026-10-02 변경: 호스트가 나가도 배틀이 이미 시작(playing)된 뒤라면
@@ -213,9 +225,9 @@ async function joinBattleRoom(code, employeeId, name) {
 // 즉시 삭제한다 — 호스트 없이는 시작할 방법이 없는 단계라 지우는 게
 // 맞다. 호스트가 아닌 참가자는 상태와 무관하게 항상 자기 항목만 제거
 // (기존 동작 그대로), 그 결과 참가자가 0명이 되면 방도 함께 삭제한다.
-async function leaveBattleRoom(code, employeeId) {
+async function leaveBattleRoom(roomId, employeeId) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  const ref = doc(db, "battleRooms", code);
+  const ref = doc(db, "battleRooms", roomId);
   await runTransaction(db, async (tx) => {
     const snap = await tx.get(ref);
     if (!snap.exists()) return;
@@ -265,16 +277,16 @@ const BATTLE_READY_LEAD_MS = 6000;
 // 미입장자를 빼고 시작할 수 있다(main.js가 15초 뒤 버튼 노출).
 // startedAt/players 내부 필드는 firestore.rules가 타입을 검증하지 않아
 // 규칙 변경은 필요 없다.
-async function startBattleRoom(code) {
+async function startBattleRoom(roomId) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  await updateDoc(doc(db, "battleRooms", code), { status: 'playing', startedAt: null, lastActivityAt: serverTimestamp() });
+  await updateDoc(doc(db, "battleRooms", roomId), { status: 'playing', startedAt: null, lastActivityAt: serverTimestamp() });
 }
 
 const _allReady = players => Object.values(players || {}).every(p => p && p.ready === true);
 
-async function markBattleReady(code, employeeId) {
+async function markBattleReady(roomId, employeeId) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  const ref = doc(db, "battleRooms", code);
+  const ref = doc(db, "battleRooms", roomId);
   await runTransaction(db, async (tx) => {
     const snap = await tx.get(ref);
     if (!snap.exists()) return;
@@ -290,9 +302,9 @@ async function markBattleReady(code, employeeId) {
 
 // 호스트 전용 — 아직 입장(ready) 안 한 참가자를 빼고 바로 시작 시각을
 // 정한다. 입장한 사람이 한 명도 없으면 아무것도 안 한다.
-async function startBattleWithoutUnready(code) {
+async function startBattleWithoutUnready(roomId) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  const ref = doc(db, "battleRooms", code);
+  const ref = doc(db, "battleRooms", roomId);
   await runTransaction(db, async (tx) => {
     const snap = await tx.get(ref);
     if (!snap.exists()) return;
@@ -317,9 +329,9 @@ async function startBattleWithoutUnready(code) {
 // (main.js의 submitPay()/_endBattleLocal()이 채워서 넘김). players 맵
 // 내부 필드는 firestore.rules가 스키마를 깊이 검증하지 않으므로(바깥쪽
 // 7개 키만 검증) 이 필드 추가에 규칙 재배포는 필요 없다.
-async function submitBattleResult(code, employeeId, score, mistakes, lastCorrectAt) {
+async function submitBattleResult(roomId, employeeId, score, mistakes, lastCorrectAt) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  await updateDoc(doc(db, "battleRooms", code), {
+  await updateDoc(doc(db, "battleRooms", roomId), {
     [`players.${employeeId}.score`]: score,
     [`players.${employeeId}.mistakes`]: mistakes,
     [`players.${employeeId}.finished`]: true,
@@ -344,9 +356,9 @@ async function submitBattleResult(code, employeeId, score, mistakes, lastCorrect
 // 닫아버린 참가자에 대한 최후 안전망)일 때만 이 확인을 건너뛰고
 // 무조건 종료한다 — 정상 경로(force 없음)는 players 전원이
 // finished===true일 때만 상태를 바꾼다.
-async function finishBattleRoom(code, force = false) {
+async function finishBattleRoom(roomId, force = false) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  const ref = doc(db, "battleRooms", code);
+  const ref = doc(db, "battleRooms", roomId);
   await runTransaction(db, async (tx) => {
     const snap = await tx.get(ref);
     if (!snap.exists()) return;
@@ -366,16 +378,16 @@ async function finishBattleRoom(code, force = false) {
 // 제거" 로직과 다름). 방이 삭제되면 구독 중인 모든 클라이언트가
 // onSnapshot(null)을 받아 각자 메인 화면으로 돌아간다 — 기록이 남지
 // 않는 일회성 배틀이라는 설계상 결과 화면을 벗어나는 유일한 경로.
-async function endBattleRoom(code) {
+async function endBattleRoom(roomId) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  await deleteDoc(doc(db, "battleRooms", code));
+  await deleteDoc(doc(db, "battleRooms", roomId));
 }
 
 // onSnapshot 구독 래퍼 — unsubscribe 함수를 그대로 반환하므로 호출부가
 // 저장해뒀다가 teardown 시 그냥 호출하면 된다.
-function subscribeBattleRoom(code, onChange, onError) {
+function subscribeBattleRoom(roomId, onChange, onError) {
   if (initError) { if (onError) onError(initError); return () => {}; }
-  const ref = doc(db, "battleRooms", code);
+  const ref = doc(db, "battleRooms", roomId);
   return onSnapshot(ref, (snap) => onChange(_roomData(snap)), onError);
 }
 
@@ -416,13 +428,13 @@ function _restFields(fields) {
   for (const [k, v] of Object.entries(fields || {})) out[k] = _restValue(v);
   return out;
 }
-async function fetchBattleRoom(code) {
+async function fetchBattleRoom(roomId) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
   // 응답이 안 오는 요청이 다음 주기와 겹쳐 쌓이지 않게 짧게 끊는다.
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 3000);
   try {
-    const res = await fetch(`${_REST_DOC_BASE}/battleRooms/${encodeURIComponent(code)}?key=${firebaseConfig.apiKey}`,
+    const res = await fetch(`${_REST_DOC_BASE}/battleRooms/${encodeURIComponent(roomId)}?key=${firebaseConfig.apiKey}`,
       { cache: 'no-store', signal: ctrl.signal });
     if (res.status === 404) return null;
     if (!res.ok) throw new Error(`battleRooms REST ${res.status}`);

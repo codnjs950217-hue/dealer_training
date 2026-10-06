@@ -6883,15 +6883,15 @@ const Sims = {
       },
 
       async _submitBattleResult(score, mistakes, lastCorrectAt) {
-        if (!B || !B.code || !B.myId || !window.DealerAuth) return;
+        if (!B || !B.roomId || !B.myId || !window.DealerAuth) return;
         const statusEl = () => document.getElementById('rpay-battle-wait-status');
         try {
-          await window.DealerAuth.submitBattleResult(B.code, B.myId, score, mistakes, lastCorrectAt);
+          await window.DealerAuth.submitBattleResult(B.roomId, B.myId, score, mistakes, lastCorrectAt);
           // 내가 제출한 직후 "전원 완료됐는지"를 서버 쪽에서 다시 읽어
           // 재확인하고, 맞으면 status를 'finished'로 전환한다(멱등 —
           // 이미 finished면 그냥 no-op). 마지막으로 끝난 사람이 자연스럽게
           // 이 역할을 하게 되고, 15초 유예 타이머가 그 보완책이다.
-          await window.DealerAuth.finishBattleRoom(B.code);
+          await window.DealerAuth.finishBattleRoom(B.roomId);
         } catch (e) {
           console.error('[roulettePay] 배틀 결과 제출 실패:', e);
           const el = statusEl(); if (el) el.textContent = '제출 실패 (네트워크 오류)';
@@ -6905,7 +6905,9 @@ const Sims = {
           // 화면에서 고르는 값의 임시 보관소 — 방이 실제로 생성되기 전까지는
           // Firestore에 쓰지 않고 여기서만 들고 있다가 confirmCreateRoom()에서
           // 한 번에 넘긴다.
-          B = { code: null, myId: null, hostId: null, phase: 'choice', unsub: null, graceTimer: null,
+          // roomId = Firestore 문서 ID(2026-10-06부터 "생성시각_코드"),
+          // displayCode = 참가자가 입력/공유하는 4자리 방 코드.
+          B = { roomId: null, displayCode: null, myId: null, hostId: null, phase: 'choice', unsub: null, graceTimer: null,
                 setupMode: 'time', setupValue: 60 };
           this._renderChoice();
         },
@@ -7037,8 +7039,8 @@ const Sims = {
           }
           const el0 = errEl(); if (el0) el0.textContent = '';
           try {
-            const code = await window.DealerAuth.createBattleRoom(Auth.session.employeeId, Auth.session.name, mode, value);
-            B.code = code; B.myId = Auth.session.employeeId;
+            const { roomId, code } = await window.DealerAuth.createBattleRoom(Auth.session.employeeId, Auth.session.name, mode, value);
+            B.roomId = roomId; B.displayCode = code; B.myId = Auth.session.employeeId;
             this._subscribe();
           } catch (e) {
             console.error('[roulettePay.battle] 방 생성 실패:', e);
@@ -7058,8 +7060,8 @@ const Sims = {
           if (!/^\d{4}$/.test(code)) { this._setError('4자리 코드를 입력해주세요.'); return; }
           this._setError('');
           try {
-            await window.DealerAuth.joinBattleRoom(code, Auth.session.employeeId, Auth.session.name);
-            B.code = code; B.myId = Auth.session.employeeId;
+            const roomId = await window.DealerAuth.joinBattleRoom(code, Auth.session.employeeId, Auth.session.name);
+            B.roomId = roomId; B.displayCode = code; B.myId = Auth.session.employeeId;
             this._subscribe();
           } catch (e) {
             const reason = e && e.message;
@@ -7074,7 +7076,7 @@ const Sims = {
         _subscribe() {
           if (B.unsub) B.unsub();
           B.unsub = window.DealerAuth.subscribeBattleRoom(
-            B.code,
+            B.roomId,
             (data) => this._onSnapshot(data),
             (e) => console.error('[roulettePay.battle] 구독 오류:', e),
           );
@@ -7114,15 +7116,15 @@ const Sims = {
         },
 
         async _refreshLobby() {
-          if (!this._inPreStart() || !B.code || !window.DealerAuth) return;
-          const code = B.code;
+          if (!this._inPreStart() || !B.roomId || !window.DealerAuth) return;
+          const code = B.roomId;
           let data;
           try { data = await window.DealerAuth.fetchBattleRoom(code); }
           catch (e) { return; } // 일시적 네트워크 오류 — 다음 주기/onSnapshot이 메운다
           // 읽는 사이 onSnapshot이 이미 경기를 시작시켰거나 방을 나갔다면
           // 이 (이제 오래된) 결과로 되돌리지 않는다 — phase를 'lobby'로
           // 되돌리면 다음 'playing' 스냅샷이 경기를 재초기화한다.
-          if (!B || B.code !== code || !this._inPreStart()) return;
+          if (!B || B.roomId !== code || !this._inPreStart()) return;
           if (B.phase === 'playing' && data && data.status === 'waiting') return;
           this._onSnapshot(data);
         },
@@ -7161,7 +7163,7 @@ const Sims = {
               el.innerHTML = Views.roulettePaySim();
               Sims.roulettePay.init(false);
               const leaveBtn = document.getElementById('rpay-battle-leave-btn'); if (leaveBtn) leaveBtn.style.display = '';
-              window.DealerAuth.markBattleReady(B.code, B.myId)
+              window.DealerAuth.markBattleReady(B.roomId, B.myId)
                 .catch(e => console.error('[roulettePay.battle] 입장 기록 실패:', e));
             }
             if (!B.started) {
@@ -7206,7 +7208,7 @@ const Sims = {
             : `<div>모드: ⚡ Time Attack</div><div>시간: ${data.limitValue}초</div>`;
           box.innerHTML = `
             <div class="rpay-battle-title">⚔️ 대기실</div>
-            <div class="rpay-battle-code-display">방 코드 <strong>${B.code}</strong></div>
+            <div class="rpay-battle-code-display">방 코드 <strong>${B.displayCode || data.code || ''}</strong></div>
             <div class="rpay-battle-mode-info">
               ${modeInfo}
               <div>참가자: ${players.length} / 5명</div>
@@ -7219,8 +7221,8 @@ const Sims = {
         },
 
         async start() {
-          if (!B || !B.code || !window.DealerAuth) return;
-          try { await window.DealerAuth.startBattleRoom(B.code); }
+          if (!B || !B.roomId || !window.DealerAuth) return;
+          try { await window.DealerAuth.startBattleRoom(B.roomId); }
           catch (e) { console.error('[roulettePay.battle] 시작 실패:', e); }
         },
 
@@ -7260,10 +7262,10 @@ const Sims = {
         // 불필요하게 늦게 뜨는 걸 막는다.
         async leaveRoom() {
           this._closeLeaveConfirm();
-          if (B && B.code && B.myId && window.DealerAuth) {
+          if (B && B.roomId && B.myId && window.DealerAuth) {
             try {
-              await window.DealerAuth.leaveBattleRoom(B.code, B.myId);
-              await window.DealerAuth.finishBattleRoom(B.code);
+              await window.DealerAuth.leaveBattleRoom(B.roomId, B.myId);
+              await window.DealerAuth.finishBattleRoom(B.roomId);
             } catch (e) { console.error('[roulettePay.battle] 나가기 실패:', e); }
           }
           this.teardown();
@@ -7292,12 +7294,12 @@ const Sims = {
             : limitValue * 1000 + 15000;
           const delay = Math.max(0, startedAt + graceMs - Date.now());
           B.graceTimer = setTimeout(() => {
-            if (B && B.code && window.DealerAuth) {
+            if (B && B.roomId && window.DealerAuth) {
               // force:true — 이 시점까지도 안 끝난 참가자가 있다는 뜻은
               // 탭을 닫아버렸다는 뜻일 가능성이 높으므로, "전원 완료"
               // 확인 없이 강제로 끝낸다(정상 경로의 finishBattleRoom()은
               // force 없이 호출되어 전원 완료 전엔 상태를 바꾸지 않음).
-              window.DealerAuth.finishBattleRoom(B.code, true).catch(e => console.error('[roulettePay.battle] 강제 종료 실패:', e));
+              window.DealerAuth.finishBattleRoom(B.roomId, true).catch(e => console.error('[roulettePay.battle] 강제 종료 실패:', e));
             }
           }, delay);
         },
@@ -7349,8 +7351,8 @@ const Sims = {
         },
 
         async startWithoutUnready() {
-          if (!B || !B.code || !window.DealerAuth) return;
-          try { await window.DealerAuth.startBattleWithoutUnready(B.code); }
+          if (!B || !B.roomId || !window.DealerAuth) return;
+          try { await window.DealerAuth.startBattleWithoutUnready(B.roomId); }
           catch (e) { console.error('[roulettePay.battle] 미입장자 제외 시작 실패:', e); }
         },
 
@@ -7435,8 +7437,8 @@ const Sims = {
         // 응답을 기다렸다가 바로 teardown+navigate한다.
         async endBattle() {
           this._closeEndConfirm();
-          if (!B || !B.code || !window.DealerAuth) return;
-          try { await window.DealerAuth.endBattleRoom(B.code); }
+          if (!B || !B.roomId || !window.DealerAuth) return;
+          try { await window.DealerAuth.endBattleRoom(B.roomId); }
           catch (e) { console.error('[roulettePay.battle] 배틀 종료 실패:', e); }
           this.teardown();
           App.navigate('roulette', 'paymenu');

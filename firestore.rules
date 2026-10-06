@@ -48,6 +48,12 @@ service cloud.firestore {
     match /battleRooms/{roomCode} {
       allow read: if true;
 
+      // 문서 ID(2026-10-06~) = "생성시각_4자리코드"(예: 2026-10-06_15-30-12_4321)
+      // — Console 목록이 생성 순으로 보이게. 4자리 코드는 `code` 필드에 두고
+      // 입장은 code로 대기 중인 방을 찾는다(list 쿼리 — read가 공개라 허용).
+      // code는 있으면 4자리 숫자 + 문서 ID가 "_코드"로 끝나야 하고, 생성 후
+      // 바꿀 수 없다. 예전 클라이언트(ID=코드, code 필드 없음)도 통과.
+      //
       // lastActivityAt(2026-10-06): 방에 쓰기가 있을 때마다(생성/입장/시작/
       // 입장완료/결과/퇴장/종료) serverTimestamp로 갱신 — 관리자가 Console
       // 필터에서 이 필드 내림차순으로 정렬해 "최근 활동한 방"부터 본다.
@@ -59,7 +65,7 @@ service cloud.firestore {
       // 참가자는 절대 이 값을 바꿀 수 없다(클라이언트에도 그 UI 자체가
       // 없지만, 규칙으로도 막아둔다).
       allow create: if request.resource.data.keys().hasOnly(
-                         ['hostId', 'players', 'status', 'createdAt', 'startedAt', 'mode', 'limitValue', 'lastActivityAt'])
+                         ['hostId', 'players', 'status', 'createdAt', 'startedAt', 'mode', 'limitValue', 'lastActivityAt', 'code'])
                     && request.resource.data.hostId is string
                     && request.resource.data.status == 'waiting'
                     // 2026-10-06: int(ms) -> timestamp(serverTimestamp) — Console 표시용
@@ -70,17 +76,22 @@ service cloud.firestore {
                     && request.resource.data.mode in ['time', 'round']
                     && request.resource.data.limitValue is int
                     && (!('lastActivityAt' in request.resource.data) || request.resource.data.lastActivityAt is timestamp)
+                    && (!('code' in request.resource.data) || (
+                          request.resource.data.code is string
+                          && request.resource.data.code.matches('[0-9]{4}')
+                          && roomCode.matches('.*_' + request.resource.data.code)))
                     && (
                       (request.resource.data.mode == 'time'  && request.resource.data.limitValue >= 60) ||
                       (request.resource.data.mode == 'round' && request.resource.data.limitValue >= 1)
                     );
 
       allow update: if request.resource.data.keys().hasOnly(
-                         ['hostId', 'players', 'status', 'createdAt', 'startedAt', 'mode', 'limitValue', 'lastActivityAt'])
+                         ['hostId', 'players', 'status', 'createdAt', 'startedAt', 'mode', 'limitValue', 'lastActivityAt', 'code'])
                     && request.resource.data.hostId == resource.data.hostId
                     && request.resource.data.createdAt == resource.data.createdAt
                     && request.resource.data.mode == resource.data.mode
                     && request.resource.data.limitValue == resource.data.limitValue
+                    && request.resource.data.get('code', null) == resource.data.get('code', null)
                     && request.resource.data.status in ['waiting', 'playing', 'finished']
                     // 상태 전이는 이 3가지만 허용: 같은 상태 유지(참가자
                     // 목록/점수 갱신), waiting->playing(시작), playing->
