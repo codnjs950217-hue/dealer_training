@@ -1041,7 +1041,7 @@ const Views = {
       <div class="rpay-table">
         <div class="table-stats-overlay">
           <span>Rounds: <strong id="rpay-rounds">0</strong></span>
-          <span>Score: <strong id="rpay-score">0</strong></span>
+          <span id="rpay-score-stat">Score: <strong id="rpay-score">0</strong></span>
           <span>Mistake: <strong id="rpay-mistakes">0</strong></span>
           <span id="rpay-challenge-stat" style="display:none">⏱ <strong id="rpay-challenge-time">60</strong>s</span>
           <button id="rpay-battle-leave-btn" class="rpay-battle-leave-btn" style="display:none" onclick="Sims.roulettePay.battle.confirmLeaveRoom()">방 나가기</button>
@@ -6533,7 +6533,7 @@ const Sims = {
         // 기준이 못 된다 — 실제로 마지막 정답을 언제 맞혔는지가 기준.
         if (S.challengeMode) S.lastCorrectAt = Date.now();
         $('rpay-score').textContent = S.score;
-        $('rpay-rounds').textContent = S.roundsTotal ? `${S.rounds} / ${S.roundsTotal}` : S.rounds;
+        $('rpay-rounds').textContent = S.roundsTotal ? `${S.rounds}/${S.roundsTotal}` : S.rounds;
         highlightSpot(-1);
         // 배틀 모드: 정해진 라운드 수를 다 풀었다 — 다음 판을 자동으로
         // 돌리지 않고 곧장 내 결과를 제출하고 다른 참가자를 기다린다.
@@ -6802,7 +6802,7 @@ const Sims = {
           if (btn) btn.classList.toggle('rpay-diff-active', d === 'hard');
         });
         const diffRow = $('rpay-diff-row'); if (diffRow) diffRow.classList.add('rpay-diff-locked');
-        if ($('rpay-rounds')) $('rpay-rounds').textContent = isRoundMode ? `0 / ${S.roundsTotal}` : '0';
+        if ($('rpay-rounds')) $('rpay-rounds').textContent = isRoundMode ? `0/${S.roundsTotal}` : '0';
         if ($('rpay-score'))  $('rpay-score').textContent  = '0';
         if ($('rpay-mistakes')) $('rpay-mistakes').textContent = '0';
         if ($('rpay-comm-panel')) $('rpay-comm-panel').innerHTML = '';
@@ -6818,15 +6818,13 @@ const Sims = {
         }
         const ov = $('rpay-start-overlay'); if (ov) ov.style.display = 'none';
 
-        // 라운드 모드는 남은 라운드 수를 위에서 바꿔둔 #rpay-rounds("N / 총
-        // 라운드")로 보여주고, 제한시간 모드만 ⏱ 챌린지-시간 표시(솔로
-        // 랭킹 도전과 같은 슬롯)를 켠다.
-        if (!isRoundMode) {
-          const stat = $('rpay-challenge-stat'); if (stat) stat.style.display = '';
-          // 시작 전엔 제한시간 그대로 보여 준다 — 남은 시간으로 계산하면
-          // 카운트다운 몇 초가 더해져(예: 66) 첫 갱신 전까지 잠깐 보였다.
-          const timeEl = $('rpay-challenge-time'); if (timeEl) timeEl.textContent = String(limitValue);
-        }
+        // 배틀 상단 바는 두 모드 모두 Rounds·Mistake·방 나가기 3개만
+        // 남긴다(2026-10-06 요청) — Score와 ⏱ 남은 시간은 숨긴다. 라운드
+        // 모드는 #rpay-rounds가 "통과/총 라운드"(0/5), 제한시간 모드는
+        // 완료한 라운드 수만. ⏱ 슬롯은 숨겨도 _startBattleTimer()가
+        // 계속 갱신하므로 종료 판정에는 영향 없다.
+        const scoreStat = $('rpay-score-stat'); if (scoreStat) scoreStat.style.display = 'none';
+        const stat = $('rpay-challenge-stat'); if (stat) stat.style.display = 'none';
         const leaveBtn = $('rpay-battle-leave-btn'); if (leaveBtn) leaveBtn.style.display = '';
 
         hasStarted = true;
