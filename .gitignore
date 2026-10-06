@@ -5,3 +5,7 @@ node_modules/
 # pattern catches them.
 *serviceAccountKey*.json
 *service-account*.json
+*firebase-adminsdk*.json
+
+# 학습리포트 추출 결과(개인 학습 기록) — 커밋 금지
+training-report_*

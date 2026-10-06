@@ -10,7 +10,14 @@
 // Usage:
 //   node scripts/export-training.js <from YYYY-MM-DD> <to YYYY-MM-DD> [service-account-key.json]
 //
-// If the key path is omitted, GOOGLE_APPLICATION_CREDENTIALS is used.
+// If the key path is omitted, GOOGLE_APPLICATION_CREDENTIALS is used; if
+// that isn't set either, the script falls back to the signed-in gcloud
+// account (`gcloud auth print-access-token`) and reads Firestore over its
+// REST API. That's how it runs inside Firebase Studio, where gcloud is
+// already signed in as the project owner, so no key file needs uploading
+// (added 2026-10-06 — the admin's company PC blocks file uploads). Like the
+// Admin SDK, an IAM-authenticated REST call is not subject to
+// firestore.rules.
 // Output files land in the current directory:
 //   training-report_<from>_<to>.xlsx / .csv  (CSV has a UTF-8 BOM so Excel
 //   opens Korean names correctly)
@@ -21,6 +28,7 @@
 // (oldest first).
 
 const fs = require('fs');
+const { execSync } = require('child_process');
 const path = require('path');
 const XLSX = require('xlsx');
 const admin = require('firebase-admin');
@@ -112,6 +120,76 @@ function writeOutputs(table, baseName) {
   fs.writeFileSync(`${baseName}.csv`, '﻿' + XLSX.utils.sheet_to_csv(sheet));
 }
 
+const PROJECT_ID = 'casino-dealer-training';
+
+// ---- Admin SDK (service account key) ----
+async function loadWithAdmin(keyPath, from, to) {
+  const serviceAccount = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
+  admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+  const db = admin.firestore();
+  // date는 'YYYY-MM-DD' 문자열이라 사전순 범위 비교 = 날짜 범위 비교.
+  // 단일 필드 범위 쿼리라 별도 인덱스가 필요 없다.
+  const inRange = name => db.collection(name).where('date', '>=', from).where('date', '<=', to).get();
+  const [dailySnap, legacySnap, usersSnap] = await Promise.all([
+    inRange('trainingDaily'), inRange('trainingLogs'), db.collection('users').get(),
+  ]);
+  return {
+    daily: dailySnap.docs.map(d => d.data()),
+    legacy: legacySnap.docs.map(d => d.data()),
+    users: Object.fromEntries(usersSnap.docs.map(d => [d.id, d.data()])),
+  };
+}
+
+// ---- REST + gcloud 로그인 (키 파일 없을 때) ----
+function restValue(v) {
+  if (!v) return null;
+  if ('stringValue' in v) return v.stringValue;
+  if ('integerValue' in v) return Number(v.integerValue);
+  if ('doubleValue' in v) return v.doubleValue;
+  if ('booleanValue' in v) return v.booleanValue;
+  if ('nullValue' in v) return null;
+  if ('timestampValue' in v) return Date.parse(v.timestampValue.replace(/(\.\d{3})\d+/, '$1'));
+  if ('mapValue' in v) return restFields(v.mapValue.fields);
+  if ('arrayValue' in v) return (v.arrayValue.values || []).map(restValue);
+  return null;
+}
+function restFields(fields) {
+  return Object.fromEntries(Object.entries(fields || {}).map(([k, v]) => [k, restValue(v)]));
+}
+async function loadWithGcloud(from, to) {
+  let token;
+  try {
+    token = execSync('gcloud auth print-access-token', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  } catch (e) {
+    fail(
+      '서비스 계정 키도 없고 gcloud 로그인도 되어 있지 않습니다.\n' +
+      '  세 번째 인자로 키 경로를 넘기거나, `gcloud auth login` 후 다시 실행하세요.'
+    );
+  }
+  const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:runQuery`;
+  const runQuery = async structuredQuery => {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ structuredQuery }),
+    });
+    if (!res.ok) throw new Error(`Firestore REST ${res.status}: ${(await res.text()).slice(0, 300)}`);
+    return (await res.json()).filter(r => r.document).map(r => r.document);
+  };
+  const inRange = collectionId => runQuery({
+    from: [{ collectionId }],
+    where: { compositeFilter: { op: 'AND', filters: [
+      { fieldFilter: { field: { fieldPath: 'date' }, op: 'GREATER_THAN_OR_EQUAL', value: { stringValue: from } } },
+      { fieldFilter: { field: { fieldPath: 'date' }, op: 'LESS_THAN_OR_EQUAL', value: { stringValue: to } } },
+    ] } },
+  }).then(docs => docs.map(d => restFields(d.fields)));
+  const [daily, legacy, userDocs] = await Promise.all([
+    inRange('trainingDaily'), inRange('trainingLogs'), runQuery({ from: [{ collectionId: 'users' }] }),
+  ]);
+  const users = Object.fromEntries(userDocs.map(d => [d.name.split('/').pop(), restFields(d.fields)]));
+  return { daily, legacy, users };
+}
+
 async function main() {
   const [, , from, to, keyPathArg] = process.argv;
   const isDate = s => /^\d{4}-\d{2}-\d{2}$/.test(s || '');
@@ -121,25 +199,11 @@ async function main() {
   if (from > to) fail(`시작일(${from})이 종료일(${to})보다 늦습니다.`);
 
   const keyPath = keyPathArg ? path.resolve(keyPathArg) : process.env.GOOGLE_APPLICATION_CREDENTIALS;
-  if (!keyPath || !fs.existsSync(keyPath)) {
-    fail(
-      'Firebase 서비스 계정 키(JSON)를 찾을 수 없습니다.\n' +
-      '  세 번째 인자로 경로를 넘기거나 GOOGLE_APPLICATION_CREDENTIALS 환경변수를 설정하세요.\n' +
-      '  (Firebase 콘솔 > 프로젝트 설정 > 서비스 계정 > 새 비공개 키 생성)'
-    );
-  }
-  const serviceAccount = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
-  admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-  const db = admin.firestore();
-
-  // date는 'YYYY-MM-DD' 문자열이라 사전순 범위 비교 = 날짜 범위 비교.
-  // 단일 필드 범위 쿼리라 별도 인덱스가 필요 없다.
-  const inRange = name => db.collection(name).where('date', '>=', from).where('date', '<=', to).get();
-  const [dailySnap, legacySnap, usersSnap] = await Promise.all([
-    inRange('trainingDaily'), inRange('trainingLogs'), db.collection('users').get(),
-  ]);
-  const users = Object.fromEntries(usersSnap.docs.map(d => [d.id, d.data()]));
-  const table = buildRows(dailySnap.docs.map(d => d.data()), legacySnap.docs.map(d => d.data()), users);
+  if (keyPathArg && !fs.existsSync(keyPath)) fail(`서비스 계정 키 파일을 찾을 수 없습니다: ${keyPath}`);
+  const { daily, legacy, users } = (keyPath && fs.existsSync(keyPath))
+    ? await loadWithAdmin(keyPath, from, to)
+    : await loadWithGcloud(from, to);
+  const table = buildRows(daily, legacy, users);
 
   const baseName = `training-report_${from}_${to}`;
   writeOutputs(table, baseName);
