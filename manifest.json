@@ -1,6 +1,6 @@
 {
   "name": "Casino Dealer Training",
-  "short_name": "Dealer",
+  "short_name": "Dealer Training",
   "description": "Casino dealer training practice app",
   "start_url": "/",
   "display": "standalone",
