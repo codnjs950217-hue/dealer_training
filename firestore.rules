@@ -57,7 +57,8 @@ service cloud.firestore {
                          ['hostId', 'players', 'status', 'createdAt', 'startedAt', 'mode', 'limitValue'])
                     && request.resource.data.hostId is string
                     && request.resource.data.status == 'waiting'
-                    && request.resource.data.createdAt is int
+                    // 2026-10-06: int(ms) -> timestamp(serverTimestamp) — Console 표시용
+                    && request.resource.data.createdAt is timestamp
                     && request.resource.data.players is map
                     && request.resource.data.players.size() == 1
                     && request.resource.data.players.keys().hasOnly([request.resource.data.hostId])
@@ -106,8 +107,8 @@ service cloud.firestore {
     // 한계).
 
     // 2026-10-06~ 현재 형식: 한 사람의 하루 = 문서 1개, 게임별 값은
-    // {game}Minutes/Count/Mistakes 평평한 필드. 안 한 게임의 필드는 없을
-    // 수 있으므로 숫자 필드는 전부 "있으면 int".
+    // {game}Minutes/Count/Mistakes 평평한 필드(4개 게임 항상 생성, 안 한
+    // 게임은 0). 숫자 필드는 "있으면 int"로 검증한다.
     function optInt(d, k) { return !(k in d) || d[k] is int; }
     match /trainingDaily/{dayId} {
       allow read: if false;
@@ -122,7 +123,7 @@ service cloud.firestore {
                    && request.resource.data.employeeId is string
                    && request.resource.data.name is string
                    && request.resource.data.department is string
-                   && request.resource.data.lastAt is int
+                   && request.resource.data.lastAt is timestamp
                    && optInt(request.resource.data, 'totalMinutes')
                    && optInt(request.resource.data, 'totalCount')
                    && optInt(request.resource.data, 'totalMistakes')

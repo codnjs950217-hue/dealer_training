@@ -7,7 +7,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/fireba
 import {
   initializeFirestore, doc, getDoc, getDocFromServer, setDoc, runTransaction,
   collection, query, orderBy, limit, getDocs,
-  onSnapshot, updateDoc, deleteDoc, deleteField, increment,
+  onSnapshot, updateDoc, deleteDoc, deleteField, increment, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -130,7 +130,11 @@ async function createBattleRoom(employeeId, name, mode, limitValue) {
       tx.set(ref, {
         hostId: employeeId,
         status: 'waiting',
-        createdAt: Date.now(),
+        // Firestore Timestamp — Console에서 날짜/시간으로 보이게(숫자 ms였을
+        // 땐 13자리 숫자로만 보였음). 코드 어디서도 다시 읽지 않는 기록용
+        // 값이라 타입을 바꿔도 영향 없음. startedAt은 카운트다운/RNG seed로
+        // 숫자 연산에 쓰이므로 ms 그대로 둔다.
+        createdAt: serverTimestamp(),
         startedAt: null,
         mode, limitValue,
         players: { [employeeId]: { name, score: 0, mistakes: 0, finished: false, finishedAt: null } },
@@ -329,7 +333,7 @@ async function logTrainingSession({ employeeId, name, department, game, playMinu
   }
   try {
     await setDoc(doc(db, "trainingDaily", `${date}_${employeeId}`), {
-      date, employeeId, name, department, lastAt: now.getTime(),
+      date, employeeId, name, department, lastAt: serverTimestamp(), // Console에서 날짜/시간으로 보이게
       totalMinutes: increment(playMinutes),
       totalCount: increment(playCount),
       totalMistakes: increment(mistakes),
