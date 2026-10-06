@@ -6764,6 +6764,15 @@ const Sims = {
       // null로 남는다(아래 두 조건문이 서로 배타적).
       startBattle(startedAt, mode, limitValue) {
         if (S && S.challengeInterval) return; // 이미 실행 중
+        // 2026-10-06(3차): startedAt은 "마지막 입장자 기기 시각 + 6초"라, 내
+        // 기기 시계가 그 기기보다 늦으면 그만큼 더 기다리고(예: 20초 늦으면
+        // 20초 더 대기 — "간혹 한참 있다가 들어옴"), 빠르면 카운트다운을
+        // 건너뛴다. 시작을 "지금부터 0~6초 안"으로 묶어 내 기기 기준
+        // localStart를 정하고, 카운트다운·제한시간·유예 타이머는 이 값을
+        // 쓴다. 문제 seed(_makeSeededRng)만은 전원이 같아야 하므로 원래
+        // startedAt 그대로.
+        const BATTLE_LEAD_MS = 6000; // firebase-init.js BATTLE_READY_LEAD_MS와 같은 값
+        const localStart = Date.now() + Math.min(Math.max(startedAt - Date.now(), 0), BATTLE_LEAD_MS);
         this._stopTimer();
         if (S && S.nextTimer) clearTimeout(S.nextTimer);
         const ov0 = document.querySelector('.rpay-challenge-end-overlay');
@@ -6778,7 +6787,7 @@ const Sims = {
               // 중에는 아예 쓸 수 없게 막는 데 쓴다(2026-10-05).
               battle: true,
               roundsTotal: isRoundMode ? limitValue : null,
-              battleEndAt: isRoundMode ? null : startedAt + limitValue * 1000,
+              battleEndAt: isRoundMode ? null : localStart + limitValue * 1000,
               // 같은 방 참가자 전원이 완전히 같은 문제(같은 당첨 번호·같은
               // 베팅 금액)를 풀도록 startedAt을 seed로 심는다 — 모든
               // 클라이언트가 이 room의 startedAt을 그대로 전달받으므로
@@ -6811,8 +6820,9 @@ const Sims = {
         // 랭킹 도전과 같은 슬롯)를 켠다.
         if (!isRoundMode) {
           const stat = $('rpay-challenge-stat'); if (stat) stat.style.display = '';
-          const remain = Math.max(0, Math.ceil((S.battleEndAt - Date.now()) / 1000));
-          const timeEl = $('rpay-challenge-time'); if (timeEl) timeEl.textContent = String(remain);
+          // 시작 전엔 제한시간 그대로 보여 준다 — 남은 시간으로 계산하면
+          // 카운트다운 몇 초가 더해져(예: 66) 첫 갱신 전까지 잠깐 보였다.
+          const timeEl = $('rpay-challenge-time'); if (timeEl) timeEl.textContent = String(limitValue);
         }
         const leaveBtn = $('rpay-battle-leave-btn'); if (leaveBtn) leaveBtn.style.display = '';
 
@@ -6821,10 +6831,10 @@ const Sims = {
         // 지연) 끝나는 시점도 각자 로컬에서 판단 — 혹시 탭을 닫아버리고
         // 사라진 참가자가 있어도 방이 'playing'에 영구히 멈추지 않도록
         // 넉넉한 상한을 안전망으로 건다(아래 _armGraceTimer 주석 참고).
-        this.battle._armGraceTimer(startedAt, mode, limitValue);
+        this.battle._armGraceTimer(localStart, mode, limitValue);
         // 실제 딜은 startedAt이 될 때까지 미룬다 — 그 사이는
         // _armBattleReady()의 "준비하세요" 카운트다운이 화면을 덮는다.
-        this._armBattleReady(startedAt);
+        this._armBattleReady(localStart);
       },
 
       // markBattleReady()가 startedAt을 마지막 입장 시각 + 6초
@@ -7203,10 +7213,8 @@ const Sims = {
               el.innerHTML = Views.roulettePaySim();
               Sims.roulettePay.init(false);
               const leaveBtn = document.getElementById('rpay-battle-leave-btn'); if (leaveBtn) leaveBtn.style.display = '';
-              window.DealerAuth.markBattleReady(B.roomId, B.myId)
-                .then(() => this._refreshLobby()) // 내가 마지막이었으면 정해진 시작 시각을 바로 읽어 옴
-                .catch(e => console.error('[roulettePay.battle] 입장 기록 실패:', e));
             }
+            if (!B.started) this._ensureReady(data);
             if (!B.started) {
               if (data.startedAt) {
                 B.started = true;
@@ -7350,6 +7358,22 @@ const Sims = {
 
         _clearGraceTimer() {
           if (B && B.graceTimer) { clearTimeout(B.graceTimer); B.graceTimer = null; }
+        },
+
+        // 입장(ready) 기록 — 2026-10-06(3차): 예전엔 게임 화면 진입 때 딱
+        // 한 번만 보내서, 그 순간 네트워크가 잠깐 끊겨 실패하면 그 사람은
+        // 끝까지 미입장으로 남고 방 전체가 호스트의 [미입장자 제외]까지
+        // 기다렸다("간혹 한참 있다가 들어옴"). 이제 입장 대기 중 받는 모든
+        // 방 상태(1초 폴링 포함)에서 내 ready가 서버에 없으면 다시 보낸다.
+        // 동시에 두 번 보내지 않도록 in-flight 플래그로 막는다.
+        _ensureReady(data) {
+          const me = data && data.players && data.players[B.myId];
+          if (!me || me.ready === true || data.startedAt || B.readyInFlight) return;
+          B.readyInFlight = true;
+          window.DealerAuth.markBattleReady(B.roomId, B.myId)
+            .then(() => this._refreshLobby()) // 내가 마지막이었으면 정해진 시작 시각을 바로 읽어 옴
+            .catch(e => console.error('[roulettePay.battle] 입장 기록 실패(다음 확인 때 재시도):', e))
+            .finally(() => { if (B) B.readyInFlight = false; });
         },
 
         // ---- 입장 대기 화면 (2026-10-06) ----
