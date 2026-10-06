@@ -7147,6 +7147,18 @@ const Sims = {
             App.navigate('roulette', 'paymenu');
             return;
           }
+          // 2026-10-06 버그 수정("라운드 챌린지에서 호스트 시작 후 참가자
+          // 입장이 안 됨"): 방 상태는 REST 폴링과 onSnapshot 두 곳에서 들어
+          // 오는데, 연결이 막혔던 onSnapshot은 한참 지난 'waiting'을 뒤늦게
+          // 배달한다. 그걸 믿고 이미 게임 화면에 들어간 참가자를 phase=
+          // 'lobby'로 되돌리면, 다음 'playing'에서 게임 화면을 처음부터 다시
+          // 그리고(init) 입장을 다시 기록하는 걸 반복해 입장이 끝나지 않거나
+          // 진행 중 게임이 초기화됐다. status는 waiting → playing → finished로
+          // 앞으로만 가므로(firestore.rules도 강제), 이미 본 단계보다 뒤처진
+          // 스냅샷은 통째로 버린다.
+          const rank = { waiting: 0, playing: 1, finished: 2 }[data.status];
+          if (rank === undefined || (B.statusRank !== undefined && rank < B.statusRank)) return;
+          B.statusRank = rank;
           B.hostId = data.hostId;
 
           if (data.status === 'waiting') {
