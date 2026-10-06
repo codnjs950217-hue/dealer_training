@@ -178,11 +178,19 @@ function showComingSoonToast(msg) {
 // 시작한다. Auth.logout()은 페이지를 그냥 새로고침해버리므로(reload
 // 전에) flushNow()를 직접 불러 마지막 세션을 억지로 끝맺는다.
 //
-// playCount: 각 Sims 모듈이 이미 "문제 1개 완료마다 ++"하는 S.rounds를
-// getRounds()로 읽어온다([[project_rounds_increment_unification]]).
-// 새 세션은 항상 해당 모듈의 init()이 rounds를 0부터 다시 시작하므로
-// (↺ 재시작 제외 — 아래 _onNavigate에서 같은 화면이면 세션을 안 끊음)
-// 베이스라인을 따로 빼지 않고 flush 시점 값을 그대로 쓴다.
+// playCount/mistakes: 각 Sims 모듈이 이미 "문제 1개 완료마다 ++"하는
+// S.rounds와 오답마다 ++하는 S.mistakes를 getRounds()/getMistakes()로
+// 읽어온다([[project_rounds_increment_unification]]). flush 시점 값을
+// 그대로 쓰면 안 된다 — 같은 화면 안에서도 카운터가 0으로 돌아가는
+// 경로가 있어서(Baccarat Payout 탭 전환, Roulette 난이도 변경, Roulette
+// ↺ 재시작의 mistakes) 그 전까지 푼 만큼이 통째로 사라진다. 그래서
+// _sample()이 "직전 샘플 대비 증가분"만 누적하고, 값이 줄었으면 리셋된
+// 것으로 보고 현재 값 전체를 증가분으로 친다. 샘플은 10초 틱 + 모든
+// 클릭/키입력의 캡처 단계(= 그 입력의 핸들러가 카운터를 리셋하기 *전*)
+// + flush 직전에 찍으므로, 리셋 직전 값을 놓칠 일이 사실상 없다.
+//
+// 2026-10-06: 학습리포트용으로 mistakes/sessionCount/lastAt/department
+// 추가. sessionCount는 flush 1번 = 1(그날 그 게임에 들어온 횟수).
 //
 // playMinutes: 단순 경과 시간이 아니라 "실제 활동 시간"만 누적한다.
 // 10초마다 틱을 돌려, 그 순간 1) 추적 중인 화면이 열려 있고 2) 탭이
@@ -195,7 +203,7 @@ const TrainingLog = {
   _ACTIVE_TICK_MS: 10_000,
   _IDLE_LIMIT_MS: 3 * 60 * 1000,
 
-  _current: null,       // { label, getRounds, activeMs }
+  _current: null,       // { label, mod, activeMs, rounds, mistakes, lastR, lastM }
   _lastActivityAt: 0,
   _tickTimer: null,
   _listenersArmed: false,
@@ -206,16 +214,16 @@ const TrainingLog = {
   // Poker의 ISP/TCP/THP와 Baccarat의 Drawing/Payout(+Option Bet)은
   // 전부 "Poker"/"Baccarat" 하나로 묶는다(요청사항).
   _ROUTES: {
-    'blackjack:simulation':      { label: 'Blackjack', getRounds: () => Sims.blackjack.getRounds() },
-    'blackjack:simulationspeed': { label: 'Blackjack', getRounds: () => Sims.blackjack.getRounds() },
-    'baccarat:simulation':       { label: 'Baccarat',  getRounds: () => Sims.baccarat.getRounds() },
-    'baccarat:paysim':           { label: 'Baccarat',  getRounds: () => Sims.baccaratPay.getRounds() },
-    'roulette:paysim':           { label: 'Roulette',  getRounds: () => Sims.roulettePay.getRounds() },
-    'roulette:payrank':          { label: 'Roulette',  getRounds: () => Sims.roulettePay.getRounds() },
-    'roulette:battle':           { label: 'Roulette',  getRounds: () => Sims.roulettePay.getRounds() },
-    'poker:isp':                 { label: 'Poker',     getRounds: () => Sims.poker.isp.getRounds() },
-    'poker:tcp':                 { label: 'Poker',     getRounds: () => Sims.poker.tcp.getRounds() },
-    'poker:thp':                 { label: 'Poker',     getRounds: () => Sims.poker.thpRank.getRounds() },
+    'blackjack:simulation':      { label: 'Blackjack', mod: () => Sims.blackjack },
+    'blackjack:simulationspeed': { label: 'Blackjack', mod: () => Sims.blackjack },
+    'baccarat:simulation':       { label: 'Baccarat',  mod: () => Sims.baccarat },
+    'baccarat:paysim':           { label: 'Baccarat',  mod: () => Sims.baccaratPay },
+    'roulette:paysim':           { label: 'Roulette',  mod: () => Sims.roulettePay },
+    'roulette:payrank':          { label: 'Roulette',  mod: () => Sims.roulettePay },
+    'roulette:battle':           { label: 'Roulette',  mod: () => Sims.roulettePay },
+    'poker:isp':                 { label: 'Poker',     mod: () => Sims.poker.isp },
+    'poker:tcp':                 { label: 'Poker',     mod: () => Sims.poker.tcp },
+    'poker:thp':                 { label: 'Poker',     mod: () => Sims.poker.thpRank },
   },
 
   // App.navigate()가 this._game/this._mode를 덮어쓰기 직전에 호출 —
@@ -229,7 +237,12 @@ const TrainingLog = {
 
   _start(game, mode) {
     const route = this._ROUTES[`${game}:${mode}`];
-    this._current = route ? { label: route.label, getRounds: route.getRounds, activeMs: 0 } : null;
+    // 베이스라인 0: navigate() 안에서 이 직후 새 모듈의 init()이 카운터를
+    // 0부터 다시 시작한다(같은 화면 ↺ 재시작은 _onNavigate가 세션을 안
+    // 끊으므로 여기까지 오지 않음).
+    this._current = route
+      ? { label: route.label, mod: route.mod, activeMs: 0, rounds: 0, mistakes: 0, lastR: 0, lastM: 0 }
+      : null;
     this._lastActivityAt = Date.now();
     this._armListeners();
     this._armTicker();
@@ -240,16 +253,16 @@ const TrainingLog = {
   // 신경 쓰지 않는다(그쪽은 페이지가 안 사라지니 끝까지 완료됨).
   _flush() {
     if (!this._current) return Promise.resolve();
-    const { label, getRounds, activeMs } = this._current;
+    this._sample();
+    const { label, activeMs, rounds: playCount, mistakes } = this._current;
     this._current = null;
     const playMinutes = Math.round(activeMs / 60000);
-    let playCount = 0;
-    try { playCount = getRounds() || 0; } catch (e) { console.error('[TrainingLog] getRounds 실패:', e); }
     // 활동도 없고 완료한 문제도 없으면(화면만 잠깐 열었다 바로 나간
     // 경우) 빈 로그를 남기지 않는다 — 분석에 노이즈만 될 뿐이다.
     if (playMinutes <= 0 && playCount <= 0) return Promise.resolve();
     if (!Auth.session || !window.DealerAuth) return Promise.resolve();
-    return window.DealerAuth.logTrainingSession(Auth.session.employeeId, Auth.session.name, label, playMinutes, playCount)
+    const { employeeId, name, department } = Auth.session;
+    return window.DealerAuth.logTrainingSession({ employeeId, name, department: department || '', game: label, playMinutes, playCount, mistakes })
       .catch(e => console.error('[TrainingLog] 기록 실패:', e));
   },
 
@@ -257,10 +270,26 @@ const TrainingLog = {
   // 않는 유일한 이탈 경로라 별도로 열어둔다.
   flushNow() { return this._flush(); },
 
+  // 현재 카운터를 읽어 직전 샘플 대비 증가분만 누적한다(위 헤더 주석).
+  _sample() {
+    const cur = this._current;
+    if (!cur) return;
+    let r, m;
+    try {
+      const mod = cur.mod();
+      r = mod.getRounds() || 0;
+      m = mod.getMistakes() || 0;
+    } catch (e) { console.error('[TrainingLog] 카운터 읽기 실패:', e); return; }
+    cur.rounds   += r >= cur.lastR ? r - cur.lastR : r;
+    cur.mistakes += m >= cur.lastM ? m - cur.lastM : m;
+    cur.lastR = r; cur.lastM = m;
+  },
+
   _armTicker() {
     if (this._tickTimer) return; // 앱 전체에서 한 번만 돈다
     this._tickTimer = setInterval(() => {
       if (!this._current) return;
+      this._sample();
       const idle = Date.now() - this._lastActivityAt > this._IDLE_LIMIT_MS;
       const hidden = document.visibilityState !== 'visible';
       if (!idle && !hidden) this._current.activeMs += this._ACTIVE_TICK_MS;
@@ -273,6 +302,12 @@ const TrainingLog = {
     const mark = () => { this._lastActivityAt = Date.now(); };
     ['click', 'keydown', 'pointerdown', 'touchstart'].forEach(evt => {
       document.addEventListener(evt, mark, { passive: true });
+    });
+    // 캡처 단계 = 클릭/키입력 핸들러보다 먼저 → 그 입력이 카운터를
+    // 리셋하기 직전 값을 찍는다.
+    const sample = () => this._sample();
+    ['click', 'keydown'].forEach(evt => {
+      document.addEventListener(evt, sample, { capture: true, passive: true });
     });
     // 탭으로 돌아온 순간도 "활동"으로 쳐서, 복귀 직후 클릭/키입력이
     // 없어도 다음 틱부터 바로 재개되게 한다.
@@ -439,7 +474,14 @@ const Auth = {
     // instead of staying logged in forever.
     this._showLoggedIn(this.session.employeeId, this.session.name);
     waitForDealerAuth().then(auth => auth.lookupEmployee(this.session.employeeId)).then(result => {
-      if (!result.ok) this.logout();
+      if (!result.ok) { this.logout(); return; }
+      // department는 2026-10-06(학습리포트)부터 세션에 담는다 — 그 전에
+      // 로그인해 저장된 세션엔 없고, 관리자가 부서를 바꿨을 수도 있으니
+      // 재확인 때마다 최신 값으로 덮어써 둔다.
+      if (this.session.department !== result.department) {
+        this.session.department = result.department;
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(this.session));
+      }
     }).catch(e => {
       // Offline/unreachable — keep the existing session, but still log it
       // so a silent background failure doesn't look like nothing happened.
@@ -466,7 +508,7 @@ const Auth = {
         errEl.style.display = 'block';
         return;
       }
-      this.session = { employeeId: result.employeeId, name: result.name };
+      this.session = { employeeId: result.employeeId, name: result.name, department: result.department };
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(this.session));
       this._showWelcomeThenEnter(this.session.employeeId, this.session.name);
     } catch (e) {
@@ -2259,6 +2301,7 @@ const Sims = {
       // 읽어가는 공개 접근자 — S는 이 모듈 안에만 있는 비공개 변수라
       // 외부에서 직접 읽을 방법이 없어서 하나 열어둔다.
       getRounds() { return (S && S.rounds) || 0; },
+      getMistakes() { return (S && S.mistakes) || 0; },
       init(isRestart) {
         const wasMidHand = isRestart && S && S.phase && S.phase !== 'idle' && S.phase !== 'done';
         if (S) stopAllTimers();
@@ -3682,6 +3725,7 @@ const Sims = {
 
     return {
       getRounds() { return (S && S.rounds) || 0; },
+      getMistakes() { return (S && S.mistakes) || 0; },
       init(isRestart) {
         const wasMidHand = isRestart && S && S.ph && S.ph.length > 0 && S.winner === null;
         const keepRounds   = isRestart && S ? S.rounds + (wasMidHand ? 1 : 0) : 0;
@@ -4618,6 +4662,10 @@ const Sims = {
         if (S && S.mode === 'side' && Sims.baccaratSide) return Sims.baccaratSide.getRounds();
         return (S && S.rounds) || 0;
       },
+      getMistakes() {
+        if (S && S.mode === 'side' && Sims.baccaratSide) return Sims.baccaratSide.getMistakes();
+        return (S && S.mistakes) || 0;
+      },
       init() {
         S = { bets: [], commIdx: 0, rounds: 0, score: 0, mistakes: 0, commTarget: 0, mode: 'commission', lastTotal: 0, awaitingPay: false, nextTimer: null, history: [], answerRevealed: false };
         this.deal();
@@ -5332,6 +5380,7 @@ const Sims = {
 
     return {
       getRounds() { return (S && S.rounds) || 0; },
+      getMistakes() { return (S && S.mistakes) || 0; },
       init(isRestart) {
         if (S.nextTimer) { clearTimeout(S.nextTimer); }
         const wasMidHand = isRestart && S && S.awaitingPay === true;
@@ -6192,6 +6241,7 @@ const Sims = {
 
     return {
       getRounds() { return (S && S.rounds) || 0; },
+      getMistakes() { return (S && S.mistakes) || 0; },
       _setControlsVisible(visible) {
         const u = $('rpay-undo-btn'); const r = $('rpay-allreset-btn');
         if (u) u.style.visibility = visible ? '' : 'hidden';
@@ -7348,7 +7398,7 @@ const Sims = {
         if (b) { b.textContent = 'NEXT'; b.disabled = false; b.onclick = () => Sims.poker[key].deal(); }
       }
 
-      return { init, deal, answer, getRounds: () => (S && S.rounds) || 0 };
+      return { init, deal, answer, getRounds: () => (S && S.rounds) || 0, getMistakes: () => (S && S.mistakes) || 0 };
     }
 
     function mkThpRank() {
@@ -8094,7 +8144,7 @@ const Sims = {
         var hm = $('thpr-hand-modal'); if (hm) hm.style.display = 'none';
       }
 
-      return { init, deal, answer, next, skipReveal, debugHand, showRankHelp, hideRankHelp, showHandExplain, hideHandExplain, getRounds: () => (S && S.rounds) || 0 };
+      return { init, deal, answer, next, skipReveal, debugHand, showRankHelp, hideRankHelp, showHandExplain, hideHandExplain, getRounds: () => (S && S.rounds) || 0, getMistakes: () => (S && S.mistakes) || 0 };
     }
 
     return {

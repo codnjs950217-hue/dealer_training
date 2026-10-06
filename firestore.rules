@@ -105,9 +105,19 @@ service cloud.firestore {
     // 검증한다 — 다른 사람의 사번으로 로그를 쓰거나 ID와 내용이 어긋나는
     // 문서를 만들 수 없다(진짜 Auth가 없어 "그 사번 본인인지"까지는
     // 검증 불가 — users/rouletteRankings와 동일한 한계).
+    //
+    // 2026-10-06(학습리포트): mistakes/sessionCount/lastAt/department 추가.
+    // 넷 다 "있으면 타입 검증"으로 둔다 — 이 필드들 이전에 생긴 문서와,
+    // 배포 직후 아직 예전 main.js를 들고 있는 클라이언트의 쓰기(예전
+    // 6개 필드만 보냄)도 계속 통과해야 하기 때문이다.
     match /trainingLogs/{logId} {
       allow read: if false;
-      allow write: if request.resource.data.keys().hasOnly(['date','employeeId','name','game','playMinutes','playCount'])
+      allow write: if request.resource.data.keys().hasOnly(['date','employeeId','name','game','playMinutes','playCount',
+                                                            'mistakes','sessionCount','lastAt','department'])
+                   && (!('mistakes' in request.resource.data) || request.resource.data.mistakes is int)
+                   && (!('sessionCount' in request.resource.data) || request.resource.data.sessionCount is int)
+                   && (!('lastAt' in request.resource.data) || request.resource.data.lastAt is int)
+                   && (!('department' in request.resource.data) || request.resource.data.department is string)
                    && request.resource.data.date is string
                    && request.resource.data.employeeId is string
                    && request.resource.data.name is string

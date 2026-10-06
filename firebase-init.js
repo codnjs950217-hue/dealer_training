@@ -47,7 +47,7 @@ try {
 }
 
 // Looks up users/{employeeId} and checks active === true.
-// Resolves to { ok: true, employeeId, name } or { ok: false, reason }.
+// Resolves to { ok: true, employeeId, name, department } or { ok: false, reason }.
 // Throws (with the original Firebase error's .code/.message intact) on
 // any Firestore/network failure — main.js's Auth.login() is responsible
 // for turning that into a readable on-screen message.
@@ -61,7 +61,7 @@ async function lookupEmployee(employeeId) {
     if (!snap.exists()) return { ok: false, reason: "not_found" };
     const data = snap.data();
     if (data.active !== true) return { ok: false, reason: "inactive" };
-    return { ok: true, employeeId, name: data.name || employeeId };
+    return { ok: true, employeeId, name: data.name || employeeId, department: data.department || '' };
   } catch (e) {
     console.error(`[DealerAuth] users/${employeeId} 조회 실패:`, e.code || '(no code)', e.message, e);
     throw e;
@@ -306,16 +306,35 @@ async function fetchBattleRoom(code) {
 //
 // 날짜는 서버 시각이 아니라 트레이니 브라우저의 로컬 날짜로 끊는다 —
 // 실습실 PC가 KST라고 가정하면 그게 실제 "하루"와 맞는 기준이다.
-function logTrainingSession(employeeId, name, game, playMinutes, playCount) {
+//
+// 2026-10-06(학습리포트): mistakes/sessionCount(누적), lastAt/department
+// (덮어쓰기) 추가. firestore.rules가 아직 이 필드들을 모르는 상태(규칙
+// 배포 전)면 쓰기 전체가 permission-denied로 거부되는데, 거부된 쓰기는
+// 아무것도 반영하지 않으므로 예전 필드만으로 한 번 더 써서 최소한
+// playMinutes/playCount는 잃지 않게 한다. 규칙이 배포되고 나면 이 폴백은
+// 타지 않는다.
+async function logTrainingSession({ employeeId, name, department, game, playMinutes, playCount, mistakes }) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
   const now = new Date();
   const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  const docId = `${date}_${employeeId}_${game}`;
-  return setDoc(doc(db, "trainingLogs", docId), {
+  const ref = doc(db, "trainingLogs", `${date}_${employeeId}_${game}`);
+  const base = {
     date, employeeId, name, game,
     playMinutes: increment(playMinutes),
     playCount: increment(playCount),
-  }, { merge: true });
+  };
+  try {
+    await setDoc(ref, {
+      ...base, department,
+      mistakes: increment(mistakes),
+      sessionCount: increment(1),
+      lastAt: now.getTime(),
+    }, { merge: true });
+  } catch (e) {
+    if (e && e.code !== 'permission-denied') throw e;
+    console.warn('[TrainingLog] 새 필드 거부됨(firestore.rules 미배포?) — 기존 필드만 기록');
+    await setDoc(ref, base, { merge: true });
+  }
 }
 
 window.DealerAuth = {
