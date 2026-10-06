@@ -96,34 +96,69 @@ service cloud.firestore {
       allow delete: if true;
     }
 
-    // 트레이닝 로그(2026-10-02) — 점수/랭킹이 아니라 "얼마나 트레이닝
-    // 했는지"만 관리자(개발자)가 Admin SDK 스크립트로 추출해 보는 비공개
-    // 집계다. 사용자에게는 절대 보여주지 않으므로 read는 누구에게도
-    // 허용하지 않는다 — Admin SDK는 보안 규칙을 우회하므로 추출
-    // 스크립트엔 영향이 없다. 문서 ID를 {날짜}_{employeeId}_{game}으로
-    // 고정해, 본문 필드로 그 ID를 재구성한 값과 실제 문서 ID가 일치하는지
-    // 검증한다 — 다른 사람의 사번으로 로그를 쓰거나 ID와 내용이 어긋나는
-    // 문서를 만들 수 없다(진짜 Auth가 없어 "그 사번 본인인지"까지는
-    // 검증 불가 — users/rouletteRankings와 동일한 한계).
-    //
-    // 2026-10-06(학습리포트): mistakes/sessionCount/lastAt/department 추가.
-    // 넷 다 "있으면 타입 검증"으로 둔다 — 이 필드들 이전에 생긴 문서와,
-    // 배포 직후 아직 예전 main.js를 들고 있는 클라이언트의 쓰기(예전
-    // 6개 필드만 보냄)도 계속 통과해야 하기 때문이다.
+    // 트레이닝 로그 — 점수/랭킹이 아니라 "얼마나 트레이닝 했는지"만
+    // 관리자(개발자)가 Admin SDK 스크립트로 추출해 보는 비공개 집계다.
+    // 사용자에게는 절대 보여주지 않으므로 read는 누구에게도 허용하지
+    // 않는다 — Admin SDK는 보안 규칙을 우회하므로 추출 스크립트엔 영향이
+    // 없다. 문서 ID를 본문 필드로 재구성한 값과 대조해 다른 사람의
+    // 사번으로 쓰거나 ID와 내용이 어긋나는 문서를 막는다(진짜 Auth가 없어
+    // "그 사번 본인인지"까지는 검증 불가 — users/rouletteRankings와 동일한
+    // 한계).
+
+    // 2026-10-06~ 현재 형식: 한 사람의 하루 = 문서 1개, 게임별 값은
+    // {game}Minutes/Count/Mistakes 평평한 필드. 안 한 게임의 필드는 없을
+    // 수 있으므로 숫자 필드는 전부 "있으면 int".
+    function optInt(d, k) { return !(k in d) || d[k] is int; }
+    match /trainingDaily/{dayId} {
+      allow read: if false;
+      allow write: if request.resource.data.keys().hasOnly([
+                        'date', 'employeeId', 'name', 'department', 'lastAt',
+                        'totalMinutes', 'totalCount', 'totalMistakes', 'sessionCount',
+                        'blackjackMinutes', 'blackjackCount', 'blackjackMistakes',
+                        'baccaratMinutes',  'baccaratCount',  'baccaratMistakes',
+                        'rouletteMinutes',  'rouletteCount',  'rouletteMistakes',
+                        'pokerMinutes',     'pokerCount',     'pokerMistakes'])
+                   && request.resource.data.date is string
+                   && request.resource.data.employeeId is string
+                   && request.resource.data.name is string
+                   && request.resource.data.department is string
+                   && request.resource.data.lastAt is int
+                   && optInt(request.resource.data, 'totalMinutes')
+                   && optInt(request.resource.data, 'totalCount')
+                   && optInt(request.resource.data, 'totalMistakes')
+                   && optInt(request.resource.data, 'sessionCount')
+                   && optInt(request.resource.data, 'blackjackMinutes')
+                   && optInt(request.resource.data, 'blackjackCount')
+                   && optInt(request.resource.data, 'blackjackMistakes')
+                   && optInt(request.resource.data, 'baccaratMinutes')
+                   && optInt(request.resource.data, 'baccaratCount')
+                   && optInt(request.resource.data, 'baccaratMistakes')
+                   && optInt(request.resource.data, 'rouletteMinutes')
+                   && optInt(request.resource.data, 'rouletteCount')
+                   && optInt(request.resource.data, 'rouletteMistakes')
+                   && optInt(request.resource.data, 'pokerMinutes')
+                   && optInt(request.resource.data, 'pokerCount')
+                   && optInt(request.resource.data, 'pokerMistakes')
+                   && dayId == request.resource.data.date + '_' + request.resource.data.employeeId;
+    }
+
+    // 2026-10-02~10-06 예전 형식(게임마다 1행). 새로 쓰지는 않지만, 배포
+    // 직후 아직 예전 main.js를 들고 있는 클라이언트와 trainingDaily 규칙
+    // 배포 전 폴백(firebase-init.js) 때문에 쓰기 규칙을 남겨 둔다.
     match /trainingLogs/{logId} {
       allow read: if false;
       allow write: if request.resource.data.keys().hasOnly(['date','employeeId','name','game','playMinutes','playCount',
                                                             'mistakes','sessionCount','lastAt','department'])
-                   && (!('mistakes' in request.resource.data) || request.resource.data.mistakes is int)
-                   && (!('sessionCount' in request.resource.data) || request.resource.data.sessionCount is int)
-                   && (!('lastAt' in request.resource.data) || request.resource.data.lastAt is int)
-                   && (!('department' in request.resource.data) || request.resource.data.department is string)
                    && request.resource.data.date is string
                    && request.resource.data.employeeId is string
                    && request.resource.data.name is string
                    && request.resource.data.game in ['Blackjack', 'Baccarat', 'Roulette', 'Poker']
                    && request.resource.data.playMinutes is int
                    && request.resource.data.playCount is int
+                   && (!('mistakes' in request.resource.data) || request.resource.data.mistakes is int)
+                   && (!('sessionCount' in request.resource.data) || request.resource.data.sessionCount is int)
+                   && (!('lastAt' in request.resource.data) || request.resource.data.lastAt is int)
+                   && (!('department' in request.resource.data) || request.resource.data.department is string)
                    && logId == request.resource.data.date + '_' + request.resource.data.employeeId + '_' + request.resource.data.game;
     }
 

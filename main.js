@@ -171,7 +171,7 @@ function showComingSoonToast(msg) {
 
 // ---- TRAINING LOG (2026-10-02) ----
 // 점수/랭킹이 아니라 "얼마나 트레이닝했는지"만 관리자가 나중에 Excel로
-// 뽑아보기 위한 비공개 집계(trainingLogs, firebase-init.js의
+// 뽑아보기 위한 비공개 집계(trainingDaily — 1인 1일 1행, firebase-init.js의
 // logTrainingSession) — 사용자에게는 절대 노출하지 않는다. App.navigate()
 // 가 실제로 게임/모드를 바꿀 때마다 "방금까지 있던 화면"을 여기로 흘려
 // 보내 세션을 종료(flush)하고, 새 화면이 추적 대상이면 새 세션을

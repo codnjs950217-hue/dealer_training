@@ -290,52 +290,54 @@ async function fetchBattleRoom(code) {
   return snap.exists() ? snap.data() : null;
 }
 
-// ---- 트레이닝 로그 (2026-10-02) ----
+// ---- 트레이닝 로그 (2026-10-02, 2026-10-06 일별 1행으로 개편) ----
 // 점수/랭킹이 아니라 "얼마나 트레이닝했는지"만 관리자(개발자)가 나중에
 // Excel로 추출해 분석하기 위한 비공개 집계 — 사용자에게는 절대 보여주지
 // 않는다(firestore.rules가 read 자체를 전부 막아둠). main.js의
-// TrainingLog가 게임 화면을 벗어날 때(App.navigate)/로그아웃할 때 호출.
+// TrainingLog._checkpoint가 1분마다/화면이 숨겨질 때/게임 화면을 떠날 때
+// "지난 저장 이후 늘어난 만큼"을 넘겨 호출한다.
 //
-// 세션 로그(호출 1번 = 문서 1건) 방식이 아니라 일별 누적 방식이다 —
-// 문서 ID를 {YYYY-MM-DD}_{employeeId}_{game}으로 고정해서, 같은 날 같은
-// 사람이 같은 게임을 몇 번을 들어왔다 나가든 전부 한 문서로 합쳐진다.
-// increment() 필드 트랜스폼 + setDoc(..., {merge:true})를 쓰면 "문서가
-// 있으면 더하고 없으면 0부터 시작해서 만든다"를 분기 없이 한 번의
-// 원자적 쓰기로 처리할 수 있다 — rouletteRankings처럼 읽고-더하고-쓰는
-// 트랜잭션이 필요 없다.
+// trainingDaily/{YYYY-MM-DD}_{employeeId} = 한 사람의 하루 = 문서 1개(엑셀
+// 1행). 게임별 값은 중첩 맵이 아니라 {game}Minutes/{game}Count/
+// {game}Mistakes 평평한 필드로 둔다 — CSV로 그대로 펼쳐지고, firestore.
+// rules가 필드 하나하나의 타입을 검증할 수 있다. 같은 값을 total*에도
+// 함께 더해 Console에서 문서만 열어도 하루 합계가 보이게 한다. 안 한
+// 게임의 필드는 아예 생기지 않는다(0이 아니라 없음).
+//
+// increment() 필드 트랜스폼 + setDoc(..., {merge:true})로 "문서가 있으면
+// 더하고 없으면 0부터 만든다"를 읽기 없이 한 번의 원자적 쓰기로 처리.
 //
 // 날짜는 서버 시각이 아니라 트레이니 브라우저의 로컬 날짜로 끊는다 —
 // 실습실 PC가 KST라고 가정하면 그게 실제 "하루"와 맞는 기준이다.
 //
-// 2026-10-06(학습리포트): mistakes/sessionCount(누적), lastAt/department
-// (덮어쓰기) 추가. firestore.rules가 아직 이 필드들을 모르는 상태(규칙
-// 배포 전)면 쓰기 전체가 permission-denied로 거부되는데, 거부된 쓰기는
-// 아무것도 반영하지 않으므로 예전 필드만으로 한 번 더 써서 최소한
-// playMinutes/playCount는 잃지 않게 한다. 규칙이 배포되고 나면 이 폴백은
-// 타지 않는다.
-// 같은 세션이 1분마다/화면이 숨겨질 때 여러 번 나눠 호출한다(main.js
-// TrainingLog._checkpoint) — sessionCount는 그 세션의 첫 호출만 1.
+// 예전 형식(trainingLogs/{date}_{employeeId}_{game}, 게임마다 1행)은
+// 2026-10-06부터 더 쓰지 않는다 — 단, trainingDaily 규칙이 아직 배포되기
+// 전이라 permission-denied가 나면 그쪽으로 한 번 더 써서 기록을 잃지
+// 않게 한다(거부된 쓰기는 아무것도 반영하지 않으므로 중복 없음).
 async function logTrainingSession({ employeeId, name, department, game, playMinutes, playCount, mistakes, sessionCount }) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
   const now = new Date();
   const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  const ref = doc(db, "trainingLogs", `${date}_${employeeId}_${game}`);
-  const base = {
-    date, employeeId, name, game,
-    playMinutes: increment(playMinutes),
-    playCount: increment(playCount),
-  };
+  const g = game.toLowerCase(); // 'Baccarat' -> 'baccarat'
   try {
-    await setDoc(ref, {
-      ...base, department,
-      mistakes: increment(mistakes),
+    await setDoc(doc(db, "trainingDaily", `${date}_${employeeId}`), {
+      date, employeeId, name, department, lastAt: now.getTime(),
+      totalMinutes: increment(playMinutes),
+      totalCount: increment(playCount),
+      totalMistakes: increment(mistakes),
       sessionCount: increment(sessionCount),
-      lastAt: now.getTime(),
+      [`${g}Minutes`]: increment(playMinutes),
+      [`${g}Count`]: increment(playCount),
+      [`${g}Mistakes`]: increment(mistakes),
     }, { merge: true });
   } catch (e) {
     if (e && e.code !== 'permission-denied') throw e;
-    console.warn('[TrainingLog] 새 필드 거부됨(firestore.rules 미배포?) — 기존 필드만 기록');
-    await setDoc(ref, base, { merge: true });
+    console.warn('[TrainingLog] trainingDaily 거부됨(firestore.rules 미배포?) — 예전 trainingLogs 형식으로 기록');
+    await setDoc(doc(db, "trainingLogs", `${date}_${employeeId}_${game}`), {
+      date, employeeId, name, game,
+      playMinutes: increment(playMinutes),
+      playCount: increment(playCount),
+    }, { merge: true });
   }
 }
 
