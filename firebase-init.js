@@ -301,8 +301,9 @@ async function fetchBattleRoom(code) {
 // 1행). 게임별 값은 중첩 맵이 아니라 {game}Minutes/{game}Count/
 // {game}Mistakes 평평한 필드로 둔다 — CSV로 그대로 펼쳐지고, firestore.
 // rules가 필드 하나하나의 타입을 검증할 수 있다. 같은 값을 total*에도
-// 함께 더해 Console에서 문서만 열어도 하루 합계가 보이게 한다. 안 한
-// 게임의 필드는 아예 생기지 않는다(0이 아니라 없음).
+// 함께 더해 Console에서 문서만 열어도 하루 합계가 보이게 한다. 매 쓰기마다
+// 4개 게임 필드를 전부 보내고(안 한 게임은 increment(0)) 모든 행이 같은
+// 칸 구성을 갖게 한다 — 안 한 게임은 빈칸이 아니라 0.
 //
 // increment() 필드 트랜스폼 + setDoc(..., {merge:true})로 "문서가 있으면
 // 더하고 없으면 0부터 만든다"를 읽기 없이 한 번의 원자적 쓰기로 처리.
@@ -314,11 +315,18 @@ async function fetchBattleRoom(code) {
 // 2026-10-06부터 더 쓰지 않는다 — 단, trainingDaily 규칙이 아직 배포되기
 // 전이라 permission-denied가 나면 그쪽으로 한 번 더 써서 기록을 잃지
 // 않게 한다(거부된 쓰기는 아무것도 반영하지 않으므로 중복 없음).
+const TRAINING_GAMES = ['blackjack', 'baccarat', 'roulette', 'poker']; // firestore.rules trainingDaily hasOnly와 일치
 async function logTrainingSession({ employeeId, name, department, game, playMinutes, playCount, mistakes, sessionCount }) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
   const now = new Date();
   const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-  const g = game.toLowerCase(); // 'Baccarat' -> 'baccarat'
+  const perGame = {};
+  for (const g of TRAINING_GAMES) {
+    const mine = g === game.toLowerCase(); // 'Baccarat' -> 'baccarat'
+    perGame[`${g}Minutes`]  = increment(mine ? playMinutes : 0);
+    perGame[`${g}Count`]    = increment(mine ? playCount : 0);
+    perGame[`${g}Mistakes`] = increment(mine ? mistakes : 0);
+  }
   try {
     await setDoc(doc(db, "trainingDaily", `${date}_${employeeId}`), {
       date, employeeId, name, department, lastAt: now.getTime(),
@@ -326,9 +334,7 @@ async function logTrainingSession({ employeeId, name, department, game, playMinu
       totalCount: increment(playCount),
       totalMistakes: increment(mistakes),
       sessionCount: increment(sessionCount),
-      [`${g}Minutes`]: increment(playMinutes),
-      [`${g}Count`]: increment(playCount),
-      [`${g}Mistakes`]: increment(mistakes),
+      ...perGame,
     }, { merge: true });
   } catch (e) {
     if (e && e.code !== 'permission-denied') throw e;
