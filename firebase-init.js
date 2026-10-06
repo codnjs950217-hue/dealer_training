@@ -223,7 +223,12 @@ async function leaveBattleRoom(code, employeeId) {
       tx.delete(ref);
       return;
     }
-    tx.update(ref, { [`players.${employeeId}`]: deleteField() });
+    // 입장 대기 중(playing인데 startedAt 없음)에 나간 사람이 "마지막
+    // 미입장자"였다면, 남은 전원이 이미 입장한 상태이므로 여기서 바로
+    // 시작 시각을 정한다 — 안 그러면 아무도 시작시키지 않아 영원히 대기.
+    const extra = (data.status === 'playing' && !data.startedAt && _allReady(players))
+      ? { startedAt: _ts(Date.now() + BATTLE_READY_LEAD_MS) } : {};
+    tx.update(ref, { [`players.${employeeId}`]: deleteField(), ...extra });
   });
 }
 
@@ -240,9 +245,56 @@ async function leaveBattleRoom(code, employeeId) {
 // (main.js _armBattleReady) 최대 ~2초 늦게 받은 기기까지 5부터 보이고,
 // 실제 시작 시각은 여전히 모든 기기가 같다.
 const BATTLE_READY_LEAD_MS = 6000;
+//
+// 2026-10-06 ("팀원 전원이 게임 화면에 들어오지 않으면 시작되면 안돼.
+// 대기중?이렇게 떠야해"): 호스트의 [배틀 시작]은 이제 status만
+// 'playing'으로 바꾸고 startedAt은 비워 둔다. 각 참가자 기기가 게임
+// 화면에 들어오면 markBattleReady()로 자기 ready를 찍고, 마지막 한 명이
+// 찍는 트랜잭션이 그 순간 startedAt(= 지금 + BATTLE_READY_LEAD_MS)을
+// 정한다 — 그 전까지 전원은 "대기 중" 화면(main.js)에 머문다. 끝내
+// 안 들어오는 사람이 있으면 호스트가 startBattleWithoutUnready()로
+// 미입장자를 빼고 시작할 수 있다(main.js가 15초 뒤 버튼 노출).
+// startedAt/players 내부 필드는 firestore.rules가 타입을 검증하지 않아
+// 규칙 변경은 필요 없다.
 async function startBattleRoom(code) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
-  await updateDoc(doc(db, "battleRooms", code), { status: 'playing', startedAt: _ts(Date.now() + BATTLE_READY_LEAD_MS) });
+  await updateDoc(doc(db, "battleRooms", code), { status: 'playing', startedAt: null });
+}
+
+const _allReady = players => Object.values(players || {}).every(p => p && p.ready === true);
+
+async function markBattleReady(code, employeeId) {
+  if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
+  const ref = doc(db, "battleRooms", code);
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists()) return;
+    const data = snap.data();
+    const players = data.players || {};
+    if (data.status !== 'playing' || data.startedAt || !players[employeeId]) return;
+    const others = Object.entries(players).filter(([id]) => id !== employeeId).map(([, p]) => p);
+    const update = { [`players.${employeeId}.ready`]: true };
+    if (others.every(p => p && p.ready === true)) update.startedAt = _ts(Date.now() + BATTLE_READY_LEAD_MS);
+    tx.update(ref, update);
+  });
+}
+
+// 호스트 전용 — 아직 입장(ready) 안 한 참가자를 빼고 바로 시작 시각을
+// 정한다. 입장한 사람이 한 명도 없으면 아무것도 안 한다.
+async function startBattleWithoutUnready(code) {
+  if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
+  const ref = doc(db, "battleRooms", code);
+  await runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists()) return;
+    const data = snap.data();
+    if (data.status !== 'playing' || data.startedAt) return;
+    const entries = Object.entries(data.players || {});
+    if (!entries.some(([, p]) => p && p.ready === true)) return;
+    const update = { startedAt: _ts(Date.now() + BATTLE_READY_LEAD_MS) };
+    for (const [id, p] of entries) if (!(p && p.ready === true)) update[`players.${id}`] = deleteField();
+    tx.update(ref, update);
+  });
 }
 
 // 자기 자신의 항목만 점(.) 경로로 patch한다 — { players: { [id]: {...} } }
@@ -438,6 +490,7 @@ async function logTrainingSession({ employeeId, name, department, game, playMinu
 window.DealerAuth = {
   lookupEmployee, submitRouletteRankScore, getRouletteTopScores,
   createBattleRoom, joinBattleRoom, leaveBattleRoom, startBattleRoom,
+  markBattleReady, startBattleWithoutUnready,
   submitBattleResult, finishBattleRoom, endBattleRoom, subscribeBattleRoom,
   fetchBattleRoom,
   logTrainingSession,

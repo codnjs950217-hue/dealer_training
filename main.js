@@ -7097,16 +7097,24 @@ const Sims = {
           if (B.onVisible) { document.removeEventListener('visibilitychange', B.onVisible); B.onVisible = null; }
         },
 
+        // 2026-10-06: 대기실뿐 아니라 "입장 대기"(playing인데 아직
+        // startedAt 없음) 동안에도 돈다 — 다른 참가자의 입장/시작 시각
+        // 확정도 onSnapshot이 멈춘 네트워크에서 늦게 올 수 있어서.
+        _inPreStart() {
+          return !!B && (B.phase === 'lobby' || (B.phase === 'playing' && !B.started));
+        },
+
         async _refreshLobby() {
-          if (!B || B.phase !== 'lobby' || !B.code || !window.DealerAuth) return;
+          if (!this._inPreStart() || !B.code || !window.DealerAuth) return;
           const code = B.code;
           let data;
           try { data = await window.DealerAuth.fetchBattleRoom(code); }
           catch (e) { return; } // 일시적 네트워크 오류 — 다음 주기/onSnapshot이 메운다
-          // 읽는 사이 onSnapshot이 이미 'playing' 등으로 넘겼거나 방을
-          // 나갔다면 이 (이제 오래된) 결과로 되돌리지 않는다 — phase를
-          // 'lobby'로 되돌리면 다음 'playing' 스냅샷이 경기를 재초기화한다.
-          if (!B || B.code !== code || B.phase !== 'lobby') return;
+          // 읽는 사이 onSnapshot이 이미 경기를 시작시켰거나 방을 나갔다면
+          // 이 (이제 오래된) 결과로 되돌리지 않는다 — phase를 'lobby'로
+          // 되돌리면 다음 'playing' 스냅샷이 경기를 재초기화한다.
+          if (!B || B.code !== code || !this._inPreStart()) return;
+          if (B.phase === 'playing' && data && data.status === 'waiting') return;
           this._onSnapshot(data);
         },
 
@@ -7132,19 +7140,37 @@ const Sims = {
             this._renderLobby(data);
             return;
           }
-          this._stopLobbyRefresh(); // 대기실을 벗어남 — 보조 갱신 종료
           if (data.status === 'playing') {
+            // 2026-10-06: 게임 화면 진입 = 입장(ready) 기록. 실제 시작은
+            // 전원 ready 후 startedAt이 정해질 때까지 "대기 중" 화면으로
+            // 막는다(firebase-init.js startBattleRoom 주석).
             if (B.phase !== 'playing') {
               B.phase = 'playing';
+              B.started = false;
+              B.preStartAt = Date.now();
               const el = document.getElementById('app');
               el.innerHTML = Views.roulettePaySim();
               Sims.roulettePay.init(false);
-              Sims.roulettePay.startBattle(data.startedAt, data.mode, data.limitValue);
+              const leaveBtn = document.getElementById('rpay-battle-leave-btn'); if (leaveBtn) leaveBtn.style.display = '';
+              window.DealerAuth.markBattleReady(B.code, B.myId)
+                .catch(e => console.error('[roulettePay.battle] 입장 기록 실패:', e));
+            }
+            if (!B.started) {
+              if (data.startedAt) {
+                B.started = true;
+                this._stopLobbyRefresh(); // 시작 확정 — 보조 갱신 종료
+                this._clearPreStartWait();
+                Sims.roulettePay.startBattle(data.startedAt, data.mode, data.limitValue);
+              } else {
+                this._renderPreStartWait(data);
+              }
             }
             this._updateWaitStatus(data);
             return;
           }
+          this._stopLobbyRefresh();
           if (data.status === 'finished' && B.phase !== 'finished') {
+            this._clearPreStartWait();
             B.phase = 'finished';
             this._clearGraceTimer();
             this._showFinalResult(data);
@@ -7271,6 +7297,54 @@ const Sims = {
           if (B && B.graceTimer) { clearTimeout(B.graceTimer); B.graceTimer = null; }
         },
 
+        // ---- 입장 대기 화면 (2026-10-06) ----
+        // 게임 보드 위를 덮는 "대기 중..." 오버레이 — 카운트다운 오버레이
+        // (.rpay-battle-ready-overlay, _armBattleReady가 querySelector로
+        // 재사용함)와 섞이지 않게 별도 클래스. 호스트에게만, 대기 15초
+        // 뒤 [미입장자 제외하고 시작] 버튼이 보인다(앱을 꺼버린 참가자
+        // 때문에 영원히 못 시작하는 일 방지).
+        PRESTART_HOST_SKIP_MS: 15000,
+        _renderPreStartWait(data) {
+          const tbl = document.querySelector('.rpay-table');
+          if (!tbl || !B) return;
+          B.lastPreStartData = data;
+          const players = Object.values(data.players || {});
+          const ready = players.filter(p => p && p.ready === true);
+          const missing = players.filter(p => !(p && p.ready === true)).map(p => p.name || '?');
+          const isHost = B.hostId === B.myId;
+          const waited = Date.now() - (B.preStartAt || Date.now());
+          const showSkip = isHost && missing.length > 0 && ready.length > 0 && waited >= this.PRESTART_HOST_SKIP_MS;
+          let ov = tbl.querySelector('.rpay-battle-wait-overlay');
+          if (!ov) ov = tbl.appendChild(Object.assign(document.createElement('div'), { className: 'rpay-battle-wait-overlay' }));
+          ov.innerHTML = `
+            <div class="rpay-battle-wait-title">대기 중...</div>
+            <div class="rpay-battle-wait-count">참가자 입장 ${ready.length} / ${players.length}</div>
+            ${missing.length ? `<div class="rpay-battle-wait-missing">입장 대기: ${missing.map(n => String(n).replace(/[<>&]/g, '')).join(', ')}</div>` : ''}
+            <div class="rpay-battle-wait-btns">
+              ${showSkip ? `<button class="bac-cta-btn" onclick="Sims.roulettePay.battle.startWithoutUnready()">미입장자 제외하고 시작</button>` : ''}
+              <button class="rpay-rank-btn" onclick="Sims.roulettePay.battle.confirmLeaveRoom()">방 나가기</button>
+            </div>`;
+          // 호스트의 건너뛰기 버튼은 시간이 지나야 나타나므로, 그 시점에
+          // 마지막으로 받은 방 상태로 한 번 더 그린다.
+          if (isHost && !showSkip && !B.preStartTimer) {
+            B.preStartTimer = setTimeout(() => {
+              if (B) { B.preStartTimer = null; if (!B.started && B.lastPreStartData) this._renderPreStartWait(B.lastPreStartData); }
+            }, Math.max(0, this.PRESTART_HOST_SKIP_MS - waited) + 50);
+          }
+        },
+
+        _clearPreStartWait() {
+          const ov = document.querySelector('.rpay-battle-wait-overlay');
+          if (ov) ov.remove();
+          if (B && B.preStartTimer) { clearTimeout(B.preStartTimer); B.preStartTimer = null; }
+        },
+
+        async startWithoutUnready() {
+          if (!B || !B.code || !window.DealerAuth) return;
+          try { await window.DealerAuth.startBattleWithoutUnready(B.code); }
+          catch (e) { console.error('[roulettePay.battle] 미입장자 제외 시작 실패:', e); }
+        },
+
         _updateWaitStatus(data) {
           const el = document.getElementById('rpay-battle-wait-status');
           if (!el) return;
@@ -7360,6 +7434,7 @@ const Sims = {
         },
 
         teardown() {
+          this._clearPreStartWait();
           if (S && S.challengeInterval) { clearInterval(S.challengeInterval); S.challengeInterval = null; }
           if (S && S.nextTimer) { clearTimeout(S.nextTimer); S.nextTimer = null; }
           this._clearGraceTimer();
