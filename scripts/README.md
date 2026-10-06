@@ -24,6 +24,20 @@ node scripts/upload-users.js <users.xlsx 또는 users.csv> [서비스계정키.j
 node scripts/upload-users.js ~/Downloads/users.xlsx ~/keys/casino-dealer-training-key.json
 ```
 
+## 파일 업로드가 막힌 PC에서 (엑셀 복사-붙여넣기, 키 파일 불필요)
+
+1. Firebase Studio에서 저장소 루트의 `new-users.txt`를 엽니다(git에 올라가지 않음).
+2. 엑셀에서 **머리글 행까지 포함해** 표를 복사(Ctrl+C)해 그 파일에 붙여넣고 저장합니다. 머리글은 `사번 / 이름 / 부서 / 활성` 또는 영문 `employeeId / name / department / active` 둘 다 됩니다. `활성` 칸이 없으면 전원 활성, `부서` 칸이 없으면 빈 부서로 등록됩니다.
+3. 먼저 미리보기(아무것도 쓰지 않음):
+   ```
+   node scripts/upload-users.js new-users.txt --dry-run
+   ```
+4. 표가 맞으면 실제 업로드:
+   ```
+   node scripts/upload-users.js new-users.txt
+   ```
+키 파일을 넘기지 않으면 Firebase Studio에 로그인된 gcloud 계정으로 씁니다.
+
 ## 엑셀/CSV 컬럼
 
 헤더 행에 아래 4개 컬럼이 (순서 무관) 있어야 합니다 — `scripts/users.sample.csv` 참고:

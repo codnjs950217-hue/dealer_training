@@ -9,3 +9,9 @@ node_modules/
 
 # 학습리포트 추출 결과(개인 학습 기록) — 커밋 금지
 training-report_*
+
+# 사용자 일괄 업로드용 붙여넣기/엑셀 파일(직원 개인정보) — 커밋 금지
+/new-users.txt
+/users*.txt
+/users.xlsx
+/users.csv

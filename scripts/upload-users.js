@@ -8,10 +8,16 @@
 // client-side writes to `users` on purpose — see firestore.rules).
 //
 // Usage:
-//   node scripts/upload-users.js <users.xlsx-or-csv> [service-account-key.json]
+//   node scripts/upload-users.js <users.xlsx | .csv | .txt> [service-account-key.json] [--dry-run]
 //
 // If the key path is omitted, GOOGLE_APPLICATION_CREDENTIALS is used
-// instead. Get a key from: Firebase Console > Project Settings >
+// instead; if that isn't set either, the signed-in gcloud account writes via
+// Firestore's REST API (IAM-authenticated, so firestore.rules don't apply —
+// same as the Admin SDK). Added 2026-10-06 because the admin's company PC
+// can't upload files (neither the key nor the sheet) into Firebase Studio:
+// they now paste the Excel cells into a new .txt file in the Studio editor
+// (tab-separated — read as such), and Korean headers 사번/이름/부서/활성 are
+// accepted as aliases. --dry-run prints what would be written and stops. Get a key from: Firebase Console > Project Settings >
 // Service Accounts > Generate new private key. Never commit that file —
 // see .gitignore.
 //
@@ -20,12 +26,29 @@
 // replaced wholesale — fields not present in the sheet are left alone.
 
 const fs = require('fs');
+const { execSync } = require('child_process');
 const path = require('path');
 const XLSX = require('xlsx');
 const admin = require('firebase-admin');
 
 const REQUIRED_COLUMNS = ['employeeId', 'name', 'department', 'active'];
 const FIRESTORE_BATCH_LIMIT = 500;
+
+const PROJECT_ID = 'casino-dealer-training';
+
+// 한국어 머리글 → 스크립트가 쓰는 영문 컬럼명. 공백/대소문자 무시.
+const HEADER_ALIASES = {
+  '사번': 'employeeId', '직원번호': 'employeeId', 'employeeid': 'employeeId', 'id': 'employeeId',
+  '이름': 'name', '성명': 'name', 'name': 'name',
+  '부서': 'department', '소속': 'department', 'department': 'department', 'dept': 'department',
+  '활성': 'active', '사용': 'active', '사용여부': 'active', '활성여부': 'active', 'active': 'active',
+};
+function normalizeHeaders(rows) {
+  return rows.map(row => Object.fromEntries(Object.entries(row).map(([k, v]) => {
+    const key = String(k).trim();
+    return [HEADER_ALIASES[key.replace(/\s+/g, '').toLowerCase()] || key, v];
+  })));
+}
 
 function fail(msg) {
   console.error(`오류: ${msg}`);
@@ -109,27 +132,75 @@ async function uploadToFirestore(db, rows) {
   console.log('업로드 완료.');
 }
 
+// Excel에서 복사해 붙여넣은 텍스트(.txt/.tsv)는 탭 구분으로 읽는다.
+// raw:true — 사번을 숫자로 바꾸지 않아 앞자리 0이 유지된다.
+function readRows(inputPath) {
+  const ext = path.extname(inputPath).toLowerCase();
+  let workbook;
+  if (ext === '.txt' || ext === '.tsv') {
+    const text = fs.readFileSync(inputPath, 'utf8').replace(/^\uFEFF/, '');
+    workbook = XLSX.read(text, { type: 'string', FS: text.includes('\t') ? '\t' : ',', raw: true });
+  } else {
+    workbook = XLSX.readFile(inputPath);
+  }
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  let rows = normalizeHeaders(XLSX.utils.sheet_to_json(sheet, { defval: '' }));
+  // active 칸이 아예 없으면 전원 활성으로 본다(신규 등록의 흔한 경우).
+  if (rows.length && !('active' in rows[0])) {
+    console.warn('알림: active(활성) 컬럼이 없어 전원 활성(TRUE)으로 등록합니다.');
+    rows = rows.map(r => ({ ...r, active: true }));
+  }
+  // department 칸이 없어도 빈 부서로 등록(나중에 다시 올려서 채울 수 있음).
+  if (rows.length && !('department' in rows[0])) rows = rows.map(r => ({ ...r, department: '' }));
+  return rows;
+}
+
+// 키 파일 없을 때 — gcloud 로그인 토큰으로 REST :commit (500건씩). updateMask로
+// name/department/active만 덮어써서 Admin SDK의 set(..., {merge:true})와 같다.
+async function uploadWithGcloud(rows) {
+  let token;
+  try {
+    token = execSync('gcloud auth print-access-token', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  } catch (e) {
+    fail('서비스 계정 키도 없고 gcloud 로그인도 되어 있지 않습니다. 키 경로를 넘기거나 `gcloud auth login` 후 다시 실행하세요.');
+  }
+  const base = `projects/${PROJECT_ID}/databases/(default)/documents`;
+  console.log(`${rows.length}명의 사용자를 users/{employeeId}에 upsert합니다...`);
+  let done = 0;
+  for (let i = 0; i < rows.length; i += FIRESTORE_BATCH_LIMIT) {
+    const chunk = rows.slice(i, i + FIRESTORE_BATCH_LIMIT);
+    const res = await fetch(`https://firestore.googleapis.com/v1/${base}:commit`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ writes: chunk.map(r => ({
+        update: {
+          name: `${base}/users/${r.employeeId}`,
+          fields: { name: { stringValue: r.name }, department: { stringValue: r.department }, active: { booleanValue: r.active } },
+        },
+        updateMask: { fieldPaths: ['name', 'department', 'active'] },
+      })) }),
+    });
+    if (!res.ok) fail(`업로드 실패 (${res.status}): ${(await res.text()).slice(0, 300)}`);
+    done += chunk.length;
+    console.log(`  ${done} / ${rows.length} 완료`);
+  }
+  console.log('업로드 완료.');
+}
+
 async function main() {
-  const [, , inputPathArg, keyPathArg] = process.argv;
+  const args = process.argv.slice(2);
+  const dryRun = args.includes('--dry-run');
+  const [inputPathArg, keyPathArg] = args.filter(a => a !== '--dry-run');
   if (!inputPathArg) {
-    fail('사용법: node scripts/upload-users.js <users.xlsx 또는 users.csv> [service-account-key.json]');
+    fail('사용법: node scripts/upload-users.js <users.xlsx | .csv | .txt> [service-account-key.json] [--dry-run]');
   }
   const inputPath = path.resolve(inputPathArg);
   if (!fs.existsSync(inputPath)) fail(`파일을 찾을 수 없습니다: ${inputPath}`);
 
   const keyPath = keyPathArg ? path.resolve(keyPathArg) : process.env.GOOGLE_APPLICATION_CREDENTIALS;
-  if (!keyPath || !fs.existsSync(keyPath)) {
-    fail(
-      'Firebase 서비스 계정 키(JSON)를 찾을 수 없습니다.\n' +
-      '  두 번째 인자로 경로를 넘기거나 GOOGLE_APPLICATION_CREDENTIALS 환경변수를 설정하세요.\n' +
-      '  (Firebase 콘솔 > 프로젝트 설정 > 서비스 계정 > 새 비공개 키 생성)'
-    );
-  }
+  if (keyPathArg && !fs.existsSync(keyPath)) fail(`서비스 계정 키 파일을 찾을 수 없습니다: ${keyPath}`);
 
-  const workbook = XLSX.readFile(inputPath);
-  const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-
+  const rows = readRows(inputPath);
   const { parsed, errors } = parseRows(rows);
   if (errors.length) {
     console.error(`\n${errors.length}개 행에서 오류가 발견되어 업로드를 중단합니다:`);
@@ -139,11 +210,19 @@ async function main() {
 
   const finalRows = dedupeByEmployeeId(parsed);
 
-  const serviceAccount = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
-  admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-  const db = admin.firestore();
+  if (dryRun) {
+    console.log(`[미리보기] ${finalRows.length}명 — 실제로 쓰지 않았습니다.`);
+    console.table(finalRows.map(r => ({ 사번: r.employeeId, 이름: r.name, 부서: r.department || '(빈칸)', 활성: r.active })));
+    return;
+  }
 
-  await uploadToFirestore(db, finalRows);
+  if (keyPath && fs.existsSync(keyPath)) {
+    const serviceAccount = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
+    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+    await uploadToFirestore(admin.firestore(), finalRows);
+  } else {
+    await uploadWithGcloud(finalRows);
+  }
 }
 
 if (require.main === module) {
@@ -153,4 +232,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { parseRows, normalizeEmployeeId, normalizeActive, dedupeByEmployeeId };
+module.exports = { parseRows, normalizeEmployeeId, normalizeActive, dedupeByEmployeeId, normalizeHeaders, readRows };
