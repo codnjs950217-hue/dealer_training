@@ -190,7 +190,17 @@ function showComingSoonToast(msg) {
 // + flush 직전에 찍으므로, 리셋 직전 값을 놓칠 일이 사실상 없다.
 //
 // 2026-10-06: 학습리포트용으로 mistakes/sessionCount/lastAt/department
-// 추가. sessionCount는 flush 1번 = 1(그날 그 게임에 들어온 횟수).
+// 추가. sessionCount는 세션 1개 = 1(그날 그 게임에 들어온 횟수) — 세션의
+// 첫 쓰기에서만 1을 더한다.
+//
+// 중간 저장(2026-10-06): 딜러가 트레이닝 중에 홈으로 안 나가고 그대로
+// 근무를 가는 경우가 많아, 화면을 떠날 때만 쓰면 그 세션이 통째로
+// 사라진다. 그래서 세션을 끝내지 않고 "지난 저장 이후 늘어난 만큼"을
+// 1) 1분마다(활동이 있었을 때만) 2) 탭이 숨겨질 때(화면 꺼짐/앱 전환/
+// 탭 닫기) 3) 화면을 떠날 때 저장한다(_checkpoint). 문서가 increment
+// 누적이라 여러 번 나눠 써도 합계는 같다. 분 단위 반올림 오차가 쌓이지
+// 않도록, 반올림해서 쓴 만큼만 activeMs에서 빼고 나머지(±30초)는 다음
+// 저장으로 넘긴다.
 //
 // playMinutes: 단순 경과 시간이 아니라 "실제 활동 시간"만 누적한다.
 // 10초마다 틱을 돌려, 그 순간 1) 추적 중인 화면이 열려 있고 2) 탭이
@@ -202,8 +212,12 @@ function showComingSoonToast(msg) {
 const TrainingLog = {
   _ACTIVE_TICK_MS: 10_000,
   _IDLE_LIMIT_MS: 3 * 60 * 1000,
+  _CHECKPOINT_MS: 60_000,
 
-  _current: null,       // { label, mod, activeMs, rounds, mistakes, lastR, lastM }
+  // activeMs/rounds/mistakes = 아직 저장 안 된 몫, lastR/lastM = 마지막
+  // 샘플 값, written = 이 세션이 한 번이라도 저장됐는지(sessionCount용)
+  _current: null,       // { label, mod, activeMs, rounds, mistakes, lastR, lastM, written }
+  _lastCheckpointAt: 0,
   _lastActivityAt: 0,
   _tickTimer: null,
   _listenersArmed: false,
@@ -231,7 +245,7 @@ const TrainingLog = {
   // 세션을 끝맺고 새 세션을 시작한다.
   _onNavigate(prevGame, prevMode, nextGame, nextMode) {
     if (prevGame === nextGame && prevMode === nextMode) return;
-    this._flush();
+    this._checkpoint(true);
     this._start(nextGame, nextMode);
   },
 
@@ -241,34 +255,42 @@ const TrainingLog = {
     // 0부터 다시 시작한다(같은 화면 ↺ 재시작은 _onNavigate가 세션을 안
     // 끊으므로 여기까지 오지 않음).
     this._current = route
-      ? { label: route.label, mod: route.mod, activeMs: 0, rounds: 0, mistakes: 0, lastR: 0, lastM: 0 }
+      ? { label: route.label, mod: route.mod, activeMs: 0, rounds: 0, mistakes: 0, lastR: 0, lastM: 0, written: false }
       : null;
     this._lastActivityAt = Date.now();
+    this._lastCheckpointAt = Date.now();
     this._armListeners();
     this._armTicker();
   },
 
+  // 지난 저장 이후 늘어난 만큼을 저장한다. end=true면 세션도 끝낸다.
   // 호출부(로그아웃)가 reload 전에 잠깐 기다려줄 수 있도록 Promise를
-  // 반환한다 — 일반 navigate() 경로는 fire-and-forget으로 그냥 두고
-  // 신경 쓰지 않는다(그쪽은 페이지가 안 사라지니 끝까지 완료됨).
-  _flush() {
-    if (!this._current) return Promise.resolve();
+  // 반환한다 — 나머지 경로는 fire-and-forget으로 그냥 둔다.
+  _checkpoint(end) {
+    const cur = this._current;
+    if (!cur) return Promise.resolve();
     this._sample();
-    const { label, activeMs, rounds: playCount, mistakes } = this._current;
-    this._current = null;
-    const playMinutes = Math.round(activeMs / 60000);
-    // 활동도 없고 완료한 문제도 없으면(화면만 잠깐 열었다 바로 나간
-    // 경우) 빈 로그를 남기지 않는다 — 분석에 노이즈만 될 뿐이다.
-    if (playMinutes <= 0 && playCount <= 0) return Promise.resolve();
+    this._lastCheckpointAt = Date.now();
+    if (end) this._current = null;
+    const playMinutes = Math.round(cur.activeMs / 60000);
+    const { rounds: playCount, mistakes } = cur;
+    // 늘어난 게 없으면(화면만 잠깐 열었다 나간 경우 포함) 쓰지 않는다 —
+    // 빈 로그는 분석에 노이즈만 되고, 쓰기 횟수만 늘린다.
+    if (playMinutes <= 0 && playCount <= 0 && mistakes <= 0) return Promise.resolve();
     if (!Auth.session || !window.DealerAuth) return Promise.resolve();
+    const sessionCount = cur.written ? 0 : 1;
+    cur.written = true;
+    cur.activeMs -= playMinutes * 60000;
+    cur.rounds = 0;
+    cur.mistakes = 0;
     const { employeeId, name, department } = Auth.session;
-    return window.DealerAuth.logTrainingSession({ employeeId, name, department: department || '', game: label, playMinutes, playCount, mistakes })
+    return window.DealerAuth.logTrainingSession({ employeeId, name, department: department || '', game: cur.label, playMinutes, playCount, mistakes, sessionCount })
       .catch(e => console.error('[TrainingLog] 기록 실패:', e));
   },
 
   // Auth.logout()이 reload() 하기 직전에 호출 — App.navigate()를 타지
   // 않는 유일한 이탈 경로라 별도로 열어둔다.
-  flushNow() { return this._flush(); },
+  flushNow() { return this._checkpoint(true); },
 
   // 현재 카운터를 읽어 직전 샘플 대비 증가분만 누적한다(위 헤더 주석).
   _sample() {
@@ -293,6 +315,7 @@ const TrainingLog = {
       const idle = Date.now() - this._lastActivityAt > this._IDLE_LIMIT_MS;
       const hidden = document.visibilityState !== 'visible';
       if (!idle && !hidden) this._current.activeMs += this._ACTIVE_TICK_MS;
+      if (Date.now() - this._lastCheckpointAt >= this._CHECKPOINT_MS) this._checkpoint(false);
     }, this._ACTIVE_TICK_MS);
   },
 
@@ -311,8 +334,11 @@ const TrainingLog = {
     });
     // 탭으로 돌아온 순간도 "활동"으로 쳐서, 복귀 직후 클릭/키입력이
     // 없어도 다음 틱부터 바로 재개되게 한다.
+    // 숨겨지는 순간(화면 꺼짐/앱 전환/탭 닫기)엔 바로 중간 저장 — 그
+    // 뒤로 페이지가 얼어붙거나 종료되면 다음 1분 틱이 안 올 수 있다.
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') mark();
+      else this._checkpoint(false);
     });
   },
 };

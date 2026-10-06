@@ -313,7 +313,9 @@ async function fetchBattleRoom(code) {
 // 아무것도 반영하지 않으므로 예전 필드만으로 한 번 더 써서 최소한
 // playMinutes/playCount는 잃지 않게 한다. 규칙이 배포되고 나면 이 폴백은
 // 타지 않는다.
-async function logTrainingSession({ employeeId, name, department, game, playMinutes, playCount, mistakes }) {
+// 같은 세션이 1분마다/화면이 숨겨질 때 여러 번 나눠 호출한다(main.js
+// TrainingLog._checkpoint) — sessionCount는 그 세션의 첫 호출만 1.
+async function logTrainingSession({ employeeId, name, department, game, playMinutes, playCount, mistakes, sessionCount }) {
   if (initError) throw new Error('Firebase 초기화 실패: ' + initError.message);
   const now = new Date();
   const date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -327,7 +329,7 @@ async function logTrainingSession({ employeeId, name, department, game, playMinu
     await setDoc(ref, {
       ...base, department,
       mistakes: increment(mistakes),
-      sessionCount: increment(1),
+      sessionCount: increment(sessionCount),
       lastAt: now.getTime(),
     }, { merge: true });
   } catch (e) {
