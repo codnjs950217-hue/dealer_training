@@ -67,8 +67,11 @@ function formatKST(ms) {
 // One trainingDaily doc is already one row (date+employeeId); the map
 // keeps that keyed in case a range ever returns the same key twice.
 // Totals are recomputed from the per-game columns so they always match.
-// `users` maps employeeId -> users/{id} data, used to fill department for
-// docs written before department was recorded.
+// `users` maps employeeId -> users/{id} data. Department comes from there
+// first (the CURRENT department), falling back to the value stamped on the
+// daily doc — so re-labelling someone in `users` (e.g. 2026-10-29: admins
+// moved Casino Ops -> Management so they can be filtered out) also
+// re-labels their past rows.
 function buildRows(dailyDocs, users) {
   const byKey = new Map();
   for (const d of dailyDocs) {
@@ -88,7 +91,8 @@ function buildRows(dailyDocs, users) {
 
   const rows = [...byKey.values()];
   for (const row of rows) {
-    if (!row.department && users[row.employeeId]) row.department = users[row.employeeId].department || '';
+    const current = users[row.employeeId] && users[row.employeeId].department;
+    if (current) row.department = current;
     for (const s of STATS) row['total' + s] = GAMES.reduce((sum, g) => sum + row[g + s], 0);
     row.lastAt = formatKST(row._lastAtMs);
   }
