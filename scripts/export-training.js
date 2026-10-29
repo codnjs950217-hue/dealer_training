@@ -103,10 +103,42 @@ function buildRows(dailyDocs, users) {
   return rows.map(r => COLUMNS.map(c => r[c]));
 }
 
+// 순위 시트(2026-10-29): 기간 전체를 사람별로 합쳐 총 트레이닝 시간
+// 내림차순(같으면 푼 문제 수). 관리자/테스트 계정(department
+// 'Management')은 뺀다. 같은 시간·문제 수면 같은 순위.
+const EXCLUDED_DEPARTMENTS = ['Management'];
+const RANKING_HEADER = ['순위', '사번', '이름', '부서', '총 시간(분)', '연습한 날', '푼 문제', '실수',
+  '바카라(분)', '블랙잭(분)', '룰렛(분)', '포커(분)'];
+function buildRanking(table) {
+  const col = name => COLUMNS.indexOf(name);
+  const byId = new Map();
+  for (const r of table) {
+    if (EXCLUDED_DEPARTMENTS.includes(r[col('department')])) continue;
+    const id = r[col('employeeId')];
+    if (!byId.has(id)) byId.set(id, { id, name: r[col('name')], dept: r[col('department')], min: 0, days: 0, cnt: 0, mis: 0, games: GAMES.map(() => 0) });
+    const p = byId.get(id);
+    p.min += r[col('totalMinutes')]; p.cnt += r[col('totalCount')]; p.mis += r[col('totalMistakes')]; p.days++;
+    GAMES.forEach((g, i) => { p.games[i] += r[col(g + 'Minutes')]; });
+  }
+  const people = [...byId.values()].sort((a, b) => b.min - a.min || b.cnt - a.cnt);
+  return people.map((p, i) => {
+    const prev = people[i - 1];
+    const rank = prev && prev.min === p.min && prev.cnt === p.cnt ? null : i + 1;
+    return { rank, p };
+  }).reduce((out, { rank, p }) => {
+    const shown = rank ?? out[out.length - 1][0];
+    out.push([shown, p.id, p.name, p.dept, p.min, p.days, p.cnt, p.mis, ...p.games]);
+    return out;
+  }, []);
+}
+
 function writeOutputs(table, baseName) {
   const sheet = XLSX.utils.aoa_to_sheet([COLUMNS, ...table]);
   sheet['!cols'] = COLUMNS.map(c => ({ wch: Math.max(c.length + 2, c === 'lastAt' ? 17 : 10) }));
   const book = XLSX.utils.book_new();
+  const ranking = XLSX.utils.aoa_to_sheet([RANKING_HEADER, ...buildRanking(table)]);
+  ranking['!cols'] = RANKING_HEADER.map(h => ({ wch: Math.max(h.length * 2 + 2, 8) }));
+  XLSX.utils.book_append_sheet(book, ranking, '순위');
   XLSX.utils.book_append_sheet(book, sheet, 'Daily');
   XLSX.writeFile(book, `${baseName}.xlsx`);
   fs.writeFileSync(`${baseName}.csv`, '﻿' + XLSX.utils.sheet_to_csv(sheet));
@@ -208,4 +240,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { buildRows, writeOutputs, formatKST, COLUMNS };
+module.exports = { buildRows, buildRanking, writeOutputs, formatKST, COLUMNS };
