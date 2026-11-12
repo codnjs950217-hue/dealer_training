@@ -2457,7 +2457,10 @@ const Sims = {
 
         for (let i = 0; i < N; i++) {
           const p = S.players[i];
-          p.hand.push(S.deck.pop(), S.deck.pop());
+          // Same as newGame(): the second card never makes a natural
+          // Blackjack, so a 2-card 21 can't meet a 3+-card dealer 21.
+          p.hand.push(S.deck.pop());
+          p.hand.push(nonBJCard(p.hand[0]));
           while (total(p.hand) < 17) {
             p.hand.push(safeHit(p.hand));
           }
