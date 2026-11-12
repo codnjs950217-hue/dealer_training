@@ -2019,6 +2019,9 @@ const Sims = {
       if (idx >= 0) { const [c] = S.deck.splice(idx, 1); return c; }
       return S.deck.pop();
     }
+    // NOTE: dealerDraw() now also blocks the dealer's second card from
+    // making 21 (nonBJCard()), so Dealer Blackjack no longer happens at all;
+    // the 10-upcard throttle below is kept only for upcard variety.
     // Dealer's first (showing) card should never be an ace. A 10-value
     // upcard (10/J/Q/K) is the only other precondition for a natural
     // two-card Dealer Blackjack once the trainee draws again (ace excluded
@@ -2523,7 +2526,10 @@ const Sims = {
           return;
         }
         clearDealerCtrl();
-        const newCard = safeHit(S.dh);
+        // Dealer's second card never completes a natural Blackjack (same
+        // rule as the players' nonBJCard()), so a 2-card dealer 21 can't
+        // meet a 3+-card player 21 and get judged as a Push.
+        const newCard = S.dh.length === 1 ? nonBJCard(S.dh[0]) : safeHit(S.dh);
         S.dh.push(newCard);
         const el = $('bj-dealer-hand');
         const id = ++bjFlipId;
