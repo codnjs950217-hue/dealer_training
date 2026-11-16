@@ -1554,7 +1554,7 @@ function evalPokerHand(hand) {
   const isFlush = hand.every(c => c.suit === hand[0].suit);
   let isStraight = vals[0] - vals[4] === 4 && new Set(vals).size === 5;
   let sHigh = vals[0];
-  if (!isStraight && vals[0] === 14 && vals[1] === 5 && vals[4] === 2) { isStraight = true; sHigh = 5; }
+  if (!isStraight && vals[0] === 14 && vals[1] === 5 && vals[4] === 2 && new Set(vals).size === 5) { isStraight = true; sHigh = 5; }
   const freq = {};
   vals.forEach(v => freq[v] = (freq[v] || 0) + 1);
   const grp = Object.entries(freq).map(([v, c]) => [+v, c]).sort((a, b) => b[1] - a[1] || b[0] - a[0]);
